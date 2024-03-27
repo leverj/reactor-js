@@ -1,0 +1,18 @@
+{
+  "name": "@leverj/p2p",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "license": "UNLICENSED",
+  "scripts": {
+    "test": "NODE_ENV=test yarn test"
+  },
+  "dependencies": {
+    "libp2p": "^1.3.0",
+    "@libp2p/tcp": "^9.0.16",
+    "@chainsafe/libp2p-noise":"^15.0.0",
+    "@libp2p/mplex": "^10.0.16"
+  },
+  "devDependencies": {
+  }
+}

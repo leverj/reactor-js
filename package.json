@@ -1,0 +1,18 @@
+{
+  "name": "reactor",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">= 18.18.0",
+    "yarn": ">= 1.0.2"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "test": "yarn workspaces foreach --since -pR run test"
+  },
+  "devDependencies": {
+    "lerna": "^8.1.2"
+  }
+}
