@@ -1,7 +1,7 @@
 import {createLibp2p} from 'libp2p'
 import {tcp} from '@libp2p/tcp'
 import {noise} from '@chainsafe/libp2p-noise'
-import {mplex} from '@libp2p/mplex'
+import {yamux} from '@chainsafe/libp2p-yamux'
 
 export default class Node {
   constructor() {
@@ -15,7 +15,7 @@ export default class Node {
       },
       transports: [tcp()],
       connectionEncryption: [noise()],
-      streamMuxers: [mplex()]
+      streamMuxers: [yamux()]
     })
     return this
   }

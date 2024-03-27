@@ -63,6 +63,19 @@
     uint8arrays "^5.0.0"
     wherearewe "^2.0.1"
 
+"@chainsafe/libp2p-yamux@^6.0.2":
+  version "6.0.2"
+  resolved "https://registry.yarnpkg.com/@chainsafe/libp2p-yamux/-/libp2p-yamux-6.0.2.tgz#ba94c38ebfe2761d20b0986ff8d832fc05c2ce15"
+  integrity sha512-S5OkLHqYhEVMQQ4BTgnRANEIbGTQhaC23glCgBwGdeoTRtMpIozwDiPfljFLCm0RYWdCRJw9oFztO95KUHjptA==
+  dependencies:
+    "@libp2p/interface" "^1.1.3"
+    "@libp2p/utils" "^5.2.5"
+    get-iterator "^2.0.1"
+    it-foreach "^2.0.6"
+    it-pipe "^3.0.1"
+    it-pushable "^3.2.3"
+    uint8arraylist "^2.4.8"
+
 "@chainsafe/netmask@^2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@chainsafe/netmask/-/netmask-2.0.0.tgz#0d4a75f47919f65011da4327a3845c9661f1038a"
@@ -193,7 +206,7 @@
     "@multiformats/multiaddr" "^12.1.14"
     uint8arraylist "^2.4.8"
 
-"@libp2p/interface@^1.0.0", "@libp2p/interface@^1.1.4":
+"@libp2p/interface@^1.0.0", "@libp2p/interface@^1.1.3", "@libp2p/interface@^1.1.4":
   version "1.1.4"
   resolved "https://registry.yarnpkg.com/@libp2p/interface/-/interface-1.1.4.tgz#21c7bbbe7628419d1e4902f0c953db1423b0f40f"
   integrity sha512-gJXQycTF50tI02X/IlReAav4XoGPs3Yr917vNXsTUsZQRzQaPjbvKfXqA5hkLFpZ1lnxQ8wto/EVw4ca4XaL1A==
@@ -215,20 +228,6 @@
     debug "^4.3.4"
     interface-datastore "^8.2.11"
     multiformats "^13.1.0"
-
-"@libp2p/mplex@^10.0.16":
-  version "10.0.16"
-  resolved "https://registry.yarnpkg.com/@libp2p/mplex/-/mplex-10.0.16.tgz#0c4b96ffbcdd02f6c655232ce8618b47a6df061f"
-  integrity sha512-F5H322kVCkPoM0FKalmyo5HwVQ/c5vKNpw2uLLyr26bqy7/GQMNkKvs88Rv7O2s2OHe7txC9Uwo9mapF/j4LlQ==
-  dependencies:
-    "@libp2p/interface" "^1.1.4"
-    "@libp2p/utils" "^5.2.6"
-    it-pipe "^3.0.1"
-    it-pushable "^3.2.3"
-    it-stream-types "^2.0.1"
-    uint8-varint "^2.0.4"
-    uint8arraylist "^2.4.8"
-    uint8arrays "^5.0.2"
 
 "@libp2p/multistream-select@^5.1.4":
   version "5.1.4"
@@ -319,7 +318,7 @@
     "@types/sinon" "^17.0.3"
     stream-to-it "^0.2.4"
 
-"@libp2p/utils@^5.2.6":
+"@libp2p/utils@^5.2.5", "@libp2p/utils@^5.2.6":
   version "5.2.6"
   resolved "https://registry.yarnpkg.com/@libp2p/utils/-/utils-5.2.6.tgz#9cbc5a9276d3599bd8ecc76dc5de79611933a00e"
   integrity sha512-2Y2zi2TsyhOl+8TH27YZiEJWfdrKRogTzYRxQUKNTX03izXpUcwGsFLPjK7nR39LzYQrQ8si1Kx2ayA3zk7BKg==
@@ -2433,6 +2432,13 @@ it-filter@^3.0.4:
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/it-filter/-/it-filter-3.0.4.tgz#f8af5919ca7fc72f718edb3e7c0d71581aa149c6"
   integrity sha512-e0sz+st4sudK/zH6GZ/gRTRP8A/ADuJFCYDmRgMbZvR79y5+v4ZXav850bBZk5wL9zXaYZFxS1v/6Qi+Vjwh5g==
+  dependencies:
+    it-peekable "^3.0.0"
+
+it-foreach@^2.0.6:
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/it-foreach/-/it-foreach-2.0.6.tgz#6e753be551168d746236ca214d19961729470eee"
+  integrity sha512-OVosBHJsdXpAyeFlCbe3IGZia+65UykyAznakNsKXK+b99dbhuu/mOnXxTadDEo1GWhKx+WA8RNanKkMf07zQw==
   dependencies:
     it-peekable "^3.0.0"
 
