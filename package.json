@@ -10,7 +10,7 @@
     "packages/*"
   ],
   "scripts": {
-    "test": "yarn workspaces foreach --since -pR run test"
+    "test": "yarn workspaces run test"
   },
   "devDependencies": {
     "lerna": "^8.1.2"
