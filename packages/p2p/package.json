@@ -14,5 +14,7 @@
     "@chainsafe/libp2p-yamux": "^6.0.2"
   },
   "devDependencies": {
+    "expect": "^29.7.0",
+    "mocha": "^10.3.0"
   }
 }

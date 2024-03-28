@@ -4,14 +4,15 @@ import {noise} from '@chainsafe/libp2p-noise'
 import {yamux} from '@chainsafe/libp2p-yamux'
 
 export default class Node {
-  constructor() {
+  constructor(port) {
+    this.port = port
   }
 
   async create() {
     this.node = await createLibp2p({
       addresses: {
         // add a listen address (localhost) to accept TCP connections on a random port
-        listen: ['/ip4/127.0.0.1/tcp/0']
+        listen: [`/ip4/127.0.0.1/tcp/${this.port}`]
       },
       transports: [tcp()],
       connectionEncryption: [noise()],
