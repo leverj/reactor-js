@@ -4,7 +4,7 @@ import {noise} from '@chainsafe/libp2p-noise'
 import {yamux} from '@chainsafe/libp2p-yamux'
 import {ping} from '@libp2p/ping'
 import {multiaddr} from 'multiaddr'
-import { gossipsub } from '@chainsafe/libp2p-gossipsub'
+import {gossipsub} from '@chainsafe/libp2p-gossipsub'
 
 
 export default class Node {
@@ -42,9 +42,7 @@ export default class Node {
   }
 
   async ping(address) {
-    const latency = await this.node.services.ping.ping(multiaddr(address))
-    console.log(`${this.node.peerId.string} pinged ${address} in ${latency}ms`)
-    return this
+    return await this.node.services.ping.ping(multiaddr(address))
   }
 
   async stop() {
