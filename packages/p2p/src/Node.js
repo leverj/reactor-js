@@ -45,6 +45,11 @@ export default class Node {
     return await this.node.services.ping.ping(multiaddr(address))
   }
 
+  async connect(address) {
+    await this.node.dial(multiaddr(address))
+    return this
+  }
+
   async stop() {
     await this.node.stop()
     return this

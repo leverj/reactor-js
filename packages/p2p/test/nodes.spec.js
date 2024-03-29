@@ -35,14 +35,10 @@ describe('p2p', function () {
 
   it('spokes should be able to dial the hub, and become peers of the hub', async function () {
     node1 = await new Node(ipv4, 9001, true).create().then(_ => _.start())
-    node2 = await new Node(ipv4, 9002).create().then(_ => _.start())
-    node3 = await new Node(ipv4, 9003).create().then(_ => _.start())
-    node4 = await new Node(ipv4, 9004).create().then(_ => _.start())
-
-    const leaderAddr = await node1.node.getMultiaddrs()[0]
-    await node2.node.dial(leaderAddr)
-    await node3.node.dial(leaderAddr)
-    await node4.node.dial(leaderAddr)
+    const leaderAddr = await node1.multiaddrs[0]
+    node2 = await new Node(ipv4, 9002).create().then(_ => _.start()).then(_ => _.connect(leaderAddr))
+    node3 = await new Node(ipv4, 9003).create().then(_ => _.start()).then(_ => _.connect(leaderAddr))
+    node4 = await new Node(ipv4, 9004).create().then(_ => _.start()).then(_ => _.connect(leaderAddr))
 
     expect(node1.node.getPeers().length).toEqual(3)
     expect(node2.node.getPeers().length).toEqual(1)
