@@ -4,11 +4,15 @@ import {noise} from '@chainsafe/libp2p-noise'
 import {yamux} from '@chainsafe/libp2p-yamux'
 import {ping} from '@libp2p/ping'
 import {multiaddr} from 'multiaddr'
+import { gossipsub } from '@chainsafe/libp2p-gossipsub'
+
 
 export default class Node {
-  constructor(port = 0, ip = '127.0.0.1') {
+  constructor(ip= '127.0.0.1', port = 0, isLeader = false) {
     this.ip = ip
     this.port = port
+    this.isLeader = isLeader
+    this.msgMap = {}
   }
 
   async create() {
@@ -20,19 +24,16 @@ export default class Node {
       transports: [tcp()],
       connectionEncryption: [noise()],
       streamMuxers: [yamux()],
-      services: {ping: ping({protocolPrefix: 'ipfs'}),},
+      services: {
+        ping: ping({protocolPrefix: 'ipfs'}),
+        pubsub: gossipsub({emitSelf: true}),
+      },
     })
     return this
   }
 
   async start() {
     await this.node.start()
-    console.log('libp2p has started')
-
-    console.log('listening on addresses:')
-    this.node.getMultiaddrs().forEach((addr) => {
-      console.log(addr.toString())
-    })
     return this
   }
 
@@ -48,7 +49,6 @@ export default class Node {
 
   async stop() {
     await this.node.stop()
-    console.log('libp2p has stopped')
     return this
   }
 }
