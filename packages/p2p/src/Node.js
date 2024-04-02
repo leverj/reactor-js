@@ -12,7 +12,6 @@ export default class Node {
     this.ip = ip
     this.port = port
     this.isLeader = isLeader
-    this.msgMap = {}
   }
 
   get multiaddrs() { return this.node.getMultiaddrs().map((addr) => addr.toString()) }
