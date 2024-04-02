@@ -12,7 +12,7 @@ describe('p2p.gossipsub', function () {
     if (node4) await node4.stop()
   })
 
-  it.only('it should send data using gossipsub', async function () {
+  it('it should send data using gossipsub', async function () {
     const depositReceipts = {} // each node will just save the hash and ack. later children will sign and attest point to point
     node1 = await new Node(ipv4, 9001, true).create().then(_ => _.start())
     const leaderAddr = await node1.multiaddrs[0]
