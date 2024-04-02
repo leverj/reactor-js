@@ -1,5 +1,6 @@
 import {expect} from 'expect'
 import Node from '../src/Node.js'
+import {setTimeout} from 'node:timers/promises'
 
 describe('p2p', function () {
   const ipv4 = '127.0.0.1'
@@ -49,6 +50,22 @@ describe('p2p', function () {
     expect(node4.node.getPeers()[0].toString()).toEqual(node1.node.peerId.toString())
 
   })
-  //Broadcast is not working. Ideally when dial the leader/bootstrap, it should transmit the existing peers to the dialer.
 
+  it('should be able to do chat', async function () {
+    node1 = await new Node(ipv4, 9001, true).create().then(_ => _.start())
+    node2 = await new Node(ipv4, 9002, true).create().then(_ => _.start())
+    const stream = node1.createStream(node2.multiaddrs[0], '/chat/1.0.0')
+
+    await node2.addEventListener('peer:connect', (evt) => {
+      const remotePeer = evt.detail
+      console.log('connected to: ', remotePeer.toString())
+    })
+
+    // Handle messages for the protocol
+    await node2.node.handle('/chat/1.0.0', async ({ stream }) => {
+      console.log('#'.repeat(50), new TextDecoder.decode(await stream.source))
+    })
+    stream.sink = new TextEncoder().encode('hello')
+    await setTimeout(1000)
+  })
 })

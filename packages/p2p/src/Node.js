@@ -47,8 +47,10 @@ export default class Node {
     await this.node.services.pubsub.connect(peerId)
   }
 
+  async addEventListener(event, handler) { this.node.addEventListener(event, handler) }
   async publish(topic, data) { await this.node.services.pubsub.publish(topic, new TextEncoder().encode(data)) }
 
+  createStream(peerId, protocol) { return this.node.dialProtocol(multiaddr(peerId), protocol) }
   async stop() {
     await this.node.stop()
     return this
