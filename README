@@ -1,0 +1,15 @@
+- cross network pubsub
+- point to point local
+- point to point local cross network
+- ping
+
+for future
+// const handler = ({ connection, stream, protocol }) => {
+//    console.log('#####################################################handle')
+// }
+
+// node.node.handle('/meshsub/1.1.0', handler, {
+//   maxInboundStreams: 5,
+//   maxOutboundStreams: 5
+// })
+

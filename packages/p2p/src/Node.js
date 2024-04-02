@@ -8,26 +8,24 @@ import {gossipsub} from '@chainsafe/libp2p-gossipsub'
 
 
 export default class Node {
-  constructor(ip= '127.0.0.1', port = 0, isLeader = false) {
+  constructor(ip = '127.0.0.1', port = 0, isLeader = false) {
     this.ip = ip
     this.port = port
     this.isLeader = isLeader
     this.msgMap = {}
   }
 
+  get multiaddrs() { return this.node.getMultiaddrs().map((addr) => addr.toString()) }
+  get peerId() { return this.node.peerId.toString() }
+  get peers() { return this.node.getPeers().map((peer) => peer.toString()) }
+
   async create() {
     this.node = await createLibp2p({
-      addresses: {
-        // add a listen address (localhost) to accept TCP connections on a random port
-        listen: [`/ip4/${this.ip}/tcp/${this.port}`],
-      },
+      addresses: {listen: [`/ip4/${this.ip}/tcp/${this.port}`],},
       transports: [tcp()],
       connectionEncryption: [noise()],
       streamMuxers: [yamux()],
-      services: {
-        ping: ping({protocolPrefix: 'ipfs'}),
-        pubsub: gossipsub({emitSelf: true}),
-      },
+      services: {ping: ping({protocolPrefix: 'ipfs'}), pubsub: gossipsub({emitSelf: true}),},
     })
     return this
   }
@@ -37,18 +35,20 @@ export default class Node {
     return this
   }
 
-  get multiaddrs() {
-    return this.node.getMultiaddrs().map((addr) => addr.toString())
-  }
-
-  async ping(address) {
-    return await this.node.services.ping.ping(multiaddr(address))
-  }
+  async ping(address) { return await this.node.services.ping.ping(multiaddr(address)) }
 
   async connect(address) {
     await this.node.dial(multiaddr(address))
     return this
   }
+
+  async subscribe(peerId, topic, handler) {
+    this.node.services.pubsub.addEventListener('message', handler)
+    await this.node.services.pubsub.subscribe(topic)
+    await this.node.services.pubsub.connect(peerId)
+  }
+
+  async publish(topic, data) { await this.node.services.pubsub.publish(topic, new TextEncoder().encode(data)) }
 
   async stop() {
     await this.node.stop()
