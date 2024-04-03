@@ -1,10 +1,9 @@
 import {expect} from 'expect'
 import Node from '../src/Node.js'
 import {setTimeout} from 'node:timers/promises'
-import { pipe } from 'it-pipe'
 import map from 'it-map'
-import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
-import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
+import {fromString as uint8ArrayFromString} from 'uint8arrays/from-string'
+import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
 
 describe('p2p', function () {
   const ipv4 = '127.0.0.1'
@@ -68,38 +67,28 @@ describe('p2p', function () {
     })
 
     // Handle messages for the protocol
-    await node2.node.handle('/chat/1.0.0', async ({ stream }) => {
+    await node2.node.handle('/chat/1.0.0', async ({stream}) => {
       console.log('#'.repeat(50), new TextDecoder.decode(await stream.source))
     })
     stream.sink = new TextEncoder().encode('hello')
     await setTimeout(1000)
   })
-  it.only('it should send data across stream from node1 to node2', async function () {
+  it('it should send data across stream from node1 to node2', async function () {
     const attestMessage = 'Verified Deposit Hash 12334567'
     let messageRecd = ''
     node1 = await new Node(ipv4, 9001, true).create().then(_ => _.start())
     const leaderAddr = await node1.multiaddrs[0]
     node2 = await new Node(ipv4, 9002).create().then(_ => _.start()).then(_ => _.connect(leaderAddr))
-    await node2.node.handle(meshProtocol, async ({ stream }) => {
-      pipe(
-        stream.source,
-        (source) => map(source, (buf) => uint8ArrayToString(buf.subarray())),
-        async function (source) {
-          for await (const msg of source) {
-            console.log(msg.toString())
-            messageRecd = msg.toString()
-          }
-        }
-      )
+    await node2.node.handle(meshProtocol, async ({stream}) => {
+      const messages = map(stream.source, (buf) => uint8ArrayToString(buf.subarray()))
+      for await (const msg of messages) {
+        console.log(msg.toString())
+        messageRecd = msg.toString()
+      }
     })
     const stream = await node1.node.dialProtocol(node2.node.getMultiaddrs()[0], meshProtocol)
-    const stringArr = [attestMessage]
-    pipe(
-      stringArr,
-      (source) => map(source, (string) => uint8ArrayFromString(string)),
-      stream.sink
-    )
-    await setTimeout(1000);
+    await stream.sink([uint8ArrayFromString(attestMessage)])
+    await setTimeout(100)
     expect(attestMessage).toEqual(messageRecd)
     await stream.close()
   })

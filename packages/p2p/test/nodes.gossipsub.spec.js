@@ -20,7 +20,8 @@ describe('p2p.gossipsub', function () {
     node3 = await new Node(ipv4, 9003).create().then(_ => _.start()).then(_ => _.connect(leaderAddr))
     node4 = await new Node(ipv4, 9004).create().then(_ => _.start()).then(_ => _.connect(leaderAddr))
     for (const node of [node2, node3, node4]) {
-      await node.subscribe(node1.peerId, 'DepositHash', (message) => depositReceipts[node.peerId] = new TextDecoder().decode(message.detail.data))
+      await node.connectPubSub(node1.peerId, (message) => depositReceipts[node.peerId] = new TextDecoder().decode(message.detail.data))
+      await node.subscribe('DepositHash')
     }
     await setTimeout(100)
     let depositHash = '0xbef807c488b8a3db6834ee242ff888e9ebb5961deb9323c8da97853b43755aab'
