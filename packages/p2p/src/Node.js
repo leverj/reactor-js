@@ -6,15 +6,17 @@ import {ping} from '@libp2p/ping'
 import {multiaddr} from 'multiaddr'
 import {gossipsub} from '@chainsafe/libp2p-gossipsub'
 import {fromString as uint8ArrayFromString} from 'uint8arrays/from-string'
-import map from 'it-map'
 import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
-
+import map from 'it-map'
+import {createFromJSON} from '@libp2p/peer-id-factory'
 
 export default class Node {
-  constructor(ip = '127.0.0.1', port = 0, isLeader = false) {
+  constructor({ip = '127.0.0.1', port = 0, isLeader = false, peerIdJson}) {
+    this.peerIdJson = peerIdJson
     this.ip = ip
     this.port = port
     this.isLeader = isLeader
+    this.streams = {}
   }
 
   get multiaddrs() { return this.node.getMultiaddrs().map((addr) => addr.toString()) }
@@ -23,8 +25,16 @@ export default class Node {
 
   get peers() { return this.node.getPeers().map((peer) => peer.toString()) }
 
+  exportPeerId() { return {
+    privKey: uint8ArrayToString(this.node.peerId.privateKey, 'base64'),
+    pubKey: uint8ArrayToString(this.node.peerId.publicKey, 'base64'),
+    id: this.peerId
+  }}
+
   async create() {
+    const peerId = this.peerIdJson ? await createFromJSON(this.peerIdJson) : undefined
     this.node = await createLibp2p({
+      peerId,
       addresses: {listen: [`/ip4/${this.ip}/tcp/${this.port}`],},
       transports: [tcp()],
       connectionEncryption: [noise()],
@@ -41,6 +51,7 @@ export default class Node {
 
   async stop() {
     await this.node.stop()
+    for (const stream of Object.values(this.streams)) await stream.close()
     return this
   }
 
@@ -64,19 +75,23 @@ export default class Node {
   async publish(topic, data) { await this.node.services.pubsub.publish(topic, new TextEncoder().encode(data)) }
 
   // p2p connection
-  async createStream(address, protocol) { return this.node.dialProtocol(multiaddr(address), protocol) }
+  async createStream(address, protocol) {
+    let stream = await this.node.dialProtocol(multiaddr(address), protocol)
+    this.streams[protocol] = stream
+    return stream
+  }
 
-  async sendMessage(stream, message) { return stream.sink([uint8ArrayFromString(message)])}
+  async sendMessage(protocol, message) { return this.streams[protocol].sink([uint8ArrayFromString(message)])}
 
   async registerStreamHandler(protocol, handler) {
-    this.node.handle(protocol, async ({stream, connection:{remotePeer}}) => {
+    this.node.handle(protocol, async ({stream, connection: {remotePeer}}) => {
       const messages = map(stream.source, (buf) => uint8ArrayToString(buf.subarray()))
       for await (const msg of messages) {
-        console.log(typeof msg, msg)
         handler(remotePeer.string, msg)
       }
     })
   }
+
   // implement ping pong between nodes to maintain status
   async ping(address) { return await this.node.services.ping.ping(multiaddr(address)) }
 }
