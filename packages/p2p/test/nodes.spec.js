@@ -53,27 +53,42 @@ describe('p2p', function () {
   })
 
   it('it should send data across stream from node1 to node2', async function () {
-    let messageRecd = {}
+    const messageRecd = {}
+    const responses = {}
     node1 = await new Node({port: 9001, isLeader: true}).create().then(_ => _.start())
-    await node1.registerStreamHandler(meshProtocol, (peerId, msg) => messageRecd[peerId] = msg)
+    node1.registerStreamHandler(meshProtocol, async (stream, peerId, msg) => {
+      messageRecd[peerId] = msg
+      node1.sendMessage(stream, `responding ${msg}`)
+    })
+
     const leaderAddr = await node1.multiaddrs[0]
 
-    async function sendMsg(port, message) {
-      const node = await new Node({port}).create().then(_ => _.start()).then(_ => _.connect(leaderAddr))
-      await node.createStream(node1.multiaddrs[0], meshProtocol)
-      await node.sendMessage(meshProtocol, message)
-      return node
-    }
+    const newNode = async (port) => await new Node({port}).create().then(_ => _.start()).then(_ => _.connect(leaderAddr))
+    const sendMsg = async (node, message) => await node.createAndSendMessage(node1.multiaddrs[0], meshProtocol, message, (msg) => { responses[node.peerId] = msg })
 
-    node2 = await sendMsg(9002, 'Verified Deposit Hash 2')
-    node3 = await sendMsg(9003, 'Verified Deposit Hash 3')
-    node4 = await sendMsg(9004, 'Verified Deposit Hash 4')
+    node2 = await newNode(9002)
+    await sendMsg(node2, 'Verified Deposit Hash 2')
+    node3 = await newNode(9003)
+    await sendMsg(node3, 'Verified Deposit Hash 3')
+    node4 = await newNode(9004)
+
+    await sendMsg(node4, 'Verified Deposit Hash 4')
     await setTimeout(100)
-
     expect(messageRecd[node2.peerId]).toEqual('Verified Deposit Hash 2')
     expect(messageRecd[node3.peerId]).toEqual('Verified Deposit Hash 3')
     expect(messageRecd[node4.peerId]).toEqual('Verified Deposit Hash 4')
-    // await stream.close()
+    expect(responses[node2.peerId]).toEqual('responding Verified Deposit Hash 2')
+    expect(responses[node3.peerId]).toEqual('responding Verified Deposit Hash 3')
+    expect(responses[node4.peerId]).toEqual('responding Verified Deposit Hash 4')
+
+    for (const node of [node2, node3, node4]) sendMsg(node, `Verified Deposit Hash ${node.port}`)
+    await setTimeout(100)
+    expect(messageRecd[node2.peerId]).toEqual(`Verified Deposit Hash ${node2.port}`)
+    expect(messageRecd[node3.peerId]).toEqual(`Verified Deposit Hash ${node3.port}`)
+    expect(messageRecd[node4.peerId]).toEqual(`Verified Deposit Hash ${node4.port}`)
+    expect(responses[node2.peerId]).toEqual(`responding Verified Deposit Hash ${node2.port}`)
+    expect(responses[node3.peerId]).toEqual(`responding Verified Deposit Hash ${node3.port}`)
+    expect(responses[node4.peerId]).toEqual(`responding Verified Deposit Hash ${node4.port}`)
   })
 
   it('it should start node with same peerId', async function () {
