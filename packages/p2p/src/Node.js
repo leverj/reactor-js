@@ -15,6 +15,7 @@ export default class Node {
     this.ip = ip
     this.port = port
     this.isLeader = isLeader
+    this.streams = {}
   }
 
   get multiaddrs() { return this.node.getMultiaddrs().map((addr) => addr.toString()) }
@@ -41,6 +42,7 @@ export default class Node {
 
   async stop() {
     await this.node.stop()
+    for (const stream of Object.values(this.streams)) await stream.close()
     return this
   }
 
@@ -64,15 +66,18 @@ export default class Node {
   async publish(topic, data) { await this.node.services.pubsub.publish(topic, new TextEncoder().encode(data)) }
 
   // p2p connection
-  async createStream(address, protocol) { return this.node.dialProtocol(multiaddr(address), protocol) }
+  async createStream(address, protocol) {
+    let stream = await this.node.dialProtocol(multiaddr(address), protocol)
+    this.streams[protocol] = stream
+    return stream
+  }
 
-  async sendMessage(stream, message) { return stream.sink([uint8ArrayFromString(message)])}
+  async sendMessage(protocol, message) { return this.streams[protocol].sink([uint8ArrayFromString(message)])}
 
   async registerStreamHandler(protocol, handler) {
     this.node.handle(protocol, async ({stream, connection:{remotePeer}}) => {
       const messages = map(stream.source, (buf) => uint8ArrayToString(buf.subarray()))
       for await (const msg of messages) {
-        console.log(typeof msg, msg)
         handler(remotePeer.string, msg)
       }
     })
