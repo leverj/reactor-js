@@ -5,6 +5,9 @@ import {yamux} from '@chainsafe/libp2p-yamux'
 import {ping} from '@libp2p/ping'
 import {multiaddr} from 'multiaddr'
 import {gossipsub} from '@chainsafe/libp2p-gossipsub'
+import {fromString as uint8ArrayFromString} from 'uint8arrays/from-string'
+import map from 'it-map'
+import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
 
 
 export default class Node {
@@ -61,10 +64,19 @@ export default class Node {
   async publish(topic, data) { await this.node.services.pubsub.publish(topic, new TextEncoder().encode(data)) }
 
   // p2p connection
-  async addEventListener(event, handler) { this.node.addEventListener(event, handler) }
+  async createStream(address, protocol) { return this.node.dialProtocol(multiaddr(address), protocol) }
 
-  createStream(peerId, protocol) { return this.node.dialProtocol(multiaddr(peerId), protocol) }
+  async sendMessage(stream, message) { return stream.sink([uint8ArrayFromString(message)])}
 
+  async registerStreamHandler(protocol, handler) {
+    this.node.handle(protocol, async ({stream, connection:{remotePeer}}) => {
+      const messages = map(stream.source, (buf) => uint8ArrayToString(buf.subarray()))
+      for await (const msg of messages) {
+        console.log(typeof msg, msg)
+        handler(remotePeer.string, msg)
+      }
+    })
+  }
   // implement ping pong between nodes to maintain status
   async ping(address) { return await this.node.services.ping.ping(multiaddr(address)) }
 }
