@@ -8,6 +8,7 @@ import {gossipsub} from '@chainsafe/libp2p-gossipsub'
 import {fromString as uint8ArrayFromString} from 'uint8arrays/from-string'
 import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
 import map from 'it-map'
+import {pipe} from 'it-pipe'
 import {createFromJSON} from '@libp2p/peer-id-factory'
 
 export default class Node {
@@ -17,6 +18,7 @@ export default class Node {
     this.port = port
     this.isLeader = isLeader
     this.streams = {}
+
   }
 
   get multiaddrs() { return this.node.getMultiaddrs().map((addr) => addr.toString()) }
@@ -25,11 +27,13 @@ export default class Node {
 
   get peers() { return this.node.getPeers().map((peer) => peer.toString()) }
 
-  exportPeerId() { return {
-    privKey: uint8ArrayToString(this.node.peerId.privateKey, 'base64'),
-    pubKey: uint8ArrayToString(this.node.peerId.publicKey, 'base64'),
-    id: this.peerId
-  }}
+  exportPeerId() {
+    return {
+      privKey: uint8ArrayToString(this.node.peerId.privateKey, 'base64'),
+      pubKey: uint8ArrayToString(this.node.peerId.publicKey, 'base64'),
+      id: this.peerId
+    }
+  }
 
   async create() {
     const peerId = this.peerIdJson ? await createFromJSON(this.peerIdJson) : undefined
@@ -41,6 +45,7 @@ export default class Node {
       streamMuxers: [yamux()],
       services: {ping: ping({protocolPrefix: 'ipfs'}), pubsub: gossipsub(),},
     })
+    this.node.addEventListener('peer:connect', this.peerConnected.bind(this))
     return this
   }
 
@@ -60,6 +65,8 @@ export default class Node {
     return this
   }
 
+  peerConnected(evt) { /*console.log('peer connected', evt.detail) */}
+
   // pubsub connection
   async connectPubSub(peerId, handler) {
     this.node.services.pubsub.addEventListener('message', message => {
@@ -75,20 +82,46 @@ export default class Node {
   async publish(topic, data) { await this.node.services.pubsub.publish(topic, new TextEncoder().encode(data)) }
 
   // p2p connection
+  async createAndSendMessage(address, protocol, message, responseHandler) {
+    let stream = await this.createStream(address, protocol)
+    this.sendMessage(stream, message)
+    this.readStream(stream, responseHandler)
+    return stream
+  }
+
   async createStream(address, protocol) {
     let stream = await this.node.dialProtocol(multiaddr(address), protocol)
     this.streams[protocol] = stream
     return stream
   }
 
-  async sendMessage(protocol, message) { return this.streams[protocol].sink([uint8ArrayFromString(message)])}
+  sendMessage(stream, message) {
+    pipe(
+      message,
+      (message) => [uint8ArrayFromString(message)],
+      stream.sink
+    )
+  }
 
-  async registerStreamHandler(protocol, handler) {
-    this.node.handle(protocol, async ({stream, connection: {remotePeer}}) => {
-      const messages = map(stream.source, (buf) => uint8ArrayToString(buf.subarray()))
-      for await (const msg of messages) {
-        handler(remotePeer.string, msg)
+  readStream(stream, handler) {
+    pipe(
+      stream.source,
+      (source) => map(source, (buf) => uint8ArrayToString(buf.subarray())),
+      async (source) => {
+        for await (const msg of source) handler(msg)
       }
+    )
+  }
+
+  registerStreamHandler(protocol, handler) {
+    this.node.handle(protocol, async ({stream, connection: {remotePeer}}) => {
+      pipe(
+        stream.source,
+        (source) => map(source, (buf) => uint8ArrayToString(buf.subarray())),
+        async (source) => {
+          for await (const msg of source) handler(stream, remotePeer.string, msg)
+        }
+      )
     })
   }
 
