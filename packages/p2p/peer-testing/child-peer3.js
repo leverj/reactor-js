@@ -1,4 +1,4 @@
-import { Node } from '../../src/node'
+import { Node } from '../src/Node.js'
 const peerJson  = {
   privKey: 'CAESQFXP6qXikupDds5pFMFpqHMcB3d0O3JZ96Kvu21w8GzZtxZ0sAfRFUUN9L9Jb1tQpkPeg/OJML+hdZtQt7h3ddk',
   pubKey: 'CAESILcWdLAH0RVFDfS/SW9bUKZD3oPziTC/oXWbULe4d3XZ',
