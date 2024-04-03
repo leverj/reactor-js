@@ -46,10 +46,13 @@ export default class Node {
     return this
   }
 
-
   // pubsub connection
   async connectPubSub(peerId, handler) {
-    this.node.services.pubsub.addEventListener('message', handler)
+    this.node.services.pubsub.addEventListener('message', message => {
+      const {from: peerId, topic, data, signature} = message.detail
+      // fixme: signature verification
+      handler({peerId: peerId.toString(), topic, data: new TextDecoder().decode(data)})
+    })
     await this.node.services.pubsub.connect(peerId)
   }
 
@@ -61,7 +64,6 @@ export default class Node {
   async addEventListener(event, handler) { this.node.addEventListener(event, handler) }
 
   createStream(peerId, protocol) { return this.node.dialProtocol(multiaddr(peerId), protocol) }
-
 
   // implement ping pong between nodes to maintain status
   async ping(address) { return await this.node.services.ping.ping(multiaddr(address)) }
