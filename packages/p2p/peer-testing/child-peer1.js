@@ -13,7 +13,7 @@ const node = await new Node({ip: '0.0.0.0', port: 8081, isLeader: true, peerIdJs
 await node.start()
 await node.connect(leaderMuladdr)
 
-await node.connectPubSub(leaderPeerId, (peerId, topic, data) => console.log(peerId, topic, data))
-await node.subscribe('DepositHash')
+await node.connectPubSub(leaderPeerId, ({peerId, topic, data}) => console.log({peerId, topic, data}))
+node.subscribe('DepositHash')
 
-setTimeout(()=> node.createAndSendMessage(leaderPeerId, 'p2p-messages', `Hello from child-peer1.js at ${new Date().toISOString()}`, (msg)=> console.log('received response', msg)), 5000)
+setInterval(()=> node.createAndSendMessage(leaderMuladdr, 'p2pmessages/1.0.0', `Hello from child-peer1.js at ${new Date().toISOString()}`, (msg)=> console.log('received response', msg)), 5000)
