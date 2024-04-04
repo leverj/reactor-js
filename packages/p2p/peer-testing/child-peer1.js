@@ -1,4 +1,5 @@
 import Node from '../src/Node.js'
+import {setTimeout} from 'node:timers/promises'
 
 const peerIdJson = {
   privKey: 'CAESQGOEED1xY75lT0dqKQ1py7iYryEd1OB+l+6Co1XvUYgVV/OuL7KfE2VGxFOxmbkOyjcVdGp3otRdTnKXWvF4OBc',
@@ -14,3 +15,5 @@ await node.connect(leaderMuladdr)
 
 await node.connectPubSub(leaderPeerId, (peerId, topic, data) => console.log(peerId, topic, data))
 await node.subscribe('DepositHash')
+
+setTimeout(()=> node.createAndSendMessage(leaderPeerId, 'p2p-messages', `Hello from child-peer1.js at ${new Date().toISOString()}`, (msg)=> console.log('received response', msg)), 5000)

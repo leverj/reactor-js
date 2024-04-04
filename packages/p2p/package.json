@@ -11,7 +11,6 @@
     "@chainsafe/libp2p-noise":"^15.0.0",
     "@chainsafe/libp2p-yamux": "^6.0.2",
     "@chainsafe/libp2p-gossipsub": "13.0.0",
-    "@libp2p/plaintext": "^1.0.17",
     "@libp2p/ping": "^1.0.13",
     "@libp2p/tcp": "^9.0.16",
     "it-pipe": "^1.0.0",

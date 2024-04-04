@@ -12,4 +12,8 @@ setInterval( _=> node.publish('DepositHash', `love from leader ${Date.now()}`).c
   if(e.message !== 'PublishError.NoPeersSubscribedToTopic') console.log(e)
 }), 1000)
 
+node.registerStreamHandler('p2p-messages', (peerId, data) => {
+  console.log('received p2p-messages', data.toString())
+  node.sendMessage(stream, `responding ${msg} at ${Date.now()}`)
+})
 
