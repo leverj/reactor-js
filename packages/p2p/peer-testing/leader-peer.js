@@ -8,6 +8,8 @@ const peerJson  = {
 // const node = await new Node({ip: '51.159.143.255', port: 8080, isLeader: true, peerJson}).create()
 const node = await new Node({ip: '0.0.0.0', port: 8080, isLeader: true, peerJson}).create()
 await node.start()
-setInterval( _=> node.publish('DepositHash', `love from leader ${Date.now()}`), 1000)
+setInterval( _=> node.publish('DepositHash', `love from leader ${Date.now()}`).catch(e=>{
+  if(e.message !== 'PublishError.NoPeersSubscribedToTopic') console.log(e)
+}), 1000)
 
 

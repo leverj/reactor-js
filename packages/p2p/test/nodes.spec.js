@@ -86,8 +86,27 @@ describe('p2p', function () {
     const exported = node1.exportPeerId()
     const node2 = await newNode({port: 9002, peerIdJson: exported})
     expect(node1.peerId).toEqual(node2.peerId)
-
   })
 
+  it('it should start node with known peerId and should be able to connect', async function () {
+    const peerJson  = {
+      privKey: 'CAESQK0/fGhAG26fRXLTxDyV7LpSreIfOXSJ+krI+BdTbeJq5/UphgwH8/mDsTa9HebrBuDJ6EtxNwnEAjEVyA/OQjU',
+      pubKey: 'CAESIOf1KYYMB/P5g7E2vR3m6wbgyehLcTcJxAIxFcgPzkI1',
+      id: '12D3KooWRRqAo5f41sQmc9BpsfqarZgd7PWUiX14Mz1htXDEc7Gp'
+    }
+    const node1 = await newNode({port: 9002, peerIdJson: peerJson})
+    console.log('node1 addr', node1.multiaddrs[0])
+
+    const peerJson2 = {
+      privKey: 'CAESQGOEED1xY75lT0dqKQ1py7iYryEd1OB+l+6Co1XvUYgVV/OuL7KfE2VGxFOxmbkOyjcVdGp3otRdTnKXWvF4OBc',
+      pubKey: 'CAESIFfzri+ynxNlRsRTsZm5Dso3FXRqd6LUXU5yl1rxeDgX',
+      id: '12D3KooWFjh9hF2Hnj5ctFDxhz2N2zFin3Wc3P9umGWogMycKme6'
+    }
+    const node2 = await newNode({port: 9003, peerIdJson: peerJson2})
+    console.log('node2 addr', node2.multiaddrs[0])
+    expect(node1.node.getPeers().length).toEqual(0)
+    await node2.connect(node1.multiaddrs[0])
+    expect(node1.node.getPeers().length).toEqual(1)
+  })
 
 })
