@@ -5,7 +5,8 @@ const peerJson  = {
   id: '12D3KooWRRqAo5f41sQmc9BpsfqarZgd7PWUiX14Mz1htXDEc7Gp'
 }
 
-const node = await new Node({ip: '51.159.143.255', port: 8080, isLeader: true, peerJson}).create()
+// const node = await new Node({ip: '51.159.143.255', port: 8080, isLeader: true, peerJson}).create()
+const node = await new Node({ip: '0.0.0.0', port: 8080, isLeader: true, peerJson}).create()
 await node.start()
 setInterval( _=> node.publish('DepositHash', `love from leader ${Date.now()}`), 1000)
 

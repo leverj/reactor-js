@@ -374,6 +374,18 @@
     it-pipe "^3.0.1"
     uint8arrays "^5.0.2"
 
+"@libp2p/plaintext@^1.0.17":
+  version "1.0.17"
+  resolved "https://registry.yarnpkg.com/@libp2p/plaintext/-/plaintext-1.0.17.tgz#e397c2a192f03e17d6d6577a0ac33077bc749b16"
+  integrity sha512-7KFozA5N+vbT79L6sZ942xr4V4noBodT0Yid2vzAAykX89YkWSWkYavR7Tz5P44Ti6052Luq3EbMlYWphIjcTw==
+  dependencies:
+    "@libp2p/interface" "^1.1.5"
+    "@libp2p/peer-id" "^4.0.8"
+    it-protobuf-stream "^1.1.2"
+    it-stream-types "^2.0.1"
+    protons-runtime "^5.4.0"
+    uint8arraylist "^2.4.8"
+
 "@libp2p/pubsub@^9.0.8":
   version "9.0.12"
   resolved "https://registry.yarnpkg.com/@libp2p/pubsub/-/pubsub-9.0.12.tgz#8c1f93a2ec28f1edafafacc7004dabbdcd4a1ace"
@@ -2820,6 +2832,16 @@ it-pipe@^3.0.1:
     it-merge "^3.0.0"
     it-pushable "^3.1.2"
     it-stream-types "^2.0.1"
+
+it-protobuf-stream@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/it-protobuf-stream/-/it-protobuf-stream-1.1.2.tgz#4444d78fcae0fce949b4cbea622bf1d92667e64f"
+  integrity sha512-epZBuG+7cPaTxCR/Lf3ApshBdA9qfflGPQLfLLrp9VQ0w67Z2xo4H+SLLetav57/29oPtAXwVaoyemg99JOWzA==
+  dependencies:
+    it-length-prefixed-stream "^1.0.0"
+    it-stream-types "^2.0.1"
+    protons-runtime "^5.0.0"
+    uint8arraylist "^2.4.1"
 
 it-pushable@^3.1.2, it-pushable@^3.2.0, it-pushable@^3.2.3:
   version "3.2.3"

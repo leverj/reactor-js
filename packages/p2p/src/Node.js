@@ -12,7 +12,7 @@ import {pipe} from 'it-pipe'
 import {createFromJSON} from '@libp2p/peer-id-factory'
 
 export default class Node {
-  constructor({ip = '127.0.0.1', port = 0, isLeader = false, peerIdJson}) {
+  constructor({ip = '0.0.0.0', port = 0, isLeader = false, peerIdJson}) {
     this.peerIdJson = peerIdJson
     this.ip = ip
     this.port = port
