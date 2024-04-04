@@ -49,12 +49,12 @@ describe('p2p', function () {
   it('it should send data across stream from node1 to node2', async function () {
     const messageRecd = {}
     const responses = {}
+    const responses = {}
     const node1 = await newNode({port: 9001, isLeader: true})
     node1.registerStreamHandler(meshProtocol, async (stream, peerId, msg) => {
       messageRecd[peerId] = msg
       node1.sendMessage(stream, `responding ${msg}`)
     })
-
     const leaderAddr = await node1.multiaddrs[0]
     const sendMsg = async (node, message) => await node.createAndSendMessage(node1.multiaddrs[0], meshProtocol, message, (msg) => { responses[node.peerId] = msg })
     const node2 = await newNode({port:9002}).then(_ => _.connect(leaderAddr))

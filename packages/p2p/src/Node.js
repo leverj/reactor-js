@@ -40,7 +40,7 @@ export default class Node {
     this.node = await createLibp2p({
       peerId,
       addresses: {listen: [`/ip4/${this.ip}/tcp/${this.port}`],},
-      transports: [tcp()],
+      transports: [ tcp()],
       connectionEncryption: [noise()],
       streamMuxers: [yamux()],
       services: {ping: ping({protocolPrefix: 'ipfs'}), pubsub: gossipsub(),},
