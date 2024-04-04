@@ -18,7 +18,6 @@ export default class Node {
     this.port = port
     this.isLeader = isLeader
     this.streams = {}
-
   }
 
   get multiaddrs() { return this.node.getMultiaddrs().map((addr) => addr.toString()) }
@@ -90,6 +89,7 @@ export default class Node {
   }
 
   async createStream(address, protocol) {
+    if(this.streams[protocol]) this.streams[protocol].close()
     let stream = await this.node.dialProtocol(multiaddr(address), protocol)
     this.streams[protocol] = stream
     return stream
