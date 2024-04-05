@@ -20,23 +20,23 @@ export default class Node {
     this.streams = {}
   }
 
-  get multiaddrs() { return this.node.getMultiaddrs().map((addr) => addr.toString()) }
+  get multiaddrs() { return this.p2p.getMultiaddrs().map((addr) => addr.toString()) }
 
-  get peerId() { return this.node.peerId.toString() }
+  get peerId() { return this.p2p.peerId.toString() }
 
-  get peers() { return this.node.getPeers().map((peer) => peer.toString()) }
+  get peers() { return this.p2p.getPeers().map((peer) => peer.toString()) }
 
   exportPeerId() {
     return {
-      privKey: uint8ArrayToString(this.node.peerId.privateKey, 'base64'),
-      pubKey: uint8ArrayToString(this.node.peerId.publicKey, 'base64'),
+      privKey: uint8ArrayToString(this.p2p.peerId.privateKey, 'base64'),
+      pubKey: uint8ArrayToString(this.p2p.peerId.publicKey, 'base64'),
       id: this.peerId
     }
   }
 
   async create() {
     const peerId = this.peerIdJson ? await createFromJSON(this.peerIdJson) : undefined
-    this.node = await createLibp2p({
+    this.p2p = await createLibp2p({
       peerId,
       addresses: {listen: [`/ip4/${this.ip}/tcp/${this.port}`],},
       transports: [ tcp()],
@@ -44,23 +44,23 @@ export default class Node {
       streamMuxers: [yamux()],
       services: {ping: ping({protocolPrefix: 'ipfs'}), pubsub: gossipsub(),},
     })
-    this.node.addEventListener('peer:connect', this.peerConnected.bind(this))
+    this.p2p.addEventListener('peer:connect', this.peerConnected.bind(this))
     return this
   }
 
   async start() {
-    await this.node.start()
+    await this.p2p.start()
     return this
   }
 
   async stop() {
-    await this.node.stop()
+    await this.p2p.stop()
     for (const stream of Object.values(this.streams)) await stream.close()
     return this
   }
 
   async connect(address) {
-    await this.node.dial(multiaddr(address))
+    await this.p2p.dial(multiaddr(address))
     return this
   }
 
@@ -68,17 +68,17 @@ export default class Node {
 
   // pubsub connection
   async connectPubSub(peerId, handler) {
-    this.node.services.pubsub.addEventListener('message', message => {
+    this.p2p.services.pubsub.addEventListener('message', message => {
       const {from: peerId, topic, data, signature} = message.detail
       // fixme: signature verification
       handler({peerId: peerId.toString(), topic, data: new TextDecoder().decode(data)})
     })
-    await this.node.services.pubsub.connect(peerId)
+    await this.p2p.services.pubsub.connect(peerId)
   }
 
-  async subscribe(topic) { await this.node.services.pubsub.subscribe(topic)}
+  async subscribe(topic) { await this.p2p.services.pubsub.subscribe(topic)}
 
-  async publish(topic, data) { await this.node.services.pubsub.publish(topic, new TextEncoder().encode(data)) }
+  async publish(topic, data) { await this.p2p.services.pubsub.publish(topic, new TextEncoder().encode(data)) }
 
   // p2p connection
   async createAndSendMessage(address, protocol, message, responseHandler) {
@@ -90,7 +90,7 @@ export default class Node {
 
   async createStream(address, protocol) {
     if(this.streams[protocol]) this.streams[protocol].close()
-    let stream = await this.node.dialProtocol(multiaddr(address), protocol)
+    let stream = await this.p2p.dialProtocol(multiaddr(address), protocol)
     this.streams[protocol] = stream
     return stream
   }
@@ -114,7 +114,7 @@ export default class Node {
   }
 
   registerStreamHandler(protocol, handler) {
-    this.node.handle(protocol, async ({stream, connection: {remotePeer}}) => {
+    this.p2p.handle(protocol, async ({stream, connection: {remotePeer}}) => {
       pipe(
         stream.source,
         (source) => map(source, (buf) => uint8ArrayToString(buf.subarray())),
@@ -126,5 +126,5 @@ export default class Node {
   }
 
   // implement ping pong between nodes to maintain status
-  async ping(address) { return await this.node.services.ping.ping(multiaddr(address)) }
+  async ping(address) { return await this.p2p.services.ping.ping(multiaddr(address)) }
 }
