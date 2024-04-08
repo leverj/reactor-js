@@ -36,17 +36,16 @@ describe('bls', function () {
 
   })
   //use bls.PublicKey.aggregate to aggregate pub key
-  it('verifies aggregate signatures, technique 2', async function () {
-    const sks = [bls.SecretKey.fromKeygen(), bls.SecretKey.fromKeygen()]
-    const msgs = [[12, 13, 14]]
-    const pks = sks.map((sk) => sk.toPublicKey())
-
-    const sigs = [sks[0].sign(msgs[0]), sks[1].sign(msgs[0])]
-    const ag1 = bls.PublicKey.aggregate([pks[0], pks[1]])
-    const aggPubkeys = [ag1]
-
+  it.only('verifies aggregate signatures, technique 2', async function () {
+    const sks = Array.from({length: 4}, () => bls.SecretKey.fromKeygen())
+    const message = uint8ArrayFromString('Hello Gluon 2')
+    const pks = sks.map(sk => sk.toPublicKey())
+    const sigs = sks.map(sk => sk.sign(message))
+    
+    const aggregatePublicKey = bls.PublicKey.aggregate(pks)
+    
     const aggSig = bls.aggregateSignatures(sigs.map((sig) => sig.toBytes()))
-    const verify = bls.verifyMultiple(aggPubkeys, msgs, aggSig)
+    const verify = bls.verify(aggregatePublicKey, message, aggSig)
 
     console.log(verify)
     expect(verify).toEqual(true)
