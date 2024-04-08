@@ -1,6 +1,6 @@
 import bls from '@chainsafe/bls'
 import {expect} from 'expect'
-import {fromHexString} from '@chainsafe/ssz'
+import {fromHexString, toHexString} from '@chainsafe/ssz'
 import {fromString as uint8ArrayFromString} from 'uint8arrays/from-string'
 import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
 import {startNodes} from './help.js'
@@ -29,29 +29,15 @@ describe('bls', function () {
     const message = uint8ArrayFromString('Hello Gluon 2')
     const pks = sks.map(sk => sk.toPublicKey())
     const sigs = sks.map(sk => sk.sign(message))
+    const aggSig = bls.aggregateSignatures(sigs.map((sig) => sig.toBytes()))
     const aggregatePublicKey = bls.aggregatePublicKeys(pks.map((pk) => pk.toBytes()))
-    const aggSig = bls.aggregateSignatures(sigs.map((sig) => sig.toBytes()))
-    const verify = bls.verify(aggregatePublicKey, message, aggSig)
-    expect(verify).toEqual(true)
-
-  })
-  //use bls.PublicKey.aggregate to aggregate pub key
-  it.only('verifies aggregate signatures, technique 2', async function () {
-    const sks = Array.from({length: 4}, () => bls.SecretKey.fromKeygen())
-    const message = uint8ArrayFromString('Hello Gluon 2')
-    const pks = sks.map(sk => sk.toPublicKey())
-    const sigs = sks.map(sk => sk.sign(message))
-    
-    const aggregatePublicKey = bls.PublicKey.aggregate(pks)
-    
-    const aggSig = bls.aggregateSignatures(sigs.map((sig) => sig.toBytes()))
-    const verify = bls.verify(aggregatePublicKey, message, aggSig)
-
-    console.log(verify)
-    expect(verify).toEqual(true)
+    const aggregatePublicKey2 = bls.PublicKey.aggregate(pks)
+    expect(toHexString(aggregatePublicKey)).toEqual(aggregatePublicKey2.toHex())
+    expect(bls.verify(aggregatePublicKey, message, aggSig)).toEqual(true)
+    expect(bls.verify(aggregatePublicKey2.toBytes(), message, aggSig)).toEqual(true)
   })
 
-  it.skip(' aggregate signatures ', async function () {
+  it(' aggregate signatures ', async function () {
     let input = 'Hello Gluon 2'
 
     const secretKey = bls.SecretKey.fromKeygen()
