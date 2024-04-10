@@ -18,7 +18,7 @@ describe('dkg', function () {
       }
     })
 
-    console.log('Beginning the secret instantiation round...', members)
+    console.log('Beginning the secret instantiation round...')
 
     // this stores an array of verifcation vectors. One for each Member
     const vvecs = []
@@ -30,6 +30,7 @@ describe('dkg', function () {
       // the verification vector should be posted publically so that everyone
       // in the group can see it
       vvecs.push(verificationVector)
+      // console.log('-> verification vector : ', verificationVector.map(v => v.serializeToHexStr()  ) )
 
       // Each secret sk contribution is then encrypted and sent to the member it is for.
       secretKeyContribution.forEach((sk, i) => {
@@ -40,22 +41,26 @@ describe('dkg', function () {
         if (!verified) {
           throw new Error('invalid share!')
         }
+        // console.log('-> secret key share : ', sk.serializeToHexStr())
         member.recievedShares.push(sk)
       })
     })
+
+    console.log(members.map(m => m.id.serializeToHexStr() + '\n\t' + m.recievedShares.map(s => s.serializeToHexStr()).join('\n\t'  )).join('\n ##########\n'))
 
     // now each members adds together all received secret key contributions shares to get a
     // single secretkey share for the group used for signing message for the group
     members.forEach((member, i) => {
       const sk = addContributionShares(member.recievedShares)
       member.secretKeyShare = sk
+      console.log('#'.repeat(50), '\n-> secret key share : ', sk.serializeToHexStr())
     })
     console.log('-> secret shares have been generated')
 
     // Now any one can add together the all verification vectors posted by the
     // members of the group to get a single verification vector of for the group
     const groupsVvec = addVerificationVectors(vvecs)
-    console.log('-> verification vector computed')
+    console.log('-> verification vector computed', groupsVvec.map(v => v.serializeToHexStr()  ))
 
     // the groups verifcation vector contains the groups public key. The group's
     // public key is the first element in the array
