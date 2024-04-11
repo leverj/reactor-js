@@ -60,13 +60,16 @@ describe('dkg', function () {
     const message = 'hello world'
     const groupsPublicKey = members[0].groupPublicKey
     members.forEach(member => member.reinitiate())
-    members.push(new Member(11110))
+    let newMember = new Member(11110)
+    newMember.addVvecs(members[0].Vvec)
+    members.push(newMember)
     setupMembers(members, threshold)
     for (const member of members) member.print()
-    for (const member of members) expect(member.groupPublicKey).toEqual(groupsPublicKey)
-    // const {signs: newSigns, signers: newSigners} = signMessage(message, members)
-    // const newGroupsSign = new bls.Signature()
-    // newGroupsSign.recover(newSigns.splice(0, 4), newSigners.splice(0, 4))
-
+    console.log('-------------------', groupsPublicKey.serializeToHexStr())
+    for (const member of members) expect(member.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKey.serializeToHexStr())
+    const {signs: newSigns, signers: newSigners} = signMessage(message, members)
+    const newGroupsSign = new bls.Signature()
+    newGroupsSign.recover(newSigns.splice(4, 4), newSigners.splice(4, 4))
+    expect(members[0].groupPublicKey.verify(newGroupsSign, message)).toBe(true)
   })
 })
