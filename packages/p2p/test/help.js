@@ -1,6 +1,7 @@
 import Node from '../src/Node.js'
 import {Member} from '../src/Member.js'
 import bls from 'bls-wasm'
+// import {ethers} from 'ethers'
 
 let nodes = []
 export const stopNodes = async () => {
@@ -16,6 +17,21 @@ export const startNodes = async (count, connectToLeader = false) => {
     if (connectToLeader && i > 0) await node.connect(nodes[0].multiaddrs[0])
   }
   return nodes
+}
+
+export function signAndVerify(message, members, start, total) {
+  const {signs, signers} = signMessage(message, members)
+  const groupsSign = new bls.Signature()
+  groupsSign.recover(signs.splice(start, total), signers.splice(start, total))
+  // console.log('-------------------')
+  // console.log(groupsSign.serializeToHexStr())
+  // console.log(members[0].groupPublicKey.serializeToHexStr())
+  // console.log(message)
+  const verified = members[0].groupPublicKey.verify(groupsSign, message)
+  // const address = ethers.computeAddress('0x'+ members[0].groupPublicKey.serialize())
+  // console.log({address})
+  groupsSign.clear()
+  return verified
 }
 
 export const signMessage = (message, members) => {

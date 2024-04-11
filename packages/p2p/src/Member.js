@@ -8,7 +8,13 @@ export class Member {
     this.recievedShares = []
     this.Vvecs = []
   }
-
+  reset() {
+    this.secretKeyShare = null
+    this.Vvec = null
+    this.previouslyShared = false
+    this.recievedShares = []
+    this.Vvecs = []
+  }
   reinitiate() {
     this.recievedShares = [this.secretKeyShare]
     this.Vvecs = [this.Vvec]
