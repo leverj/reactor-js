@@ -1,187 +1,64 @@
-import {expect} from 'expect'
 import bls from 'bls-wasm'
-import {addContributionShares, addVerificationVectors, generateContribution,generateZeroContribution, verifyContributionShare} from 'dkg'
+import {createDkgMembers, signMessage} from './help.js'
+import {expect} from 'expect'
+
 
 describe('dkg', function () {
-
-  it('should be able to create distributed keys', async function () {
+  before(async function () {
     await bls.init()
+  })
+  it('should be able to create distributed keys and sign message', async function () {
     const threshold = 4
-    // each member in the group needs a unique ID. What the id is doesn't matter
-    // but it does need to be imported into bls-lib as a secret key
-    const members = [10314, 30911, 25411, 8608, 31524, 15441, 23399].map(id => {
-      const sk = new bls.SecretKey()
-      sk.setHashOf(Buffer.from([id]))
-      return {
-        id: sk,
-        recievedShares: []
-      }
-    })
-
-    console.log('Beginning the secret instantiation round...')
-
-    // this stores an array of verifcation vectors. One for each Member
-    const vvecs = []
-
-    // each member need to first create a verification vector and a secret key
-    // contribution for every other member in the group (including itself!)
-    members.forEach(id => {
-      const {verificationVector, secretKeyContribution} = generateContribution(bls, members.map(m => m.id), threshold)
-      // the verification vector should be posted publically so that everyone
-      // in the group can see it
-      vvecs.push(verificationVector)
-      // console.log('-> verification vector : ', verificationVector.map(v => v.serializeToHexStr()  ) )
-
-      // Each secret sk contribution is then encrypted and sent to the member it is for.
-      secretKeyContribution.forEach((sk, i) => {
-        // when a group member receives its share, it verifies it against the
-        // verification vector of the sender and then saves it
-        const member = members[i]
-        const verified = verifyContributionShare(bls, member.id, sk, verificationVector)
-        if (!verified) {
-          throw new Error('invalid share!')
-        }
-        // console.log('-> secret key share : ', sk.serializeToHexStr())
-        member.recievedShares.push(sk)
-      })
-    })
-
-    console.log(members.map(m => m.id.serializeToHexStr() + '\n\t' + m.recievedShares.map(s => s.serializeToHexStr()).join('\n\t'  )).join('\n ##########\n'))
-
-    // now each members adds together all received secret key contributions shares to get a
-    // single secretkey share for the group used for signing message for the group
-    members.forEach((member, i) => {
-      const sk = addContributionShares(member.recievedShares)
-      member.secretKeyShare = sk
-      console.log('#'.repeat(50), '\n-> secret key share : ', sk.serializeToHexStr())
-    })
-    console.log('-> secret shares have been generated')
-
-    // Now any one can add together the all verification vectors posted by the
-    // members of the group to get a single verification vector of for the group
-    const groupsVvec = addVerificationVectors(vvecs)
-    console.log('-> verification vector computed', groupsVvec.map(v => v.serializeToHexStr()  ))
-
-    // the groups verifcation vector contains the groups public key. The group's
-    // public key is the first element in the array
-    const groupsPublicKey = groupsVvec[0]
-
-    console.log('-> group public key : ', groupsPublicKey.serializeToHexStr())
-
-    console.log('-> testing signature')
-    // now we can select any 4 members to sign on a message
-    const message = 'hello world'
-    const sigs = []
-    const signersIds = []
-    for (let i = 0; i < threshold; i++) {
-      const sig = members[i].secretKeyShare.sign(message)
-      sigs.push(sig)
-      signersIds.push(members[i].id)
+    const members = createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399], threshold)
+    expect(members.length).toBe(7)
+    for (const member of members) {
+      expect(member.groupPublicKey).toEqual(members[0].groupPublicKey)
     }
-
-    // then anyone can combine the signatures to get the groups signature
-    // the resulting signature will also be the same no matter which members signed
+    const message = 'hello world'
+    const {signs, signers} = signMessage(message, members)
     const groupsSig = new bls.Signature()
-    groupsSig.recover(sigs, signersIds)
-
-    console.log('->    sigtest result : ', groupsSig.serializeToHexStr())
-
-    var verified = groupsPublicKey.verify(groupsSig, message)
-    console.log('->    verified ?', Boolean(verified))
+    groupsSig.recover(signs.splice(1, 4), signers.splice(1, 4))
+    var verified = members[0].groupPublicKey.verify(groupsSig, message)
+    expect(verified).toBe(true)
     groupsSig.clear()
+  })
 
-    console.log('-> testing individual public key derivation')
-    // we can also use the groups verification vector to derive any of the members
-    // public key
+  it('should be able to get shared public key from verification vector', async function () {
+    const members = createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399], 4)
     const member = members[4]
     const pk1 = new bls.PublicKey()
-    pk1.share(groupsVvec, member.id)
-
+    pk1.share(member.Vvec, member.id)
     const pk2 = member.secretKeyShare.getPublicKey()
-    console.log('->    are the public keys equal?', Boolean(pk1.isEqual(pk2)))
-
-    console.log('\nBeginning the share renewal round...')
-
-    const newVvecs = [groupsVvec]
-
-    console.log('-> member shares array reinitialized')
-    members.forEach(member => {
-      member.recievedShares.length = 0
-      member.recievedShares.push(member.secretKeyShare)
-    })
-
-    console.log('-> running null-secret contribution generator')
-    // the process is very similar, only `generateZeroContribution` works with a null secret
-    members.forEach(id => {
-      const {verificationVector, secretKeyContribution} = generateZeroContribution(bls, members.map(m => m.id), threshold)
-      // the verification vector should be posted publically so that everyone
-      // in the group can see it
-      newVvecs.push(verificationVector)
-
-      // Each secret key contribution is then encrypted and sent to the member it is for.
-      secretKeyContribution.forEach((sk, i) => {
-        // when a group member receives its share, it verifies it against the
-        // verification vector of the sender and then saves it
-        const member = members[i]
-        const verified = verifyContributionShare(bls, member.id, sk, verificationVector)
-        if (!verified) {
-          throw new Error('invalid share!')
-        }
-        member.recievedShares.push(sk)
-      })
-    })
-
-    // now each members adds together all received secret key contributions shares to get a
-    // single secretkey share for the group used for signing message for the group
-    members.forEach((member, i) => {
-      const sk = addContributionShares(member.recievedShares)
-      member.secretKeyShare = sk
-    })
-    console.log('-> new secret shares have been generated')
-
-    // Now any one can add together the all verification vectors posted by the
-    // members of the group to get a single verification vector of for the group
-    const newGroupsVvec = addVerificationVectors(newVvecs)
-    console.log('-> verification vector computed')
-
-    // the groups verifcation vector contains the groups public key. The group's
-    // public key is the first element in the array
-    const newGroupsPublicKey = newGroupsVvec[0]
-
-    verified = newGroupsPublicKey.isEqual(groupsPublicKey)
-    console.log('-> public key should not have changed :', (verified ? 'success' : 'failure'))
-
-    console.log('-> testing signature using new shares')
-    // now we can select any 4 members to sign on a message
-    sigs.length = 0
-    signersIds.length = 0
-    for (let i = 0; i < threshold; i++) {
-      const sig = members[i].secretKeyShare.sign(message)
-      sigs.push(sig)
-      signersIds.push(members[i].id)
-    }
-
-    // then anyone can combine the signatures to get the groups signature
-    // the resulting signature will also be the same no matter which members signed
-    const groupsNewSig = new bls.Signature()
-    groupsNewSig.recover(sigs, signersIds)
-
-    console.log('->    sigtest result : ', groupsNewSig.serializeToHexStr())
-    console.log('->    signature comparison :', (groupsSig.isEqual(groupsNewSig) ? 'success' : 'failure'))
-
-    verified = groupsPublicKey.verify(groupsNewSig, message)
-    console.log('->    verified ?', Boolean(verified))
-    groupsNewSig.clear()
-
-    // don't forget to clean up!
+    expect(pk1.isEqual(pk2)).toBe(true)
     pk1.clear()
     pk2.clear()
-    groupsVvec.forEach(v => v.clear())
-    newGroupsVvec.forEach(v => v.clear())
-    members.forEach(m => {
-      m.secretKeyShare.clear()
-      m.id.clear()
-    })
+  })
 
+  it('share renewal', async function () {
+    const threshold = 4
+    const members = createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399], threshold)
+    const message = 'hello world'
+    const {signs, signers} = signMessage(message, members)
+    const groupsSign = new bls.Signature()
+    groupsSign.recover(signs, signers)
+    const groupsPublicKey = members[0].groupPublicKey
+
+    // -> member shares array reinitialized
+    members.forEach(member => member.reinitiate())
+    //-> running null-secret contribution generator
+    // the process is very similar, only `generateZeroContribution` works with a null secret
+    for (const member of members) {
+      const {verificationVector, secretKeyContribution} = member.generateZeroContribution(bls, members.map(m => m.id), threshold)
+      for (let i = 0; i < secretKeyContribution.length; i++) {
+        members[i].verifyAndAndAddShare(secretKeyContribution[i], verificationVector)
+        members[i].addVvecs(verificationVector)
+      }
+    }
+    for (const member of members) member.dkgDone()
+    for (const member of members) expect(member.groupPublicKey).toEqual(groupsPublicKey)
+    const {signs: newSigns, signers: newSigners} = signMessage(message, members)
+    const newGroupsSign = new bls.Signature()
+    newGroupsSign.recover(newSigns.splice(0, 4), newSigners.splice(0, 4))
+    expect(members[0].groupPublicKey.verify(newGroupsSign, message)).toBe(true)
   })
 })
