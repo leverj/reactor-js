@@ -19,7 +19,9 @@ export class Member {
     if (!verified) {
       throw new Error('invalid share!')
     }
-    this.recievedShares.push(sk)
+    const secretKey = new bls.SecretKey()
+    secretKey.deserializeHexStr(sk.serializeToHexStr())
+    this.recievedShares.push(secretKey)
   }
 
   dkgDone() {
