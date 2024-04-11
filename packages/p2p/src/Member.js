@@ -11,7 +11,7 @@ export class Member {
 
   reinitiate() {
     this.recievedShares = [this.secretKeyShare]
-    this.Vvecs = [[...this.Vvec]]
+    this.Vvecs = [this.Vvec]
   }
 
   verifyAndAndAddShare(sk, verificationVector) {
@@ -25,10 +25,17 @@ export class Member {
   dkgDone() {
     this.secretKeyShare = addContributionShares(this.recievedShares)
     this.Vvec = addVerificationVectors(this.Vvecs)
+    this.previouslyShared = true
   }
 
   addVvecs(vvecs) {
-    this.Vvecs.push(vvecs)
+    let stringified = vvecs.map(_ => _.serializeToHexStr())
+    let objectified = stringified.map(_ => {
+      let publicKey = new bls.PublicKey()
+      publicKey.deserializeHexStr(_)
+      return publicKey
+    })
+    this.Vvecs.push(objectified)
   }
 
   get groupPublicKey() {
@@ -36,11 +43,7 @@ export class Member {
   }
 
   generateContribution(bls, memberIds, threshold) {
-    return generateContribution(bls, memberIds, threshold)
-  }
-
-  generateZeroContribution(bls, memberIds, threshold) {
-    return generateZeroContribution(bls, memberIds, threshold)
+    return this.previouslyShared ? generateZeroContribution(bls, memberIds, threshold) : generateContribution(bls, memberIds, threshold)
   }
 
   sign(message) {

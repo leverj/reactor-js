@@ -3,11 +3,9 @@ import {Member} from '../src/Member.js'
 import bls from 'bls-wasm'
 
 let nodes = []
-let dkgMembers = []
 export const stopNodes = async () => {
   for (const node of nodes) await node.stop()
   nodes = []
-  dkgMembers = []
 }
 export const startNodes = async (count, connectToLeader = false) => {
   for (let i = 0; i < count; i++) {
@@ -28,8 +26,8 @@ export const signMessage = (message, members) => {
   }
   return {signs, signers}
 }
-export const createDkgMembers = (memberIds, threshold) => {
-  const members = memberIds.map(id => new Member(id))
+
+export const setupMembers = (members, threshold) => {
   for (const member of members) {
     const {verificationVector, secretKeyContribution} = member.generateContribution(bls, members.map(m => m.id), threshold)
     for (let i = 0; i < secretKeyContribution.length; i++) {
@@ -38,9 +36,14 @@ export const createDkgMembers = (memberIds, threshold) => {
     }
   }
   for (const member of members) member.dkgDone()
-  dkgMembers = members
-  return dkgMembers
+  return members
 }
+
+export const createDkgMembers = (memberIds, threshold) => {
+  const members = memberIds.map(id => new Member(id))
+  return setupMembers(members, threshold)
+}
+
 export const peerIdJsons = [
   {
     privKey: 'CAESQK0/fGhAG26fRXLTxDyV7LpSreIfOXSJ+krI+BdTbeJq5/UphgwH8/mDsTa9HebrBuDJ6EtxNwnEAjEVyA/OQjU',

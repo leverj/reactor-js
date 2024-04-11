@@ -1,6 +1,7 @@
 import bls from 'bls-wasm'
-import {createDkgMembers, signMessage} from './help.js'
+import {createDkgMembers, setupMembers, signMessage} from './help.js'
 import {expect} from 'expect'
+import {Member} from '../src/Member.js'
 
 
 describe('dkg', function () {
@@ -45,20 +46,27 @@ describe('dkg', function () {
 
     // -> member shares array reinitialized
     members.forEach(member => member.reinitiate())
-    //-> running null-secret contribution generator
-    // the process is very similar, only `generateZeroContribution` works with a null secret
-    for (const member of members) {
-      const {verificationVector, secretKeyContribution} = member.generateZeroContribution(bls, members.map(m => m.id), threshold)
-      for (let i = 0; i < secretKeyContribution.length; i++) {
-        members[i].verifyAndAndAddShare(secretKeyContribution[i], verificationVector)
-        members[i].addVvecs(verificationVector)
-      }
-    }
-    for (const member of members) member.dkgDone()
+    setupMembers(members, threshold)
     for (const member of members) expect(member.groupPublicKey).toEqual(groupsPublicKey)
     const {signs: newSigns, signers: newSigners} = signMessage(message, members)
     const newGroupsSign = new bls.Signature()
     newGroupsSign.recover(newSigns.splice(0, 4), newSigners.splice(0, 4))
     expect(members[0].groupPublicKey.verify(newGroupsSign, message)).toBe(true)
+  })
+
+  it('should be able to add new member', async function () {
+    const threshold = 4
+    const members = createDkgMembers([10314, 30911, 25411, 8608, 31524, 23399, 15441], threshold)
+    const message = 'hello world'
+    const groupsPublicKey = members[0].groupPublicKey
+    members.forEach(member => member.reinitiate())
+    members.push(new Member(11110))
+    setupMembers(members, threshold)
+    for (const member of members) member.print()
+    for (const member of members) expect(member.groupPublicKey).toEqual(groupsPublicKey)
+    // const {signs: newSigns, signers: newSigners} = signMessage(message, members)
+    // const newGroupsSign = new bls.Signature()
+    // newGroupsSign.recover(newSigns.splice(0, 4), newSigners.splice(0, 4))
+
   })
 })
