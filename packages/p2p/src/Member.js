@@ -49,7 +49,7 @@ export class Member {
   get groupPublicKey() {
     return this.Vvec[0]
   }
-  getPublicKey(){
+  get publicKey(){
     const pk1 = new bls.PublicKey()
     pk1.share(this.Vvec, this.id)
     return pk1  
