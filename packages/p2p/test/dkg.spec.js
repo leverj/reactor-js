@@ -10,6 +10,14 @@ describe('dkg', function () {
     await bls.init(bls.ethMode)
   })
 
+  it('should be able to match member pub key derived from member pvt key', async function () {
+    const threshold = 4
+    const members = createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399], threshold)
+    for (const member of members) {
+      expect(member.getPublicKey().serializeToHexStr()).toEqual(member.secretKeyShare.getPublicKey().serializeToHexStr())
+    }
+  })
+
   it('should be able to create distributed keys and sign message', async function () {
     const threshold = 4
     const members = createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399], threshold)
