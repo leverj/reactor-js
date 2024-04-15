@@ -64,6 +64,9 @@ export class Member {
 
 
   print() {
-    console.log('Member \n', [this.id, this.secretKeyShare, this.groupPublicKey].map(_ => _.serializeToHexStr()).join('\n\t'))
+    const stringRepresentation = this.id.serializeToHexStr() +
+      `\n\t` + this.secretKeyShare.serializeToHexStr() +
+      `\n\t` + this.Vvec.map(_ => _.serializeToHexStr()).join('\n\t')
+    console.log(stringRepresentation)
   }
 }
