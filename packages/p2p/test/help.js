@@ -20,9 +20,9 @@ export const startNodes = async (count, connectToLeader = false) => {
 }
 
 export function signAndVerify(message, members, start, total) {
-  const {signs, signers} = signMessage(message, members)
+  const {signs, signers} = signMessage(message, members.slice(start, start + total))
   const groupsSign = new bls.Signature()
-  groupsSign.recover(signs.splice(start, total), signers.splice(start, total))
+  groupsSign.recover(signs, signers)
   const verified = members[0].groupPublicKey.verify(groupsSign, message)
   groupsSign.clear()
   return verified
@@ -46,7 +46,7 @@ export const setupMembers = (members, threshold) => {
     member.svec = svec
     //memberVectorSecretMap[member.id] = {verificationVector, secretKeyContribution}
     for (let i = 0; i < secretKeyContribution.length; i++) {
-      members[i].verifyAndAndAddShare(secretKeyContribution[i], verificationVector)
+      members[i].verifyAndAddShare(secretKeyContribution[i], verificationVector)
       members[i].addVvecs(verificationVector)
     }
   }

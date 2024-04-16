@@ -20,7 +20,7 @@ export class Member {
     this.Vvecs = [this.Vvec]
   }
 
-  verifyAndAndAddShare(sk, verificationVector) {
+  verifyAndAddShare(sk, verificationVector) {
     const verified = verifyContributionShare(bls, this.id, sk, verificationVector)
     if (!verified) {
       throw new Error('invalid share!')

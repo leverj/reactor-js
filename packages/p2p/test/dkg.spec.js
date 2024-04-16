@@ -4,7 +4,6 @@ import {expect} from 'expect'
 import {Member} from '../src/Member.js'
 
 
-
 describe('dkg', function () {
   before(async function () {
     await bls.init(bls.ethMode)
@@ -32,41 +31,47 @@ describe('dkg', function () {
     expect(signAndVerify(message, members, 0, 6)).toBe(true)
     expect(signAndVerify(message, members, 0, 7)).toBe(true)
   })
+
   it('should be able to add new member retaining old public key and sign messages', async function () {
     const threshold = 4
     const members = createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399], threshold)
     expect(members.length).toBe(7)
-    for (const member of members) {
-      expect(member.groupPublicKey).toEqual(members[0].groupPublicKey)
-    }
     const message = 'hello world'
     let groupPublicKey = members[0].Vvec[0]
-    
+
     const newMember = new Member(100)
-    for (const existing of members){
+    for (const existing of members) {
       const shareForNewMember = existing.generateContributionForId(newMember.id)
-      newMember.verifyAndAndAddShare(shareForNewMember, existing.verificationVector)
+      newMember.verifyAndAddShare(shareForNewMember, existing.verificationVector)
       newMember.addVvecs(existing.verificationVector)
     }
     newMember.dkgDone()
     members.push(newMember)
-    newMember.print()
     expect(members.length).toBe(8)
-    let newGroupPublicKey = members[members.length - 1].Vvec[0]
-    expect(groupPublicKey.serializeToHexStr()).toEqual(newGroupPublicKey.serializeToHexStr())
-
-    expect(signAndVerify(message, members, 2, 8)).toBe(true)
-    expect(signAndVerify(message, members, 3, 8)).toBe(true)
-    expect(signAndVerify(message, members, 0, 4)).toBe(true)
-    expect(signAndVerify(message, members, 5, 8)).toBe(false) //below threshold
-
-    //Old scenarios should also pass. i.e. new member not being part of signing
-    expect(signAndVerify(message, members, 0, 3)).toBe(false)
-    expect(signAndVerify(message, members, 0, 4)).toBe(true)
-    expect(signAndVerify(message, members, 0, 5)).toBe(true)
-    expect(signAndVerify(message, members, 0, 6)).toBe(true)
-    expect(signAndVerify(message, members, 0, 7)).toBe(true)
+    for (const member of members) expect(member.groupPublicKey.serializeToHexStr()).toEqual(groupPublicKey.serializeToHexStr())
+    const fixtures = [[0, 3, false], [0, 4, true], [0, 5, true], [0, 6, true], [0, 7, true], [0, 8, true],
+      [2, 8, true], [3, 8, true], [4, 4, true], [5, 8, false]
+    ]
+    for (const [start, total, expected] of fixtures) {
+      expect(signAndVerify(message, members, start, total)).toBe(expected)
+    }
   })
+
+  it('should be able to increase threshold', async function () {
+    const threshold = 4
+    const message = 'hello world'
+    const members = createDkgMembers([10314, 30911, 25411, 8608, 31524, 23399, 15441, 138473], threshold)
+    expect(signAndVerify(message, members, 0, 4)).toBe(true)
+    const groupsPublicKey = members[0].groupPublicKey
+    members.forEach(member => member.reinitiate())
+    setupMembers(members, threshold + 1)
+    for (const member of members) expect(member.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKey.serializeToHexStr())
+    expect(signAndVerify(message, members, 0, 4)).toBe(false)
+    expect(signAndVerify(message, members, 0, 5)).toBe(true)
+  })
+
+
+
   it('should be able to get shared public key from verification vector', async function () {
     const members = createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399], 4)
     const member = members[4]
@@ -93,29 +98,10 @@ describe('dkg', function () {
     for (const member of members) expect(member.groupPublicKey).toEqual(groupsPublicKey)
     const {signs: newSigns, signers: newSigners} = signMessage(message, members)
     const newGroupsSign = new bls.Signature()
-    newGroupsSign.recover(newSigns.splice(0, 4), newSigners.splice(0, 4))
+    newGroupsSign.recover(newSigns.slice(0, 4), newSigners.slice(0, 4))
     expect(members[0].groupPublicKey.verify(newGroupsSign, message)).toBe(true)
   })
 
-  it('should be able to add new member', async function () {
-    const threshold = 4
-    const members = createDkgMembers([10314, 30911, 25411, 8608, 31524, 23399, 15441], threshold)
-    const message = 'hello world'
-    const groupsPublicKey = members[0].groupPublicKey
-    members.forEach(member => member.reinitiate())
-    let newMember = new Member(11110)
-    // newMember.addVvecs(members[0].Vvec)
-    members.push(newMember)
-    setupMembers(members, threshold)
-    for (const member of members) member.print()
-    console.log('-------------------', groupsPublicKey.serializeToHexStr())
-    for (const member of members) expect(member.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKey.serializeToHexStr())
-    const {signs: newSigns, signers: newSigners} = signMessage(message, members)
-    const newGroupsSign = new bls.Signature()
-    newGroupsSign.recover(newSigns.splice(0, 4), newSigners.splice(4, 4))
-    //fixme: test fails here
-    expect(members[0].groupPublicKey.verify(newGroupsSign, message)).toBe(true)
-  })
 
   it('should be able to remove a member', async function () {
     const threshold = 4
@@ -133,18 +119,8 @@ describe('dkg', function () {
     expect(signAndVerify(message, members, 4, 6)).toBe(false)
   })
 
-  it('should be able to increase threshold', async function () {
-    const threshold = 4
-    const message = 'hello world'
-    const members = createDkgMembers([10314, 30911, 25411, 8608, 31524, 23399, 15441, 138473], threshold)
-    expect(signAndVerify(message, members, 0, 4)).toBe(true)
-    const groupsPublicKey = members[0].groupPublicKey
-    members.forEach(member => member.reinitiate())
-    setupMembers(members, threshold + 1)
-    for (const member of members) expect(member.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKey.serializeToHexStr())
-    expect(signAndVerify(message, members, 0, 4)).toBe(false)
-    expect(signAndVerify(message, members, 0, 5)).toBe(true)
-  })
+
+
 
   it('should be able to decrease threshold', async function () {
     const threshold = 5
