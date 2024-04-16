@@ -1,5 +1,5 @@
 import bls from 'bls-wasm'
-import {addContributionShares, verifyContributionShare, addVerificationVectors, generateContribution, generateZeroContribution} from 'dkg'
+import {addContributionShares, verifyContributionShare, addVerificationVectors, generateContribution, generateZeroContribution, generateContributionForId} from './dkg-bls.js'
 
 export class Member {
   constructor(id) {
@@ -29,7 +29,9 @@ export class Member {
     secretKey.deserializeHexStr(sk.serializeToHexStr())
     this.recievedShares.push(secretKey)
   }
-
+  generateContributionForId(id){
+    return generateContributionForId(bls, id, this.svec)
+  }
   dkgDone() {
     this.secretKeyShare = addContributionShares(this.recievedShares)
     this.Vvec = addVerificationVectors(this.Vvecs)
@@ -64,9 +66,6 @@ export class Member {
 
 
   print() {
-    const stringRepresentation = this.id.serializeToHexStr() +
-      `\n\t` + this.secretKeyShare.serializeToHexStr() +
-      `\n\t` + this.Vvec.map(_ => _.serializeToHexStr()).join('\n\t')
-    console.log(stringRepresentation)
+    console.log('Member \n', [this.id, this.secretKeyShare, this.groupPublicKey].map(_ => _.serializeToHexStr()).join('\n\t'))
   }
 }

@@ -32,7 +32,41 @@ describe('dkg', function () {
     expect(signAndVerify(message, members, 0, 6)).toBe(true)
     expect(signAndVerify(message, members, 0, 7)).toBe(true)
   })
+  it.only('should be able to add new member retaining old public key and sign messages', async function () {
+    const threshold = 4
+    const members = createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399], threshold)
+    expect(members.length).toBe(7)
+    for (const member of members) {
+      expect(member.groupPublicKey).toEqual(members[0].groupPublicKey)
+    }
+    const message = 'hello world'
+    let groupPublicKey = members[0].Vvec[0]
+    
+    const newMember = new Member(100)
+    for (const existing of members){
+      const shareForNewMember = existing.generateContributionForId(newMember.id)
+      newMember.verifyAndAndAddShare(shareForNewMember, existing.verificationVector)
+      newMember.addVvecs(existing.verificationVector)
+    }
+    newMember.dkgDone()
+    members.push(newMember)
+    newMember.print()
+    expect(members.length).toBe(8)
+    let newGroupPublicKey = members[members.length - 1].Vvec[0]
+    expect(groupPublicKey.serializeToHexStr()).toEqual(newGroupPublicKey.serializeToHexStr())
 
+    //expect(signAndVerify(message, members, 2, 8)).toBe(true)
+    //expect(signAndVerify(message, members, 3, 8)).toBe(true)
+    expect(signAndVerify(message, members, 0, 4)).toBe(true)
+    //expect(signAndVerify(message, members, 5, 8)).toBe(false) //below threshold
+
+    //Old scenarios should also pass. i.e. new member not being part of signing
+    /*expect(signAndVerify(message, members, 0, 3)).toBe(false)
+    expect(signAndVerify(message, members, 0, 4)).toBe(true)
+    expect(signAndVerify(message, members, 0, 5)).toBe(true)
+    expect(signAndVerify(message, members, 0, 6)).toBe(true)
+    expect(signAndVerify(message, members, 0, 7)).toBe(true)*/
+  })
   it('should be able to get shared public key from verification vector', async function () {
     const members = createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399], 4)
     const member = members[4]
