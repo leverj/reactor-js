@@ -19,8 +19,8 @@ export const startNodes = async (count, connectToLeader = false) => {
   return nodes
 }
 
-export function signAndVerify(message, members, start, total) {
-  const {signs, signers} = signMessage(message, members.slice(start, start + total))
+export function signAndVerify(message, members) {
+  const {signs, signers} = signMessage(message, members)
   const groupsSign = new bls.Signature()
   groupsSign.recover(signs, signers)
   const verified = members[0].groupPublicKey.verify(groupsSign, message)
@@ -52,6 +52,16 @@ export const setupMembers = (members, threshold) => {
   }
   for (const member of members) member.dkgDone()
   return members
+}
+
+export function addMember(members, newMember) {
+  for (const existing of members) {
+    const shareForNewMember = existing.generateContributionForId(newMember.id)
+    newMember.verifyAndAddShare(shareForNewMember, existing.verificationVector)
+    newMember.addVvecs(existing.verificationVector)
+  }
+  newMember.dkgDone()
+  members.push(newMember)
 }
 
 export const createDkgMembers = (memberIds, threshold) => {
