@@ -22,8 +22,6 @@ export const startNodes = async (count, connectToLeader = false) => {
 export function signAndVerify(message, members, start, total) {
   const {signs, signers} = signMessage(message, members)
   const groupsSign = new bls.Signature()
-  //TBD Nirmal --- why splice after ? shouldnt we splice the array before so that signing is done only
-  //by the required subset ? currently all members are signing.
   groupsSign.recover(signs.splice(start, total), signers.splice(start, total))
   const verified = members[0].groupPublicKey.verify(groupsSign, message)
   groupsSign.clear()
