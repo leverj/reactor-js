@@ -1,9 +1,9 @@
 import Node from '../src/Node.js'
 import {Member} from '../src/Member.js'
 import bls from 'bls-wasm'
-// import {ethers} from 'ethers'
 
 let nodes = []
+//const memberVectorSecretMap = {}
 export const stopNodes = async () => {
   for (const node of nodes) await node.stop()
   nodes = []
@@ -23,13 +23,7 @@ export function signAndVerify(message, members, start, total) {
   const {signs, signers} = signMessage(message, members)
   const groupsSign = new bls.Signature()
   groupsSign.recover(signs.splice(start, total), signers.splice(start, total))
-  // console.log('-------------------')
-  // console.log(groupsSign.serializeToHexStr())
-  // console.log(members[0].groupPublicKey.serializeToHexStr())
-  // console.log(message)
   const verified = members[0].groupPublicKey.verify(groupsSign, message)
-  // const address = ethers.computeAddress('0x'+ members[0].groupPublicKey.serialize())
-  // console.log({address})
   groupsSign.clear()
   return verified
 }
@@ -42,10 +36,15 @@ export const signMessage = (message, members) => {
   }
   return {signs, signers}
 }
-
+/*export const getMemberContribution = (id) => {
+  return memberVectorSecretMap[id]
+}*/
 export const setupMembers = (members, threshold) => {
   for (const member of members) {
-    const {verificationVector, secretKeyContribution} = member.generateContribution(bls, members.map(m => m.id), threshold)
+    const {verificationVector, secretKeyContribution, svec} = member.generateContribution(bls, members.map(m => m.id), threshold)
+    member.verificationVector = verificationVector
+    member.svec = svec
+    //memberVectorSecretMap[member.id] = {verificationVector, secretKeyContribution}
     for (let i = 0; i < secretKeyContribution.length; i++) {
       members[i].verifyAndAndAddShare(secretKeyContribution[i], verificationVector)
       members[i].addVvecs(verificationVector)
