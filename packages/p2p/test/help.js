@@ -40,32 +40,26 @@ export const signMessage = (message, members) => {
   return memberVectorSecretMap[id]
 }*/
 export const setupMembers = (members, threshold) => {
-  for (const member of members) {
-    const {verificationVector, secretKeyContribution, svec} = member.generateContribution(bls, members.map(m => m.id), threshold)
-    member.verificationVector = verificationVector
-    member.svec = svec
-    //memberVectorSecretMap[member.id] = {verificationVector, secretKeyContribution}
-    for (let i = 0; i < secretKeyContribution.length; i++) {
-      members[i].verifyAndAddShare(secretKeyContribution[i], verificationVector)
-      members[i].addVvecs(verificationVector)
-    }
-  }
+  for (const member of members) member.generateVectors(threshold)
+  for (const member of members) member.generateContribution()
   for (const member of members) member.dkgDone()
   return members
 }
 
 export function addMember(members, newMember) {
   for (const existing of members) {
-    const shareForNewMember = existing.generateContributionForId(newMember.id)
-    newMember.verifyAndAddShare(shareForNewMember, existing.verificationVector)
-    newMember.addVvecs(existing.verificationVector)
+    existing.generateContributionForId(newMember.id.serializeToHexStr(), newMember.onMessage.bind(newMember))
+    existing.addMember(newMember.id.serializeToHexStr(), newMember.onMessage.bind(newMember))
+    newMember.addMember(existing.id.serializeToHexStr(), existing.onMessage.bind(existing))
   }
+  newMember.addMember(newMember.id.serializeToHexStr(), newMember.onMessage.bind(newMember))
   newMember.dkgDone()
   members.push(newMember)
 }
 
 export const createDkgMembers = (memberIds, threshold) => {
   const members = memberIds.map(id => new Member(id))
+  for (const member of members) for (const member1 of members) member.addMember(member1.id.serializeToHexStr(), member1.onMessage.bind(member1))
   return setupMembers(members, threshold)
 }
 

@@ -15,6 +15,7 @@ export const dkgInit = function(bls, threshold){
       vvec
     }
 }
+
 /**
  * generates a members contribution to the DKG
  * @param {Object} bls - an instance of [bls-wasm](https://github.com/herumi/bls-wasm)

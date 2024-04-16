@@ -1,63 +1,112 @@
 import bls from 'bls-wasm'
-import {addContributionShares, verifyContributionShare, addVerificationVectors, generateContribution, generateZeroContribution, generateContributionForId} from './dkg-bls.js'
+import {addContributionShares, addVerificationVectors, generateContributionForId, verifyContributionShare} from './dkg-bls.js'
+
+function toPrivateKey(str) {
+  let secretKey = new bls.SecretKey()
+  secretKey.deserializeHexStr(str)
+  return secretKey
+}
+
+function toPublicKey(str) {
+  let publicKey = new bls.PublicKey()
+  publicKey.deserializeHexStr(str)
+  return publicKey
+}
 
 export class Member {
+  static TOPICS = {
+    DKG_KEY_GENERATE: 'DKG_KEY_GENERATE',
+  }
+
   constructor(id) {
     this.id = new bls.SecretKey()
     this.id.setHashOf(Buffer.from([id]))
-    this.recievedShares = []
-    this.Vvecs = []
-  }
-  reset() {
-    this.secretKeyShare = null
-    this.Vvec = null
-    this.previouslyShared = false
-    this.recievedShares = []
-    this.Vvecs = []
-  }
-  reinitiate() {
-    this.recievedShares = [this.secretKeyShare]
-    this.Vvecs = [this.Vvec]
+    this.members = {[this.id.serializeToHexStr()]: this.onMessage.bind(this)}
+    this.reset()
   }
 
-  verifyAndAddShare(sk, verificationVector) {
-    const verified = verifyContributionShare(bls, this.id, sk, verificationVector)
+  reset() {
+    this.secretVector = []
+    this.verificationVector = []
+    this.recievedShares = {}
+    this.vvecs = {}
+    this.secretKeyShare = null
+    this.vvec = null
+    this.previouslyShared = false
+  }
+
+  reinitiate() {
+    this.secretVector = []
+    this.verificationVector = []
+    this.recievedShares = {}
+    this.vvecs = {}
+  }
+
+
+  addMember(memberId, onMessage) { this.members[memberId] = onMessage }
+
+  onMessage(topic, message) {
+    switch (topic) {
+      case Member.TOPICS.DKG_KEY_GENERATE:
+        const {id, secretKeyContribution, verificationVector} = JSON.parse(message)
+        this.verifyAndAddShare(id, toPrivateKey(secretKeyContribution), verificationVector.map(toPublicKey))
+        this.vvecs[id] = verificationVector.map(toPublicKey)
+        break
+      default:
+        console.log('unknown topic', topic)
+    }
+  }
+
+  generateVectors(threshold) {
+    for (let i = 0; i < threshold; i++) {
+      let sk = new bls.SecretKey()
+      this.previouslyShared && i === 0 ? sk.deserialize(Buffer.alloc(32)) : sk.setByCSPRNG()
+      this.secretVector.push(sk)
+      const pk = sk.getPublicKey()
+      this.verificationVector.push(pk)
+    }
+  }
+
+  generateContribution() {
+    for (const [id, onMessage] of Object.entries(this.members))
+      this.generateContributionForId(id, onMessage).serializeToHexStr()
+  }
+
+
+  verifyAndAddShare(id, receivedShare, verificationVector) {
+    const verified = verifyContributionShare(bls, this.id, receivedShare, verificationVector)
     if (!verified) {
       throw new Error('invalid share!')
     }
-    const secretKey = new bls.SecretKey()
-    secretKey.deserializeHexStr(sk.serializeToHexStr())
-    this.recievedShares.push(secretKey)
+    this.recievedShares[id] = receivedShare
   }
-  generateContributionForId(id){
-    return generateContributionForId(bls, id, this.svec)
+
+  generateContributionForId(id, onMessage) {
+    let secretKeyContribution = generateContributionForId(bls, toPrivateKey(id), this.secretVector)
+    onMessage(Member.TOPICS.DKG_KEY_GENERATE, JSON.stringify({
+      id: this.id.serializeToHexStr(),
+      secretKeyContribution: secretKeyContribution.serializeToHexStr(),
+      verificationVector: this.verificationVector.map(_ => _.serializeToHexStr())
+    }))
+    return secretKeyContribution
   }
+
   dkgDone() {
-    this.secretKeyShare = addContributionShares(this.recievedShares)
-    this.Vvec = addVerificationVectors(this.Vvecs)
+    const sharedSecrets = this.previouslyShared ? [this.secretKeyShare, ...Object.values(this.recievedShares)] : Object.values(this.recievedShares)
+    this.secretKeyShare = addContributionShares(sharedSecrets)
+    const vvecs = this.previouslyShared ? [this.vvec, ...Object.values(this.vvecs)] : Object.values(this.vvecs)
+    this.vvec = addVerificationVectors(vvecs)
     this.previouslyShared = true
   }
 
-  addVvecs(vvecs) {
-    let stringified = vvecs.map(_ => _.serializeToHexStr())
-    let objectified = stringified.map(_ => {
-      let publicKey = new bls.PublicKey()
-      publicKey.deserializeHexStr(_)
-      return publicKey
-    })
-    this.Vvecs.push(objectified)
+  get groupPublicKey() {
+    return this.vvec[0]
   }
 
-  get groupPublicKey() {
-    return this.Vvec[0]
-  }
-  get publicKey(){
+  get publicKey() {
     const pk1 = new bls.PublicKey()
-    pk1.share(this.Vvec, this.id)
-    return pk1  
-  }
-  generateContribution(bls, memberIds, threshold) {
-    return this.previouslyShared ? generateZeroContribution(bls, memberIds, threshold) : generateContribution(bls, memberIds, threshold)
+    pk1.share(this.vvec, this.id)
+    return pk1
   }
 
   sign(message) {
@@ -66,6 +115,6 @@ export class Member {
 
 
   print() {
-    console.log('Member \n', [this.id, this.secretKeyShare, this.groupPublicKey].map(_ => _.serializeToHexStr()).join('\n\t'))
+    console.log([this.id, this.secretKeyShare, this.groupPublicKey].map(_ => _.serializeToHexStr()).join('\n\t'))
   }
 }
