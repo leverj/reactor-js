@@ -11,5 +11,6 @@
   "dependencies": {
   },
   "devDependencies": {
+    "bignumber.js": "^9.1.2"
   }
 }
