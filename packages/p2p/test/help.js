@@ -2,6 +2,7 @@ import Node from '../src/Node.js'
 import {Member} from '../src/Member.js'
 import bls from 'bls-wasm'
 
+/*-------------------------------------------- Nodes --------------------------------------------*/
 let nodes = []
 //const memberVectorSecretMap = {}
 export const stopNodes = async () => {
@@ -19,6 +20,7 @@ export const startNodes = async (count, connectToLeader = false) => {
   return nodes
 }
 
+/*-------------------------------------------- DKG --------------------------------------------*/
 export function signAndVerify(message, members) {
   const {signs, signers} = signMessage(message, members)
   const groupsSign = new bls.Signature()
@@ -36,9 +38,7 @@ export const signMessage = (message, members) => {
   }
   return {signs, signers}
 }
-/*export const getMemberContribution = (id) => {
-  return memberVectorSecretMap[id]
-}*/
+
 export const setupMembers = (members, threshold) => {
   for (const member of members) member.generateVectors(threshold)
   for (const member of members) member.generateContribution()
@@ -63,6 +63,7 @@ export const createDkgMembers = (memberIds, threshold) => {
   return setupMembers(members, threshold)
 }
 
+/*-------------------------------------------- fixtures --------------------------------------------*/
 export const peerIdJsons = [
   {
     privKey: 'CAESQK0/fGhAG26fRXLTxDyV7LpSreIfOXSJ+krI+BdTbeJq5/UphgwH8/mDsTa9HebrBuDJ6EtxNwnEAjEVyA/OQjU',

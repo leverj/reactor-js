@@ -40,7 +40,7 @@ export class Member {
   constructor(id) {
     this.id = new bls.SecretKey()
     this.id.setHashOf(Buffer.from([id]))
-    this.members = {[this.id.serializeToHexStr()]: this.onMessage.bind(this)}
+    this.members = {}
     this.reset()
   }
 
@@ -88,7 +88,7 @@ export class Member {
 
   generateContribution() {
     for (const [id, onMessage] of Object.entries(this.members))
-      this.generateContributionForId(id, onMessage).serializeToHexStr()
+      this.generateContributionForId(id, onMessage)
   }
 
 
