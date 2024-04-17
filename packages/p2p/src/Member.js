@@ -1,6 +1,17 @@
 import bls from 'bls-wasm'
 import {addContributionShares, addVerificationVectors, generateContributionForId, verifyContributionShare} from './dkg-bls.js'
 
+function randomizeArrayCopy(array) {
+  const copy = array.slice()
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    const temp = copy[i]
+    copy[i] = copy[j]
+    copy[j] = temp
+  }
+  return copy
+}
+
 function toPrivateKey(str) {
   let secretKey = new bls.SecretKey()
   secretKey.deserializeHexStr(str)
@@ -92,9 +103,10 @@ export class Member {
   }
 
   dkgDone() {
-    const sharedSecrets = this.previouslyShared ? [this.secretKeyShare, ...Object.values(this.recievedShares)] : Object.values(this.recievedShares)
+    //fixme: randomize is failing test.
+    const sharedSecrets = this.previouslyShared ? [this.secretKeyShare, ...randomizeArrayCopy(Object.values(this.recievedShares))] : randomizeArrayCopy(Object.values(this.recievedShares))
     this.secretKeyShare = addContributionShares(sharedSecrets)
-    const vvecs = this.previouslyShared ? [this.vvec, ...Object.values(this.vvecs)] : Object.values(this.vvecs)
+    const vvecs = this.previouslyShared ? [this.vvec, ...randomizeArrayCopy(Object.values(this.vvecs))] : randomizeArrayCopy(Object.values(this.vvecs))
     this.vvec = addVerificationVectors(vvecs)
     this.previouslyShared = true
   }
