@@ -23,7 +23,7 @@ describe('dkg', function () {
     const members = createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399], threshold)
     expect(members.length).toBe(7)
     for (const member of members) {
-      expect(member.groupPublicKey).toEqual(members[0].groupPublicKey)
+      expect(member.groupPublicKey.serializeToHexStr()).toEqual(members[0].groupPublicKey.serializeToHexStr())
     }
     expect(signAndVerify(message, members.slice(0, 3))).toBe(false)
     expect(signAndVerify(message, members.slice(0, 4))).toBe(true)
@@ -99,7 +99,7 @@ describe('dkg', function () {
     // -> member shares array reinitialized
     members.forEach(member => member.reinitiate())
     setupMembers(members, threshold)
-    for (const member of members) expect(member.groupPublicKey).toEqual(groupsPublicKey)
+    for (const member of members) expect(member.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKey.serializeToHexStr())
     const {signs: newSigns, signers: newSigners} = signMessage(message, members)
     const newGroupsSign = new bls.Signature()
     newGroupsSign.recover(newSigns.slice(0, 4), newSigners.slice(0, 4))
