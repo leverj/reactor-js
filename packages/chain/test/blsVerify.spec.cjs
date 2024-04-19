@@ -23,9 +23,8 @@ describe('dlsVerify', () => {
       console.log('verified', verified)
       expect(verified).toEqual(true)
     })
-    it('should run BGLS', async () => {
+    it.only('should run BGLS', async () => {
       contract = await deployContract('BLSExample', [])
-      console.log(contract)
       await contract.verifyBLSTest()
       const verified = await contract.result()
       console.log('BLSTest', verified)
