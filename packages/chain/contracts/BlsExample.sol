@@ -1,4 +1,5 @@
 pragma solidity ^0.8.20;
+import "hardhat/console.sol";
 
 /*
 Example of how to verify BLS signatures and BGLS aggregate signatures in Ethereum.
@@ -9,6 +10,7 @@ Code is based on https://github.com/jstoxrocky/zksnarks_example
 
 contract BLSExample {
     bool public result;
+
     struct G1Point {
         uint X;
         uint Y;
@@ -48,8 +50,9 @@ contract BLSExample {
         );
 
         G1Point memory h = hashToG1(message);
-
-        result = pairing2(negate(signature), P2(), h, v);
+        G1Point memory negatedSignature = negate(signature);
+        console.log("negatedSignature X: %s, Y: %s", negatedSignature.X, negatedSignature.Y);
+        result = pairing2(negatedSignature, P2(), h, v);
         return result;
     }
 
