@@ -14,7 +14,6 @@
   },
   "devDependencies": {
     "@istanbuljs/esm-loader-hook": "^0.2.0",
-    "@leverj/chain-deployment": "^1.0.4",
     "hardhat": "^2.22.2",
     "expect": "^29.7.0",
     "lerna": "^8.1.2",
