@@ -1,7 +1,11 @@
-const {ethers: {deployContract, getContractFactory, getSigners}} = require('hardhat')
-const {expect} = require('expect')
-const mcl = require('./mcl')
-const {deserializeHexStrToG1, deserializeHexStrToG2, G1, G2} = require("mcl-wasm/dist/value-types")
+import {expect}  from 'expect'
+import help from '@leverj/layer2-chain/test/help.js'
+const {deployContract, getContractFactory, getSigners} = help
+import bls from 'bls-wasm'
+// import bls from 'bls-eth-wasm'
+import mcl  from '@leverj/layer2-chain/test/mcl.js'
+import {deserializeHexStrToG1, deserializeHexStrToG2, G1, G2}  from "mcl-wasm/dist/value-types.js"
+import {createDkgMembers, signMessage} from '../test/help.js'
 
 function stringToHex(str) {
   let hex = ''
@@ -17,13 +21,15 @@ describe('dlsVerify', () => {
   let contract, owner, anyone
   before(async () => {
     await mcl.init()
+
   })
   beforeEach(async () => {
     [owner, anyone] = await getSigners()
+    contract = await deployContract('BlsVerify', [])
+    await bls.init()
   })
 
   it('verify single signature', async function () {
-    contract = await deployContract('BlsVerify', [])
     mcl.setMappingMode(mcl.MAPPING_MODE_TI)
     mcl.setDomain('testing evmbls')
     const message = stringToHex(messageString)
@@ -50,5 +56,27 @@ describe('dlsVerify', () => {
     let sig_ser = mcl.g1ToBN(signature)
     let res = await contract.verifySignature(sig_ser, pubkey_ser, message_ser)
     expect(res).toEqual(true)
+  })
+
+  it('should verify signature from dkgnodes', async function () {
+    const threshold = 4
+    const members = createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399], threshold)
+    const {signs, signers} = signMessage(messageString, members)
+    const groupsSign = new bls.Signature()
+    groupsSign.recover(signs, signers)
+
+
+    const signatureHex = groupsSign.serializeToHexStr()
+    const pubkeyHex = members[0].groupPublicKey.serializeToHexStr()
+    const M = mcl.hashToPoint(stringToHex(messageString))
+
+    const signature = deserializeHexStrToG1(signatureHex)
+    const pubkey = deserializeHexStrToG2(pubkeyHex)
+    let message_ser = mcl.g1ToBN(M)
+    let pubkey_ser = mcl.g2ToBN(pubkey)
+    let sig_ser = mcl.g1ToBN(signature)
+    let res = await contract.verifySignature(sig_ser, pubkey_ser, message_ser)
+    expect(res).toEqual(true)
+
   })
 })
