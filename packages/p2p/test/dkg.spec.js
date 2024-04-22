@@ -1,4 +1,6 @@
 import bls from 'bls-wasm'
+// import bls from 'bls-eth-wasm'
+
 import {createDkgMembers, setupMembers, signMessage, signAndVerify, addMember} from './help.js'
 import {expect} from 'expect'
 import {Member} from '../src/Member.js'
@@ -6,7 +8,7 @@ const message = 'hello world'
 
 describe('dkg', function () {
   before(async function () {
-    await bls.init(bls.ethMode)
+    await bls.init()
   })
 
   it('should be able to match member pub key derived from member pvt key', async function () {

@@ -1,4 +1,6 @@
 import bls from 'bls-wasm'
+// import bls from 'bls-eth-wasm'
+
 import {addContributionShares, addVerificationVectors, generateContributionForId, verifyContributionShare} from './dkg-bls.js'
 
 function randomizeArrayCopy(array) {

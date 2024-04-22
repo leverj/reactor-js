@@ -1,6 +1,8 @@
 import Node from '../src/Node.js'
 import {Member} from '../src/Member.js'
 import bls from 'bls-wasm'
+// import bls from 'bls-eth-wasm'
+
 
 /*-------------------------------------------- Nodes --------------------------------------------*/
 let nodes = []
@@ -26,6 +28,8 @@ export function signAndVerify(message, members) {
   const groupsSign = new bls.Signature()
   groupsSign.recover(signs, signers)
   const verified = members[0].groupPublicKey.verify(groupsSign, message)
+  // console.log('pub key hex', members[0].groupPublicKey.serializeToHexStr())
+  // console.log('signatureHex', groupsSign.serializeToHexStr())
   groupsSign.clear()
   return verified
 }

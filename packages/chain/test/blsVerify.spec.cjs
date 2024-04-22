@@ -1,6 +1,5 @@
 const {ethers:{deployContract, getContractFactory, getSigners}}  = require('hardhat')
 const {expect} = require('expect')
-const {fromHexString, toHexString} = require('@chainsafe/ssz')
 const BigNumber = require('bignumber.js')
 
 describe('dlsVerify', () => {
