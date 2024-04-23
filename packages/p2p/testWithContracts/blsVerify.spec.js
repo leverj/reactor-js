@@ -1,20 +1,11 @@
 import {expect}  from 'expect'
-import help from '@leverj/layer2-chain/test/help.js'
+import help, {stringToHex} from '@leverj/layer2-chain/test/help.js'
 const {deployContract, getContractFactory, getSigners} = help
 import bls from 'bls-wasm'
 // import bls from 'bls-eth-wasm'
 import mcl  from '@leverj/layer2-chain/test/mcl.js'
 import {deserializeHexStrToG1, deserializeHexStrToG2, G1, G2}  from "mcl-wasm/dist/value-types.js"
 import {createDkgMembers, signMessage} from '../test/help.js'
-
-function stringToHex(str) {
-  let hex = ''
-  for (let i = 0; i < str.length; i++) {
-    hex += '' + str.charCodeAt(i).toString(16)
-  }
-  return '0x' + hex
-}
-
 
 const messageString = 'hello world'
 describe('blsVerify', () => {

@@ -2,15 +2,7 @@ const {ethers: {deployContract, getContractFactory, getSigners}} = require('hard
 const {expect} = require('expect')
 const mcl = require('./mcl')
 const {deserializeHexStrToG1, deserializeHexStrToG2, G1, G2} = require("mcl-wasm/dist/value-types")
-
-function stringToHex(str) {
-  let hex = ''
-  for (let i = 0; i < str.length; i++) {
-    hex += '' + str.charCodeAt(i).toString(16)
-  }
-  return '0x' + hex
-}
-
+const {stringToHex} = require('./help.js')
 
 const messageString = 'hello world'
 describe('dlsVerify', () => {
