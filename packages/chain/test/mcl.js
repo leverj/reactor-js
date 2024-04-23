@@ -3,6 +3,7 @@ const {toBig, FIELD_ORDER, bigToHex, randHex} = require('./utils')
 const {hashToField} = require('./hash_to_field')
 
 const mcl = require('mcl-wasm')
+const {deserializeHexStrToFr} = require('mcl-wasm/dist/value-types')
 
 // export type mclG2 = any;
 // export type mclG1 = any;
@@ -86,17 +87,14 @@ function g2() {
 }
 
 function getPublicKey(secret) {
-  let fr = new mcl.Fr()
-  fr.setHashOf(secret)
+  let fr = secretFromHex(secret)
   const pubkey = mcl.mul(g2(), fr)
   pubkey.normalize()
   return pubkey
 }
 
 function secretFromHex(secretHex) {
-  let fr = new mcl.Fr()
-  fr.setHashOf(secretHex)
-  return fr
+  return deserializeHexStrToFr(secretHex)
 }
 
 function signOfG1(p) {

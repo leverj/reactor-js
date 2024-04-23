@@ -1,6 +1,6 @@
 import {expect} from 'expect'
 import bls from 'bls-wasm'
-import mcl from '@leverj/layer2-chain/test/mcl.js'
+import mcl, {secretFromHex} from '@leverj/layer2-chain/test/mcl.js'
 import {stringToHex} from '@leverj/layer2-chain/test/help.js'
 
 const messageString = 'hello world'
@@ -13,7 +13,7 @@ describe('mcl-bls', () => {
     const pvtKey = new bls.SecretKey()
     pvtKey.setByCSPRNG()
     const pubKey1 = pvtKey.getPublicKey()
-    const mclPubKey = mcl.getPublicKey('0x' + pvtKey.serializeToHexStr())
+    const mclPubKey = mcl.getPublicKey(pvtKey.serializeToHexStr())
     expect(mclPubKey.serializeToHexStr()).toEqual(pubKey1.serializeToHexStr())
   })
 
@@ -22,7 +22,7 @@ describe('mcl-bls', () => {
     mcl.setMappingMode(mcl.MAPPING_MODE_TI)
     mcl.setDomain('testing evmbls')
     const message = stringToHex(messageString)
-    const secret = mcl.secretFromHex(secretHex)
+    const secret = secretFromHex(secretHex)
     const pubkey = mcl.getPublicKey(secretHex)
     const {signature, M} = mcl.sign(message, secret)
 
