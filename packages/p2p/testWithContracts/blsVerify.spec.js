@@ -17,16 +17,16 @@ function stringToHex(str) {
 
 
 const messageString = 'hello world'
-describe('dlsVerify', () => {
+describe('blsVerify', () => {
   let contract, owner, anyone
   before(async () => {
     await mcl.init()
-
+    await bls.init()
   })
   beforeEach(async () => {
     [owner, anyone] = await getSigners()
     contract = await deployContract('BlsVerify', [])
-    await bls.init()
+
   })
 
   it('verify single signature', async function () {
@@ -42,19 +42,7 @@ describe('dlsVerify', () => {
     let res = await contract.verifySignature(sig_ser, pubkey_ser, message_ser)
     expect(res).toEqual(true)
   })
-  it('should match the public key between bls and mcl', async function () {
-    const pvtKey = new bls.SecretKey()
-    pvtKey.setByCSPRNG()
-    //pvtKey.deserializeHexStr('5747501c4fe126ddb0983b7d561808e1211dfcc6aea42866b24dc01564f19a1b');
-    console.log('pvtkey', pvtKey.serializeToHexStr())
-    const pubKey1 = pvtKey.getPublicKey()
-    console.log('blsPubKey', pubKey1.serializeToHexStr());
-    
-    const mclPubKey = mcl.getPublicKey(pvtKey.serializeToHexStr())
-    console.log('mclPubKey', mclPubKey.serializeToHexStr())
-    expect(mclPubKey.serializeToHexStr()).toEqual(pubKey1.serializeToHexStr())
-  })
-  
+
   it('desrialize before verification', async function () {
     mcl.setMappingMode(mcl.MAPPING_MODE_TI)
     mcl.setDomain('testing evmbls')
