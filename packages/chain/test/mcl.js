@@ -84,13 +84,21 @@ function g2() {
   )
   return g2
 }
-function getPublicKey(secret){
+
+function getPublicKey(secret) {
   let fr = new mcl.Fr()
   fr.setHashOf(secret)
   const pubkey = mcl.mul(g2(), fr)
   pubkey.normalize()
   return pubkey
 }
+
+function secretFromHex(secretHex) {
+  let fr = new mcl.Fr()
+  fr.setHashOf(secretHex)
+  return fr
+}
+
 function signOfG1(p) {
   const y = toBig(mclToHex(p.getY()))
   const ONE = toBig(1)
@@ -161,6 +169,7 @@ function g2ToHex(p) {
   const y = mclToHex(p.getY(), false)
   return ['0x' + x.slice(64), '0x' + x.slice(0, 64), '0x' + y.slice(64), '0x' + y.slice(0, 64)]
 }
+
 function newKeyPair() {
   const secret = randFr()
   const pubkey = mcl.mul(g2(), secret)
@@ -239,6 +248,7 @@ module.exports = {
   aggreagate,
   compressPubkey,
   compressSignature,
+  secretFromHex,
   newG1,
   newG2,
   randFr,

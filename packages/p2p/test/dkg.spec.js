@@ -8,7 +8,7 @@ const message = 'hello world'
 
 describe('dkg', function () {
   before(async function () {
-    await bls.init()
+    await bls.init(4)
   })
 
   it('should be able to match member pub key derived from member pvt key', async function () {
