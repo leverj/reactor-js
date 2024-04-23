@@ -24,8 +24,13 @@ describe('mcl-bls', () => {
     const {pubkey, secret} = mcl.newKeyPair()
     const {signature, M} = mcl.sign(message, secret)
 
-    let serializeToHexStr = pubkey.serializeToHexStr()
-    console.log('pubkey', serializeToHexStr)
-    const blspubKey = bls.deserializeHexStrToPublicKey(serializeToHexStr)
+    const pvtKey = new bls.SecretKey()
+    pvtKey.setByCSPRNG()
+    const pubkey1 = pvtKey.getPublicKey()
+
+    console.log('pubkey\t\t', pubkey.serializeToHexStr())
+    console.log('pubkey1\t\t', pubkey1.serializeToHexStr())
+    const blspubKey = bls.deserializeHexStrToPublicKey(pubkey.serializeToHexStr())
+    console.log('blspubKey\t', blspubKey.serializeToHexStr())
   })
 })
