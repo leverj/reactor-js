@@ -1,6 +1,6 @@
 import bls1 from 'bls-wasm'
 import bls2 from 'bls-eth-wasm'
-import * as bls3 from './mcl/mcl-bls-wrapper.js'
+import * as bls3 from './mcl/bls.js'
 
 async function Bls1(){
   await bls1.init(4)
