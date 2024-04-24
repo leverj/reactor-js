@@ -44,6 +44,7 @@ mcl.G2.prototype.verify = function (signature, msg) {
 
 export const Signature = mcl.G1
 mcl.G1.prototype.recover = function (signs, signers) {
-  return mcl.recoverG1(signers, signs)
+  let groupSignature = mcl.recoverG1(signers, signs)
+  this.setStr(groupSignature.getStr())
 }
 
