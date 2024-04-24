@@ -1,5 +1,4 @@
-import bls from 'bls-wasm'
-// import bls from 'bls-eth-wasm'
+import bls from './bls-custom.js'
 
 import {addContributionShares, addVerificationVectors, generateContributionForId, verifyContributionShare} from './dkg-bls.js'
 

@@ -1,7 +1,6 @@
 import Node from '../src/Node.js'
 import {Member} from '../src/Member.js'
-import bls from 'bls-wasm'
-// import bls from 'bls-eth-wasm'
+import bls from '../src/bls-custom.js'
 
 
 /*-------------------------------------------- Nodes --------------------------------------------*/

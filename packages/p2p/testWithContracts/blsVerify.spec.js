@@ -1,7 +1,7 @@
 import {expect}  from 'expect'
 import help, {stringToHex} from '@leverj/layer2-chain/test/help.js'
 const {deployContract, getContractFactory, getSigners} = help
-import bls from 'bls-wasm'
+import bls from '../src/bls-custom.js'
 // import bls from 'bls-eth-wasm'
 import mcl  from '@leverj/layer2-chain/test/mcl.js'
 import {deserializeHexStrToG1, deserializeHexStrToG2, G1, G2}  from "mcl-wasm/dist/value-types.js"
@@ -12,7 +12,6 @@ describe('blsVerify', () => {
   let contract, owner, anyone
   before(async () => {
     await mcl.init()
-    await bls.init(4)
   })
   beforeEach(async () => {
     [owner, anyone] = await getSigners()
@@ -53,6 +52,5 @@ describe('blsVerify', () => {
     let sig_ser = mcl.g1ToBN(signature)
     let res = await contract.verifySignature(sig_ser, pubkey_ser, message_ser)
     expect(res).toEqual(true)
-
   })
 })

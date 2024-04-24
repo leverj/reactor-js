@@ -1,5 +1,5 @@
 import {expect} from 'expect'
-import bls from 'bls-wasm'
+import bls from '../src/bls-custom.js'
 import mcl, {secretFromHex} from '@leverj/layer2-chain/test/mcl.js'
 import {stringToHex} from '@leverj/layer2-chain/test/help.js'
 
@@ -7,7 +7,6 @@ const messageString = 'hello world'
 describe('mcl-bls', () => {
   before(async () => {
     await mcl.init()
-    await bls.init(4)
   })
   it('should match the public key between bls and mcl', async function () {
     const pvtKey = new bls.SecretKey()
