@@ -1,7 +1,6 @@
 import {expect} from 'expect'
 import bls from '../src/bls-custom.js'
-import * as mcl from '@leverj/layer2-chain/test/mcl.js'
-import {stringToHex} from '@leverj/layer2-chain/test/help.cjs'
+import * as mcl from '../src/mcl/mcl.js'
 
 const messageString = 'hello world'
 describe('mcl-bls', () => {
@@ -49,7 +48,7 @@ class Keymap {
   replenishMcl(secretHex) {
     this.mcl.secret = mcl.secretFromHex(secretHex)
     this.mcl.pubkey = mcl.getPublicKey(secretHex)
-    this.mcl.signature = mcl.sign(stringToHex(this.messageString), this.mcl.secret).signature
+    this.mcl.signature = mcl.sign(mcl.stringToHex(this.messageString), this.mcl.secret).signature
     return this
   }
 

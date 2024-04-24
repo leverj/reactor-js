@@ -65,3 +65,11 @@ export function mulmod(a, b) {
   return a.mul(b).mod(FIELD_ORDER)
 }
 
+export function stringToHex(str) {
+  let hex = ''
+  for (let i = 0; i < str.length; i++) {
+    hex += '' + str.charCodeAt(i).toString(16)
+  }
+  return '0x' + hex
+}
+

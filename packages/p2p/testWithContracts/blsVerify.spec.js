@@ -1,9 +1,8 @@
 import {expect}  from 'expect'
-import help, {stringToHex} from '@leverj/layer2-chain/test/help.cjs'
-const {deployContract, getContractFactory, getSigners} = help
+import {deployContract, getContractFactory, getSigners} from './help.cjs'
 import bls from '../src/bls-custom.js'
 // import bls from 'bls-eth-wasm'
-import * as mcl  from '@leverj/layer2-chain/test/mcl.js'
+import * as mcl  from '../src/mcl/mcl.js'
 import {deserializeHexStrToG1, deserializeHexStrToG2, G1, G2}  from "mcl-wasm/dist/value-types.js"
 import {createDkgMembers, signMessage} from '../test/help.js'
 
@@ -22,7 +21,7 @@ describe('blsVerify', () => {
   it('verify single signature', async function () {
     mcl.setMappingMode(mcl.MAPPING_MODE_TI)
     mcl.setDomain('testing evmbls')
-    const message = stringToHex(messageString)
+    const message = mcl.stringToHex(messageString)
     const {pubkey, secret} = mcl.newKeyPair()
     const {signature, M} = mcl.sign(message, secret)
     let sig_ser = mcl.g1ToBN(signature)
@@ -43,7 +42,7 @@ describe('blsVerify', () => {
 
     const signatureHex = groupsSign.serializeToHexStr()
     const pubkeyHex = members[0].groupPublicKey.serializeToHexStr()
-    const M = mcl.hashToPoint(stringToHex(messageString))
+    const M = mcl.hashToPoint(mcl.stringToHex(messageString))
 
     const signature = deserializeHexStrToG1(signatureHex)
     const pubkey = deserializeHexStrToG2(pubkeyHex)

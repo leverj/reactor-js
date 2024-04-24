@@ -2,6 +2,7 @@ import {ethers}  from 'ethers'
 import {toBig, FIELD_ORDER, bigToHex, randHex}  from './utils.js'
 import {hashToField}  from './hash_to_field.js'
 
+export {stringToHex} from './utils.js'
 import mcl  from 'mcl-wasm'
 import {deserializeHexStrToFr}  from 'mcl-wasm/dist/value-types.js'
 

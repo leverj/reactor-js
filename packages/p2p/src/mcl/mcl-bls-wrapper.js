@@ -1,6 +1,5 @@
 import mcl from 'mcl-wasm'
-import * as mclWrap from '@leverj/layer2-chain/test/mcl.js'
-import {stringToHex} from '@leverj/layer2-chain/test/help.cjs'
+import * as mclWrap from './mcl.js'
 
 export const init = async () => {
   await mclWrap.init()
@@ -24,7 +23,7 @@ mcl.Fr.prototype.add = function (sk) {
 }
 
 mcl.Fr.prototype.sign = function (msg) {
-  return mclWrap.sign(stringToHex(msg), this).signature
+  return mclWrap.sign(mclWrap.stringToHex(msg), this).signature
 }
 
 export const PublicKey = mcl.G2
@@ -39,7 +38,7 @@ mcl.G2.prototype.add = function (pk) {
 }
 mcl.G2.prototype.verify = function (signature, msg) {
   //fixme: not implemented
-  return mcl.verifyG2(signature, stringToHex(msg), this)
+  return mcl.verifyG2(signature, mclWrap.stringToHex(msg), this)
 }
 
 export const Signature = mcl.G1
