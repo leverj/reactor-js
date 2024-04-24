@@ -1,6 +1,6 @@
-import ethers from 'ethers'
+import {BigNumber, utils} from 'ethers'
 
-const {utils: {randomBytes, hexlify, hexZeroPad}, BigNumber} = ethers
+const {randomBytes, hexlify, hexZeroPad} = utils
 
 export const FIELD_ORDER = BigNumber.from('0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47')
 
