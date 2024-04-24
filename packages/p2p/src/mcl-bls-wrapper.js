@@ -37,9 +37,11 @@ mcl.G2.prototype.add = function (pk) {
   const added = mcl.add(pk, this)
   this.setStr(added.getStr())
 }
-mcl.G2.prototype.verify = function (pk, msg) {
-  return mcl.verifyG1(pk, stringToHex(msg), this)
+mcl.G2.prototype.verify = function (signature, msg) {
+  //fixme: not implemented
+  return mcl.verifyG1(signature, stringToHex(msg), this)
 }
+
 export const Signature = mcl.G1
 mcl.G1.prototype.recover = function (signs, signers) {
   return mcl.recoverG1(signers, signs)
