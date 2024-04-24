@@ -7,6 +7,11 @@ export const init = async () => {
   mclWrap.setDomain('testing evmbls')
 }
 
+export const deserializeHexStrToSecretKey = (hex) =>   mcl.deserializeHexStrToFr(hex)
+export const deserializeHexStrToPublicKey = (hex) =>   mcl.deserializeHexStrToG2(hex)
+export const deserializeHexStrToSignature = (hex) =>   mcl.deserializeHexStrToG1(hex)
+
+
 export const SecretKey = mcl.Fr
 mcl.Fr.prototype.getPublicKey = function () {
   return mclWrap.getPublicKey(this.serializeToHexStr())
