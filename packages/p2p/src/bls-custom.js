@@ -22,8 +22,8 @@ async function Mcl() {
   return bls3
 }
 
-const bls = await Bls1()
-// const bls = Mcl()
-// const bls = Bls2()
+// const bls = await Bls1()
+const bls = await Mcl()
+// const bls = await Bls2()
 export default bls
 // export default Bls2()
