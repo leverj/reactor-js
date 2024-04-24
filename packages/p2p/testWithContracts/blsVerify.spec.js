@@ -1,6 +1,6 @@
 import {expect}  from 'expect'
 import {deployContract, getContractFactory, getSigners} from './help.cjs'
-import bls from '../src/bls-custom.js'
+import bls from '../src/bls.js'
 // import bls from 'bls-eth-wasm'
 import * as mcl  from '../src/mcl/mcl.js'
 import {deserializeHexStrToG1, deserializeHexStrToG2, G1, G2}  from "mcl-wasm/dist/value-types.js"

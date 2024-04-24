@@ -1,5 +1,5 @@
 import {expect} from 'expect'
-import bls from '../src/bls-custom.js'
+import bls from '../src/bls.js'
 import * as mcl from '../src/mcl/mcl.js'
 
 const messageString = 'hello world'

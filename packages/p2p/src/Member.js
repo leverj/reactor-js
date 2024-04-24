@@ -1,4 +1,4 @@
-import bls from './bls-custom.js'
+import bls from './bls.js'
 
 import {addContributionShares, addVerificationVectors, generateContributionForId, verifyContributionShare} from './dkg-bls.js'
 

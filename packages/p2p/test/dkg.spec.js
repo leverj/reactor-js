@@ -1,4 +1,4 @@
-import bls from '../src/bls-custom.js'
+import bls from '../src/bls.js'
 
 import {createDkgMembers, setupMembers, signMessage, signAndVerify, addMember} from './help.js'
 import {expect} from 'expect'
