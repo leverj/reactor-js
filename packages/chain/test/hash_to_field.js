@@ -1,9 +1,9 @@
-const { BigNumber } = require('ethers')
-const { sha256, arrayify, hexlify, zeroPad } = require('ethers/lib/utils')
+import { BigNumber }  from 'ethers'
+import { sha256, arrayify, hexlify, zeroPad }  from 'ethers/lib/utils.js'
 
 const FIELD_ORDER = BigNumber.from('0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47');
 
-function hashToField(domain, msg, count) {
+export function hashToField(domain, msg, count) {
   const u = 48;
   const _msg = expandMsg(domain, msg, count * u);
   const els = [];
@@ -85,11 +85,11 @@ function expandMsg(domain, msg, outLen) {
   return out;
 }
 
-const DOMAIN_STR = 'QUUX-V01-CS02-with-expander';
-const DST = Uint8Array.from(Buffer.from(DOMAIN_STR, 'utf8'));
+export const DOMAIN_STR = 'QUUX-V01-CS02-with-expander';
+export const DST = Uint8Array.from(Buffer.from(DOMAIN_STR, 'utf8'));
 
 
-const vectors = [
+export const vectors = [
   // https://tools.ietf.org/html/draft-irtf-cfrg-hash-to-curve-09#appendix-I
   {
     msg: '',
@@ -151,10 +151,3 @@ const vectors = [
       '0x396962db47f749ec3b5042ce2452b619607f27fd3939ece2746a7614fb83a1d097f554df3927b084e55de92c7871430d6b95c2a13896d8a33bc48587b1f66d21b128a1a8240d5b0c26dfe795a1a842a0807bb148b77c2ef82ed4b6c9f7fcb732e7f94466c8b51e52bf378fba044a31f5cb44583a892f5969dcd73b3fa128816e',
   },
 ];
-
-module.exports = {
-  hashToField,
-  vectors,
-  DOMAIN_STR,
-  DST
-}

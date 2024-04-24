@@ -1,7 +1,7 @@
 {
   "name": "@leverj/layer2-chain",
   "version": "0.0.1",
-  "type": "commonjs",
+  "type": "module",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {

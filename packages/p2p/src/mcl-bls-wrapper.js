@@ -1,6 +1,6 @@
 import mcl from 'mcl-wasm'
-import mclWrap from '@leverj/layer2-chain/test/mcl.js'
-import {stringToHex} from '@leverj/layer2-chain/test/help.js'
+import * as mclWrap from '@leverj/layer2-chain/test/mcl.js'
+import {stringToHex} from '@leverj/layer2-chain/test/help.cjs'
 
 export const init = async () => {
   await mclWrap.init()

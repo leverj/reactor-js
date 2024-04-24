@@ -1,8 +1,7 @@
-const {ethers: {deployContract, getContractFactory, getSigners}} = require('hardhat')
-const {expect} = require('expect')
-const mcl = require('./mcl')
-const {deserializeHexStrToG1, deserializeHexStrToG2, G1, G2} = require("mcl-wasm/dist/value-types")
-const {stringToHex} = require('./help.js')
+import {deployContract, getContractFactory, getSigners, stringToHex} from './help.cjs'
+import {expect}  from 'expect'
+import * as mcl  from './mcl.js'
+import {deserializeHexStrToG1, deserializeHexStrToG2, G1, G2}  from "mcl-wasm/dist/value-types.js"
 
 const messageString = 'hello world'
 describe('dlsVerify', () => {
