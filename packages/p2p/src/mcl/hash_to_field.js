@@ -1,92 +1,93 @@
-import { BigNumber }  from 'ethers'
-import { sha256, arrayify, hexlify, zeroPad }  from 'ethers/lib/utils.js'
+import {BigNumber, utils} from 'ethers'
 
-const FIELD_ORDER = BigNumber.from('0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47');
+const {sha256, arrayify, hexlify, zeroPad} = utils
+
+const FIELD_ORDER = BigNumber.from('0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47')
 
 export function hashToField(domain, msg, count) {
-  const u = 48;
-  const _msg = expandMsg(domain, msg, count * u);
-  const els = [];
+  const u = 48
+  const _msg = expandMsg(domain, msg, count * u)
+  const els = []
   for (let i = 0; i < count; i++) {
-    const el = BigNumber.from(_msg.slice(i * u, (i + 1) * u)).mod(FIELD_ORDER);
-    els.push(el);
+    const el = BigNumber.from(_msg.slice(i * u, (i + 1) * u)).mod(FIELD_ORDER)
+    els.push(el)
   }
-  return els;
+  return els
 }
 
 function expandMsg(domain, msg, outLen) {
   if (domain.length > 255) {
-    throw new Error('bad domain size');
+    throw new Error('bad domain size')
   }
 
-  const out = new Uint8Array(outLen);
+  const out = new Uint8Array(outLen)
 
-  const len0 = 64 + msg.length + 2 + 1 + domain.length + 1;
-  const in0 = new Uint8Array(len0);
+  const len0 = 64 + msg.length + 2 + 1 + domain.length + 1
+  const in0 = new Uint8Array(len0)
   // zero pad
-  let off = 64;
+  let off = 64
   // msg
-  in0.set(msg, off);
-  off += msg.length;
+  in0.set(msg, off)
+  off += msg.length
   // l_i_b_str
-  in0.set([(outLen >> 8) & 0xff, outLen & 0xff], off);
-  off += 2;
+  in0.set([(outLen >> 8) & 0xff, outLen & 0xff], off)
+  off += 2
   // I2OSP(0, 1)
-  in0.set([0], off);
-  off += 1;
+  in0.set([0], off)
+  off += 1
   // DST_prime
-  in0.set(domain, off);
-  off += domain.length;
-  in0.set([domain.length], off);
+  in0.set(domain, off)
+  off += domain.length
+  in0.set([domain.length], off)
 
-  const b0 = sha256(in0);
+  const b0 = sha256(in0)
 
-  const len1 = 32 + 1 + domain.length + 1;
-  const in1 = new Uint8Array(len1);
+  const len1 = 32 + 1 + domain.length + 1
+  const in1 = new Uint8Array(len1)
   // b0
-  in1.set(arrayify(b0), 0);
-  off = 32;
+  in1.set(arrayify(b0), 0)
+  off = 32
   // I2OSP(1, 1)
-  in1.set([1], off);
-  off += 1;
+  in1.set([1], off)
+  off += 1
   // DST_prime
-  in1.set(domain, off);
-  off += domain.length;
-  in1.set([domain.length], off);
+  in1.set(domain, off)
+  off += domain.length
+  in1.set([domain.length], off)
 
-  const b1 = sha256(in1);
+  const b1 = sha256(in1)
 
   // b_i = H(strxor(b_0, b_(i - 1)) || I2OSP(i, 1) || DST_prime);
-  const ell = Math.floor((outLen + 32 - 1) / 32);
-  let bi = b1;
+  const ell = Math.floor((outLen + 32 - 1) / 32)
+  let bi = b1
 
   for (let i = 1; i < ell; i++) {
-    const ini = new Uint8Array(32 + 1 + domain.length + 1);
-    const nb0 = zeroPad(arrayify(b0), 32);
-    const nbi = zeroPad(arrayify(bi), 32);
-    const tmp = new Uint8Array(32);
+    const ini = new Uint8Array(32 + 1 + domain.length + 1)
+    const nb0 = zeroPad(arrayify(b0), 32)
+    const nbi = zeroPad(arrayify(bi), 32)
+    const tmp = new Uint8Array(32)
     for (let i = 0; i < 32; i++) {
-      tmp[i] = nb0[i] ^ nbi[i];
+      tmp[i] = nb0[i] ^ nbi[i]
     }
 
-    ini.set(tmp, 0);
-    let off = 32;
-    ini.set([1 + i], off);
-    off += 1;
-    ini.set(domain, off);
-    off += domain.length;
-    ini.set([domain.length], off);
+    ini.set(tmp, 0)
+    let off = 32
+    ini.set([1 + i], off)
+    off += 1
+    ini.set(domain, off)
+    off += domain.length
+    ini.set([domain.length], off)
 
-    out.set(arrayify(bi), 32 * (i - 1));
-    bi = sha256(ini);
+    out.set(arrayify(bi), 32 * (i - 1))
+    bi = sha256(ini)
   }
 
-  out.set(arrayify(bi), 32 * (ell - 1));
-  return out;
+  out.set(arrayify(bi), 32 * (ell - 1))
+  return out
 }
 
-export const DOMAIN_STR = 'QUUX-V01-CS02-with-expander';
-export const DST = Uint8Array.from(Buffer.from(DOMAIN_STR, 'utf8'));
+export const DOMAIN_STR = 'QUUX-V01-CS02-with-expander'
+export const DST = Uint8Array.from(Buffer.from(DOMAIN_STR, 'utf8'))
 
 
 export const vectors = [
@@ -150,4 +151,4 @@ export const vectors = [
     expected:
       '0x396962db47f749ec3b5042ce2452b619607f27fd3939ece2746a7614fb83a1d097f554df3927b084e55de92c7871430d6b95c2a13896d8a33bc48587b1f66d21b128a1a8240d5b0c26dfe795a1a842a0807bb148b77c2ef82ed4b6c9f7fcb732e7f94466c8b51e52bf378fba044a31f5cb44583a892f5969dcd73b3fa128816e',
   },
-];
+]

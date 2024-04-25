@@ -1,11 +1,10 @@
-import {ethers}  from 'ethers'
-import {toBig, FIELD_ORDER, bigToHex, randHex}  from './utils.js'
-import {hashToField}  from './hash_to_field.js'
+import {ethers} from 'ethers'
+import {toBig, FIELD_ORDER, bigToHex, randHex, stringToHex} from './utils.js'
+import {hashToField} from './hash_to_field.js'
+import mcl from 'mcl-wasm'
 
 export {stringToHex} from './utils.js'
-import mcl  from 'mcl-wasm'
-import {deserializeHexStrToFr}  from 'mcl-wasm/dist/value-types.js'
-
+export * from 'mcl-wasm'
 export const MAPPING_MODE_TI = 'TI'
 export const MAPPING_MODE_FT = 'FT'
 
@@ -88,7 +87,7 @@ export function getPublicKey(secret) {
 }
 
 export function secretFromHex(secretHex) {
-  return deserializeHexStrToFr(secretHex)
+  return mcl.deserializeHexStrToFr(secretHex)
 }
 
 export function signOfG1(p) {
@@ -215,4 +214,50 @@ export function randG2() {
   const p = mcl.mul(g2(), randFr())
   p.normalize()
   return p
+}
+
+/*------------------------------- BLS extension -------------------------------*/
+
+export const deserializeHexStrToSecretKey = (hex) => mcl.deserializeHexStrToFr(hex)
+export const deserializeHexStrToPublicKey = (hex) => mcl.deserializeHexStrToG2(hex)
+export const deserializeHexStrToSignature = (hex) => mcl.deserializeHexStrToG1(hex)
+
+export const SecretKey = mcl.Fr
+mcl.Fr.prototype.getPublicKey = function () {
+  return getPublicKey(this.serializeToHexStr())
+}
+
+mcl.Fr.prototype.share = function (vec, id) {
+  const shared = mcl.shareFr(vec, id)
+  this.setStr(shared.getStr())
+}
+
+mcl.Fr.prototype.add = function (sk) {
+  const added = mcl.add(sk, this)
+  this.setStr(added.getStr())
+}
+
+mcl.Fr.prototype.sign = function (msg) {
+  return sign(stringToHex(msg), this).signature
+}
+
+export const PublicKey = mcl.G2
+mcl.G2.prototype.share = function (vec, id) {
+  const shared = mcl.shareG2(vec, id)
+  this.setStr(shared.getStr())
+}
+
+mcl.G2.prototype.add = function (pk) {
+  const added = mcl.add(pk, this)
+  this.setStr(added.getStr())
+}
+mcl.G2.prototype.verify = function (signature, msg) {
+  //fixme: not implemented
+  return mcl.verifyG2(signature, stringToHex(msg), this)
+}
+
+export const Signature = mcl.G1
+mcl.G1.prototype.recover = function (signs, signers) {
+  let groupSignature = mcl.recoverG1(signers, signs)
+  this.setStr(groupSignature.getStr())
 }
