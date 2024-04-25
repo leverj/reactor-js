@@ -32,12 +32,7 @@ export function setMappingMode(mode) {
     throw new Error('unknown mapping mode')
   }
 }
-export function mul(g, scalarHex){
-  return mcl.mul(g, mcl.deserializeHexStrToFr(scalarHex))
-}
-export function neg(g){
-  return mcl.neg(g)
-}
+
 export function hashToPoint(msg) {
   if (!ethers.utils.isHexString(msg)) {
     throw new Error('message is expected to be hex string')
@@ -257,8 +252,13 @@ mcl.G2.prototype.add = function (pk) {
   this.setStr(added.getStr())
 }
 mcl.G2.prototype.verify = function (signature, msg) {
-  //fixme: not implemented
-  return mcl.verifyG2(signature, stringToHex(msg), this)
+  let H = mcl.hashAndMapToG1(msg)
+  H = mcl.neg(H)
+  let e1 = mcl.precomputedMillerLoop(signature, g2())
+  const e2 = mcl.millerLoop(H, this)
+  e1 = mcl.mul(e1, e2)
+  e1 = mcl.finalExp(e1)
+  return e1.isOne()
 }
 
 export const Signature = mcl.G1
