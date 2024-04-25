@@ -32,7 +32,12 @@ export function setMappingMode(mode) {
     throw new Error('unknown mapping mode')
   }
 }
-
+export function mul(g, scalarHex){
+  return mcl.mul(g, mcl.deserializeHexStrToFr(scalarHex))
+}
+export function neg(g){
+  return mcl.neg(g)
+}
 export function hashToPoint(msg) {
   if (!ethers.utils.isHexString(msg)) {
     throw new Error('message is expected to be hex string')
