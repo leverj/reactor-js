@@ -1,6 +1,8 @@
 import Node from '../src/Node.js'
 import {Member} from '../src/Member.js'
 import bls from '../src/bls.js'
+import * as mcl from '../src/mcl/mcl.js'
+import {expect} from 'expect'
 
 
 /*-------------------------------------------- Nodes --------------------------------------------*/
@@ -22,15 +24,27 @@ export const startNodes = async (count, connectToLeader = false) => {
 }
 
 /*-------------------------------------------- DKG --------------------------------------------*/
-export function signAndVerify(message, members) {
+export async function signAndVerify(contract, message, members) {
   const {signs, signers} = signMessage(message, members)
   const groupsSign = new bls.Signature()
   groupsSign.recover(signs, signers)
   const verified = members[0].groupPublicKey.verify(groupsSign, message)
+  const contractVerified = await verifyInContract(groupsSign.serializeToHexStr(), members[0].groupPublicKey.serializeToHexStr(), message, contract)
+  expect(contractVerified).toBe(verified)
   // console.log('pub key hex', members[0].groupPublicKey.serializeToHexStr())
   // console.log('signatureHex', groupsSign.serializeToHexStr())
   groupsSign.clear()
   return verified
+}
+
+async function verifyInContract(signatureHex, pubkeyHex, message, contract){
+  const M = mcl.hashToPoint(message)
+  const signature = mcl.deserializeHexStrToG1(signatureHex)
+  const pubkey = mcl.deserializeHexStrToG2(pubkeyHex)
+  let message_ser = mcl.g1ToBN(M)
+  let pubkey_ser = mcl.g2ToBN(pubkey)
+  let sig_ser = mcl.g1ToBN(signature)
+  return  await contract.verifySignature(sig_ser, pubkey_ser, message_ser)
 }
 
 export const signMessage = (message, members) => {
