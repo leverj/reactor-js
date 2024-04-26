@@ -251,7 +251,8 @@ mcl.G2.prototype.add = function (pk) {
   const added = mcl.add(pk, this)
   this.setStr(added.getStr())
 }
-mcl.G2.prototype.verify = function (signature, msg) {
+//TBDs
+mcl.G2.prototype.verifyMcl = function (signature, msg) {
   let H = mcl.hashAndMapToG1(msg)
   H = mcl.neg(H)
   let e1 = mcl.precomputedMillerLoop(signature, g2())
@@ -259,6 +260,9 @@ mcl.G2.prototype.verify = function (signature, msg) {
   e1 = mcl.mul(e1, e2)
   e1 = mcl.finalExp(e1)
   return e1.isOne()
+}
+mcl.G2.prototype.verify = function (signature, msg) {
+  return mcl.mul(mcl.pairing(hashToPoint(stringToHex(msg)), this), mcl.pairing(signature, mcl.neg(g2()))).isOne()
 }
 
 export const Signature = mcl.G1

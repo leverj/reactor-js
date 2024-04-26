@@ -28,6 +28,26 @@ describe('mcl-bls', () => {
     new Keymap(messageString, 'testing evmbls2').replenish(secretHex).printSignatures()
     new Keymap(messageString, 'something').replenish(secretHex).printSignatures()
   })
+  it('should verify mcl signature via pairings', async function () {
+    const secretHex = 'a3e9769b84c095eca6b98449ac86b6e2c589834fe24cb8fbb7b36f814fd06113'
+    const map = new Keymap(messageString).replenish(secretHex).print()
+    const secretHex1 = 'b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcd29'
+    const map1 = new Keymap(messageString).replenish(secretHex1).print()
+  
+    //key1-signature1 : pass
+    let verification = map.mcl.pubkey.verify(map.mcl.signature, messageString);
+    expect(verification).toEqual(true)
+    //key1-signature2: fail
+    verification = map.mcl.pubkey.verify(map1.mcl.signature, messageString);
+    expect(verification).toEqual(false)
+    //key2-signature1: fail
+    verification = map1.mcl.pubkey.verify(map.mcl.signature, messageString);
+    expect(verification).toEqual(false)
+    //key2-signature2: pass
+    verification = map1.mcl.pubkey.verify(map1.mcl.signature, messageString);
+    expect(verification).toEqual(true)
+    
+  })
 })
 
 class Keymap {
