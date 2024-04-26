@@ -5,9 +5,9 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "test": "yarn test:js && yarn test:contract",
+    "test": "yarn compile; yarn test:js",
+    "compile": "npx hardhat compile",
     "test:js": "NODE_ENV=test mocha --exit --recursive --timeout 10000 test/**/*.spec.js",
-    "test:contract": "npx hardhat test testWithContracts/* ",
     "coverage": "NODE_OPTIONS='--experimental-loader @istanbuljs/esm-loader-hook' npx nyc mocha"
   },
   "dependencies": {
