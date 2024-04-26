@@ -53,8 +53,8 @@ describe('mcl-bls', () => {
 class Keymap {
   constructor(messageString, domain = 'testing evmbls') {
     this.messageString = messageString
-    mcl.setMappingMode(mcl.MAPPING_MODE_TI)
-    mcl.setDomain(domain)
+    // mcl.setMappingMode(mcl.MAPPING_MODE_TI)
+    // mcl.setDomain(domain)
     this.mcl = {secret: null, pubkey: null, signature: null}
     this.bls = {secret: null, pubkey: null, signature: null}
     this.serialized = {secret: null, pubkey: null, signature: null}

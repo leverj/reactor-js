@@ -1,8 +1,8 @@
-import {expect}  from 'expect'
+import {expect} from 'expect'
 import {deployContract, getSigners, createDkgMembers, signMessage} from './help/index.js'
 import bls from '../src/bls.js'
-import * as mcl  from '../src/mcl/mcl.js'
-import {deserializeHexStrToG1, deserializeHexStrToG2}  from "mcl-wasm"
+import * as mcl from '../src/mcl/mcl.js'
+import {deserializeHexStrToG1, deserializeHexStrToG2} from 'mcl-wasm'
 import {stringToHex} from '../src/mcl/mcl.js'
 
 const messageString = 'hello world'
@@ -17,8 +17,8 @@ describe('blsVerify', () => {
   })
 
   it('verify single signature', async function () {
-    mcl.setMappingMode(mcl.MAPPING_MODE_TI)
-    mcl.setDomain('testing evmbls')
+    // mcl.setMappingMode(mcl.MAPPING_MODE_TI)
+    // mcl.setDomain('testing evmbls')
     const message = mcl.stringToHex(messageString)
     const {pubkey, secret} = mcl.newKeyPair()
     const {signature, M} = mcl.sign(message, secret)

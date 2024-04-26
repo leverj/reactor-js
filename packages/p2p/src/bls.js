@@ -13,8 +13,8 @@ async function Bls1(){
 
 async function Mcl() {
   await bls3.init()
-  bls3.setMappingMode(bls3.MAPPING_MODE_TI)
-  bls3.setDomain('testing evmbls')
+  // bls3.setMappingMode(bls3.MAPPING_MODE_TI)
+  // bls3.setDomain('testing evmbls')
   return bls3
 }
 

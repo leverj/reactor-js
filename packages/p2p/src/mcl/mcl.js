@@ -13,6 +13,7 @@ let DOMAIN
 export async function init() {
   await mcl.init(mcl.BN_SNARK1)
   setMappingMode(MAPPING_MODE_FT)
+  setDomain('testing evmbls')
 }
 
 export function setDomain(domain) {
