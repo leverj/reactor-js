@@ -1,5 +1,4 @@
 import bls1 from 'bls-wasm'
-import bls2 from 'bls-eth-wasm'
 import * as bls3 from './mcl/mcl.js'
 
 async function Bls1(){
@@ -12,11 +11,6 @@ async function Bls1(){
   return bls1
 }
 
-async function Bls2(){
-  await bls2.init()
-  return bls2
-}
-
 async function Mcl() {
   await bls3.init()
   bls3.setMappingMode(bls3.MAPPING_MODE_TI)
@@ -26,5 +20,4 @@ async function Mcl() {
 
 // const bls = await Bls1()
 const bls = await Mcl()
-// const bls = await Bls2()
 export default bls

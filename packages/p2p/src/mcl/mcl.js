@@ -1,5 +1,5 @@
 import {ethers} from 'ethers'
-import {toBig, FIELD_ORDER, bigToHex, randHex, stringToHex} from './utils.js'
+import {bigToHex, FIELD_ORDER, randHex, stringToHex, toBig} from './utils.js'
 import {hashToField} from './hash_to_field.js'
 import mcl from 'mcl-wasm'
 
@@ -251,18 +251,26 @@ mcl.G2.prototype.add = function (pk) {
   const added = mcl.add(pk, this)
   this.setStr(added.getStr())
 }
-//TBDs
-mcl.G2.prototype.verifyMcl = function (signature, msg) {
-  let H = mcl.hashAndMapToG1(msg)
+
+// fast and copy from mcl-wasm c++ code
+mcl.G2.prototype.verify = function (signature, msg) {
+  // let H = mcl.hashAndMapToG1(msg)  // does not have domain, so does not work. to be worked later
+  let H = hashToPoint(stringToHex(msg)) // has domain
   H = mcl.neg(H)
-  let e1 = mcl.precomputedMillerLoop(signature, g2())
+  let e1 = mcl.precomputedMillerLoop(signature, new mcl.PrecomputedG2(g2()))
   const e2 = mcl.millerLoop(H, this)
   e1 = mcl.mul(e1, e2)
   e1 = mcl.finalExp(e1)
   return e1.isOne()
 }
-mcl.G2.prototype.verify = function (signature, msg) {
-  return mcl.mul(mcl.pairing(hashToPoint(stringToHex(msg)), this), mcl.pairing(signature, mcl.neg(g2()))).isOne()
+
+// slow but clean
+mcl.G2.prototype.verify_slow = function (signature, msg) {
+  const M = hashToPoint(stringToHex(msg))
+  const preComputedG2 = mcl.neg(g2())
+  const messageToPublicKeyPairing = mcl.pairing(M, this)
+  const messageToPrecomputedG2Pairing = mcl.pairing(signature, preComputedG2)
+  return mcl.mul(messageToPublicKeyPairing, messageToPrecomputedG2Pairing).isOne()
 }
 
 export const Signature = mcl.G1
