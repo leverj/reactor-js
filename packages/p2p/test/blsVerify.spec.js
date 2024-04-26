@@ -3,6 +3,7 @@ import {deployContract, getSigners, createDkgMembers, signMessage} from './help/
 import bls from '../src/bls.js'
 import * as mcl  from '../src/mcl/mcl.js'
 import {deserializeHexStrToG1, deserializeHexStrToG2}  from "mcl-wasm"
+import {stringToHex} from '../src/mcl/mcl.js'
 
 const messageString = 'hello world'
 describe('blsVerify', () => {
@@ -48,5 +49,13 @@ describe('blsVerify', () => {
     let sig_ser = mcl.g1ToBN(signature)
     let res = await contract.verifySignature(sig_ser, pubkey_ser, message_ser)
     expect(res).toEqual(true)
+  })
+
+  it('should be able to convert message to point', async function () {
+    let res = await contract.hashToPoint(stringToHex('testing evmbls'), stringToHex(messageString))
+    let fromJs = mcl.g1ToBN(mcl.hashToPoint(messageString))
+    console.log('from js', fromJs)
+    console.log('from contract', res)
+    expect(res).toEqual(fromJs)
   })
 })
