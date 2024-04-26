@@ -1,6 +1,6 @@
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
-import {peerIdJsons, startNodes, stopNodes} from './help.js'
+import {peerIdJsons, startNodes, stopNodes} from './help/index.js'
 
 describe('p2p', function () {
   const meshProtocol = '/mesh/1.0.0'

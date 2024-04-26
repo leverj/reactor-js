@@ -1,9 +1,8 @@
 import {expect}  from 'expect'
-import {deployContract, getSigners} from './hardhat.cjs'
+import {deployContract, getSigners, createDkgMembers, signMessage} from './help/index.js'
 import bls from '../src/bls.js'
 import * as mcl  from '../src/mcl/mcl.js'
 import {deserializeHexStrToG1, deserializeHexStrToG2}  from "mcl-wasm"
-import {createDkgMembers, signMessage} from './help.js'
 
 const messageString = 'hello world'
 describe('blsVerify', () => {

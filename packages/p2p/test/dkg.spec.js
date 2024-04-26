@@ -1,8 +1,7 @@
 import bls from '../src/bls.js'
-import {createDkgMembers, setupMembers, signMessage, signAndVerify, addMember} from './help.js'
+import {createDkgMembers, setupMembers, signMessage, signAndVerify, addMember, deployContract, getSigners} from './help/index.js'
 import {expect} from 'expect'
 import {Member} from '../src/Member.js'
-import {deployContract, getSigners} from './hardhat.cjs'
 
 const message = 'hello world'
 let contract, owner, anyone
