@@ -34,21 +34,21 @@ export function setMappingMode(mode) {
 }
 
 export function hashToPoint(msg) {
-  // return mcl.hashAndMapToG1(msg)
+  return mcl.hashAndMapToG1(msg)
 
   // if (!ethers.utils.isHexString(msg)) {
   //   throw new Error('message is expected to be hex string')
   // }
 
-  const _msg = Uint8Array.from(Buffer.from(stringToHex(msg).slice(2), 'hex'))
-  const hashRes = hashToField(DOMAIN, _msg, 2)
-  const e0 = hashRes[0]
-  const e1 = hashRes[1]
-  const p0 = mapToPoint(e0.toHexString())
-  const p1 = mapToPoint(e1.toHexString())
-  const p = mcl.add(p0, p1)
-  p.normalize()
-  return p
+  // const _msg = Uint8Array.from(Buffer.from(stringToHex(msg).slice(2), 'hex'))
+  // const hashRes = hashToField(DOMAIN, _msg, 2)
+  // const e0 = hashRes[0]
+  // const e1 = hashRes[1]
+  // const p0 = mapToPoint(e0.toHexString())
+  // const p1 = mapToPoint(e1.toHexString())
+  // const p = mcl.add(p0, p1)
+  // p.normalize()
+  // return p
 }
 
 export function mapToPoint(eHex) {
