@@ -34,11 +34,13 @@ export function setMappingMode(mode) {
 }
 
 export function hashToPoint(msg) {
-  if (!ethers.utils.isHexString(msg)) {
-    throw new Error('message is expected to be hex string')
-  }
+  // return mcl.hashAndMapToG1(msg)
 
-  const _msg = Uint8Array.from(Buffer.from(msg.slice(2), 'hex'))
+  // if (!ethers.utils.isHexString(msg)) {
+  //   throw new Error('message is expected to be hex string')
+  // }
+
+  const _msg = Uint8Array.from(Buffer.from(stringToHex(msg).slice(2), 'hex'))
   const hashRes = hashToField(DOMAIN, _msg, 2)
   const e0 = hashRes[0]
   const e1 = hashRes[1]
@@ -238,7 +240,7 @@ mcl.Fr.prototype.add = function (sk) {
 }
 
 mcl.Fr.prototype.sign = function (msg) {
-  return sign(stringToHex(msg), this).signature
+  return sign(msg, this).signature
 }
 
 export const PublicKey = mcl.G2
@@ -255,7 +257,7 @@ mcl.G2.prototype.add = function (pk) {
 // fast and copy from mcl-wasm c++ code
 mcl.G2.prototype.verify = function (signature, msg) {
   // let H = mcl.hashAndMapToG1(msg)  // does not have domain, so does not work. to be worked later
-  let H = hashToPoint(stringToHex(msg)) // has domain
+  let H = hashToPoint(msg) // has domain
   H = mcl.neg(H)
   let e1 = mcl.precomputedMillerLoop(signature, new mcl.PrecomputedG2(g2()))
   const e2 = mcl.millerLoop(H, this)
@@ -266,7 +268,7 @@ mcl.G2.prototype.verify = function (signature, msg) {
 
 // slow but clean
 mcl.G2.prototype.verify_slow = function (signature, msg) {
-  const M = hashToPoint(stringToHex(msg))
+  const M = hashToPoint(msg)
   const preComputedG2 = mcl.neg(g2())
   const messageToPublicKeyPairing = mcl.pairing(M, this)
   const messageToPrecomputedG2Pairing = mcl.pairing(signature, preComputedG2)

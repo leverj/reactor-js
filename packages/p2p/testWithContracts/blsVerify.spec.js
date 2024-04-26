@@ -40,7 +40,7 @@ describe('blsVerify', () => {
 
     const signatureHex = groupsSign.serializeToHexStr()
     const pubkeyHex = members[0].groupPublicKey.serializeToHexStr()
-    const M = mcl.hashToPoint(mcl.stringToHex(messageString))
+    const M = mcl.hashToPoint(messageString)
 
     const signature = deserializeHexStrToG1(signatureHex)
     const pubkey = deserializeHexStrToG2(pubkeyHex)

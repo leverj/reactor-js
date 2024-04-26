@@ -68,7 +68,7 @@ class Keymap {
   replenishMcl(secretHex) {
     this.mcl.secret = mcl.secretFromHex(secretHex)
     this.mcl.pubkey = mcl.getPublicKey(secretHex)
-    this.mcl.signature = mcl.sign(mcl.stringToHex(this.messageString), this.mcl.secret).signature
+    this.mcl.signature = mcl.sign(this.messageString, this.mcl.secret).signature
     return this
   }
 
