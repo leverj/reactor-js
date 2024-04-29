@@ -2,20 +2,9 @@ import bls from './bls.js'
 
 import {addContributionShares, addVerificationVectors, generateContributionForId, verifyContributionShare} from './dkg-bls.js'
 
-function randomizeArrayCopy(array) {
-  const copy = array.slice()
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    const temp = copy[i]
-    copy[i] = copy[j]
-    copy[j] = temp
-  }
-  return copy
-}
 
 function getMemberContributions(recievedShares, vvecs) {
-  const ids = randomizeArrayCopy(Object.keys(recievedShares))
-  // const ids = Object.keys(recievedShares).sort()
+  const ids = Object.keys(recievedShares).sort()
   const sortedShares = ids.map(id => recievedShares[id])
   const sortedVvecs = ids.map(id => vvecs[id])
   return {recievedShares: sortedShares, vvecs: sortedVvecs}
@@ -33,7 +22,7 @@ function toPublicKey(str) {
   return publicKey
 }
 
-export class Member {
+export class DistributedKey {
   static TOPICS = {
     DKG_KEY_GENERATE: 'DKG_KEY_GENERATE',
   }
@@ -67,7 +56,7 @@ export class Member {
 
   onMessage(topic, message) {
     switch (topic) {
-      case Member.TOPICS.DKG_KEY_GENERATE:
+      case DistributedKey.TOPICS.DKG_KEY_GENERATE:
         const {id, secretKeyContribution, verificationVector} = JSON.parse(message)
         this.verifyAndAddShare(id, toPrivateKey(secretKeyContribution), verificationVector.map(toPublicKey))
         this.vvecs[id] = verificationVector.map(toPublicKey)
@@ -103,7 +92,7 @@ export class Member {
 
   generateContributionForId(id, onMessage) {
     let secretKeyContribution = generateContributionForId(bls, toPrivateKey(id), this.secretVector)
-    onMessage(Member.TOPICS.DKG_KEY_GENERATE, JSON.stringify({
+    onMessage(DistributedKey.TOPICS.DKG_KEY_GENERATE, JSON.stringify({
       id: this.id.serializeToHexStr(),
       secretKeyContribution: secretKeyContribution.serializeToHexStr(),
       verificationVector: this.verificationVector.map(_ => _.serializeToHexStr())

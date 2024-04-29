@@ -1,4 +1,4 @@
-import {Member} from '../../src/Member.js'
+import {DistributedKey} from '../../src/DistributedKey.js'
 import bls from '../../src/bls.js'
 import * as mcl from '../../src/mcl/mcl.js'
 import {expect} from 'expect'
@@ -54,7 +54,7 @@ export function addMember(members, newMember) {
 }
 
 export const createDkgMembers = (memberIds, threshold) => {
-  const members = memberIds.map(id => new Member(id))
+  const members = memberIds.map(id => new DistributedKey(id))
   for (const member of members) for (const member1 of members) member.addMember(member1.id.serializeToHexStr(), member1.onMessage.bind(member1))
   return setupMembers(members, threshold)
 }
