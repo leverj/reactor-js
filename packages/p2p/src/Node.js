@@ -10,6 +10,7 @@ import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
 import map from 'it-map'
 import {pipe} from 'it-pipe'
 import {createFromJSON} from '@libp2p/peer-id-factory'
+import {affirm} from '@leverj/common/utils'
 
 export default class Node {
   constructor({ip = '0.0.0.0', port = 0, isLeader = false, peerIdJson}) {
@@ -18,6 +19,7 @@ export default class Node {
     this.port = port
     this.isLeader = isLeader
     this.streams = {}
+    this.knownPeers = {}
   }
 
   get multiaddrs() { return this.p2p.getMultiaddrs().map((addr) => addr.toString()) }
@@ -39,7 +41,7 @@ export default class Node {
     this.p2p = await createLibp2p({
       peerId,
       addresses: {listen: [`/ip4/${this.ip}/tcp/${this.port}`],},
-      transports: [ tcp()],
+      transports: [tcp()],
       connectionEncryption: [noise()],
       streamMuxers: [yamux()],
       services: {ping: ping({protocolPrefix: 'ipfs'}), pubsub: gossipsub(),},
@@ -53,6 +55,8 @@ export default class Node {
     return this
   }
 
+  addToKnownPeers(...peerIds) { for (const id of peerIds) this.knownPeers[id] = true }
+
   async stop() {
     await this.p2p.stop()
     for (const stream of Object.values(this.streams)) await stream.close()
@@ -64,7 +68,14 @@ export default class Node {
     return this
   }
 
-  peerConnected(evt) { /*console.log('peer connected', evt.detail) */}
+  //fixme: remove this peer from the network
+  peerConnected(evt) {
+    const peerId = evt.detail.toString()
+    if (!this.knownPeers[peerId]) {
+      console.log('remove this peer from the network')
+      // this.p2p.hangUp(peerId)
+    }
+  }
 
   // pubsub connection
   async connectPubSub(peerId, handler) {
@@ -89,7 +100,7 @@ export default class Node {
   }
 
   async createStream(address, protocol) {
-    if(this.streams[protocol]) this.streams[protocol].close()
+    if (this.streams[protocol]) this.streams[protocol].close()
     let stream = await this.p2p.dialProtocol(multiaddr(address), protocol)
     this.streams[protocol] = stream
     return stream

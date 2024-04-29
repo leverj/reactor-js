@@ -28,6 +28,7 @@ export class DistributedKey {
   }
 
   constructor(id) {
+    this.peerId = id
     this.id = new bls.SecretKey()
     this.id.setHashOf(Buffer.from([id]))
     this.members = {}

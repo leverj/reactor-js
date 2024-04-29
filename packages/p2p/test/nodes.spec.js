@@ -90,4 +90,18 @@ describe('p2p', function () {
       expect(depositReceipts[peerOfNode1]).toEqual(depositHash + depositHash)
     }
   })
+
+  // fixme: to be implemented
+  it.skip('should not allow to connect a node if not approved', async function () {
+    const [node1, node2] = await startNodes(2)
+    node1.connect(node2.multiaddrs[0])
+    await setTimeout(100)
+    expect(node2.peers.length).toEqual(0)
+    expect(node1.peers.length).toEqual(0)
+    node1.addToKnownPeers(node2.peerId)
+    node1.connect(node2.multiaddrs[0])
+    await setTimeout(100)
+    expect(node1.peers.length).toEqual(1)
+    expect(node2.peers.length).toEqual(1)
+  })
 })

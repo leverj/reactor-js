@@ -1,5 +1,6 @@
 import Node from '../../src/Node.js'
 import {peerIdJsons} from './fixtures.js'
+
 let nodes = []
 //const memberVectorSecretMap = {}
 export const stopNodes = async () => {
@@ -12,6 +13,7 @@ export const startNodes = async (count, connectToLeader = false) => {
       nodes.push(_)
       return _
     })
+    for (const node of nodes) node.addToKnownPeers(...nodes.map(_ => _.peerId))
     if (connectToLeader && i > 0) await node.connect(nodes[0].multiaddrs[0])
   }
   return nodes
