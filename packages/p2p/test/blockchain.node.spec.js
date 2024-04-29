@@ -17,7 +17,7 @@ describe('blockchain.node', function () {
   //leader node will listen on Deposit, and broadcast to children. Children will verify and sign and point-2-point update
   //the leader. Once M-of-N have signed, Leader will submit aggregate signature alongwith transaction instruction to contract
   //Leader address can be published in a smart contract or some other decentralized place for global discovery ?
-  it.only('it should start blockchain node and process Deposits', async function () {
+  it('it should start blockchain node and process Deposits', async function () {
     const leader = new BlockchainNode({ip: '127.0.0.1',port:9000,isLeader: true, peerIdJson: peerIdJsons[0]});
     await leader.create().then(_ => _.start())
     const depositReceipts = {} 
