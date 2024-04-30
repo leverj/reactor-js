@@ -19,7 +19,9 @@ class Bridge extends Node {
 
   whitelistPeers(...peers) {
     for (const {peerId, multiaddr} of peers) {
-      this.whitelisted[peerId] = {dkgId: new DistributedKey(peerId).id, multiaddr}
+      let dkgId = new DistributedKey(peerId).id.serializeToHexStr()
+      this.whitelisted[peerId] = {dkgId: dkgId, multiaddr}
+      this.distributedKey.addMember(dkgId, this.sendDkgMessage.bind(this, multiaddr))
     }
   }
 
@@ -33,20 +35,33 @@ class Bridge extends Node {
 
   async create() {
     await super.create()
+    console.log(JSON.stringify(this.exportPeerId()))
     this.distributedKey = new DistributedKey(this.peerId)
     this.registerStreamHandler(meshProtocol, this.onStreamMessage.bind(this))
     return this
   }
 
-  onStreamMessage(stream, peerId, msgStr) {
+  async sendDkgMessage(multiaddr, topic, message) {
+    // send mesh protocol to dkgId
+    const messageStr = JSON.stringify({topic, message})
+    await this.createAndSendMessage(multiaddr, meshProtocol, messageStr)
+  }
+
+  async onStreamMessage(stream, peerId, msgStr) {
+    console.log('onStreamMessage',  peerId, msgStr)
     const msg = JSON.parse(msgStr)
     affirm(this.whitelisted[peerId], `Unknown peer ${peerId}`)
 
-    switch (msg.type) {
+    switch (msg.topic) {
       case DKG:
         this.distributedKey.generateVectors(msg.threshold)
-        this.distributedKey.generateContribution()
+        await this.distributedKey.generateContribution()
         break
+      case this.distributedKey.TOPICS.DKG_KEY_GENERATE:
+        this.distributedKey.onMessage(msg.topic, msg.message)
+        break
+      default:
+        console.log('Unknown message', msg)
     }
   }
 
@@ -58,7 +73,7 @@ class Bridge extends Node {
     for (const peerId of Object.keys(this.whitelisted)) {
       if (this.peerId === peerId) continue
       let multiaddr = this.whitelisted[peerId].multiaddr
-      let message = JSON.stringify({type: DKG, threshold})
+      let message = JSON.stringify({topic: DKG, threshold})
       await this.createAndSendMessage(multiaddr, meshProtocol, message, responseHandler)
     }
     await this.distributedKey.generateVectors(threshold)

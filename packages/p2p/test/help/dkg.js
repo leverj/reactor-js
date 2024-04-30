@@ -35,16 +35,16 @@ export const signMessage = (message, members) => {
   return {signs, signers}
 }
 
-export const setupMembers = (members, threshold) => {
+export const setupMembers = async (members, threshold) => {
   for (const member of members) member.generateVectors(threshold)
-  for (const member of members) member.generateContribution()
+  for (const member of members) await member.generateContribution()
   for (const member of members) member.dkgDone()
   return members
 }
 
-export function addMember(members, newMember) {
+export async function addMember(members, newMember) {
   for (const existing of members) {
-    existing.generateContributionForId(newMember.id.serializeToHexStr(), newMember.onMessage.bind(newMember))
+    await existing.generateContributionForId(newMember.id.serializeToHexStr(), newMember.onMessage.bind(newMember))
     existing.addMember(newMember.id.serializeToHexStr(), newMember.onMessage.bind(newMember))
     newMember.addMember(existing.id.serializeToHexStr(), existing.onMessage.bind(existing))
   }

@@ -24,7 +24,7 @@ describe('e2e', function () {
     }
 
     await leader.startDKG(4)
-    await setTimeout(1000)
+    await setTimeout(2000)
 
   }).timeout(-1)
 

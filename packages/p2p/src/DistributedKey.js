@@ -61,6 +61,7 @@ export class DistributedKey {
         const {id, secretKeyContribution, verificationVector} = JSON.parse(message)
         this.verifyAndAddShare(id, toPrivateKey(secretKeyContribution), verificationVector.map(toPublicKey))
         this.vvecs[id] = verificationVector.map(toPublicKey)
+        this.print()
         break
       default:
         console.log('unknown topic', topic)
@@ -75,13 +76,13 @@ export class DistributedKey {
       const pk = sk.getPublicKey()
       this.verificationVector.push(pk)
     }
-    console.log('generated vectors', threshold, this.peerId)
+    // console.log('generated vectors', threshold, this.peerId)
   }
 
-  generateContribution() {
+  async generateContribution() {
     for (const [id, onMessage] of Object.entries(this.members))
-      this.generateContributionForId(id, onMessage)
-      console.log('generated contribution', this.peerId)
+     await this.generateContributionForId(id, onMessage)
+      // console.log('generated contribution', this.peerId)
   }
 
 
@@ -93,9 +94,9 @@ export class DistributedKey {
     this.recievedShares[id] = receivedShare
   }
 
-  generateContributionForId(id, onMessage) {
-    let secretKeyContribution = generateContributionForId(bls, toPrivateKey(id), this.secretVector)
-    onMessage(DistributedKey.TOPICS.DKG_KEY_GENERATE, JSON.stringify({
+  async generateContributionForId(id, onMessage) {
+    let secretKeyContribution = await generateContributionForId(bls, toPrivateKey(id), this.secretVector)
+    await onMessage(DistributedKey.TOPICS.DKG_KEY_GENERATE, JSON.stringify({
       id: this.id.serializeToHexStr(),
       secretKeyContribution: secretKeyContribution.serializeToHexStr(),
       verificationVector: this.verificationVector.map(_ => _.serializeToHexStr())
