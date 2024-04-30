@@ -23,7 +23,7 @@ class Bridge extends Node {
   async create() {
     await super.create()
     this.distributedKey = new DistributedKey(this.peerId)
-    //this.registerStreamHandler(meshProtocol, this.onStreamMessage.bind(this))
+    this.registerStreamHandler(meshProtocol, this.onStreamMessage.bind(this))
     return this
   }
 
