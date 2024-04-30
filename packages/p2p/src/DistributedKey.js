@@ -61,7 +61,7 @@ export class DistributedKey {
         const {id, secretKeyContribution, verificationVector} = JSON.parse(message)
         this.verifyAndAddShare(id, toPrivateKey(secretKeyContribution), verificationVector.map(toPublicKey))
         this.vvecs[id] = verificationVector.map(toPublicKey)
-        this.print()
+        // this.print()
         break
       default:
         console.log('unknown topic', topic)

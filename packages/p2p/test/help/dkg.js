@@ -53,9 +53,9 @@ export async function addMember(members, newMember) {
   members.push(newMember)
 }
 
-export const createDkgMembers = (memberIds, threshold) => {
+export const createDkgMembers = async (memberIds, threshold) => {
   const members = memberIds.map(id => new DistributedKey(id))
   for (const member of members) for (const member1 of members) member.addMember(member1.id.serializeToHexStr(), member1.onMessage.bind(member1))
-  return setupMembers(members, threshold)
+  return await setupMembers(members, threshold)
 }
 

@@ -48,7 +48,7 @@ class Bridge extends Node {
   }
 
   async onStreamMessage(stream, peerId, msgStr) {
-    console.log('onStreamMessage',  peerId, msgStr)
+    console.log('onStreamMessage', peerId, msgStr)
     const msg = JSON.parse(msgStr)
     affirm(this.whitelisted[peerId], `Unknown peer ${peerId}`)
 
@@ -67,9 +67,7 @@ class Bridge extends Node {
 
   async startDKG(threshold) {
     if (!this.isLeader) return
-    const responseHandler = (msg) => {
-      console.log('Read Stream', msg)
-    }
+    const responseHandler = (msg) => console.log('dkg received', msg)
     for (const peerId of Object.keys(this.whitelisted)) {
       if (this.peerId === peerId) continue
       let multiaddr = this.whitelisted[peerId].multiaddr

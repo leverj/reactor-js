@@ -13,7 +13,7 @@ describe('dkg', function () {
 
   it('should be able to match member pub key derived from member pvt key', async function () {
     const threshold = 4
-    const members = createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399], threshold)
+    const members = await createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399], threshold)
     for (const member of members) {
       expect(member.publicKey.serializeToHexStr()).toEqual(member.secretKeyShare.getPublicKey().serializeToHexStr())
     }
@@ -22,7 +22,7 @@ describe('dkg', function () {
 
   it('should be able to create distributed keys and sign message', async function () {
     const threshold = 4
-    const members = createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399], threshold)
+    const members = await createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399], threshold)
     expect(members.length).toBe(7)
     for (const member of members) {
       expect(member.groupPublicKey.serializeToHexStr()).toEqual(members[0].groupPublicKey.serializeToHexStr())
@@ -36,10 +36,10 @@ describe('dkg', function () {
 
   it('should be able to add new member retaining old public key and sign messages', async function () {
     const threshold = 4
-    const members = createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399], threshold)
+    const members = await createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399], threshold)
     expect(members.length).toBe(7)
     let groupPublicKey = members[0].vvec[0]
-    addMember(members, new DistributedKey(100))
+    await addMember(members, new DistributedKey(100))
     expect(members.length).toBe(8)
     for (const member of members) expect(member.groupPublicKey.serializeToHexStr()).toEqual(groupPublicKey.serializeToHexStr())
     const fixtures = [[0, 3, false], [0, 4, true], [0, 5, true], [0, 6, true], [0, 7, true], [0, 8, true],
@@ -52,11 +52,11 @@ describe('dkg', function () {
 
   it('should be able to increase threshold', async function () {
     const threshold = 4
-    const members = createDkgMembers([10314, 30911, 25411, 8608, 31524, 23399, 15441, 138473], threshold)
+    const members = await createDkgMembers([10314, 30911, 25411, 8608, 31524, 23399, 15441, 138473], threshold)
     expect(await signAndVerify(contract, message, members.slice(0, 4))).toBe(true)
     const groupsPublicKey = members[0].groupPublicKey
     members.forEach(member => member.reinitiate())
-    setupMembers(members, threshold + 1)
+    await setupMembers(members, threshold + 1)
     for (const member of members) expect(member.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKey.serializeToHexStr())
     expect(await signAndVerify(contract, message, members.slice(0, 4))).toBe(false)
     expect(await signAndVerify(contract, message, members.slice(3, 7))).toBe(false)
@@ -66,12 +66,12 @@ describe('dkg', function () {
 
   it('should be able to add member and increase threshold without changing group public key', async function () {
     const threshold = 4
-    const members = createDkgMembers([10314, 30911, 25411, 8608, 31524, 23399, 15441], threshold)
+    const members = await createDkgMembers([10314, 30911, 25411, 8608, 31524, 23399, 15441], threshold)
     expect(await signAndVerify(contract, message, members.slice(0, 4))).toBe(true)
     const groupsPublicKey = members[0].groupPublicKey
-    addMember(members, new DistributedKey(100))
+    await addMember(members, new DistributedKey(100))
     members.forEach(member => member.reinitiate())
-    setupMembers(members, threshold + 1)
+    await setupMembers(members, threshold + 1)
     for (const member of members) expect(member.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKey.serializeToHexStr())
     expect(await signAndVerify(contract, message, members.slice(0, 4))).toBe(false)
     expect(await signAndVerify(contract, message, members.slice(4, 8))).toBe(false)
@@ -80,7 +80,7 @@ describe('dkg', function () {
   })
 
   it('should be able to get shared public key from verification vector', async function () {
-    const members = createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399], 4)
+    const members = await createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399], 4)
     const member = members[4]
     const pk1 = new bls.PublicKey()
     pk1.share(member.vvec, member.id)
@@ -92,7 +92,7 @@ describe('dkg', function () {
 
   it('share renewal', async function () {
     const threshold = 4
-    const members = createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399], threshold)
+    const members = await createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399], threshold)
     const {signs, signers} = signMessage(message, members)
     const groupsSign = new bls.Signature()
     groupsSign.recover(signs, signers)
@@ -100,7 +100,7 @@ describe('dkg', function () {
 
     // -> member shares array reinitialized
     members.forEach(member => member.reinitiate())
-    setupMembers(members, threshold)
+    await setupMembers(members, threshold)
     for (const member of members) expect(member.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKey.serializeToHexStr())
     const {signs: newSigns, signers: newSigners} = signMessage(message, members)
     const newGroupsSign = new bls.Signature()
@@ -111,11 +111,11 @@ describe('dkg', function () {
 
   it('should be able to remove a member', async function () {
     const threshold = 4
-    const members = createDkgMembers([10314, 30911, 25411, 8608, 31524, 23399, 15441, 138473], threshold)
+    const members = await createDkgMembers([10314, 30911, 25411, 8608, 31524, 23399, 15441, 138473], threshold)
     const groupsPublicKey = members[0].groupPublicKey
     members.forEach(member => member.reinitiate())
     members.pop()
-    setupMembers(members, threshold)
+    await setupMembers(members, threshold)
     for (const member of members) expect(member.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKey.serializeToHexStr())
     expect(await signAndVerify(contract, message, members.slice(0, 3))).toBe(false)
     expect(await signAndVerify(contract, message, members.slice(0, 4))).toBe(true)
@@ -126,12 +126,12 @@ describe('dkg', function () {
 
   it.skip('should be able to decrease threshold', async function () {
     const threshold = 5
-    const members = createDkgMembers([10314, 30911, 25411, 8608, 31524, 23399, 15441, 138473], threshold)
+    const members = await createDkgMembers([10314, 30911, 25411, 8608, 31524, 23399, 15441, 138473], threshold)
     expect(await signAndVerify(contract, message, members.slice(0, 4))).toBe(false)
     expect(await signAndVerify(contract, message, members.slice(0, 5))).toBe(true)
     const groupsPublicKey = members[0].groupPublicKey
     members.forEach(member => member.reinitiate())
-    setupMembers(members, threshold - 1)
+    await setupMembers(members, threshold - 1)
     for (const member of members) expect(member.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKey.serializeToHexStr())
     expect(await signAndVerify(contract, message, members.slice(0, 3))).toBe(false)
     //fixme: test fails here

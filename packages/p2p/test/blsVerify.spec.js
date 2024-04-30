@@ -32,7 +32,7 @@ describe('blsVerify', () => {
 
   it('should verify signature from dkgnodes', async function () {
     const threshold = 4
-    const members = createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399], threshold)
+    const members = await createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399], threshold)
     const {signs, signers} = signMessage(messageString, members)
     const groupsSign = new bls.Signature()
     groupsSign.recover(signs, signers)
