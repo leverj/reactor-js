@@ -1,24 +1,34 @@
 import Node from './Node.js'
 import {DistributedKey} from './DistributedKey.js'
 import {affirm} from '@leverj/common/utils'
+import {setTimeout} from 'timers/promises'
 
 const DKG = 'DKG'
 const DKG_START = 'DKG_START'
 const topic = 'BRIDGE_COMMUNICATION'
 const meshProtocol = '/bridge/0.0.1'
-import {setTimeout} from 'timers/promises'
+
 
 class Bridge extends Node {
   constructor({ip = '0.0.0.0', port = 0, isLeader = false, peerIdJson}) {
     super({ip, port, isLeader, peerIdJson})
     this.distributedKey
     this.state
-    this.peersMap = {}
+    this.whitelisted = {}
   }
 
-  addToKnownPeers(...peerIds) {
-    for (const peerId of peerIds) this.peersMap[peerId] = {dkgId: new DistributedKey(peerId).id}
-    super.addToKnownPeers(...peerIds)
+  whitelistPeers(...peers) {
+    for (const {peerId, multiaddr} of peers) {
+      this.whitelisted[peerId] = {dkgId: new DistributedKey(peerId).id, multiaddr}
+    }
+  }
+
+  async connectWhitelisted() {
+    for (const peerId of Object.keys(this.whitelisted)) {
+      if (peerId === this.peerId) continue
+      await this.connect(this.whitelisted[peerId].multiaddr)
+      await setTimeout(100)
+    }
   }
 
   async create() {
@@ -30,7 +40,8 @@ class Bridge extends Node {
 
   onStreamMessage(stream, peerId, msgStr) {
     const msg = JSON.parse(msgStr)
-    affirm(this.knownPeers[peerId], `Unknown peer ${peerId}`)
+    affirm(this.whitelisted[peerId], `Unknown peer ${peerId}`)
+
     switch (msg.type) {
       case DKG:
         this.distributedKey.generateVectors(msg.threshold)
@@ -39,21 +50,19 @@ class Bridge extends Node {
     }
   }
 
-  /*
-  for (const member of members) member.generateVectors(threshold)
-  for (const member of members) member.generateContribution()
-  for (const member of members) member.dkgDone()
-   */
-
   async startDKG(threshold) {
     if (!this.isLeader) return
-    //JSON.stringify returning only type token. weird.
-    const messageToSend = `{\"type\": \"DKG\", \"threshold\": \"${threshold}\"}`
-    for (const peer of this.peers) {
-      const stream = await this.createStream(this.p2pNetwork[peer].multiaddrs[0], meshProtocol);
-      await this.sendMessage(stream, messageToSend)
-      await this.p2pNetwork[peer].readStream(stream, (msg) => {console.log("Read Stream", msg)})
+    const responseHandler = (msg) => {
+      console.log('Read Stream', msg)
     }
+    for (const peerId of Object.keys(this.whitelisted)) {
+      if (this.peerId === peerId) continue
+      let multiaddr = this.whitelisted[peerId].multiaddr
+      let message = JSON.stringify({type: DKG, threshold})
+      await this.createAndSendMessage(multiaddr, meshProtocol, message, responseHandler)
+    }
+    await this.distributedKey.generateVectors(threshold)
+    await this.distributedKey.generateContribution()
   }
 
 }

@@ -9,18 +9,14 @@ describe('e2e', function () {
   it('it should be able to connect with other nodes', async function () {
     let [leader, node1, node2, node3, node4, node5, node6] = await createBridgeNodes(7)
     let nodes = [leader, node1, node2, node3, node4, node5, node6]
+    // whitelist nodes
     for (const node of nodes) {
       expect(node.peers.length).toEqual(0)
-      node.addToKnownPeers(...nodes.map(_ => _.peerId))
+      node.whitelistPeers(...nodes.map(_ => ({peerId: _.peerId, multiaddr: _.multiaddrs[0]})))
     }
+    // start connecting
     for (const node of nodes) {
-      for (const peer of nodes) {
-        if (peer.peerId !== node.peerId) {
-          await setTimeout(100)
-          await node.connect(peer.multiaddrs[0])
-          node.p2pNetwork[peer.peerId] = peer
-        }
-      }
+      await node.connectWhitelisted()
     }
     await setTimeout(100)
     for (const node of [leader, node1, node2, node3, node4, node5, node6]) {

@@ -19,8 +19,6 @@ export default class Node {
     this.port = port
     this.isLeader = isLeader
     this.streams = {}
-    this.knownPeers = {}
-    this.p2pNetwork = {}
   }
 
   get multiaddrs() { return this.p2p.getMultiaddrs().map((addr) => addr.toString()) }
@@ -56,8 +54,6 @@ export default class Node {
     return this
   }
 
-  addToKnownPeers(...peerIds) { for (const id of peerIds) this.knownPeers[id] = true }
-
   async stop() {
     await this.p2p.stop()
     for (const stream of Object.values(this.streams)) await stream.close()
@@ -71,11 +67,11 @@ export default class Node {
 
   //fixme: remove this peer from the network
   peerConnected(evt) {
-    const peerId = evt.detail.toString()
-    if (!this.knownPeers[peerId]) {
-      console.log('remove this peer from the network')
-      // this.p2p.hangUp(peerId)
-    }
+    // const peerId = evt.detail.toString()
+    // if (!this.knownPeers[peerId]) {
+    //   console.log('remove this peer from the network')
+    //   // this.p2p.hangUp(peerId)
+    // }
   }
 
   // pubsub connection
@@ -96,8 +92,8 @@ export default class Node {
   async createAndSendMessage(address, protocol, message, responseHandler) {
     //console.log("createAndSendMessage", address)
     let stream = await this.createStream(address, protocol)
-    this.sendMessage(stream, message)
-    this.readStream(stream, responseHandler)
+    await this.sendMessage(stream, message)
+    await this.readStream(stream, responseHandler)
     return stream
   }
 
