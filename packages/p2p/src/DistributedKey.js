@@ -64,7 +64,8 @@ export class DistributedKey {
         const {id, secretKeyContribution, verificationVector} = JSON.parse(message)
         this.verifyAndAddShare(id, toPrivateKey(secretKeyContribution), verificationVector.map(toPublicKey))
         this.vvecs[id] = verificationVector.map(toPublicKey)
-        console.log(this.id.serializeToHexStr(), Object.keys(this.vvecs).length)
+        // console.log(this.id.serializeToHexStr(), Object.keys(this.vvecs).length)
+        if(Object.keys(this.vvecs).length === Object.keys(this.members).length)this.dkgDone()
         break
       default:
         console.log('unknown topic', topic)

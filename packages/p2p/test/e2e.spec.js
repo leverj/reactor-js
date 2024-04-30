@@ -26,6 +26,9 @@ describe('e2e', function () {
 
     await leader.startDKG(4)
     await setTimeout(2000)
+    for (const node of nodes) {
+      node.distributedKey.print()
+    }
   }).timeout(-1)
 
 })
