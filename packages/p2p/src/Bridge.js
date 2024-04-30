@@ -43,13 +43,12 @@ class Bridge extends Node {
   for (const member of members) member.dkgDone()
    */
 
-  async startDKG() {
+  async startDKG(threshold) {
     if (!this.isLeader) return
     for (const peer of this.peers) {
-      this.send(peer.peerId, JSON.stringify({type: DKG_START}))
+      this.createAndSendMessage(peer, meshProtocol, JSON.stringify({type: DKG, threshold}), () => {})
     }
   }
-
 
 }
 
