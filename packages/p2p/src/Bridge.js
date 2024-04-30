@@ -19,8 +19,9 @@ class Bridge extends Node {
 
   whitelistPeers(...peers) {
     for (const {peerId, multiaddr} of peers) {
+      if(peerId === this.peerId) continue
       let dkgId = new DistributedKey(peerId).id.serializeToHexStr()
-      this.whitelisted[peerId] = {dkgId: dkgId, multiaddr}
+      this.whitelisted[peerId] = {dkgId, multiaddr}
       this.distributedKey.addMember(dkgId, this.sendDkgMessage.bind(this, multiaddr))
     }
   }
@@ -35,8 +36,9 @@ class Bridge extends Node {
 
   async create() {
     await super.create()
-    console.log(JSON.stringify(this.exportPeerId()))
     this.distributedKey = new DistributedKey(this.peerId)
+    let dkgId = this.distributedKey.id.serializeToHexStr()
+    this.distributedKey.addMember(dkgId, this.distributedKey.onMessage.bind(this.distributedKey))
     this.registerStreamHandler(meshProtocol, this.onStreamMessage.bind(this))
     return this
   }
@@ -48,16 +50,16 @@ class Bridge extends Node {
   }
 
   async onStreamMessage(stream, peerId, msgStr) {
-    console.log('onStreamMessage', peerId, msgStr)
     const msg = JSON.parse(msgStr)
     affirm(this.whitelisted[peerId], `Unknown peer ${peerId}`)
-
+    // console.log('received message',  msg.topic, DistributedKey.TOPICS.DKG_KEY_GENERATE)
     switch (msg.topic) {
       case DKG:
         this.distributedKey.generateVectors(msg.threshold)
         await this.distributedKey.generateContribution()
         break
-      case this.distributedKey.TOPICS.DKG_KEY_GENERATE:
+      case DistributedKey.TOPICS.DKG_KEY_GENERATE:
+        // console.log('received message',  msg.topic)
         this.distributedKey.onMessage(msg.topic, msg.message)
         break
       default:

@@ -104,15 +104,12 @@ export default class Node {
     return stream
   }
 
-  sendMessage(stream, message) {
-    pipe(
-      message,
-      (message) => [uint8ArrayFromString(message)],
-      stream.sink
-    )
+  async sendMessage(stream, message) {
+    return stream.sink([uint8ArrayFromString(message)])
   }
 
-  readStream(stream, handler) {
+  async readStream(stream, handler) {
+
     pipe(
       stream.source,
       (source) => map(source, (buf) => uint8ArrayToString(buf.subarray())),

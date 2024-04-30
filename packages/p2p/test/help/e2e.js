@@ -2,7 +2,7 @@ import {peerIdJsons} from './fixtures.js'
 import Bridge from '../../src/Bridge.js'
 
 export const nodes = []
-export const stopNodes = async () => {
+export const stopBridgeNodes = async () => {
   for (const node of nodes) await node.stop()
   nodes.length = 0
 }

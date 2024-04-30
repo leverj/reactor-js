@@ -1,5 +1,5 @@
 import bls from './bls.js'
-
+import {affirm} from '@leverj/common/utils'
 import {addContributionShares, addVerificationVectors, generateContributionForId, verifyContributionShare} from './dkg-bls.js'
 
 
@@ -28,9 +28,9 @@ export class DistributedKey {
   }
 
   constructor(id) {
-    this.peerId = id
+    affirm(typeof id === 'string', 'id must be a string')
     this.id = new bls.SecretKey()
-    this.id.setHashOf(Buffer.from([id]))
+    this.id.setHashOf(Buffer.from(id))
     this.members = {}
     this.reset()
   }
@@ -53,15 +53,18 @@ export class DistributedKey {
   }
 
 
-  addMember(memberId, onMessage) { this.members[memberId] = onMessage }
+  addMember(memberId, onMessage) {
+    this.members[memberId] = onMessage
+  }
 
   onMessage(topic, message) {
+    // console.log('received message', topic, message)
     switch (topic) {
       case DistributedKey.TOPICS.DKG_KEY_GENERATE:
         const {id, secretKeyContribution, verificationVector} = JSON.parse(message)
         this.verifyAndAddShare(id, toPrivateKey(secretKeyContribution), verificationVector.map(toPublicKey))
         this.vvecs[id] = verificationVector.map(toPublicKey)
-        // this.print()
+        console.log(this.id.serializeToHexStr(), Object.keys(this.vvecs).length)
         break
       default:
         console.log('unknown topic', topic)
@@ -81,8 +84,8 @@ export class DistributedKey {
 
   async generateContribution() {
     for (const [id, onMessage] of Object.entries(this.members))
-     await this.generateContributionForId(id, onMessage)
-      // console.log('generated contribution', this.peerId)
+      await this.generateContributionForId(id, onMessage)
+    // console.log('generated contribution', this.peerId)
   }
 
 
@@ -113,7 +116,7 @@ export class DistributedKey {
   }
 
   get groupPublicKey() {
-    return this.vvec[0]
+    return this.vvec ?  this.vvec[0]: null
   }
 
   get publicKey() {
@@ -127,6 +130,6 @@ export class DistributedKey {
   }
 
   print() {
-    console.log([this.id, this.secretKeyShare, this.groupPublicKey].map(_ => _.serializeToHexStr()).join('\n\t'))
+    console.log([this.id, this.secretKeyShare, this.groupPublicKey].map(_ => _?.serializeToHexStr()).join('\n\t'))
   }
 }
