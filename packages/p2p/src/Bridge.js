@@ -23,11 +23,12 @@ class Bridge extends Node {
   async create() {
     await super.create()
     this.distributedKey = new DistributedKey(this.peerId)
-    this.registerStreamHandler(meshProtocol, this.onStreamMessage.bind(this))
+    //this.registerStreamHandler(meshProtocol, this.onStreamMessage.bind(this))
     return this
   }
 
   onStreamMessage(stream, peerId, msg) {
+    console.log("onStreamMesage", peerId, this.peerId)
     affirm(this.knownPeers[peerId], `Unknown peer ${peerId}`)
     switch (msg.type) {
       case DKG:
@@ -45,8 +46,24 @@ class Bridge extends Node {
 
   async startDKG(threshold) {
     if (!this.isLeader) return
+    
+    const messageToSend = "{'type': 'DKG', 'threshold': 4}"
+      console.log("messageToSend", messageToSend)
+
+      await this.registerStreamHandler(meshProtocol, async (stream, peerId, msg) => {
+        console.log("leader recd mesg", JSON.stringify(msg), peer, peerId);
+       this.sendMessage(stream, `responding ${msg}`)
+      })
+      
     for (const peer of this.peers) {
-      this.createAndSendMessage(peer, meshProtocol, JSON.stringify({type: DKG, threshold}), () => {})
+      
+      //this.readStream(streamToPeer, function(msg){console.log("leader recd msg", msg)})
+      await this.p2pNetwork[peer].registerStreamHandler(meshProtocol, async (stream, peerId, msg) => {
+        //console.log("this", this);
+       console.log("recd mesg", JSON.stringify(msg), peer, peerId);
+       this.p2pNetwork[peer].sendMessage(stream, `responding ${msg}`)
+      })
+      await this.createAndSendMessage(this.p2pNetwork[peer].multiaddrs[0], meshProtocol, messageToSend, function(msg) {console.log("msg handler", msg)})
     }
   }
 

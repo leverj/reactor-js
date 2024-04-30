@@ -20,6 +20,7 @@ export default class Node {
     this.isLeader = isLeader
     this.streams = {}
     this.knownPeers = {}
+    this.p2pNetwork = {}
   }
 
   get multiaddrs() { return this.p2p.getMultiaddrs().map((addr) => addr.toString()) }
@@ -93,6 +94,7 @@ export default class Node {
 
   // p2p connection
   async createAndSendMessage(address, protocol, message, responseHandler) {
+    //console.log("createAndSendMessage", address)
     let stream = await this.createStream(address, protocol)
     this.sendMessage(stream, message)
     this.readStream(stream, responseHandler)
@@ -125,6 +127,7 @@ export default class Node {
   }
 
   registerStreamHandler(protocol, handler) {
+    //console.log("registerStreamHandler", this.peerId)
     this.p2p.handle(protocol, async ({stream, connection: {remotePeer}}) => {
       pipe(
         stream.source,

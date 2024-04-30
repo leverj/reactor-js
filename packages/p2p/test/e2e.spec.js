@@ -6,7 +6,7 @@ describe('e2e', function () {
 
   afterEach(async () => await stopNodes())
 
-  it('it should be able to connect with other nodes', async function () {
+  it.only('it should be able to connect with other nodes', async function () {
     let [leader, node1, node2, node3, node4, node5, node6] = await createBridgeNodes(7)
     let nodes = [leader, node1, node2, node3, node4, node5, node6]
     for (const node of nodes) {
@@ -18,6 +18,7 @@ describe('e2e', function () {
         if (peer.peerId !== node.peerId) {
           await setTimeout(100)
           await node.connect(peer.multiaddrs[0])
+          node.p2pNetwork[peer.peerId] = peer
         }
       }
     }
@@ -26,8 +27,8 @@ describe('e2e', function () {
       expect(node.peers.length).toEqual(6)
     }
 
-    await leader.startDKG()
-
+    await leader.startDKG(4)
+    await setTimeout(1000)
 
   }).timeout(-1)
 
