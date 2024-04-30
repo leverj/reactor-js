@@ -6,7 +6,7 @@ describe('e2e', function () {
 
   afterEach(async () => await stopNodes())
 
-  it.only('it should be able to connect with other nodes', async function () {
+  it('it should be able to connect with other nodes', async function () {
     let [leader, node1, node2, node3, node4, node5, node6] = await createBridgeNodes(7)
     let nodes = [leader, node1, node2, node3, node4, node5, node6]
     for (const node of nodes) {
