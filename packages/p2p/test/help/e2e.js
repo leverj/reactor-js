@@ -7,7 +7,7 @@ export const stopNodes = async () => {
   nodes.length = 0
 }
 
-export const createBlockchainNodes = async (count) => {
+export const createBridgeNodes = async (count) => {
   for (let i = 0; i < count; i++) {
     // fixme: get peerid from config eventually some file
     const node = new Bridge({port: 9000 + i, isLeader: i === 0, peerIdJson: peerIdJsons[i]})

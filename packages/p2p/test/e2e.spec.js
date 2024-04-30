@@ -1,5 +1,5 @@
 import {expect} from 'expect'
-import {createBlockchainNodes, stopNodes} from './help/e2e.js'
+import {createBridgeNodes, stopNodes} from './help/e2e.js'
 import {setTimeout} from 'timers/promises'
 
 describe('e2e', function () {
@@ -7,7 +7,7 @@ describe('e2e', function () {
   afterEach(async () => await stopNodes())
 
   it('it should be able to connect with other nodes', async function () {
-    let [leader, node1, node2, node3, node4, node5, node6] = await createBlockchainNodes(7)
+    let [leader, node1, node2, node3, node4, node5, node6] = await createBridgeNodes(7)
     let nodes = [leader, node1, node2, node3, node4, node5, node6]
     for (const node of nodes) {
       expect(node.peers.length).toEqual(0)
