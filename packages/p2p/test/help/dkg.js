@@ -38,7 +38,7 @@ export const signMessage = (message, members) => {
 export const setupMembers = async (members, threshold) => {
   for (const member of members) member.generateVectors(threshold)
   for (const member of members) await member.generateContribution()
-  for (const member of members) member.dkgDone()
+  // for (const member of members) member.dkgDone()
   return members
 }
 

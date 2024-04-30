@@ -29,8 +29,13 @@ class Bridge extends Node {
   async connectWhitelisted() {
     for (const peerId of Object.keys(this.whitelisted)) {
       if (peerId === this.peerId) continue
-      await this.connect(this.whitelisted[peerId].multiaddr)
-      await setTimeout(100)
+      try {
+        await this.connect(this.whitelisted[peerId].multiaddr)
+      } catch (e) { // resilient to connection errors
+        // console.error(e)
+        await setTimeout(100)
+        await this.connect(this.whitelisted[peerId].multiaddr)
+      }
     }
   }
 

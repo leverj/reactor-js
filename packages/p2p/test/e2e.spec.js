@@ -17,17 +17,22 @@ describe('e2e', function () {
     }
     // start connecting
     for (const node of nodes) {
-      await node.connectWhitelisted()
+      node.connectWhitelisted().catch(console.error)
     }
-    await setTimeout(100)
+    await setTimeout(1000)
     for (const node of [leader, node1, node2, node3, node4, node5, node6]) {
       expect(node.peers.length).toEqual(6)
     }
 
     await leader.startDKG(4)
     await setTimeout(2000)
+
     for (const node of nodes) {
-      node.distributedKey.print()
+      expect(leader.distributedKey.groupPublicKey.serializeToHexStr()).toEqual(node.distributedKey.groupPublicKey.serializeToHexStr())
+      let leaderSecret = leader.distributedKey.secretKeyShare.serializeToHexStr()
+      if(leader.peerId === node.peerId) continue
+      let nodeSecret = node.distributedKey.secretKeyShare.serializeToHexStr()
+      expect(leaderSecret).not.toBe(nodeSecret)
     }
   }).timeout(-1)
 
