@@ -6,6 +6,7 @@ const DKG = 'DKG'
 const DKG_START = 'DKG_START'
 const topic = 'BRIDGE_COMMUNICATION'
 const meshProtocol = '/bridge/0.0.1'
+import {setTimeout} from 'timers/promises'
 
 class Bridge extends Node {
   constructor({ip = '0.0.0.0', port = 0, isLeader = false, peerIdJson}) {
@@ -27,8 +28,8 @@ class Bridge extends Node {
     return this
   }
 
-  onStreamMessage(stream, peerId, msg) {
-    console.log("onStreamMesage", peerId, this.peerId)
+  onStreamMessage(stream, peerId, msgStr) {
+    const msg = JSON.parse(msgStr)
     affirm(this.knownPeers[peerId], `Unknown peer ${peerId}`)
     switch (msg.type) {
       case DKG:
@@ -46,24 +47,12 @@ class Bridge extends Node {
 
   async startDKG(threshold) {
     if (!this.isLeader) return
-    
-    const messageToSend = "{'type': 'DKG', 'threshold': 4}"
-      console.log("messageToSend", messageToSend)
-
-      await this.registerStreamHandler(meshProtocol, async (stream, peerId, msg) => {
-        console.log("leader recd mesg", JSON.stringify(msg), peer, peerId);
-       this.sendMessage(stream, `responding ${msg}`)
-      })
-      
+    //JSON.stringify returning only type token. weird.
+    const messageToSend = `{\"type\": \"DKG\", \"threshold\": \"${threshold}\"}`
     for (const peer of this.peers) {
-      
-      //this.readStream(streamToPeer, function(msg){console.log("leader recd msg", msg)})
-      await this.p2pNetwork[peer].registerStreamHandler(meshProtocol, async (stream, peerId, msg) => {
-        //console.log("this", this);
-       console.log("recd mesg", JSON.stringify(msg), peer, peerId);
-       this.p2pNetwork[peer].sendMessage(stream, `responding ${msg}`)
-      })
-      await this.createAndSendMessage(this.p2pNetwork[peer].multiaddrs[0], meshProtocol, messageToSend, function(msg) {console.log("msg handler", msg)})
+      const stream = await this.createStream(this.p2pNetwork[peer].multiaddrs[0], meshProtocol);
+      await this.sendMessage(stream, messageToSend)
+      await this.p2pNetwork[peer].readStream(stream, (msg) => {console.log("Read Stream", msg)})
     }
   }
 

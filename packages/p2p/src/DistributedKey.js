@@ -75,11 +75,13 @@ export class DistributedKey {
       const pk = sk.getPublicKey()
       this.verificationVector.push(pk)
     }
+    console.log('generated vectors', threshold, this.peerId)
   }
 
   generateContribution() {
     for (const [id, onMessage] of Object.entries(this.members))
       this.generateContributionForId(id, onMessage)
+      console.log('generated contribution', this.peerId)
   }
 
 
