@@ -4,6 +4,7 @@ import {affirm} from '@leverj/common/utils'
 import {setTimeout} from 'timers/promises'
 
 const DKG = 'DKG'
+const DKG_KEY_GENERATE = 'DKG_KEY_GENERATE'
 const DKG_START = 'DKG_START'
 const topic = 'BRIDGE_COMMUNICATION'
 const meshProtocol = '/bridge/0.0.1'
@@ -17,12 +18,21 @@ class BridgeNode extends NetworkNode {
     this.whitelisted = {}
   }
 
+  async create() {
+    await super.create()
+    this.tssNode = new TSSNode(this.peerId)
+    let dkgId = this.tssNode.id.serializeToHexStr()
+    this.tssNode.addMember(dkgId, this.tssNode.onDkgShare.bind(this.tssNode)) // making self dkg share
+    this.registerStreamHandler(meshProtocol, this.onStreamMessage.bind(this))
+    return this
+  }
+
   whitelistPeers(...peers) {
     for (const {peerId, multiaddr} of peers) {
-      if(peerId === this.peerId) continue
+      if (peerId === this.peerId) continue
       let dkgId = new TSSNode(peerId).id.serializeToHexStr()
       this.whitelisted[peerId] = {dkgId, multiaddr}
-      this.tssNode.addMember(dkgId, this.sendDkgMessage.bind(this, multiaddr))
+      this.tssNode.addMember(dkgId, this.sendDkgMessage.bind(this, multiaddr, DKG_KEY_GENERATE))
     }
   }
 
@@ -37,15 +47,6 @@ class BridgeNode extends NetworkNode {
         await this.connect(this.whitelisted[peerId].multiaddr)
       }
     }
-  }
-
-  async create() {
-    await super.create()
-    this.tssNode = new TSSNode(this.peerId)
-    let dkgId = this.tssNode.id.serializeToHexStr()
-    this.tssNode.addMember(dkgId, this.tssNode.onMessage.bind(this.tssNode))
-    this.registerStreamHandler(meshProtocol, this.onStreamMessage.bind(this))
-    return this
   }
 
   async sendDkgMessage(multiaddr, topic, message) {
@@ -63,9 +64,9 @@ class BridgeNode extends NetworkNode {
         this.tssNode.generateVectors(msg.threshold)
         await this.tssNode.generateContribution()
         break
-      case TSSNode.TOPICS.DKG_KEY_GENERATE:
+      case DKG_KEY_GENERATE:
         // console.log('received message',  msg.topic)
-        this.tssNode.onMessage(msg.topic, msg.message)
+        this.tssNode.onDkgShare(msg.message)
         break
       default:
         console.log('Unknown message', msg)

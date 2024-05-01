@@ -24,9 +24,6 @@ function toPublicKey(str) {
 
 /* Threshold Signature Scheme */
 export class TSSNode {
-  static TOPICS = {
-    DKG_KEY_GENERATE: 'DKG_KEY_GENERATE',
-  }
 
   constructor(id) {
     affirm(typeof id === 'string', 'id must be a string')
@@ -54,23 +51,16 @@ export class TSSNode {
   }
 
 
-  addMember(memberId, onMessage) {
-    this.members[memberId] = onMessage
+  addMember(memberId, dkgHandler) {
+    this.members[memberId] = dkgHandler
   }
 
-  onMessage(topic, message) {
-    // console.log('received message', topic, message)
-    switch (topic) {
-      case TSSNode.TOPICS.DKG_KEY_GENERATE:
-        const {id, secretKeyContribution, verificationVector} = JSON.parse(message)
-        this.verifyAndAddShare(id, toPrivateKey(secretKeyContribution), verificationVector.map(toPublicKey))
-        this.vvecs[id] = verificationVector.map(toPublicKey)
-        // console.log(this.id.serializeToHexStr(), Object.keys(this.vvecs).length)
-        if(Object.keys(this.vvecs).length === Object.keys(this.members).length)this.dkgDone()
-        break
-      default:
-        console.log('unknown topic', topic)
-    }
+  onDkgShare(dkgShareMessage) {
+    const {id, secretKeyContribution, verificationVector} = JSON.parse(dkgShareMessage)
+    this.verifyAndAddShare(id, toPrivateKey(secretKeyContribution), verificationVector.map(toPublicKey))
+    this.vvecs[id] = verificationVector.map(toPublicKey)
+    // console.log(this.id.serializeToHexStr(), Object.keys(this.vvecs).length)
+    if (Object.keys(this.vvecs).length === Object.keys(this.members).length) this.dkgDone()
   }
 
   generateVectors(threshold) {
@@ -85,8 +75,8 @@ export class TSSNode {
   }
 
   async generateContribution() {
-    for (const [id, onMessage] of Object.entries(this.members))
-      await this.generateContributionForId(id, onMessage)
+    for (const [id, dkgHandler] of Object.entries(this.members))
+      await this.generateContributionForId(id, dkgHandler)
     // console.log('generated contribution', this.peerId)
   }
 
@@ -99,13 +89,14 @@ export class TSSNode {
     this.recievedShares[id] = receivedShare
   }
 
-  async generateContributionForId(id, onMessage) {
+  async generateContributionForId(id, dkgHandler) {
     let secretKeyContribution = await generateContributionForId(bls, toPrivateKey(id), this.secretVector)
-    await onMessage(TSSNode.TOPICS.DKG_KEY_GENERATE, JSON.stringify({
+    let dkgSharePayload = {
       id: this.id.serializeToHexStr(),
       secretKeyContribution: secretKeyContribution.serializeToHexStr(),
       verificationVector: this.verificationVector.map(_ => _.serializeToHexStr())
-    }))
+    }
+    await dkgHandler(JSON.stringify(dkgSharePayload))
     return secretKeyContribution
   }
 
@@ -118,7 +109,7 @@ export class TSSNode {
   }
 
   get groupPublicKey() {
-    return this.vvec ?  this.vvec[0]: null
+    return this.vvec ? this.vvec[0] : null
   }
 
   get publicKey() {
