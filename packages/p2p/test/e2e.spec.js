@@ -22,11 +22,11 @@ describe('e2e', function () {
     let peerIdsAndMultiAddrs = nodes.map(_ => ({peerId: _.peerId, multiaddr: _.multiaddrs[0]}))
     for (const node of nodes) {
       expect(node.peers.length).toEqual(0)
-      node.whitelistPeers(...peerIdsAndMultiAddrs)
+      node.addPeersToWhiteList(...peerIdsAndMultiAddrs)
     }
     // start connecting
     for (const node of nodes) {
-      node.connectWhitelisted().catch(console.error)
+      node.connectToWhiteListedPeers().catch(console.error)
     }
     await setTimeout(1000)
     for (const node of [leader, node1, node2, node3, node4, node5, node6]) {

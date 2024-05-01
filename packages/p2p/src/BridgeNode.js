@@ -27,7 +27,7 @@ class BridgeNode extends NetworkNode {
     return this
   }
 
-  whitelistPeers(...peers) {
+  addPeersToWhiteList(...peers) {
     for (const {peerId, multiaddr} of peers) {
       if (peerId === this.peerId) continue
       let dkgId = new TSSNode(peerId).id.serializeToHexStr()
@@ -36,7 +36,7 @@ class BridgeNode extends NetworkNode {
     }
   }
 
-  async connectWhitelisted() {
+  async connectToWhiteListedPeers() {
     for (const peerId of Object.keys(this.whitelisted)) {
       if (peerId === this.peerId) continue
       try {
