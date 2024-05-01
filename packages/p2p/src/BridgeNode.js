@@ -1,4 +1,4 @@
-import Node from './Node.js'
+import NetworkNode from './NetworkNode.js'
 import {TSSNode} from './TSSNode.js'
 import {affirm} from '@leverj/common/utils'
 import {setTimeout} from 'timers/promises'
@@ -9,7 +9,7 @@ const topic = 'BRIDGE_COMMUNICATION'
 const meshProtocol = '/bridge/0.0.1'
 
 
-class BridgeNode extends Node {
+class BridgeNode extends NetworkNode {
   constructor({ip = '0.0.0.0', port = 0, isLeader = false, peerIdJson}) {
     super({ip, port, isLeader, peerIdJson})
     this.tssNode

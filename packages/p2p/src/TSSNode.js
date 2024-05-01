@@ -22,6 +22,7 @@ function toPublicKey(str) {
   return publicKey
 }
 
+/* Threshold Signature Scheme */
 export class TSSNode {
   static TOPICS = {
     DKG_KEY_GENERATE: 'DKG_KEY_GENERATE',

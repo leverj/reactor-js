@@ -12,7 +12,7 @@ import {pipe} from 'it-pipe'
 import {createFromJSON} from '@libp2p/peer-id-factory'
 import {affirm} from '@leverj/common/utils'
 
-export default class Node {
+export default class NetworkNode {
   constructor({ip = '0.0.0.0', port = 0, isLeader = false, peerIdJson}) {
     this.peerIdJson = peerIdJson
     this.ip = ip

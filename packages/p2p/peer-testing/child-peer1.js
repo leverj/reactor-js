@@ -1,4 +1,4 @@
-import Node from '../src/Node.js'
+import NetworkNode from '../src/NetworkNode.js'
 import {setTimeout} from 'node:timers/promises'
 
 const peerIdJson = {
@@ -9,7 +9,7 @@ const peerIdJson = {
 const leaderPeerId = '12D3KooWRRqAo5f41sQmc9BpsfqarZgd7PWUiX14Mz1htXDEc7Gp'
 const leaderMuladdr = `/ip4/51.159.143.255/tcp/8080/p2p/${leaderPeerId}`
 
-const node = await new Node({ip: '0.0.0.0', port: 8081, isLeader: true, peerIdJson}).create()
+const node = await new NetworkNode({ip: '0.0.0.0', port: 8081, isLeader: true, peerIdJson}).create()
 await node.start()
 await node.connect(leaderMuladdr)
 

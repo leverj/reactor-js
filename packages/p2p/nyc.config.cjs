@@ -1,4 +1,4 @@
 module.exports = {
-  include: ['src/Node.js'],
+  include: ['src/NetworkNode.js'],
   reporter: ['text', 'html', 'json']
 }

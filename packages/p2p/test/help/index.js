@@ -1,5 +1,5 @@
 export * from './fixtures.js'
-export * from './nodes.js'
+export * from './networkNodes.js'
 export * from './dkg.js'
 export * from './hardhat.cjs'
 export * from './bridgeNodes.js'

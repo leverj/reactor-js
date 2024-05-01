@@ -1,4 +1,4 @@
-import { Node } from '../src/Node.js'
+import { NetworkNode } from '../src/NetworkNode.js'
 const peerIdJson  = {
   privKey: 'CAESQHOTa7HhPhxUrvmHmh5LX7jbz+CKW0ou7y39sGp45cw7pYUGS7JDh8RGeWhR8URX7UqV444+Uxk/swNGSAUkNto',
   pubKey: 'CAESIKWFBkuyQ4fERnloUfFEV+1KleOOPlMZP7MDRkgFJDba',
