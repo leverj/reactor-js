@@ -33,7 +33,7 @@ class Bridge extends Node {
         await this.connect(this.whitelisted[peerId].multiaddr)
       } catch (e) { // resilient to connection errors
         // console.error(e)
-        await setTimeout(100)
+        await setTimeout(500)
         await this.connect(this.whitelisted[peerId].multiaddr)
       }
     }
