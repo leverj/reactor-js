@@ -28,6 +28,7 @@ describe('e2e', function () {
     await setTimeout(2000)
 
     for (const node of nodes) {
+      node.distributedKey.print()
       expect(leader.distributedKey.groupPublicKey.serializeToHexStr()).toEqual(node.distributedKey.groupPublicKey.serializeToHexStr())
       let leaderSecret = leader.distributedKey.secretKeyShare.serializeToHexStr()
       if(leader.peerId === node.peerId) continue

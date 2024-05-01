@@ -1,5 +1,9 @@
 import {createServer} from 'http'
+import config from 'config'
+import {logger} from '@leverj/common/utils'
 import app from './rest/app.js'
+
+const {port, ip} = config
 
 export class ApiApp {
   constructor() {
@@ -7,8 +11,8 @@ export class ApiApp {
   }
 
   start() {
-    this.server.listen(port, appIP, () =>
-      logger.log(`marketplace-server [api/v1] is running at port ${port}\n\t - go to http://localhost:${port}/api/v1/graphql to run GraphQL queries!`)
+    this.server.listen(port, ip, () =>
+      logger.log(`Bridge api server  is running at port ${port}`)
     )
   }
 

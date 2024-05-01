@@ -4,7 +4,9 @@
   "type": "module",
   "private": true,
   "license": "UNLICENSED",
+  "main": "app.js",
   "scripts": {
+    "start": "node app.js",
     "test": "yarn compile; yarn test:js",
     "compile": "npx hardhat compile",
     "test:js": "NODE_ENV=test mocha --exit --recursive --timeout 10000 test/**/*.spec.js",
@@ -21,6 +23,7 @@
     "@nomiclabs/hardhat-etherscan": "^3.1.8",
     "bls-wasm": "^1.1.1",
     "body-parser": "^1.20.2",
+    "config": "^3.3.11",
     "dkg": "^0.0.3",
     "ethers": "^5.7.2",
     "express": "^4.19.2",
