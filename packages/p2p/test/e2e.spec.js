@@ -10,7 +10,7 @@ describe('e2e', function () {
     let nodes = await createBridgeNodes(6)
     for (const node of nodes){
       for (const peer of nodes){
-        if (node.multiaddrs[0] == peer.multiaddrs[0]) continue;
+        if (node.multiaddrs[0] === peer.multiaddrs[0]) continue;
         await node.connect(peer.multiaddrs[0])
       }
     }
@@ -37,11 +37,11 @@ describe('e2e', function () {
     await setTimeout(2000)
 
     for (const node of nodes) {
-      node.distributedKey.print()
-      expect(leader.distributedKey.groupPublicKey.serializeToHexStr()).toEqual(node.distributedKey.groupPublicKey.serializeToHexStr())
-      let leaderSecret = leader.distributedKey.secretKeyShare.serializeToHexStr()
+      node.tssNode.print()
+      expect(leader.tssNode.groupPublicKey.serializeToHexStr()).toEqual(node.tssNode.groupPublicKey.serializeToHexStr())
+      let leaderSecret = leader.tssNode.secretKeyShare.serializeToHexStr()
       if(leader.peerId === node.peerId) continue
-      let nodeSecret = node.distributedKey.secretKeyShare.serializeToHexStr()
+      let nodeSecret = node.tssNode.secretKeyShare.serializeToHexStr()
       expect(leaderSecret).not.toBe(nodeSecret)
     }
   }).timeout(-1)

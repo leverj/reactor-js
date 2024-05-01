@@ -1,7 +1,7 @@
 import bls from '../src/bls.js'
 import {createDkgMembers, setupMembers, signMessage, signAndVerify, addMember, deployContract, getSigners} from './help/index.js'
 import {expect} from 'expect'
-import {DistributedKey} from '../src/DistributedKey.js'
+import {TSSNode} from '../src/TSSNode.js'
 
 const message = 'hello world'
 let contract, owner, anyone
@@ -39,7 +39,7 @@ describe('dkg', function () {
     const members = await createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399], threshold)
     expect(members.length).toBe(7)
     let groupPublicKey = members[0].vvec[0]
-    await addMember(members, new DistributedKey('100'))
+    await addMember(members, new TSSNode('100'))
     expect(members.length).toBe(8)
     for (const member of members) expect(member.groupPublicKey.serializeToHexStr()).toEqual(groupPublicKey.serializeToHexStr())
     const fixtures = [[0, 3, false], [0, 4, true], [0, 5, true], [0, 6, true], [0, 7, true], [0, 8, true],
@@ -69,7 +69,7 @@ describe('dkg', function () {
     const members = await createDkgMembers([10314, 30911, 25411, 8608, 31524, 23399, 15441], threshold)
     expect(await signAndVerify(contract, message, members.slice(0, 4))).toBe(true)
     const groupsPublicKey = members[0].groupPublicKey
-    await addMember(members, new DistributedKey('100'))
+    await addMember(members, new TSSNode('100'))
     members.forEach(member => member.reinitiate())
     await setupMembers(members, threshold + 1)
     for (const member of members) expect(member.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKey.serializeToHexStr())

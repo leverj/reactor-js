@@ -1,5 +1,5 @@
 import Node from './Node.js'
-import {DistributedKey} from './DistributedKey.js'
+import {TSSNode} from './TSSNode.js'
 import {affirm} from '@leverj/common/utils'
 import {setTimeout} from 'timers/promises'
 
@@ -12,7 +12,7 @@ const meshProtocol = '/bridge/0.0.1'
 class Bridge extends Node {
   constructor({ip = '0.0.0.0', port = 0, isLeader = false, peerIdJson}) {
     super({ip, port, isLeader, peerIdJson})
-    this.distributedKey
+    this.tssNode
     this.state
     this.whitelisted = {}
   }
@@ -20,9 +20,9 @@ class Bridge extends Node {
   whitelistPeers(...peers) {
     for (const {peerId, multiaddr} of peers) {
       if(peerId === this.peerId) continue
-      let dkgId = new DistributedKey(peerId).id.serializeToHexStr()
+      let dkgId = new TSSNode(peerId).id.serializeToHexStr()
       this.whitelisted[peerId] = {dkgId, multiaddr}
-      this.distributedKey.addMember(dkgId, this.sendDkgMessage.bind(this, multiaddr))
+      this.tssNode.addMember(dkgId, this.sendDkgMessage.bind(this, multiaddr))
     }
   }
 
@@ -41,9 +41,9 @@ class Bridge extends Node {
 
   async create() {
     await super.create()
-    this.distributedKey = new DistributedKey(this.peerId)
-    let dkgId = this.distributedKey.id.serializeToHexStr()
-    this.distributedKey.addMember(dkgId, this.distributedKey.onMessage.bind(this.distributedKey))
+    this.tssNode = new TSSNode(this.peerId)
+    let dkgId = this.tssNode.id.serializeToHexStr()
+    this.tssNode.addMember(dkgId, this.tssNode.onMessage.bind(this.tssNode))
     this.registerStreamHandler(meshProtocol, this.onStreamMessage.bind(this))
     return this
   }
@@ -57,15 +57,15 @@ class Bridge extends Node {
   async onStreamMessage(stream, peerId, msgStr) {
     const msg = JSON.parse(msgStr)
     affirm(this.whitelisted[peerId], `Unknown peer ${peerId}`)
-    // console.log('received message',  msg.topic, DistributedKey.TOPICS.DKG_KEY_GENERATE)
+    // console.log('received message',  msg.topic, TSSNode.TOPICS.DKG_KEY_GENERATE)
     switch (msg.topic) {
       case DKG:
-        this.distributedKey.generateVectors(msg.threshold)
-        await this.distributedKey.generateContribution()
+        this.tssNode.generateVectors(msg.threshold)
+        await this.tssNode.generateContribution()
         break
-      case DistributedKey.TOPICS.DKG_KEY_GENERATE:
+      case TSSNode.TOPICS.DKG_KEY_GENERATE:
         // console.log('received message',  msg.topic)
-        this.distributedKey.onMessage(msg.topic, msg.message)
+        this.tssNode.onMessage(msg.topic, msg.message)
         break
       default:
         console.log('Unknown message', msg)
@@ -81,8 +81,8 @@ class Bridge extends Node {
       let message = JSON.stringify({topic: DKG, threshold})
       await this.createAndSendMessage(multiaddr, meshProtocol, message, responseHandler)
     }
-    await this.distributedKey.generateVectors(threshold)
-    await this.distributedKey.generateContribution()
+    await this.tssNode.generateVectors(threshold)
+    await this.tssNode.generateContribution()
   }
 
 }

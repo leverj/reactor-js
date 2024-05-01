@@ -22,7 +22,7 @@ function toPublicKey(str) {
   return publicKey
 }
 
-export class DistributedKey {
+export class TSSNode {
   static TOPICS = {
     DKG_KEY_GENERATE: 'DKG_KEY_GENERATE',
   }
@@ -60,7 +60,7 @@ export class DistributedKey {
   onMessage(topic, message) {
     // console.log('received message', topic, message)
     switch (topic) {
-      case DistributedKey.TOPICS.DKG_KEY_GENERATE:
+      case TSSNode.TOPICS.DKG_KEY_GENERATE:
         const {id, secretKeyContribution, verificationVector} = JSON.parse(message)
         this.verifyAndAddShare(id, toPrivateKey(secretKeyContribution), verificationVector.map(toPublicKey))
         this.vvecs[id] = verificationVector.map(toPublicKey)
@@ -100,7 +100,7 @@ export class DistributedKey {
 
   async generateContributionForId(id, onMessage) {
     let secretKeyContribution = await generateContributionForId(bls, toPrivateKey(id), this.secretVector)
-    await onMessage(DistributedKey.TOPICS.DKG_KEY_GENERATE, JSON.stringify({
+    await onMessage(TSSNode.TOPICS.DKG_KEY_GENERATE, JSON.stringify({
       id: this.id.serializeToHexStr(),
       secretKeyContribution: secretKeyContribution.serializeToHexStr(),
       verificationVector: this.verificationVector.map(_ => _.serializeToHexStr())

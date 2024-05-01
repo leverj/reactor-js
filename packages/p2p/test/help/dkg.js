@@ -1,4 +1,4 @@
-import {DistributedKey} from '../../src/DistributedKey.js'
+import {TSSNode} from '../../src/TSSNode.js'
 import bls from '../../src/bls.js'
 import * as mcl from '../../src/mcl/mcl.js'
 import {expect} from 'expect'
@@ -54,7 +54,7 @@ export async function addMember(members, newMember) {
 }
 
 export const createDkgMembers = async (memberIds, threshold) => {
-  const members = memberIds.map(id => new DistributedKey(id.toString()))
+  const members = memberIds.map(id => new TSSNode(id.toString()))
   for (const member of members) for (const member1 of members) member.addMember(member1.id.serializeToHexStr(), member1.onMessage.bind(member1))
   return await setupMembers(members, threshold)
 }
