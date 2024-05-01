@@ -1,16 +1,27 @@
 import {Router} from 'express'
 import Bridge from '../Bridge.js'
+import config from 'config'
 
-// const bridge = new Bridge({port})
+const peerIdJson = JSON.stringify(fs.readFileSync(path.join(config.nodeDirectory, 'peer.json'), 'utf8'))
+
+const bridge = new Bridge({port: config.peer.port, isLeader: config.peer.isLeader, peerIdJson})
+
+if(!peerIdJson){
+  await saveToDisk(path.join(config.nodeDirectory, 'peer.json'), JSON.stringify(bridge.exportPeerId()))
+}
 
 async function startDkg(req, res) {
-  // const {ip, port, isLeader, peerIdJson} = req.body
-  // const bridge = new Bridge({ip, port, isLeader, peerIdJson})
-  // await bridge.create()
-  // await bridge.connectWhitelisted()
-  // res.send({status: 'ok'})
+  await bridge.startDKG(config.peer.threshold)
+  res.send('ok')
+}
+
+async function addPeer(req, res) {
+  const {peerId, multiaddr} = req.body
+  await bridge.addPeer({peerId, multiaddr})
+  res.send('ok')
 }
 
 export const router = Router()
-router.post('/dkg/start', await startDkg)
+router.post('/peer/add',  addPeer)
+router.post('/dkg/start',  startDkg)
 export default router

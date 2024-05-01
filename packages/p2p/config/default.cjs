@@ -1,6 +1,10 @@
 const path = require('path')
 module.exports = {
-  port: 10011,
+  port: 9001,
   ip: '0.0.0.0',
-  nodeDirectory: path.join(__dirname, '..', 'data'),
+  peer: {
+    confDir: path.join(__dirname, '..', 'data'),
+    port: 9002,
+  }
+
 }
