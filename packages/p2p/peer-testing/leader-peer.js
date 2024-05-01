@@ -14,6 +14,6 @@ setInterval( _=> node.publish('DepositHash', `love from leader ${Date.now()}`).c
 
 node.registerStreamHandler('p2pmessages/1.0.0', (stream, peerId, data) => {
   console.log('received p2p-messages', peerId, data)
-  node.sendMessage(stream, `responding ${data} at ${Date.now()}`)
+  node.sendMessageOnStream(stream, `responding ${data} at ${Date.now()}`)
 })
 

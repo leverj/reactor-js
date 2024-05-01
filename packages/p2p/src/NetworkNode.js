@@ -92,7 +92,7 @@ export default class NetworkNode {
   async createAndSendMessage(address, protocol, message, responseHandler) {
     //console.log("createAndSendMessage", address)
     let stream = await this.createStream(address, protocol)
-    await this.sendMessage(stream, message)
+    await this.sendMessageOnStream(stream, message)
     await this.readStream(stream, responseHandler)
     return stream
   }
@@ -104,7 +104,7 @@ export default class NetworkNode {
     return stream
   }
 
-  async sendMessage(stream, message) {
+  async sendMessageOnStream(stream, message) {
     return stream.sink([uint8ArrayFromString(message)])
   }
 
