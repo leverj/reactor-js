@@ -1,13 +1,16 @@
 import {Router} from 'express'
-import BridgeNode from '../BridgeNode.js'
 import config from 'config'
+import {bridge} from './NetworkInfo.js'
 
-const peerIdJson = JSON.stringify(fs.readFileSync(path.join(config.nodeDirectory, 'peer.json'), 'utf8'))
-
-const bridge = new BridgeNode({port: config.peer.port, isLeader: config.peer.isLeader, peerIdJson})
-
-if(!peerIdJson){
-  await saveToDisk(path.join(config.nodeDirectory, 'peer.json'), JSON.stringify(bridge.exportPeerId()))
+async function getPeerInfo(req, res) {
+  const peerInfo = {
+    peerId: bridge.peerId,
+    multiaddr: bridge.multiaddr,
+    peers: bridge.peers,
+    threshold: config.peer.threshold,
+    isLeader: bridge.isLeader,
+  }
+  res.send(peerInfo)
 }
 
 async function startDkg(req, res) {
@@ -22,6 +25,7 @@ async function addPeer(req, res) {
 }
 
 export const router = Router()
+router.get('/peer/info', getPeerInfo)
 router.post('/peer/add',  addPeer)
 router.post('/dkg/start',  startDkg)
 export default router
