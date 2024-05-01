@@ -3,10 +3,9 @@ import {TSSNode} from './TSSNode.js'
 import {affirm} from '@leverj/common/utils'
 import {setTimeout} from 'timers/promises'
 
-const DKG = 'DKG'
-const DKG_KEY_GENERATE = 'DKG_KEY_GENERATE'
-const DKG_START = 'DKG_START'
-const topic = 'BRIDGE_COMMUNICATION'
+const DKG_INIT_THRESHOLD_VECTORS = 'DKG_INIT_THRESHOLD_VECTORS'
+const DKG_RECEIVE_KEY_SHARE = 'DKG_RECEIVE_KEY_SHARE'
+const TSS_RECEIVE_SIGNATURE_SHARE = 'TSS_RECEIVE_SIGNATURE_SHARE'
 const meshProtocol = '/bridge/0.0.1'
 
 
@@ -32,7 +31,7 @@ class BridgeNode extends NetworkNode {
       if (peerId === this.peerId) continue
       let dkgId = new TSSNode(peerId).id.serializeToHexStr()
       this.whitelisted[peerId] = {dkgId, multiaddr}
-      this.tssNode.addMember(dkgId, this.sendDkgMessage.bind(this, multiaddr, DKG_KEY_GENERATE))
+      this.tssNode.addMember(dkgId, this.sendMessageToPeer.bind(this, multiaddr, DKG_RECEIVE_KEY_SHARE))
     }
   }
 
@@ -49,7 +48,7 @@ class BridgeNode extends NetworkNode {
     }
   }
 
-  async sendDkgMessage(multiaddr, topic, message) {
+  async sendMessageToPeer(multiaddr, topic, message) {
     // send mesh protocol to dkgId
     const messageStr = JSON.stringify({topic, message})
     await this.createAndSendMessage(multiaddr, meshProtocol, messageStr)
@@ -58,13 +57,13 @@ class BridgeNode extends NetworkNode {
   async onStreamMessage(stream, peerId, msgStr) {
     const msg = JSON.parse(msgStr)
     affirm(this.whitelisted[peerId], `Unknown peer ${peerId}`)
-    // console.log('received message',  msg.topic, TSSNode.TOPICS.DKG_KEY_GENERATE)
+    // console.log('received message',  msg.topic, TSSNode.TOPICS.DKG_RECEIVE_KEY_SHARE)
     switch (msg.topic) {
-      case DKG:
+      case DKG_INIT_THRESHOLD_VECTORS:
         this.tssNode.generateVectors(msg.threshold)
         await this.tssNode.generateContribution()
         break
-      case DKG_KEY_GENERATE:
+      case DKG_RECEIVE_KEY_SHARE:
         // console.log('received message',  msg.topic)
         this.tssNode.onDkgShare(msg.message)
         break
@@ -79,7 +78,7 @@ class BridgeNode extends NetworkNode {
     for (const peerId of Object.keys(this.whitelisted)) {
       if (this.peerId === peerId) continue
       let multiaddr = this.whitelisted[peerId].multiaddr
-      let message = JSON.stringify({topic: DKG, threshold})
+      let message = JSON.stringify({topic: DKG_INIT_THRESHOLD_VECTORS, threshold})
       await this.createAndSendMessage(multiaddr, meshProtocol, message, responseHandler)
     }
     await this.tssNode.generateVectors(threshold)

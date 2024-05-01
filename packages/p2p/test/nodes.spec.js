@@ -38,7 +38,7 @@ describe('p2p', function () {
     const [node1, node2, node3, node4] = await startNetworkNodes(4, true)
     node1.registerStreamHandler(meshProtocol, async (stream, peerId, msg) => {
       messageRecd[peerId] = msg
-      node1.sendMessage(stream, `responding ${msg}`)
+      node1.sendMessageOnStream(stream, `responding ${msg}`)
     })
 
     const sendMsg = async (node, message) => await node.createAndSendMessage(node1.multiaddrs[0], meshProtocol, message, (msg) => { responses[node.peerId] = msg })
