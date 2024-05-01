@@ -9,7 +9,7 @@ const topic = 'BRIDGE_COMMUNICATION'
 const meshProtocol = '/bridge/0.0.1'
 
 
-class Bridge extends Node {
+class BridgeNode extends Node {
   constructor({ip = '0.0.0.0', port = 0, isLeader = false, peerIdJson}) {
     super({ip, port, isLeader, peerIdJson})
     this.tssNode
@@ -87,4 +87,4 @@ class Bridge extends Node {
 
 }
 
-export default Bridge
+export default BridgeNode

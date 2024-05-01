@@ -1,10 +1,10 @@
 import {Router} from 'express'
-import Bridge from '../Bridge.js'
+import BridgeNode from '../BridgeNode.js'
 import config from 'config'
 
 const peerIdJson = JSON.stringify(fs.readFileSync(path.join(config.nodeDirectory, 'peer.json'), 'utf8'))
 
-const bridge = new Bridge({port: config.peer.port, isLeader: config.peer.isLeader, peerIdJson})
+const bridge = new BridgeNode({port: config.peer.port, isLeader: config.peer.isLeader, peerIdJson})
 
 if(!peerIdJson){
   await saveToDisk(path.join(config.nodeDirectory, 'peer.json'), JSON.stringify(bridge.exportPeerId()))
