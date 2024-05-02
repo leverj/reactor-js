@@ -17,7 +17,7 @@ describe('mcl-bls', () => {
 
   it('bls should verify mcl signature', async function () {
     const secretHex = 'a3e9769b84c095eca6b98449ac86b6e2c589834fe24cb8fbb7b36f814fd06113'
-    const map = new Keymap(messageString).replenish(secretHex).print()
+    const map = new Keymap(messageString).replenish(secretHex);//.print()
     expect(map.bls.pubkey.serializeToHexStr()).toEqual(map.mcl.pubkey.serializeToHexStr())
     expect(map.bls.signature.serializeToHexStr()).toEqual(map.mcl.signature.serializeToHexStr())
   })
@@ -30,9 +30,9 @@ describe('mcl-bls', () => {
   })
   it('should verify mcl signature via pairings', async function () {
     const secretHex = 'a3e9769b84c095eca6b98449ac86b6e2c589834fe24cb8fbb7b36f814fd06113'
-    const map = new Keymap(messageString).replenish(secretHex).print()
+    const map = new Keymap(messageString).replenish(secretHex);//.print()
     const secretHex1 = 'b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcd29'
-    const map1 = new Keymap(messageString).replenish(secretHex1).print()
+    const map1 = new Keymap(messageString).replenish(secretHex1);//.print()
   
     //key1-signature1 : pass
     let verification = map.mcl.pubkey.verify(map.mcl.signature, messageString);
