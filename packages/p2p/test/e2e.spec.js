@@ -15,20 +15,20 @@ describe('e2e', function () {
   })
 
   it('should work from app.js', async function () {
-    await createNodes(7)
+    await createApiNodes(7)
     await setTimeout(5000)
   }).timeout(-1)
 })
 
 const childProcesses = []
 
-async function createNodes(count) {
+async function createApiNodes(count) {
   for (let i = 0; i < count; i++)
-    childProcesses.push(await createNode({index: i, isLeader: i === 0}))
+    childProcesses.push(await createApiNode({index: i, isLeader: i === 0}))
   return childProcesses
 }
 
-async function createNode({index, isLeader = false}) {
+async function createApiNode({index, isLeader = false}) {
   const env = {
     PORT: 9000 + index,
     PEER_CONF_DIR: './.e2e/' + index,
