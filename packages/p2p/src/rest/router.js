@@ -3,14 +3,7 @@ import config from 'config'
 import {bridge} from './bridgeInfo.js'
 
 async function getPeerInfo(req, res) {
-  const peerInfo = {
-    peerId: bridge.peerId,
-    multiaddr: bridge.multiaddr,
-    peers: bridge.peers,
-    threshold: config.peer.threshold,
-    isLeader: bridge.isLeader,
-  }
-  res.send(peerInfo)
+  res.send(bridge.exportJson())
 }
 
 async function startDkg(req, res) {

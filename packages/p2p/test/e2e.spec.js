@@ -11,13 +11,13 @@ describe('e2e', function () {
   })
   afterEach(async function () {
     for (const childProcess of childProcesses) childProcess.kill()
-    // await rm('.e2e', {recursive: true})
+    await rm('.e2e', {recursive: true})
   })
 
   it('should work from app.js', async function () {
-    await createNodes(2)// await createNode({index: 1, isLeader: true})
-    await setTimeout(1000)
-  })
+    await createNodes(7)
+    await setTimeout(5000)
+  }).timeout(-1)
 })
 
 const childProcesses = []
