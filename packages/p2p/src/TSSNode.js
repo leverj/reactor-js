@@ -127,6 +127,7 @@ export class TSSNode {
   }
 
   exportJson() {
+    if(!this.previouslyShared) return
     return {
       id: this.id.serializeToHexStr(),
       secretKeyShare: this.secretKeyShare?.serializeToHexStr(),

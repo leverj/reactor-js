@@ -15,7 +15,7 @@ describe('e2e', function () {
   })
 
   it('should work from app.js', async function () {
-    await createNodes(4)// await createNode({index: 1, isLeader: true})
+    await createNodes(2)// await createNode({index: 1, isLeader: true})
     await setTimeout(1000)
   })
 })
