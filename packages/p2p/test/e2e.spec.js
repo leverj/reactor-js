@@ -11,7 +11,7 @@ describe('e2e', function () {
   })
   afterEach(async function () {
     for (const childProcess of childProcesses) childProcess.kill()
-    await rm('.e2e', {recursive: true})
+    // await rm('.e2e', {recursive: true})
   })
 
   it('should work from app.js', async function () {

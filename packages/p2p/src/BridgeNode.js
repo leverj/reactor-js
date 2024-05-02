@@ -11,7 +11,7 @@ const meshProtocol = '/bridge/0.0.1'
 
 class BridgeNode extends NetworkNode {
   constructor({ip = '0.0.0.0', port = 0, isLeader = false, json}) {
-    super({ip, port, isLeader, peerIdJson: json.p2p})
+    super({ip, port, isLeader, peerIdJson: json?.p2p})
     this.tssNode
     this.state
     this.whitelisted = {}
@@ -19,7 +19,7 @@ class BridgeNode extends NetworkNode {
 
   exportJson() {
     return {
-      p2p: this.exportJson(),
+      p2p: super.exportJson(),
       tssNode: this.tssNode.exportJson()
     }
   }

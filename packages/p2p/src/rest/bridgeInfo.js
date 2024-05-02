@@ -13,12 +13,12 @@ export async function getBridgeInfo() {
 
 export async function saveBridgeInfo(peerIdJson) {
   const file = path.join(config.bridge.confDir, 'info.json')
-  await writeFile(file, JSON.stringify(peerIdJson), 'utf8')
+  await writeFile(file, JSON.stringify(peerIdJson, null, 2), 'utf8')
 }
 
 const bridgeInfo = await getBridgeInfo()
-export const bridge = new BridgeNode({port: config.bridge.port, isLeader: config.bridge.isLeader, peerIdJson})
+export const bridge = new BridgeNode({port: config.bridge.port, isLeader: config.bridge.isLeader, json: bridgeInfo})
 await bridge.create()
-if (!peerIdJson) await savePeerIdJson(bridge.exportJson())
+if (!bridgeInfo) await saveBridgeInfo(bridge.exportJson())
 
 

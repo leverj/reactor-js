@@ -129,10 +129,10 @@ export class TSSNode {
   exportJson() {
     return {
       id: this.id.serializeToHexStr(),
-      secretKeyShare: this.secretKeyShare.serializeToHexStr(),
-      groupPublicKey: this.groupPublicKey.serializeToHexStr(),
-      verificationVector: this.verificationVector.map(_ => _.serializeToHexStr()),
-      vvec: this.vvec.map(_ => _.serializeToHexStr())
+      secretKeyShare: this.secretKeyShare?.serializeToHexStr(),
+      groupPublicKey: this.groupPublicKey?.serializeToHexStr(),
+      verificationVector: this.verificationVector?.map(_ => _.serializeToHexStr()),
+      vvec: this.vvec?.map(_ => _.serializeToHexStr())
     }
   }
 }
