@@ -3,6 +3,7 @@ import {setTimeout} from 'timers/promises'
 import config from 'config'
 import axios from 'axios'
 import {mkdir, rm} from 'node:fs/promises'
+import {expect} from 'expect'
 
 const __dirname = process.cwd()
 console.log('dirname', __dirname)
@@ -17,6 +18,22 @@ describe('e2e', function () {
   it('should work from app.js', async function () {
     await createApiNodes(7)
     await setTimeout(5000)
+  }).timeout(-1)
+
+  it('should send FriendRequest as api call to bootstrap node', async function () {
+    await createApiNodes(7)
+    await setTimeout(5000)
+    const bootstrapNodeUrl = config.bootstrap_nodes[0].url; //Assume single node for now
+    let apiResp = await axios.get(`${bootstrapNodeUrl}/api/peer/info`)
+    let whitelistedPeers = (apiResp.data.whitelistedPeers)
+    console.log('whiteListed before', whitelistedPeers, Object.keys(whitelistedPeers).length)
+    expect(Object.keys(whitelistedPeers).length).toEqual(0)
+    await axios.post('http://127.0.0.1:9002/api/peer/sendFriendRequest') //eventually this will be called from the node's app.js bootstrap flow somewhere
+    apiResp = await axios.get(`${bootstrapNodeUrl}/api/peer/info`)
+    whitelistedPeers = Object.keys(apiResp.data.whitelistedPeers)
+    console.log('whiteListed after', Object.keys(whitelistedPeers).length, whitelistedPeers)
+    expect(Object.keys(whitelistedPeers).length).toEqual(1)
+    await setTimeout(1000)
   }).timeout(-1)
 })
 
