@@ -1,22 +1,22 @@
 import {Router} from 'express'
 import config from 'config'
-import {bridge} from './bridgeInfo.js'
+import {bridgeNode} from './bridgeInfo.js'
 
 async function getPeerInfo(req, res) {
-  res.send(bridge.exportJson())
+  res.send(bridgeNode.exportJson())
 }
 
 async function startDkg(req, res) {
-  await bridge.startDKG(config.peer.threshold)
+  await bridgeNode.startDKG(config.peer.threshold)
   res.send('ok')
 }
 async function sendFriendRequest(req, res) {
-  await bridge.sendFriendRequest(config.bootstrap_nodes)
+  await bridgeNode.sendFriendRequest(config.bootstrap_nodes)
   res.send('ok')
 }
 async function addPeer(req, res) {
   const {peerId, multiaddr} = req.body
-  await bridge.addPeersToWhiteList({peerId, multiaddr})
+  await bridgeNode.addPeersToWhiteList({peerId, multiaddr})
   res.send('ok')
 }
 

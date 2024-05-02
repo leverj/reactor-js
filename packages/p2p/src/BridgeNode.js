@@ -7,7 +7,7 @@ import axios from 'axios'
 const DKG_INIT_THRESHOLD_VECTORS = 'DKG_INIT_THRESHOLD_VECTORS'
 const DKG_RECEIVE_KEY_SHARE = 'DKG_RECEIVE_KEY_SHARE'
 const TSS_RECEIVE_SIGNATURE_SHARE = 'TSS_RECEIVE_SIGNATURE_SHARE'
-const meshProtocol = '/bridge/0.0.1'
+const meshProtocol = '/bridgeNode/0.0.1'
 
 
 class BridgeNode extends NetworkNode {

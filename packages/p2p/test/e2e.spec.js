@@ -15,11 +15,6 @@ describe('e2e', function () {
     await rm('.e2e', {recursive: true})
   })
 
-  it('should work from app.js', async function () {
-    await createApiNodes(7)
-    await setTimeout(5000)
-  }).timeout(-1)
-
   it('should send FriendRequest as api call to bootstrap node', async function () {
     await createApiNodes(7)
     await setTimeout(5000)

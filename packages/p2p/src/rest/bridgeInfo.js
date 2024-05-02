@@ -17,9 +17,9 @@ export async function saveBridgeInfo(peerIdJson) {
 }
 
 const bridgeInfo = await getBridgeInfo()
-export const bridge = new BridgeNode({port: config.bridge.port, isLeader: config.bridge.isLeader, json: bridgeInfo})
-await bridge.create()
-await bridge.start()
-if (!bridgeInfo) await saveBridgeInfo(bridge.exportJson())
+export const bridgeNode = new BridgeNode({port: config.bridge.port, isLeader: config.bridge.isLeader, json: bridgeInfo})
+await bridgeNode.create()
+await bridgeNode.start()
+if (!bridgeInfo) await saveBridgeInfo(bridgeNode.exportJson())
 
 
