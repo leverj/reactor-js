@@ -33,7 +33,7 @@ async function createApiNode({index, isLeader = false}) {
     PORT: 9000 + index,
     PEER_CONF_DIR: './.e2e/' + index,
     PEER_PORT: config.bridge.port + index,
-    IS_LEADER: isLeader
+    PEER_IS_LEADER: isLeader
   }
   await mkdir(env.PEER_CONF_DIR, {recursive: true})
   return fork(`app.js`, [], {cwd: __dirname, env})

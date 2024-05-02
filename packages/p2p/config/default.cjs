@@ -6,6 +6,9 @@ module.exports = {
     confDir: path.join(__dirname, '..', 'data'),
     port: 10001,
     isLeader: false
+  },
+  peer:{
+    threshold: 4
   }
 
 }
