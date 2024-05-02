@@ -1,8 +1,24 @@
 import {expect} from 'expect'
-import {createBridgeNodes, stopBridgeNodes} from './help/index.js'
+import { peerIdJsons} from './help/index.js'
 import {setTimeout} from 'timers/promises'
+import BridgeNode from '../src/BridgeNode.js'
+const nodes = []
+const stopBridgeNodes = async () => {
+  for (const node of nodes) await node.stop()
+  nodes.length = 0
+}
+const createBridgeNodes = async (count) => {
+  for (let i = 0; i < count; i++) {
+    // fixme: get peerid from config eventually some file
+    const node = new BridgeNode({port: 9000 + i, isLeader: i === 0, json: {p2p: peerIdJsons[i]}})
+    await node.create()
+    await node.start()
+    nodes.push(node)
+  }
+  return nodes
+}
 
-describe('e2e', function () {
+describe('Bridge node', function () {
 
   afterEach(async () => await stopBridgeNodes())
   it('should race connect multiple nodes with each other', async function () {
@@ -47,3 +63,5 @@ describe('e2e', function () {
   }).timeout(-1)
 
 })
+
+

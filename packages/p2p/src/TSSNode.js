@@ -125,4 +125,14 @@ export class TSSNode {
   print() {
     console.log([this.id, this.secretKeyShare, this.groupPublicKey].map(_ => _?.serializeToHexStr()).join('\n\t'))
   }
+
+  exportJson() {
+    return {
+      id: this.id.serializeToHexStr(),
+      secretKeyShare: this.secretKeyShare.serializeToHexStr(),
+      groupPublicKey: this.groupPublicKey.serializeToHexStr(),
+      verificationVector: this.verificationVector.map(_ => _.serializeToHexStr()),
+      vvec: this.vvec.map(_ => _.serializeToHexStr())
+    }
+  }
 }

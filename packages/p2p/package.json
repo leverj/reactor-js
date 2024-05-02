@@ -19,8 +19,6 @@
     "@leverj/common": "^1.0.4",
     "@libp2p/ping": "^1.0.13",
     "@libp2p/tcp": "^9.0.16",
-    "@nomiclabs/hardhat-ethers": "^2.2.3",
-    "@nomiclabs/hardhat-etherscan": "^3.1.8",
     "bls-wasm": "^1.1.1",
     "body-parser": "^1.20.2",
     "config": "^3.3.11",
@@ -32,9 +30,11 @@
     "libp2p": "^1.3.0",
     "mcl-wasm": "^1.4.0",
     "multiaddr": "^10.0.1",
-    "supertest": "^7.0.0",
     "uint8arrays": "^5.0.3"
   },
   "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "@nomiclabs/hardhat-etherscan": "^3.1.8",
+    "axios": "^1.6.8"
   }
 }

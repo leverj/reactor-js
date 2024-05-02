@@ -1,6 +1,6 @@
 import {Router} from 'express'
 import config from 'config'
-import {bridge} from './NetworkInfo.js'
+import {bridge} from './bridgeInfo.js'
 
 async function getPeerInfo(req, res) {
   const peerInfo = {
