@@ -17,7 +17,7 @@ export default class NetworkNode {
     this.peerIdJson = peerIdJson
     this.ip = ip
     this.port = port
-    this.isLeader = isLeader
+    this.isLeader = typeof isLeader === 'string' ? isLeader === 'true' : isLeader
     this.streams = {}
   }
 

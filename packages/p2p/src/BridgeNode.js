@@ -35,7 +35,7 @@ class BridgeNode extends NetworkNode {
     this.registerStreamHandler(meshProtocol, this.onStreamMessage.bind(this))
     return this
   }
-  //FIX ME this function will change a lot in future. For now, make simple assumptions
+  //FIXME this function will change a lot in future. For now, make simple assumptions
   //like http, external IP, good players.
   async joinBridgeRequest(bootstrapNode){
     const addPeerUrl = bootstrapNode + '/api/peer/add'
@@ -49,8 +49,7 @@ class BridgeNode extends NetworkNode {
       this.whitelisted[peerId] = {dkgId, multiaddr, requestorApiUrl}
       this.tssNode.addMember(dkgId, this.sendMessageToPeer.bind(this, multiaddr, DKG_RECEIVE_KEY_SHARE))
     }
-    //FIX ME : this flag is coming as string instead of bool
-    if (config.bridgeNode.isLeader === 'false') return;
+    if (!this.isLeader) return;
     for (const {requestorApiUrl, peerId} of Object.values(this.whitelisted)) {
       const addPeerUrl = requestorApiUrl + '/api/peer/add'
       const outArr = []
