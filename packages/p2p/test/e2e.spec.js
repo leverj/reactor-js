@@ -18,7 +18,7 @@ describe('e2e', function () {
   it('should send FriendRequest as api call to bootstrap node', async function () {
     await createApiNodes(7)
     await setTimeout(5000)
-    const bootstrapNodeUrl = config.bootstrap_nodes[0].url; //Assume single node for now
+    const bootstrapNodeUrl = config.bridgeNode.bootstrapNode; //Assume single node for now
     let apiResp = await axios.get(`${bootstrapNodeUrl}/api/peer/info`)
     let whitelistedPeers = (apiResp.data.whitelistedPeers)
     console.log('whiteListed before', whitelistedPeers, Object.keys(whitelistedPeers).length)
@@ -43,10 +43,10 @@ async function createApiNodes(count) {
 async function createApiNode({index, isLeader = false}) {
   const env = {
     PORT: 9000 + index,
-    PEER_CONF_DIR: './.e2e/' + index,
-    PEER_PORT: config.bridge.port + index,
-    PEER_IS_LEADER: isLeader
+    BRIDGE_CONF_DIR: './.e2e/' + index,
+    BRIDGE_PORT: config.bridgeNode.port + index,
+    BRIDGE_IS_LEADER: isLeader
   }
-  await mkdir(env.PEER_CONF_DIR, {recursive: true})
+  await mkdir(env.BRIDGE_CONF_DIR, {recursive: true})
   return fork(`app.js`, [], {cwd: __dirname, env})
 }
