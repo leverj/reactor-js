@@ -15,6 +15,7 @@ describe('e2e', function () {
     await rm('.e2e', {recursive: true})
   })
 
+  //add new nodes to peer list and sync up all nodes with updated peer list
   it('should send JoinBridgeRequest as api call to bootstrap node', async function () {
     await createApiNodes(7)
     await setTimeout(5000)
