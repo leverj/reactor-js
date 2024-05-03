@@ -5,7 +5,7 @@ module.exports = {
   ip: '0.0.0.0',
   bridgeNode: {
     confDir: path.join(__dirname, '..', 'data'),
-    port: 10001,
+    port: 10000,
     isLeader: false,
     threshold: 4,
     bootstrapNode:'http://127.0.0.1:9000'
