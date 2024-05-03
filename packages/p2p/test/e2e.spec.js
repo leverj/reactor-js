@@ -15,19 +15,30 @@ describe('e2e', function () {
     await rm('.e2e', {recursive: true})
   })
 
-  it('should send FriendRequest as api call to bootstrap node', async function () {
+  it('should send JoinBridgeRequest as api call to bootstrap node', async function () {
     await createApiNodes(7)
     await setTimeout(5000)
-    const bootstrapNodeUrl = config.bridgeNode.bootstrapNode; //Assume single node for now
+    const bootstrapNodeUrl = config.bridgeNode.bootstrapNode; 
     let apiResp = await axios.get(`${bootstrapNodeUrl}/api/peer/info`)
     let whitelistedPeers = (apiResp.data.whitelistedPeers)
-    console.log('whiteListed before', whitelistedPeers, Object.keys(whitelistedPeers).length)
-    expect(Object.keys(whitelistedPeers).length).toEqual(0)
-    await axios.post('http://127.0.0.1:9002/api/peer/sendFriendRequest') //eventually this will be called from the node's app.js bootstrap flow somewhere
-    apiResp = await axios.get(`${bootstrapNodeUrl}/api/peer/info`)
-    whitelistedPeers = Object.keys(apiResp.data.whitelistedPeers)
-    console.log('whiteListed after', Object.keys(whitelistedPeers).length, whitelistedPeers)
-    expect(Object.keys(whitelistedPeers).length).toEqual(1)
+    const newJoinees = [9001, 9002, 9003, 9004, 9005, 9006]
+    const allNodes = [9000, ...newJoinees]
+    for (const node of allNodes){
+      apiResp = await axios.get(`http://127.0.0.1:${node}/api/peer/info`)
+      whitelistedPeers = Object.keys(apiResp.data.whitelistedPeers)
+      expect(Object.keys(whitelistedPeers).length).toEqual(0)
+    }
+    for (const newJoinee of newJoinees){
+      await axios.post(`http://127.0.0.1:${newJoinee}/api/peer/joinBridgeRequest`) 
+      apiResp = await axios.get(`${bootstrapNodeUrl}/api/peer/info`)
+    }
+    for (const node of allNodes){
+      apiResp = await axios.get(`http://127.0.0.1:${node}/api/peer/info`)
+      whitelistedPeers = Object.keys(apiResp.data.whitelistedPeers)
+      console.log('whiteList in peer ${node}', Object.keys(whitelistedPeers).length, JSON.stringify(whitelistedPeers))
+      expect(Object.keys(whitelistedPeers).length).toEqual(newJoinees.length)
+    }
+    
     await setTimeout(1000)
   }).timeout(-1)
 })
