@@ -31,7 +31,6 @@ describe('e2e', function () {
     }
     for (const newJoinee of newJoinees){
       await axios.post(`http://127.0.0.1:${newJoinee}/api/peer/joinBridgeRequest`) 
-      apiResp = await axios.get(`${bootstrapNodeUrl}/api/peer/info`)
     }
     for (const node of allNodes){
       apiResp = await axios.get(`http://127.0.0.1:${node}/api/peer/info`)
