@@ -1,4 +1,4 @@
-import {ApiApp} from './src/ApiApp.js'
+import {ApiApp} from './src/apiApp.js'
 const api = new ApiApp()
 api.start()
 process.on('SIGTERM', () => {
