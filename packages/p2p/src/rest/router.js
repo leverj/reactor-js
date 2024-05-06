@@ -1,6 +1,9 @@
 import {Router} from 'express'
 import config from 'config'
 import {bridgeNode} from './bridgeInfo.js'
+import axios from 'axios'
+import {setTimeout} from 'timers/promises'
+
 
 async function getMultiaddrs(req, res) {
   const multiaddr = `/ip4/${config.externalIp}/tcp/${config.bridgeNode.port}/p2p/${bridgeNode.peerId}`
@@ -16,7 +19,13 @@ async function startDkg(req, res) {
   res.send('ok')
 }
 async function joinBridgeRequest(req, res) {
-  await bridgeNode.joinBridgeRequest(config.bridgeNode.bootstrapNode)
+  const addPeerUrl = config.bridgeNode.bootstrapNode + '/api/peer/add'
+  const peerInfoUrl = 'http://' + config.externalIp + ':' + config.port + '/api/peer/info' 
+  const multiaddr = `/ip4/${config.externalIp}/tcp/${config.bridgeNode.port}/p2p/${bridgeNode.peerId}`
+  await axios.post(addPeerUrl, [{peerId: bridgeNode.peerId, multiaddr, ip: config.externalIp, port:config.port}])
+  /*console.log('bootstrap url', config.bridgeNode.bootstrapNode + '/api/peer/info')
+  const httpResp = await axios.get(config.bridgeNode.bootstrapNode + '/api/peer/info')
+  console.log('bootstrapNodeInfo', httpResp.body)*/
   res.send('ok')
 }
 
@@ -31,8 +40,28 @@ async function joinBridgeRequest(req, res) {
 ]
  */
 async function addPeer(req, res) {
+  //console.log('addPeer called on ', config.bridgeNode.isLeader, config.port)
   const peers = req.body
   await bridgeNode.addPeersToWhiteList(...peers)
+  //Leader needs to broadcast updated whitelist to all the nodes
+  if (config.bridgeNode.isLeader == 'true'){
+    const boostrapUrl = `http://localhost:${config.port}/api/peer/info`
+    const apiResp = await axios.get(boostrapUrl)
+    const whiteListInBootstrap = apiResp.data.whitelistedPeers
+    const whiteListInput = []
+    for (const [key, value] of Object.entries(whiteListInBootstrap)){
+      whiteListInput.push({peerId: key, multiaddr: value.multiaddr, ip: value.ip, port: value.port})
+    }
+    if (whiteListInput.length > 0){
+      for (const peer of whiteListInput){
+        if (peer.peerId === bridgeNode.peerId) continue
+        const addPeerUrl = 'http://' + peer.ip + ':' + peer.port + '/api/peer/add'
+        await axios.post(addPeerUrl, whiteListInput)
+        await setTimeout(1000)
+      }
+    }
+    
+  }
   res.send('ok')
 }
 
