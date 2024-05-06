@@ -19,7 +19,7 @@ commands:
     steps:
       - checkout
       - run: { name: upgrade yarn, command: sudo npm upgrade -g yarn }
-      - run: yarn workspaces focus --all
+      - run: yarn
   test:
     parameters: { package: { type: string } }
     steps:
