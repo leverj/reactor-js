@@ -1,0 +1,68 @@
+# Javascript Node CircleCI 2.1 configuration file
+#
+# Check https://circleci.com/docs/2.1/language-javascript/ for more details
+#
+version: 2.1
+
+# anchors
+docker-image: &docker-image
+  docker: [ image: cimg/node:lts ]
+install-dev-tools: &install-dev-tools
+  - run:
+      name: install dev tools
+      command: |
+        wget http://nz2.archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.22_amd64.deb
+        sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2.22_amd64.deb
+
+commands:
+  checkout-and-install-node-modules:
+    steps:
+      - checkout
+      - run: { name: upgrade yarn, command: sudo npm upgrade -g yarn }
+      - run: yarn workspaces focus --all
+  test:
+    parameters: { package: { type: string } }
+    steps:
+      - run:
+          name: Test << parameters.package >>
+          command: NODE_ENV=test yarn test
+          working_directory: packages/<< parameters.package >>
+
+jobs:
+  individual-test:
+    parameters: { package: {type: string} }
+    <<: *docker-image
+    steps:
+      - checkout-and-install-node-modules
+      - <<: *install-dev-tools
+      - test: { package: << parameters.package >> }
+      - persist_to_workspace: { root: ., paths: packages/<< parameters.package >>/coverage }
+  docker-creation:
+    parameters:
+      package: { type: string }
+      copy: { type: string, default: "src package.json app.js ../../yarn.lock" }
+    <<: *docker-image
+    steps:
+      - checkout
+      - run:
+          name: copy << parameters.copy >> to dist/
+          command: |
+            cd packages/<< parameters.package >>
+            mkdir -p dist
+            cp -r << parameters.copy >> dist/
+      - setup_remote_docker: { docker_layer_caching: true, version: 19.03.13 }
+      - run:
+          name: create and publish leverj/gallery-<< parameters.package >>:$CIRCLE_BRANCH
+          command: |
+            docker info
+            docker build  -t leverj/<< parameters.package >>:$CIRCLE_BRANCH packages/<< parameters.package >>
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+            docker push leverj/<< parameters.package >>:$CIRCLE_BRANCH
+            docker logout
+
+
+workflows:
+  workflow:
+    jobs:
+      - docker-creation: {name: docker-reactor, package: p2p}
+      - individual-test: {name: test-p2p, package: p2p}
