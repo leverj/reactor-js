@@ -36,7 +36,6 @@ jobs:
       - checkout-and-install-node-modules
       - <<: *install-dev-tools
       - test: { package: << parameters.package >> }
-      - persist_to_workspace: { root: ., paths: packages/<< parameters.package >>/coverage }
   docker-creation:
     parameters:
       package: { type: string }
