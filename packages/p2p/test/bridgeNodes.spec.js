@@ -46,7 +46,7 @@ describe('Bridge node', function () {
     }
     await setTimeout(1000)
     for (const node of [leader, node1, node2, node3, node4, node5, node6]) {
-      expect(node.peers.length).toEqual(6)
+      expect(node.peers.length).toEqual(nodes.length - 1)
     }
 
     await leader.startDKG(4)

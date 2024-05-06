@@ -33,13 +33,14 @@ class BridgeNode extends NetworkNode {
     this.registerStreamHandler(meshProtocol, this.onStreamMessage.bind(this))
     return this
   }
-  
+  //There is a difference between WhiteList and Peers of a node. Whitelist is a global variable, where as peers 
+  //of a node can be different
   async addPeersToWhiteList(...peers) {
     for (const {peerId, multiaddr, ip, port} of peers) {
       if (Object.keys(this.whitelisted).indexOf(peerId) > -1) continue
       let dkgId = new TSSNode(peerId).id.serializeToHexStr()
       this.whitelisted[peerId] = {dkgId, multiaddr, ip, port}
-      this.tssNode.addMember(dkgId, this.sendMessageToPeer.bind(this, multiaddr, DKG_RECEIVE_KEY_SHARE))
+      if (peerId !== this.peerId) this.tssNode.addMember(dkgId, this.sendMessageToPeer.bind(this, multiaddr, DKG_RECEIVE_KEY_SHARE))
     }
   }
 
@@ -57,7 +58,6 @@ class BridgeNode extends NetworkNode {
   }
 
   async sendMessageToPeer(multiaddr, topic, message) {
-    // send mesh protocol to dkgId
     const messageStr = JSON.stringify({topic, message})
     await this.createAndSendMessage(multiaddr, meshProtocol, messageStr)
   }

@@ -7,7 +7,7 @@ import {expect} from 'expect'
 
 const __dirname = process.cwd()
 console.log('dirname', __dirname)
-describe.only('e2e', function () {
+describe('e2e', function () {
   beforeEach(async function () {
   })
   afterEach(async function () {
@@ -31,7 +31,7 @@ describe.only('e2e', function () {
     }
     for (const newJoinee of allNodes){
       await axios.post(`http://127.0.0.1:${newJoinee}/api/peer/joinBridgeRequest`) 
-      console.log("NODE ADDED********************************")
+      console.log("Node Added to Bridge via Api")
     }
     
     for (const node of allNodes){
