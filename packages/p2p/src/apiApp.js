@@ -4,7 +4,7 @@ import {logger} from '@leverj/common/utils'
 import app from './rest/app.js'
 import {bridgeNode} from './rest/bridgeInfo.js'
 import axios from 'axios'
-const {port, ip} = config
+const {port, ip, externalIp, bridgeNode:{port: bridgePort}} = config
 
 export class ApiApp {
   constructor() {
@@ -16,10 +16,11 @@ export class ApiApp {
       logger.log(`Bridge api server  is running at port ${port}`)
     )
   }
-  async connectToBridge(){
-    const addPeerUrl = config.bridgeNode.bootstrapNode + '/api/peer/add'
-    const multiaddr = `/ip4/${config.externalIp}/tcp/${config.bridgeNode.port}/p2p/${bridgeNode.peerId}`
-    await axios.post(addPeerUrl, [{peerId: bridgeNode.peerId, multiaddr, ip: config.externalIp, port: config.port}])
+  async connectToLeader(){
+    const leaderUrl = config.bridgeNode.bootstrapNode + '/api/peer/add'
+    const peerId = bridgeNode.peerId
+    const multiaddr = `/ip4/${externalIp}/tcp/${bridgePort}/p2p/${peerId}`
+    await axios.post(leaderUrl, [{peerId, multiaddr, ip: externalIp, port}])
   }
   stop() {
     this.server.close()

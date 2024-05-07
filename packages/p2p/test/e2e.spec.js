@@ -4,6 +4,7 @@ import config from 'config'
 import axios from 'axios'
 import {mkdir, rm} from 'node:fs/promises'
 import {expect} from 'expect'
+import {exp} from '../src/mcl/utils.js'
 
 const __dirname = process.cwd()
 console.log('dirname', __dirname)
@@ -36,22 +37,25 @@ describe('e2e', function () {
     await createApiNodes(allNodes.length)
     await setTimeout(5000)
     const bootstrapNodeUrl = config.bridgeNode.bootstrapNode; 
-    let apiResp = await axios.get(`${bootstrapNodeUrl}/api/peer/info`)
+    // let apiResp = await axios.get(`${bootstrapNodeUrl}/api/peer/info`)
     for (const node of allNodes){
       await axios.post(`http://127.0.0.1:${node}/api/peer/connect`)
       await setTimeout(1000)
-      apiResp = await axios.get(`http://127.0.0.1:${node}/api/peer/info`)
-      expect(apiResp.data.p2p.peers.length).toEqual(allNodes.length - 1)
+      const {data:{p2p:{peers}}} = await axios.get(`http://127.0.0.1:${node}/api/peer/info`)
+      expect(peers.length).toEqual(allNodes.length - 1)
     }
+
     await axios.post(`${bootstrapNodeUrl}/api/dkg/start`)
+
     let groupPublicKey, prevGroupPublicKey;
     for (const node of allNodes){
-      apiResp = await axios.get(`http://127.0.0.1:${node}/api/peer/info`)
       prevGroupPublicKey = groupPublicKey
+      const {data:{tssNode}} = await axios.get(`http://127.0.0.1:${node}/api/peer/info`)
       //console.log(apiResp.data.tssNode) //FIXME. WEIRD - commenting this console.log causes TC to fail some times
-      groupPublicKey = apiResp.data.tssNode.groupPublicKey
+      groupPublicKey = tssNode.groupPublicKey
       //Group public key of each node must be same, compare consecutive for all
-      if (prevGroupPublicKey && groupPublicKey) expect(prevGroupPublicKey).toEqual(groupPublicKey)
+      expect(groupPublicKey).not.toBeNull()
+      if (prevGroupPublicKey) expect(prevGroupPublicKey).toEqual(groupPublicKey)
     }
     await setTimeout(1000)
   }).timeout(-1)
