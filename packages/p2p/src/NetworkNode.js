@@ -31,7 +31,8 @@ export default class NetworkNode {
     return {
       privKey: uint8ArrayToString(this.p2p.peerId.privateKey, 'base64'),
       pubKey: uint8ArrayToString(this.p2p.peerId.publicKey, 'base64'),
-      id: this.peerId
+      id: this.peerId,
+      peers: this.peers
     }
   }
 
