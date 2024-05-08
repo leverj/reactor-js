@@ -14,6 +14,7 @@ BRIDGE_BOOTSTRAP_NODE=
 
 docker stop p2p-node
 docker rm p2p-node
+docker pull leverj/p2p:main
 docker run -it --name p2p-node \
   -e EXTERNAL_IP=$EXTERNAL_IP \
   -e PORT=$PORT \
@@ -25,4 +26,4 @@ docker run -it --name p2p-node \
   -e BRIDGE_BOOTSTRAP_NODE=$BRIDGE_BOOTSTRAP_NODE \
   -p 9001:9001 \
   -v ${PWD}/../.node:/root/data \
-  leverj/p2p:main ash
+  leverj/p2p:main node app.js
