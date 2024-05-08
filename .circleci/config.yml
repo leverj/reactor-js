@@ -39,7 +39,7 @@ jobs:
   docker-creation:
     parameters:
       package: { type: string }
-      copy: { type: string, default: "src package.json app.js ../../yarn.lock" }
+      copy: { type: string, default: "src config package.json app.js ../../yarn.lock" }
     <<: *docker-image
     steps:
       - checkout
