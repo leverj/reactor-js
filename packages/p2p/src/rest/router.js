@@ -47,11 +47,18 @@ async function addPeer(req, res) {
   }
   res.send('ok')
 }
+async function signMessage(req, res){
+  const msg = req.body
+  const signature = await bridgeNode.tssNode.sign(msg.msg)
+  const signerPubKey = await bridgeNode.tssNode.publicKey
+  res.send({'signature': signature.serializeToHexStr(), 'signer': bridgeNode.tssNode.id.serializeToHexStr(), 'signerPubKey' : signerPubKey.serializeToHexStr()})
+}
 
 export const router = Router()
 router.get('/fixme/bridge/multiaddr', getMultiaddrs)
 router.get('/peer/info', getPeerInfo)
 router.post('/peer/add', addPeer)
+router.post('/tss/sign', signMessage)
 router.post('/peer/connect',  connect)
 router.post('/peer/joinBridgeRequest', joinBridgeRequest)
 router.post('/dkg/start', startDkg)

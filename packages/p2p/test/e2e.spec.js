@@ -4,8 +4,9 @@ import config from 'config'
 import axios from 'axios'
 import {mkdir, rm} from 'node:fs/promises'
 import {expect} from 'expect'
-import {exp} from '../src/mcl/utils.js'
+import * as mcl from '../src/mcl/mcl.js'
 
+const message = 'hello world'
 const __dirname = process.cwd()
 console.log('dirname', __dirname)
 describe('e2e', function () {
@@ -51,11 +52,25 @@ describe('e2e', function () {
     for (const node of allNodes){
       prevGroupPublicKey = groupPublicKey
       const {data:{tssNode}} = await axios.get(`http://127.0.0.1:${node}/api/peer/info`)
-      //console.log(apiResp.data.tssNode) //FIXME. WEIRD - commenting this console.log causes TC to fail some times
+      console.log(tssNode) //FIXME WEIRD - commenting this console.log causes TC to fail some times
       groupPublicKey = tssNode.groupPublicKey
       //Group public key of each node must be same, compare consecutive for all
       expect(groupPublicKey).not.toBeNull()
       if (prevGroupPublicKey) expect(prevGroupPublicKey).toEqual(groupPublicKey)
+    }
+    await setTimeout(1000)
+  }).timeout(-1)
+  //FIXME following test case depends on earlier one to persist the secret shares. Is there a way to have dependency style runs ?
+  it('should create new nodes, load secret shares from local storage, sign message, and verify with individual pub key', async function () {
+    const allNodes = [9000, 9001]
+    await createApiNodes(allNodes.length)
+    for (const node of allNodes){
+      const apiResp = await axios.post(`http://127.0.0.1:${node}/api/tss/sign`, {"msg": message})
+      const signature = new mcl.Signature()
+      signature.deserializeHexStr(apiResp.data.signature)
+      const individualPublicKey = mcl.deserializeHexStrToPublicKey(apiResp.data.signerPubKey)
+      const verified = await individualPublicKey.verify(signature, message)
+      expect(verified).toEqual(true)
     }
     await setTimeout(1000)
   }).timeout(-1)

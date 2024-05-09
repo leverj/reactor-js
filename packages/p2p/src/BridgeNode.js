@@ -2,6 +2,8 @@ import NetworkNode from './NetworkNode.js'
 import {TSSNode} from './TSSNode.js'
 import {affirm} from '@leverj/common/utils'
 import {setTimeout} from 'timers/promises'
+import bls from './bls.js'
+
 
 const DKG_INIT_THRESHOLD_VECTORS = 'DKG_INIT_THRESHOLD_VECTORS'
 const DKG_RECEIVE_KEY_SHARE = 'DKG_RECEIVE_KEY_SHARE'
@@ -33,12 +35,15 @@ class BridgeNode extends NetworkNode {
     this.registerStreamHandler(meshProtocol, this.onStreamMessage.bind(this))
     return this
   }
-  //There is a difference between WhiteList and Peers of a node. Whitelist is a global variable, where as peers 
-  //of a node can be different
+  getDkgId(peerId){
+    let id = new bls.SecretKey()
+    id.setHashOf(Buffer.from(peerId))
+    return id.serializeToHexStr()
+  }
   async addPeersToWhiteList(...peers) {
     for (const {peerId, multiaddr, ip, port} of peers) {
       if (Object.keys(this.whitelisted).indexOf(peerId) > -1) continue
-      let dkgId = new TSSNode(peerId).id.serializeToHexStr()
+      let dkgId = this.getDkgId(peerId)
       this.whitelisted[peerId] = {dkgId, multiaddr, ip, port}
       if (peerId !== this.peerId) this.tssNode.addMember(dkgId, this.sendMessageToPeer.bind(this, multiaddr, DKG_RECEIVE_KEY_SHARE))
     }
@@ -92,7 +97,6 @@ class BridgeNode extends NetworkNode {
     await this.tssNode.generateVectors(threshold)
     await this.tssNode.generateContribution()
   }
-
 }
 
 export default BridgeNode
