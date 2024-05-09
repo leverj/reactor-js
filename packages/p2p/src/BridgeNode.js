@@ -13,8 +13,9 @@ const meshProtocol = '/bridgeNode/0.0.1'
 class BridgeNode extends NetworkNode {
   constructor({ip = '0.0.0.0', port = 0, isLeader = false, json}) {
     super({ip, port, isLeader, peerIdJson: json?.p2p})
-    this.tssNode
-    this.state
+    this.tssNodeJson = json?.tssNode
+    this.tssNode = null
+    this.state = null
     this.whitelisted = {}
   }
 
@@ -28,7 +29,7 @@ class BridgeNode extends NetworkNode {
 
   async create() {
     await super.create()
-    this.tssNode = new TSSNode(this.peerId)
+    this.tssNode = new TSSNode(this.peerId, this.tssNodeJson)
     let dkgId = this.tssNode.id.serializeToHexStr()
     this.tssNode.addMember(dkgId, this.tssNode.onDkgShare.bind(this.tssNode)) // making self dkg share
     this.registerStreamHandler(meshProtocol, this.onStreamMessage.bind(this))

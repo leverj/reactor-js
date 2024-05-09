@@ -1,10 +1,8 @@
 import bls from './bls.js'
 import {affirm} from '@leverj/common/utils'
 import {addContributionShares, addVerificationVectors, generateContributionForId, verifyContributionShare} from './dkg-bls.js'
-import path from 'path'
-import config from 'config'
-import {writeFileSync, readFileSync, existsSync} from 'fs'
 import * as mcl from '../src/mcl/mcl.js'
+import events, {DKG_DONE} from './events.js'
 
 function getMemberContributions(recievedShares, vvecs) {
   const ids = Object.keys(recievedShares).sort()
@@ -34,13 +32,13 @@ export function generateDkgId(id) {
 /* Threshold Signature Scheme */
 export class TSSNode {
 
-  constructor(id) {
+  constructor(id, json) {
     affirm(typeof id === 'string', 'id must be a string')
     this.id = new bls.SecretKey()
     this.id.setHashOf(Buffer.from(id))
     this.members = {}
     this.reset()
-    this.deserializeShares()
+    this.deserializeShares(json)
   }
 
   reset() {
@@ -52,29 +50,17 @@ export class TSSNode {
     this.vvec = null
     this.previouslyShared = false
   }
-  async serializeShares(){
-    const file = path.join(config.bridgeNode.confDir, 'share.json')
-    const arr = []
-    for (const v of this.vvec){
-      arr.push(v.serializeToHexStr())
+
+  deserializeShares(json) {
+    if (!json) return
+    let secretKey = new bls.SecretKey()
+    secretKey.deserializeHexStr(json.secretKeyShare)
+    this.secretKeyShare = secretKey
+    this.vvec = []
+    for (const vv of json.vvec) {
+      this.vvec.push(mcl.deserializeHexStrToPublicKey(vv))
     }
-    writeFileSync(file, JSON.stringify({'vvec': arr,'secretShare': this.secretKeyShare.serializeToHexStr()}), null, 2, 'utf8')
-  }
-  async deserializeShares(){
-    try{
-      const file = path.join(config.bridgeNode.confDir, 'share.json')
-      if(!existsSync(file)) return
-      const fileContent =  readFileSync(file, 'utf8')
-      const {secretShare, vvec} = JSON.parse(fileContent)
-      let secretKey = new bls.SecretKey()
-      secretKey.deserializeHexStr(secretShare)
-      this.secretKeyShare = secretKey
-      this.vvec = []
-      for (const vv of vvec){
-        this.vvec.push(mcl.deserializeHexStrToPublicKey(vv))
-      }
-      this.previouslyShared = true
-    }catch(e){console.log(e)}
+    this.previouslyShared = true
   }
 
   reinitiate() {
@@ -136,7 +122,7 @@ export class TSSNode {
     this.secretKeyShare = addContributionShares(this.previouslyShared ? [this.secretKeyShare, ...recievedShares] : recievedShares)
     this.vvec = addVerificationVectors(this.previouslyShared ? [this.vvec, ...vvecs] : vvecs)
     this.previouslyShared = true
-    await this.serializeShares()
+    events.emit(DKG_DONE)
   }
 
   get groupPublicKey() {
@@ -158,7 +144,7 @@ export class TSSNode {
   }
 
   exportJson() {
-    if(!this.previouslyShared) return
+    if (!this.previouslyShared) return
     return {
       id: this.id.serializeToHexStr(),
       secretKeyShare: this.secretKeyShare?.serializeToHexStr(),

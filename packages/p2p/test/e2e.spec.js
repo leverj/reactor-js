@@ -11,6 +11,7 @@ const __dirname = process.cwd()
 console.log('dirname', __dirname)
 describe('e2e', function () {
   beforeEach(async function () {
+    // await rm('.e2e', {recursive: true})
   })
   afterEach(async function () {
     for (const childProcess of childProcesses) childProcess.kill()
