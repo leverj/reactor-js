@@ -2,16 +2,18 @@ import {fork} from 'child_process'
 import {setTimeout} from 'timers/promises'
 import config from 'config'
 import axios from 'axios'
-import {mkdir, rm} from 'node:fs/promises'
+import {writeFile, mkdir, rm} from 'node:fs/promises'
 import {expect} from 'expect'
 import * as mcl from '../src/mcl/mcl.js'
+import {bridgeInfos} from './help/index.js'
+import path from 'path'
 
 const message = 'hello world'
 const __dirname = process.cwd()
 console.log('dirname', __dirname)
 describe('e2e', function () {
   beforeEach(async function () {
-    // await rm('.e2e', {recursive: true})
+    await rm('.e2e', {recursive: true, force: true})
   })
   afterEach(async function () {
     for (const childProcess of childProcesses) childProcess.kill()
@@ -23,10 +25,10 @@ describe('e2e', function () {
     const allNodes = [9000, 9001, 9002, 9003, 9004, 9005, 9006]
     await createApiNodes(allNodes.length)
     await setTimeout(5000)
-    const bootstrapNodeUrl = config.bridgeNode.bootstrapNode; 
+    const bootstrapNodeUrl = config.bridgeNode.bootstrapNode
     let apiResp = await axios.get(`${bootstrapNodeUrl}/api/peer/info`)
     let whitelistedPeers = (apiResp.data.whitelistedPeers)
-    for (const node of allNodes){
+    for (const node of allNodes) {
       apiResp = await axios.get(`http://127.0.0.1:${node}/api/peer/info`)
       whitelistedPeers = Object.keys(apiResp.data.whitelistedPeers)
       console.log(`whiteList in peer ${node}`, Object.keys(whitelistedPeers).length, JSON.stringify(whitelistedPeers))
@@ -38,21 +40,21 @@ describe('e2e', function () {
     const allNodes = [9000, 9001, 9002, 9003, 9004, 9005, 9006]
     await createApiNodes(allNodes.length)
     await setTimeout(5000)
-    const bootstrapNodeUrl = config.bridgeNode.bootstrapNode; 
+    const bootstrapNodeUrl = config.bridgeNode.bootstrapNode
     // let apiResp = await axios.get(`${bootstrapNodeUrl}/api/peer/info`)
-    for (const node of allNodes){
+    for (const node of allNodes) {
       await axios.post(`http://127.0.0.1:${node}/api/peer/connect`)
       await setTimeout(1000)
-      const {data:{p2p:{peers}}} = await axios.get(`http://127.0.0.1:${node}/api/peer/info`)
+      const {data: {p2p: {peers}}} = await axios.get(`http://127.0.0.1:${node}/api/peer/info`)
       expect(peers.length).toEqual(allNodes.length - 1)
     }
 
     await axios.post(`${bootstrapNodeUrl}/api/dkg/start`)
 
-    let groupPublicKey, prevGroupPublicKey;
-    for (const node of allNodes){
+    let groupPublicKey, prevGroupPublicKey
+    for (const node of allNodes) {
       prevGroupPublicKey = groupPublicKey
-      const {data:{tssNode}} = await axios.get(`http://127.0.0.1:${node}/api/peer/info`)
+      const {data: {tssNode}} = await axios.get(`http://127.0.0.1:${node}/api/peer/info`)
       console.log(tssNode) //FIXME WEIRD - commenting this console.log causes TC to fail some times
       groupPublicKey = tssNode.groupPublicKey
       //Group public key of each node must be same, compare consecutive for all
@@ -61,12 +63,13 @@ describe('e2e', function () {
     }
     await setTimeout(1000)
   }).timeout(-1)
-  //FIXME following test case depends on earlier one to persist the secret shares. Is there a way to have dependency style runs ?
+
   it('should create new nodes, load secret shares from local storage, sign message, and verify with individual pub key', async function () {
     const allNodes = [9000, 9001]
+    await generateBridgeInfo(allNodes.length)
     await createApiNodes(allNodes.length)
-    for (const node of allNodes){
-      const apiResp = await axios.post(`http://127.0.0.1:${node}/api/tss/sign`, {"msg": message})
+    for (const node of allNodes) {
+      const apiResp = await axios.post(`http://127.0.0.1:${node}/api/tss/sign`, {'msg': message})
       const signature = new mcl.Signature()
       signature.deserializeHexStr(apiResp.data.signature)
       const individualPublicKey = mcl.deserializeHexStrToPublicKey(apiResp.data.signerPubKey)
@@ -80,10 +83,10 @@ describe('e2e', function () {
 const childProcesses = []
 
 async function createApiNodes(count) {
-  for (let i = 0; i < count; i++){
+  for (let i = 0; i < count; i++) {
     childProcesses.push(await createApiNode({index: i, isLeader: i === 0}))
     await setTimeout(2000)
-  }  
+  }
   return childProcesses
 }
 
@@ -96,4 +99,13 @@ async function createApiNode({index, isLeader = false}) {
   }
   await mkdir(env.BRIDGE_CONF_DIR, {recursive: true})
   return fork(`app.js`, [], {cwd: __dirname, env})
+}
+
+async function generateBridgeInfo(count) {
+  for (let i = 0; i < count; i++) {
+    const info = bridgeInfos[i]
+    let dir = path.join(__dirname, '.e2e', i.toString())
+    await mkdir(dir, {recursive: true})
+    await writeFile(path.join(dir, 'info.json'), JSON.stringify(info, null, 2))
+  }
 }
