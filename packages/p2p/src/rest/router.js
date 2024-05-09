@@ -1,6 +1,6 @@
 import {Router} from 'express'
 import config from 'config'
-import {bridgeNode} from './bridgeInfo.js'
+import {bridgeNode} from './manager.js'
 import axios from 'axios'
 import {setTimeout} from 'timers/promises'
 

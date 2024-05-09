@@ -3,7 +3,7 @@ import {affirm} from '@leverj/common/utils'
 import {addContributionShares, addVerificationVectors, generateContributionForId, verifyContributionShare} from './dkg-bls.js'
 import path from 'path'
 import config from 'config'
-import {writeFile, readFile} from 'node:fs/promises'
+import {writeFileSync, readFileSync, existsSync} from 'fs'
 import * as mcl from '../src/mcl/mcl.js'
 
 function getMemberContributions(recievedShares, vvecs) {
@@ -23,6 +23,12 @@ function toPublicKey(str) {
   let publicKey = new bls.PublicKey()
   publicKey.deserializeHexStr(str)
   return publicKey
+}
+
+export function generateDkgId(id) {
+  const dkgId = new bls.SecretKey()
+  dkgId.setHashOf(Buffer.from(id))
+  return dkgId.serializeToHexStr()
 }
 
 /* Threshold Signature Scheme */
@@ -52,13 +58,13 @@ export class TSSNode {
     for (const v of this.vvec){
       arr.push(v.serializeToHexStr())
     }
-    await writeFile(file, JSON.stringify({'vvec': arr,'secretShare': this.secretKeyShare.serializeToHexStr()}), null, 2, 'utf8')
+    writeFileSync(file, JSON.stringify({'vvec': arr,'secretShare': this.secretKeyShare.serializeToHexStr()}), null, 2, 'utf8')
   }
   async deserializeShares(){
     try{
       const file = path.join(config.bridgeNode.confDir, 'share.json')
-      //FIXME check if file exists and return if not exists ? fs/promises does not have exists check
-      const fileContent =  await readFile(file, 'utf8')
+      if(!existsSync(file)) return
+      const fileContent =  readFileSync(file, 'utf8')
       const {secretShare, vvec} = JSON.parse(fileContent)
       let secretKey = new bls.SecretKey()
       secretKey.deserializeHexStr(secretShare)
@@ -70,6 +76,7 @@ export class TSSNode {
       this.previouslyShared = true
     }catch(e){console.log(e)}
   }
+
   reinitiate() {
     this.secretVector = []
     this.verificationVector = []
@@ -125,7 +132,6 @@ export class TSSNode {
   }
 
   async dkgDone() {
-    //fixme: randomize is failing test.
     const {recievedShares, vvecs} = getMemberContributions(this.recievedShares, this.vvecs)
     this.secretKeyShare = addContributionShares(this.previouslyShared ? [this.secretKeyShare, ...recievedShares] : recievedShares)
     this.vvec = addVerificationVectors(this.previouslyShared ? [this.vvec, ...vvecs] : vvecs)
@@ -155,7 +161,7 @@ export class TSSNode {
     if(!this.previouslyShared) return
     return {
       id: this.id.serializeToHexStr(),
-      //secretKeyShare: this.secretKeyShare?.serializeToHexStr(), //FIXME Why to export secret, unnecessary exposure ?
+      secretKeyShare: this.secretKeyShare?.serializeToHexStr(),
       groupPublicKey: this.groupPublicKey?.serializeToHexStr(),
       verificationVector: this.verificationVector?.map(_ => _.serializeToHexStr()),
       vvec: this.vvec?.map(_ => _.serializeToHexStr())

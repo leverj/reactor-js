@@ -1,8 +1,7 @@
 import NetworkNode from './NetworkNode.js'
-import {TSSNode} from './TSSNode.js'
+import {TSSNode, generateDkgId} from './TSSNode.js'
 import {affirm} from '@leverj/common/utils'
 import {setTimeout} from 'timers/promises'
-import bls from './bls.js'
 
 
 const DKG_INIT_THRESHOLD_VECTORS = 'DKG_INIT_THRESHOLD_VECTORS'
@@ -35,15 +34,10 @@ class BridgeNode extends NetworkNode {
     this.registerStreamHandler(meshProtocol, this.onStreamMessage.bind(this))
     return this
   }
-  getDkgId(peerId){
-    let id = new bls.SecretKey()
-    id.setHashOf(Buffer.from(peerId))
-    return id.serializeToHexStr()
-  }
   async addPeersToWhiteList(...peers) {
     for (const {peerId, multiaddr, ip, port} of peers) {
       if (Object.keys(this.whitelisted).indexOf(peerId) > -1) continue
-      let dkgId = this.getDkgId(peerId)
+      const dkgId = generateDkgId(peerId)
       this.whitelisted[peerId] = {dkgId, multiaddr, ip, port}
       if (peerId !== this.peerId) this.tssNode.addMember(dkgId, this.sendMessageToPeer.bind(this, multiaddr, DKG_RECEIVE_KEY_SHARE))
     }
