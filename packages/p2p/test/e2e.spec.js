@@ -34,7 +34,6 @@ describe('e2e', function () {
       console.log(`whiteList in peer ${node}`, Object.keys(whitelistedPeers).length, JSON.stringify(whitelistedPeers))
       expect(Object.keys(whitelistedPeers).length).toEqual(allNodes.length)
     }
-    await setTimeout(1000)
   }).timeout(-1)
   it('should create new nodes, connect and init DKG', async function () {
     const allNodes = [9000, 9001, 9002, 9003, 9004, 9005, 9006]
@@ -48,20 +47,17 @@ describe('e2e', function () {
       const {data: {p2p: {peers}}} = await axios.get(`http://127.0.0.1:${node}/api/peer/info`)
       expect(peers.length).toEqual(allNodes.length - 1)
     }
-
     await axios.post(`${bootstrapNodeUrl}/api/dkg/start`)
-
-    let groupPublicKey, prevGroupPublicKey
-    for (const node of allNodes) {
-      prevGroupPublicKey = groupPublicKey
-      const {data: {tssNode}} = await axios.get(`http://127.0.0.1:${node}/api/peer/info`)
-      console.log(tssNode) //FIXME WEIRD - commenting this console.log causes TC to fail some times
-      groupPublicKey = tssNode.groupPublicKey
-      //Group public key of each node must be same, compare consecutive for all
-      expect(groupPublicKey).not.toBeNull()
-      if (prevGroupPublicKey) expect(prevGroupPublicKey).toEqual(groupPublicKey)
-    }
     await setTimeout(1000)
+    const publicKeys = await Promise.all(allNodes.map(async node => {
+      console.log('#'.repeat(50), 'url', `http://127.0.0.1:${node}/api/dkg/publicKey`)
+      const response = await axios.get(`http://127.0.0.1:${node}/api/dkg/publicKey`)
+      return response.data.publicKey
+    }))
+    for (const publicKey of publicKeys) {
+      expect(publicKey).not.toBeNull()
+      expect(publicKey).toEqual(publicKeys[0])
+    }
   }).timeout(-1)
 
   it('should create new nodes, load secret shares from local storage, sign message, and verify with individual pub key', async function () {

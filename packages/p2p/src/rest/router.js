@@ -53,6 +53,10 @@ async function signMessage(req, res){
   const signerPubKey = await bridgeNode.tssNode.publicKey
   res.send({'signature': signature.serializeToHexStr(), 'signer': bridgeNode.tssNode.id.serializeToHexStr(), 'signerPubKey' : signerPubKey.serializeToHexStr()})
 }
+async function getPublicKey(req, res ) {
+  res.send({publicKey: bridgeNode.tssNode.groupPublicKey.serializeToHexStr()})
+}
+
 
 export const router = Router()
 router.get('/fixme/bridge/multiaddr', getMultiaddrs)
@@ -62,4 +66,5 @@ router.post('/tss/sign', signMessage)
 router.post('/peer/connect',  connect)
 router.post('/peer/joinBridgeRequest', joinBridgeRequest)
 router.post('/dkg/start', startDkg)
+router.get('/dkg/publicKey', getPublicKey)
 export default router
