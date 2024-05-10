@@ -2,6 +2,7 @@ import NetworkNode from './NetworkNode.js'
 import {TSSNode, generateDkgId} from './TSSNode.js'
 import {affirm} from '@leverj/common/utils'
 import {setTimeout} from 'timers/promises'
+import {tryAgainIfEncryptionFailed} from './utils.js'
 
 
 const DKG_INIT_THRESHOLD_VECTORS = 'DKG_INIT_THRESHOLD_VECTORS'
@@ -51,13 +52,7 @@ class BridgeNode extends NetworkNode {
   async connectToWhiteListedPeers() {
     for (const peerId of Object.keys(this.whitelisted)) {
       if (peerId === this.peerId) continue
-      try {
-        await this.connect(this.whitelisted[peerId].multiaddr)
-      } catch (e) { // resilient to connection errors
-        // console.error(e)
-        await setTimeout(500)
-        await this.connect(this.whitelisted[peerId].multiaddr)
-      }
+      await tryAgainIfEncryptionFailed(_ => this.connect(this.whitelisted[peerId].multiaddr))
     }
   }
 

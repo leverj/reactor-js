@@ -2,7 +2,7 @@ import {Router} from 'express'
 import config from 'config'
 import {bridgeNode} from './manager.js'
 import axios from 'axios'
-import {setTimeout} from 'timers/promises'
+import {tryAgainIfConnectionError} from '../utils.js'
 
 
 async function getMultiaddrs(req, res) { res.send({multiaddr: `/ip4/${config.externalIp}/tcp/${config.bridgeNode.port}/p2p/${bridgeNode.peerId}`})}
@@ -40,8 +40,7 @@ async function addPeer(req, res) {
     for (const peer of whiteListInput) {
       if (peer.peerId === bridgeNode.peerId) continue
       const addPeerUrl = 'http://' + peer.ip + ':' + peer.port + '/api/peer/add'
-      await axios.post(addPeerUrl, whiteListInput).catch(console.error)
-      await setTimeout(1000)
+      await tryAgainIfConnectionError(_ => axios.post(addPeerUrl, whiteListInput))
     }
   }
   res.send('ok')
@@ -58,6 +57,9 @@ async function getPublicKey(req, res) {
   res.send({publicKey: bridgeNode.tssNode.groupPublicKey.serializeToHexStr()})
 }
 
+async function getWhiteLists(req, res) {
+  res.send(Object.keys(bridgeNode.whitelisted))
+}
 
 export const router = Router()
 router.get('/fixme/bridge/multiaddr', getMultiaddrs)
@@ -69,4 +71,5 @@ router.post('/peer/connect', connect)
 router.post('/peer/joinBridgeRequest', joinBridgeRequest)
 router.post('/dkg/start', startDkg)
 router.get('/dkg/publicKey', getPublicKey)
+router.get('/peer/whitelist', getWhiteLists)
 export default router
