@@ -5,18 +5,17 @@ import axios from 'axios'
 import {setTimeout} from 'timers/promises'
 
 
-async function getMultiaddrs(req, res) {
-  const multiaddr = `/ip4/${config.externalIp}/tcp/${config.bridgeNode.port}/p2p/${bridgeNode.peerId}`
-  res.send({multiaddr})
-}
+async function getMultiaddrs(req, res) { res.send({multiaddr: `/ip4/${config.externalIp}/tcp/${config.bridgeNode.port}/p2p/${bridgeNode.peerId}`})}
 
-async function getPeerInfo(req, res) {
-  res.send(bridgeNode.exportJson())
-}
-async function connect(req, res){
+async function getInfo(req, res) { res.send(bridgeNode.exportJson())}
+
+async function getPeers(req, res) { res.send(bridgeNode.peers)}
+
+async function connect(req, res) {
   await bridgeNode.connectToWhiteListedPeers().catch(console.error)
   res.send('ok')
 }
+
 async function startDkg(req, res) {
   await bridgeNode.startDKG(config.bridgeNode.threshold)
   res.send('ok')
@@ -28,42 +27,45 @@ async function joinBridgeRequest(req, res) {
   await axios.post(addPeerUrl, [{peerId: bridgeNode.peerId, multiaddr, ip: config.externalIp, port: config.port}])
   res.send('ok')
 }
+
 async function addPeer(req, res) {
   const peers = req.body
-  await bridgeNode.addPeersToWhiteList(...peers)
+  bridgeNode.addPeersToWhiteList(...peers)
   //Leader needs to broadcast updated whitelist to all the nodes
   if (bridgeNode.isLeader) {
-    const whiteListInBootstrap = bridgeNode.whitelisted
     const whiteListInput = []
-    for (const [peerId, {multiaddr, ip, port}] of Object.entries(whiteListInBootstrap)) {
+    for (const [peerId, {multiaddr, ip, port}] of Object.entries(bridgeNode.whitelisted)) {
       whiteListInput.push({peerId, multiaddr, ip, port})
     }
     for (const peer of whiteListInput) {
       if (peer.peerId === bridgeNode.peerId) continue
       const addPeerUrl = 'http://' + peer.ip + ':' + peer.port + '/api/peer/add'
-      await axios.post(addPeerUrl, whiteListInput)
+      await axios.post(addPeerUrl, whiteListInput).catch(console.error)
       await setTimeout(1000)
     }
   }
   res.send('ok')
 }
-async function signMessage(req, res){
+
+async function signMessage(req, res) {
   const msg = req.body
   const signature = await bridgeNode.tssNode.sign(msg.msg)
   const signerPubKey = await bridgeNode.tssNode.publicKey
-  res.send({'signature': signature.serializeToHexStr(), 'signer': bridgeNode.tssNode.id.serializeToHexStr(), 'signerPubKey' : signerPubKey.serializeToHexStr()})
+  res.send({'signature': signature.serializeToHexStr(), 'signer': bridgeNode.tssNode.id.serializeToHexStr(), 'signerPubKey': signerPubKey.serializeToHexStr()})
 }
-async function getPublicKey(req, res ) {
+
+async function getPublicKey(req, res) {
   res.send({publicKey: bridgeNode.tssNode.groupPublicKey.serializeToHexStr()})
 }
 
 
 export const router = Router()
 router.get('/fixme/bridge/multiaddr', getMultiaddrs)
-router.get('/peer/info', getPeerInfo)
+router.get('/info', getInfo)
+router.get('/peer', getPeers)
 router.post('/peer/add', addPeer)
 router.post('/tss/sign', signMessage)
-router.post('/peer/connect',  connect)
+router.post('/peer/connect', connect)
 router.post('/peer/joinBridgeRequest', joinBridgeRequest)
 router.post('/dkg/start', startDkg)
 router.get('/dkg/publicKey', getPublicKey)

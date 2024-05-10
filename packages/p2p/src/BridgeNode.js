@@ -14,6 +14,7 @@ class BridgeNode extends NetworkNode {
   constructor({ip = '0.0.0.0', port = 0, isLeader = false, json}) {
     super({ip, port, isLeader, peerIdJson: json?.p2p})
     this.tssNodeJson = json?.tssNode
+    this.whitelistedPeersJson = json?.whitelistedPeers
     this.tssNode = null
     this.state = null
     this.whitelisted = {}
@@ -33,11 +34,14 @@ class BridgeNode extends NetworkNode {
     let dkgId = this.tssNode.id.serializeToHexStr()
     this.tssNode.addMember(dkgId, this.tssNode.onDkgShare.bind(this.tssNode)) // making self dkg share
     this.registerStreamHandler(meshProtocol, this.onStreamMessage.bind(this))
+    if(this.whitelistedPeersJson) for (const [peerId, {multiaddr, ip, port}] of Object.entries(this.whitelistedPeersJson)) {
+      this.addPeersToWhiteList({peerId, multiaddr, ip, port})
+    }
     return this
   }
-  async addPeersToWhiteList(...peers) {
+  addPeersToWhiteList(...peers) {
     for (const {peerId, multiaddr, ip, port} of peers) {
-      if (Object.keys(this.whitelisted).indexOf(peerId) > -1) continue
+      if(this.whitelisted[peerId]) continue
       const dkgId = generateDkgId(peerId)
       this.whitelisted[peerId] = {dkgId, multiaddr, ip, port}
       if (peerId !== this.peerId) this.tssNode.addMember(dkgId, this.sendMessageToPeer.bind(this, multiaddr, DKG_RECEIVE_KEY_SHARE))

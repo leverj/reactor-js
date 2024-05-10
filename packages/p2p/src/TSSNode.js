@@ -60,6 +60,7 @@ export class TSSNode {
     for (const vv of json.vvec) {
       this.vvec.push(mcl.deserializeHexStrToPublicKey(vv))
     }
+    this.verificationVector = json.verificationVector.map(_ => toPublicKey(_))
     this.previouslyShared = true
   }
 

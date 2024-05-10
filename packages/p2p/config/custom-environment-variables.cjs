@@ -6,7 +6,10 @@ module.exports = {
   bridgeNode: {
     confDir: 'BRIDGE_CONF_DIR',
     port: 'BRIDGE_PORT',
-    isLeader: 'BRIDGE_IS_LEADER',
+    isLeader: {
+      __name: 'BRIDGE_IS_LEADER',
+      __format: 'boolean'
+    },
     threshold: 'BRIDGE_THRESHOLD',
     bootstrapNode: 'BRIDGE_BOOTSTRAP_NODE'
   }

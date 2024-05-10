@@ -6,7 +6,7 @@ import {writeFile, mkdir, rm} from 'node:fs/promises'
 import {expect} from 'expect'
 import * as mcl from '../src/mcl/mcl.js'
 import bls from '../src/bls.js'
-import {bridgeInfos} from './help/index.js'
+import {getBridgeInfos} from './help/index.js'
 import path from 'path'
 
 const message = 'hello world'
@@ -21,31 +21,15 @@ describe('e2e', function () {
     //await rm('.e2e', {recursive: true})
   })
 
-  //add new nodes to peer list and sync up all nodes with updated peer list
-  it('should create new nodes and join the bridge', async function () {
-    const allNodes = [9000, 9001, 9002, 9003, 9004, 9005, 9006]
-    await createApiNodes(allNodes.length)
-    await setTimeout(5000)
-    const bootstrapNodeUrl = config.bridgeNode.bootstrapNode
-    let apiResp = await axios.get(`${bootstrapNodeUrl}/api/peer/info`)
-    let whitelistedPeers = (apiResp.data.whitelistedPeers)
-    for (const node of allNodes) {
-      apiResp = await axios.get(`http://127.0.0.1:${node}/api/peer/info`)
-      whitelistedPeers = Object.keys(apiResp.data.whitelistedPeers)
-      console.log(`whiteList in peer ${node}`, Object.keys(whitelistedPeers).length, JSON.stringify(whitelistedPeers))
-      expect(Object.keys(whitelistedPeers).length).toEqual(allNodes.length)
-    }
-  }).timeout(-1)
   it('should create new nodes, connect and init DKG', async function () {
     const allNodes = [9000, 9001, 9002, 9003, 9004, 9005, 9006]
     await createApiNodes(allNodes.length)
     await setTimeout(5000)
     const bootstrapNodeUrl = config.bridgeNode.bootstrapNode
-    // let apiResp = await axios.get(`${bootstrapNodeUrl}/api/peer/info`)
     for (const node of allNodes) {
       await axios.post(`http://127.0.0.1:${node}/api/peer/connect`)
       await setTimeout(1000)
-      const {data: {p2p: {peers}}} = await axios.get(`http://127.0.0.1:${node}/api/peer/info`)
+      const {data: peers} = await axios.get(`http://127.0.0.1:${node}/api/peer`)
       expect(peers.length).toEqual(allNodes.length - 1)
     }
     await axios.post(`${bootstrapNodeUrl}/api/dkg/start`)
@@ -61,22 +45,29 @@ describe('e2e', function () {
     }
   }).timeout(-1)
 
+  it('should be able to create node with already existing info.json', async function () {
+    const nodes = [9000, 9001, 9002]
+    await createInfo_json(nodes.length)
+    const bridgeInfos = getBridgeInfos(nodes.length)
+    await createApiNodes(nodes.length)
+    for (let i = 0; i < nodes.length; i++) {
+      const node = nodes[i]
+      const {data: info} = await axios.get(`http://127.0.0.1:${node}/api/info`)
+      expect(info).toEqual(bridgeInfos[i])
+    }
+  }).timeout(-1)
+
   it('should create new nodes, load secret shares from local storage, sign message, and verify with individual pub key', async function () {
-    const allNodes = [9000, 9001]
-    await generateBridgeInfo(allNodes.length)
+    const allNodes = [9000, 9001, 9002, 9003, 9004, 9005, 9006]
+    await createInfo_json(allNodes.length)
+
     await createApiNodes(allNodes.length)
-    const bootstrapNodeUrl = config.bridgeNode.bootstrapNode
-    // let apiResp = await axios.get(`${bootstrapNodeUrl}/api/peer/info`)
     for (const node of allNodes) {
       await axios.post(`http://127.0.0.1:${node}/api/peer/connect`)
       await setTimeout(1000)
-      const {data: {p2p: {peers}}} = await axios.get(`http://127.0.0.1:${node}/api/peer/info`)
+      const {data: peers} = await axios.get(`http://127.0.0.1:${node}/api/peer`)
       expect(peers.length).toEqual(allNodes.length - 1)
     }
-    await axios.post(`${bootstrapNodeUrl}/api/dkg/start`)
-    await setTimeout(1000)
-    for (const childProcess of childProcesses) childProcess.kill()
-    await createApiNodes(allNodes.length)
     for (const node of allNodes) {
       const apiResp = await axios.post(`http://127.0.0.1:${node}/api/tss/sign`, {'msg': message})
       const signature = new mcl.Signature()
@@ -95,20 +86,19 @@ describe('e2e', function () {
     for (const node of allNodes) {
       await axios.post(`http://127.0.0.1:${node}/api/peer/connect`)
       await setTimeout(1000)
-      const {data: {p2p: {peers}}} = await axios.get(`http://127.0.0.1:${node}/api/peer/info`)
+      const {data: peers} = await axios.get(`http://127.0.0.1:${node}/api/peer`)
       expect(peers.length).toEqual(allNodes.length - 1)
     }
     await axios.post(`${bootstrapNodeUrl}/api/dkg/start`)
     await setTimeout(1000)
     for (const childProcess of childProcesses) childProcess.kill()
     await createApiNodes(allNodes.length)
-    const {data:{tssNode}} = await axios.get(`http://127.0.0.1:${allNodes[0]}/api/peer/info`)
-      console.log(tssNode)
-      const groupPublicKey = mcl.deserializeHexStrToPublicKey(tssNode.groupPublicKey)
-      const aggregateSignature = new bls.Signature()
-      const signs = [], signers = []
-    for (const node of allNodes){
-      const apiResp = await axios.post(`http://127.0.0.1:${node}/api/tss/sign`, {"msg": message})
+    const {data: {publicKey}} = await axios.get(`http://127.0.0.1:${allNodes[0]}/api/dkg/publicKey`)
+    const groupPublicKey = mcl.deserializeHexStrToPublicKey(publicKey)
+    const aggregateSignature = new bls.Signature()
+    const signs = [], signers = []
+    for (const node of allNodes) {
+      const apiResp = await axios.post(`http://127.0.0.1:${node}/api/tss/sign`, {'msg': message})
       const signature = new mcl.Signature()
       const signer = new bls.SecretKey()
       signer.deserializeHexStr(apiResp.data.signer)
@@ -118,8 +108,8 @@ describe('e2e', function () {
     }
     aggregateSignature.recover(signs, signers)
     const verified = await groupPublicKey.verify(aggregateSignature, message)
-    console.log("verified", verified)
-  
+    console.log('verified', verified)
+
     await setTimeout(1000)
   }).timeout(-1)
 })
@@ -145,7 +135,8 @@ async function createApiNode({index, isLeader = false}) {
   return fork(`app.js`, [], {cwd: __dirname, env})
 }
 
-async function generateBridgeInfo(count) {
+async function createInfo_json(count) {
+  const bridgeInfos = getBridgeInfos(count)
   for (let i = 0; i < count; i++) {
     const info = bridgeInfos[i]
     let dir = path.join(__dirname, '.e2e', i.toString())
