@@ -65,6 +65,18 @@ describe('e2e', function () {
     const allNodes = [9000, 9001]
     await generateBridgeInfo(allNodes.length)
     await createApiNodes(allNodes.length)
+    const bootstrapNodeUrl = config.bridgeNode.bootstrapNode
+    // let apiResp = await axios.get(`${bootstrapNodeUrl}/api/peer/info`)
+    for (const node of allNodes) {
+      await axios.post(`http://127.0.0.1:${node}/api/peer/connect`)
+      await setTimeout(1000)
+      const {data: {p2p: {peers}}} = await axios.get(`http://127.0.0.1:${node}/api/peer/info`)
+      expect(peers.length).toEqual(allNodes.length - 1)
+    }
+    await axios.post(`${bootstrapNodeUrl}/api/dkg/start`)
+    await setTimeout(1000)
+    for (const childProcess of childProcesses) childProcess.kill()
+    await createApiNodes(allNodes.length)
     for (const node of allNodes) {
       const apiResp = await axios.post(`http://127.0.0.1:${node}/api/tss/sign`, {'msg': message})
       const signature = new mcl.Signature()
