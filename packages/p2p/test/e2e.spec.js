@@ -5,6 +5,7 @@ import axios from 'axios'
 import {writeFile, mkdir, rm} from 'node:fs/promises'
 import {expect} from 'expect'
 import * as mcl from '../src/mcl/mcl.js'
+import bls from '../src/bls.js'
 import {bridgeInfos} from './help/index.js'
 import path from 'path'
 
@@ -72,6 +73,41 @@ describe('e2e', function () {
       const verified = await individualPublicKey.verify(signature, message)
       expect(verified).toEqual(true)
     }
+    await setTimeout(1000)
+  }).timeout(-1)
+  it('should create new nodes, load secret shares from local storage, and aggregate signatures', async function () {
+    const allNodes = [9000, 9001, 9002, 9003]
+    await createApiNodes(allNodes.length)
+    const bootstrapNodeUrl = config.bridgeNode.bootstrapNode
+    // let apiResp = await axios.get(`${bootstrapNodeUrl}/api/peer/info`)
+    for (const node of allNodes) {
+      await axios.post(`http://127.0.0.1:${node}/api/peer/connect`)
+      await setTimeout(1000)
+      const {data: {p2p: {peers}}} = await axios.get(`http://127.0.0.1:${node}/api/peer/info`)
+      expect(peers.length).toEqual(allNodes.length - 1)
+    }
+    await axios.post(`${bootstrapNodeUrl}/api/dkg/start`)
+    await setTimeout(1000)
+    for (const childProcess of childProcesses) childProcess.kill()
+    await createApiNodes(allNodes.length)
+    const {data:{tssNode}} = await axios.get(`http://127.0.0.1:${allNodes[0]}/api/peer/info`)
+      console.log(tssNode)
+      const groupPublicKey = mcl.deserializeHexStrToPublicKey(tssNode.groupPublicKey)
+      const aggregateSignature = new bls.Signature()
+      const signs = [], signers = []
+    for (const node of allNodes){
+      const apiResp = await axios.post(`http://127.0.0.1:${node}/api/tss/sign`, {"msg": message})
+      const signature = new mcl.Signature()
+      const signer = new bls.SecretKey()
+      signer.deserializeHexStr(apiResp.data.signer)
+      signature.deserializeHexStr(apiResp.data.signature)
+      signs.push(signature)
+      signers.push(signer)
+    }
+    aggregateSignature.recover(signs, signers)
+    const verified = await groupPublicKey.verify(aggregateSignature, message)
+    console.log("verified", verified)
+  
     await setTimeout(1000)
   }).timeout(-1)
 })
