@@ -1,7 +1,7 @@
 import {setTimeout} from 'timers/promises'
 
 const timeout_ = 100
-const tryCount_ = 20
+const tryCount_ = 50
 
 export async function tryFor(fn, errorCode, tryCount = tryCount_) {
   if (tryCount === 0) throw new Error(`Try for failed... ${errorCode}`)
