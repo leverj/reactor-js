@@ -78,7 +78,6 @@ describe('e2e', function () {
     expect(verified).toEqual(true)
   }).timeout(-1)
   it('aggregate signatures over pubsub topic', async function () {
-    await setTimeout(1000)
     const allNodes = [9000, 9001, 9002, 9003]
     await createInfo_json(allNodes.length)
     await createApiNodes(allNodes.length)

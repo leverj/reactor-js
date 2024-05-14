@@ -140,6 +140,18 @@ export class TSSNode {
     return this.secretKeyShare.sign(message)
   }
 
+  groupSign(signatures) {
+    const signers = signatures.map(m => mcl.deserializeHexStrToSecretKey(m.signer))
+    const signs = signatures.map(m => mcl.deserializeHexStrToSignature(m.signature))
+    const groupsSign = new bls.Signature()
+    groupsSign.recover(signs, signers)
+    return groupsSign.serializeToHexStr()
+  }
+
+  verify(signature, message) {
+    return this.groupPublicKey.verify(mcl.deserializeHexStrToSignature(signature), message)
+  }
+
   print() {
     console.log([this.id, this.secretKeyShare, this.groupPublicKey].map(_ => _?.serializeToHexStr()).join('\n\t'))
   }
