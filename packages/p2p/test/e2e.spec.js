@@ -75,7 +75,17 @@ describe('e2e', function () {
     }
     aggregateSignature.recover(signs, signers)
     const verified = await groupPublicKey.verify(aggregateSignature, message)
-    console.log('verified', verified)
+    expect(verified).toEqual(true)
+  }).timeout(-1)
+  it('aggregate signatures over pubsub topic', async function () {
+    await setTimeout(1000)
+    const allNodes = [9000, 9001, 9002, 9003]
+    await createInfo_json(allNodes.length)
+    await createApiNodes(allNodes.length)
+    await setTimeout(1000)
+    //txnHash is assumed to be unique so the leader node can accumulate share signs against it
+    await axios.post('http://localhost:9000/api/tss/aggregateSign', {'txnHash': 'hash123456','msg': message})
+    await setTimeout(1000)
   }).timeout(-1)
 })
 

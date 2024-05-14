@@ -52,7 +52,12 @@ async function signMessage(req, res) {
   const signerPubKey = await bridgeNode.tssNode.publicKey
   res.send({'signature': signature.serializeToHexStr(), 'signer': bridgeNode.tssNode.id.serializeToHexStr(), 'signerPubKey': signerPubKey.serializeToHexStr()})
 }
-
+async function aggregateSignature(req, res) {
+  if (!bridgeNode.isLeader) return
+  const msg = req.body
+  await bridgeNode.aggregateSignature(msg.txnHash, msg.msg)
+  res.send('ok')
+}
 async function getPublicKey(req, res) {
   res.send({publicKey: bridgeNode.tssNode.groupPublicKey.serializeToHexStr()})
 }
@@ -67,6 +72,7 @@ router.get('/info', getInfo)
 router.get('/peer', getPeers)
 router.post('/peer/add', addPeer)
 router.post('/tss/sign', signMessage)
+router.post('/tss/aggregateSign', aggregateSignature)
 router.post('/peer/connect', connect)
 router.post('/peer/joinBridgeRequest', joinBridgeRequest)
 router.post('/dkg/start', startDkg)

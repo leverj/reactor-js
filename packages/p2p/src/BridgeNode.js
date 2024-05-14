@@ -1,9 +1,11 @@
 import NetworkNode from './NetworkNode.js'
 import {TSSNode, generateDkgId} from './TSSNode.js'
+import config from 'config'
 import {affirm} from '@leverj/common/utils'
 import {setTimeout} from 'timers/promises'
 import {tryAgainIfEncryptionFailed} from './utils.js'
-
+import bls from './bls.js'
+import * as mcl from '../src/mcl/mcl.js'
 
 const DKG_INIT_THRESHOLD_VECTORS = 'DKG_INIT_THRESHOLD_VECTORS'
 const DKG_RECEIVE_KEY_SHARE = 'DKG_RECEIVE_KEY_SHARE'
@@ -19,6 +21,7 @@ class BridgeNode extends NetworkNode {
     this.tssNode = null
     this.state = null
     this.whitelisted = {}
+    this.messageMap = {}
   }
 
   exportJson() {
@@ -48,7 +51,13 @@ class BridgeNode extends NetworkNode {
       if (peerId !== this.peerId) this.tssNode.addMember(dkgId, this.sendMessageToPeer.bind(this, multiaddr, DKG_RECEIVE_KEY_SHARE))
     }
   }
-
+  //FIXME For this flow to be in TSSNode, we need publish functionality which is present in parent class currently
+  async aggregateSignature(txnHash, message){
+    const signature = await this.tssNode.sign(message)
+    this.messageMap[txnHash] = []
+    this.messageMap[txnHash].push({message, signature: signature.serializeToHexStr(), 'signer': this.tssNode.id.serializeToHexStr()})
+    await this.publish('Signature', JSON.stringify({txnHash, message}))
+  }
   async connectToWhiteListedPeers() {
     for (const peerId of Object.keys(this.whitelisted)) {
       if (peerId === this.peerId) continue
@@ -64,16 +73,26 @@ class BridgeNode extends NetworkNode {
   async onStreamMessage(stream, peerId, msgStr) {
     const msg = JSON.parse(msgStr)
     affirm(this.whitelisted[peerId], `Unknown peer ${peerId}`)
-    // console.log('received message',  msg.topic, TSSNode.TOPICS.DKG_RECEIVE_KEY_SHARE)
     switch (msg.topic) {
       case DKG_INIT_THRESHOLD_VECTORS:
         this.tssNode.generateVectors(msg.threshold)
         await this.tssNode.generateContribution()
         break
       case DKG_RECEIVE_KEY_SHARE:
-        // console.log('received message',  msg.topic)
         this.tssNode.onDkgShare(msg.message)
         break
+      case TSS_RECEIVE_SIGNATURE_SHARE:
+        this.messageMap[msg.txnHash].push({signature: msg.signature, signer: msg.signer})
+        if (this.messageMap[msg.txnHash].length === config.bridgeNode.threshold) //FIXME Best way to get threshold ? config or initialize in constructor ?
+        {
+          const signers = this.messageMap[msg.txnHash].map(msg => mcl.deserializeHexStrToSecretKey(msg.signer))
+          const signs = this.messageMap[msg.txnHash].map(msg => mcl.deserializeHexStrToSignature(msg.signature))
+          const groupsSign = new bls.Signature()
+          groupsSign.recover(signs, signers)
+          const verified = this.tssNode.groupPublicKey.verify(groupsSign, this.messageMap[msg.txnHash][0].message)
+          console.log("verified", verified)
+        }
+        break  
       default:
         console.log('Unknown message', msg)
     }
