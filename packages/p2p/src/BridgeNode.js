@@ -85,12 +85,12 @@ class BridgeNode extends NetworkNode {
         this.messageMap[msg.txnHash].push({signature: msg.signature, signer: msg.signer})
         if (this.messageMap[msg.txnHash].length === config.bridgeNode.threshold) //FIXME Best way to get threshold ? config or initialize in constructor ?
         {
-          const signers = this.messageMap[msg.txnHash].map(msg => mcl.deserializeHexStrToSecretKey(msg.signer))
-          const signs = this.messageMap[msg.txnHash].map(msg => mcl.deserializeHexStrToSignature(msg.signature))
+          const signers = this.messageMap[msg.txnHash].map(m => mcl.deserializeHexStrToSecretKey(m.signer))
+          const signs = this.messageMap[msg.txnHash].map(m => mcl.deserializeHexStrToSignature(m.signature))
           const groupsSign = new bls.Signature()
           groupsSign.recover(signs, signers)
           const verified = this.tssNode.groupPublicKey.verify(groupsSign, this.messageMap[msg.txnHash][0].message)
-          console.log("verified", verified)
+          console.log("verified", verified) //FIXME there are multiple ways to get this info to the TC, but is any of them real feature or throw-away code only for short term TC
         }
         break  
       default:
