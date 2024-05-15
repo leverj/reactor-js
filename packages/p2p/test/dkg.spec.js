@@ -138,4 +138,22 @@ describe('dkg', function () {
     expect(await signAndVerify(contract, message, members.slice(0, 4))).toBe(true)
     expect(await signAndVerify(contract, message, members.slice(0, 5))).toBe(true)
   })
+
+  it.skip('measurement matrix: takes a lot of time.', async function () {
+    const times = []
+    for (let length = 10; length <= 200; length = length + 10) {
+      const threshold = Math.floor(length / 2) + 1
+      const time = {length, threshold, dkg: Date.now()}
+      const members = await createDkgMembers(Array(length).fill(0).map((_, i) => 10000 + i), threshold)
+      time.dkg = (Date.now() - time.dkg)/1000 + 's'
+      time.sign = Date.now()
+      const {signs, signers} = signMessage('hello world', members.slice(0, threshold))
+      const groupsSign = new bls.Signature()
+      groupsSign.recover(signs, signers)
+      time.sign = (Date.now() - time.sign)/1000 + 's'
+      console.log('length', length, 'threshold', threshold, 'dkg', time.dkg, 'sign', time.sign)
+      times.push(time)
+    }
+    console.table(times)
+  }).timeout(-1)
 })

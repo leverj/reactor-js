@@ -5,7 +5,7 @@ import {expect} from 'expect'
 import * as mcl from '../src/mcl/mcl.js'
 import bls from '../src/bls.js'
 import {getBridgeInfos} from './help/index.js'
-import {tryAgainIfConnectionError} from '../src/utils.js'
+import {tryAgainIfConnectionError, waitToSync} from '../src/utils.js'
 import {connect, createApiNodes, createInfo_json, deleteInfoDir, killChildProcesses} from './help/e2e.js'
 
 const message = 'hello world'
@@ -81,10 +81,16 @@ describe('e2e', function () {
     const allNodes = [9000, 9001, 9002, 9003]
     await createInfo_json(allNodes.length)
     await createApiNodes(allNodes.length)
-    await setTimeout(1000)
-    //txnHash is assumed to be unique so the leader node can accumulate share signs against it
-    await axios.post('http://localhost:9000/api/tss/aggregateSign', {'txnHash': 'hash123456','msg': message})
-    await setTimeout(1000)
+    await connect(allNodes)
+    const txnHash = 'hash123456'
+    await axios.post('http://localhost:9000/api/tss/aggregateSign', {txnHash, 'msg': message})
+    const fn = async () => {
+      const {data: status} = await axios.get('http://localhost:9000/api/tss/aggregateSignStatus?txnHash=' + txnHash)
+      return status
+    }
+    await waitToSync([fn])
+    const status = await axios.get('http://localhost:9000/api/tss/aggregateSignStatus?txnHash=' + txnHash)
+    expect(status.data).toEqual(true)
   }).timeout(-1)
 })
 
