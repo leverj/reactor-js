@@ -53,8 +53,10 @@ class BridgeNode extends NetworkNode {
 
   async aggregateSignature(txnHash, message) {
     const signature = await this.tssNode.sign(message)
-    this.messageMap[txnHash] = []
-    this.messageMap[txnHash].push({message, signature: signature.serializeToHexStr(), 'signer': this.tssNode.id.serializeToHexStr()})
+    this.messageMap[txnHash] = {}
+    this.messageMap[txnHash].verified = false
+    this.messageMap[txnHash].signatures = []
+    this.messageMap[txnHash].signatures.push({message, signature: signature.serializeToHexStr(), 'signer': this.tssNode.id.serializeToHexStr()})
     await this.publish(SIGNATURE_START, JSON.stringify({txnHash, message}))
   }
 
@@ -99,19 +101,20 @@ class BridgeNode extends NetworkNode {
         this.tssNode.onDkgShare(msg.message)
         break
       case TSS_RECEIVE_SIGNATURE_SHARE:
-        this.messageMap[msg.txnHash].push({signature: msg.signature, signer: msg.signer})
-        if (this.messageMap[msg.txnHash].length === config.bridgeNode.threshold) //FIXME Best way to get threshold ? config or initialize in constructor ?
+        this.messageMap[msg.txnHash].signatures.push({signature: msg.signature, signer: msg.signer})
+        if (this.messageMap[msg.txnHash].signatures.length === config.bridgeNode.threshold) //FIXME Best way to get threshold ? config or initialize in constructor ?
         {
-          const groupSign = this.tssNode.groupSign(this.messageMap[msg.txnHash])
-          const verified = this.tssNode.verify(groupSign, this.messageMap[msg.txnHash][0].message)
-          console.log('verified', verified) //FIXME there are multiple ways to get this info to the TC, but is any of them real feature or throw-away code only for short term TC
+          const groupSign = this.tssNode.groupSign(this.messageMap[msg.txnHash].signatures)
+          this.messageMap[msg.txnHash].verified = this.tssNode.verify(groupSign, this.messageMap[msg.txnHash].signatures[0].message)
         }
         break
       default:
         console.log('Unknown message', msg)
     }
   }
-
+  aggregateSignatureStatus(txnHash){
+    return this.messageMap[txnHash].verified
+  }
   async startDKG(threshold) {
     if (!this.isLeader) return
     const responseHandler = (msg) => console.log('dkg received', msg)

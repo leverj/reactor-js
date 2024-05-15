@@ -82,9 +82,11 @@ describe('e2e', function () {
     await createInfo_json(allNodes.length)
     await createApiNodes(allNodes.length)
     await setTimeout(1000)
-    //txnHash is assumed to be unique so the leader node can accumulate share signs against it
-    await axios.post('http://localhost:9000/api/tss/aggregateSign', {'txnHash': 'hash123456','msg': message})
+    const txnHash = 'hash123456'
+    await axios.post('http://localhost:9000/api/tss/aggregateSign', {txnHash, 'msg': message})
     await setTimeout(1000)
+    const status = await axios.get('http://localhost:9000/api/tss/aggregateSignStatus?txnHash=' + txnHash)
+    expect(status.data).toEqual(true)
   }).timeout(-1)
 })
 
