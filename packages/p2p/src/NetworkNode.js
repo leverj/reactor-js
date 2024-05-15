@@ -10,6 +10,7 @@ import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
 import map from 'it-map'
 import {pipe} from 'it-pipe'
 import {createFromJSON} from '@libp2p/peer-id-factory'
+import { kadDHT} from '@libp2p/kad-dht'
 import {affirm} from '@leverj/common/utils'
 
 export default class NetworkNode {
@@ -43,7 +44,7 @@ export default class NetworkNode {
       transports: [tcp()],
       connectionEncryption: [noise()],
       streamMuxers: [yamux()],
-      services: {ping: ping({protocolPrefix: 'ipfs'}), pubsub: gossipsub(),},
+      services: {ping: ping({protocolPrefix: 'ipfs'}), pubsub: gossipsub(), dht: kadDHT({})},
     })
     this.p2p.addEventListener('peer:connect', this.peerConnected.bind(this))
     return this

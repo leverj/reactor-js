@@ -2,6 +2,7 @@ import {expect} from 'expect'
 import { peerIdJsons} from './help/index.js'
 import {setTimeout} from 'timers/promises'
 import BridgeNode from '../src/BridgeNode.js'
+import { peerIdFromString } from '@libp2p/peer-id'
 const nodes = []
 const stopBridgeNodes = async () => {
   for (const node of nodes) await node.stop()
@@ -30,6 +31,14 @@ describe('Bridge node', function () {
         await node.connect(peer.multiaddrs[0])
       }
     }
+  })
+  it.only('should create nodes and discover peers using DHT', async function(){
+    let nodes = await createBridgeNodes(6)
+    await setTimeout(3000)
+    console.log('peerRouting find', nodes[1].peerIdJson.id, peerIdFromString(nodes[1].peerIdJson.id))
+    const peerInfo = await nodes[0].p2p.peerRouting.findPeer(peerIdFromString(nodes[1].peerIdJson.id))
+    console.log(peerInfo)
+    
   })
   it('it should be able to connect with other nodes', async function () {
     let [leader, node1, node2, node3, node4, node5, node6] = await createBridgeNodes(7)
