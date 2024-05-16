@@ -8,7 +8,7 @@ export async function tryFor(fn, errorCode, tryCount = tryCount_) {
   try {
     return await fn()
   } catch (e) {
-    if (e.code === errorCode) {
+    if (e.code === errorCode || (Array.isArray(errorCode) && errorCode.includes(e.code))) {
       console.log('Retrying...', e.message, e.code)
       await setTimeout(timeout_)
       return tryFor(fn, errorCode, tryCount - 1)
@@ -17,7 +17,7 @@ export async function tryFor(fn, errorCode, tryCount = tryCount_) {
   }
 }
 
-export const tryAgainIfConnectionError = async (fn, tryCount = tryCount_) => await tryFor(fn, 'ECONNREFUSED', tryCount)
+export const tryAgainIfConnectionError = async (fn, tryCount = tryCount_) => await tryFor(fn, ['ECONNREFUSED', 'ECONNRESET'], tryCount)
 export const tryAgainIfEncryptionFailed = async (fn, tryCount = tryCount_) => await tryFor(fn, 'ERR_ENCRYPTION_FAILED', tryCount)
 
 
