@@ -126,9 +126,9 @@ export class TSSNode {
     events.emit(DKG_DONE)
   }
 
-  get groupPublicKey() {
-    return this.vvec ? this.vvec[0] : null
-  }
+  get threshold() { return this.vvec?.length }
+
+  get groupPublicKey() { return this.vvec ? this.vvec[0] : null }
 
   get publicKey() {
     const pk1 = new bls.PublicKey()
@@ -136,9 +136,7 @@ export class TSSNode {
     return pk1
   }
 
-  sign(message) {
-    return this.secretKeyShare.sign(message)
-  }
+  sign(message) { return this.secretKeyShare.sign(message) }
 
   groupSign(signatures) {
     const signers = signatures.map(m => mcl.deserializeHexStrToSecretKey(m.signer))

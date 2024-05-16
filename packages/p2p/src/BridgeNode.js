@@ -1,6 +1,5 @@
 import NetworkNode from './NetworkNode.js'
 import {TSSNode, generateDkgId} from './TSSNode.js'
-import config from 'config'
 import {affirm, logger} from '@leverj/common/utils'
 import {tryAgainIfEncryptionFailed} from './utils.js'
 
@@ -103,7 +102,7 @@ class BridgeNode extends NetworkNode {
       case TSS_RECEIVE_SIGNATURE_SHARE:
         this.messageMap[msg.txnHash].signatures.push({signature: msg.signature, signer: msg.signer})
         logger.log('Received signature', msg.txnHash, msg.signature, )
-        if (this.messageMap[msg.txnHash].signatures.length === config.bridgeNode.threshold) { //FIXME Best way to get threshold ? config or initialize in constructor ?
+        if (this.messageMap[msg.txnHash].signatures.length === this.tssNode.threshold) {
           const groupSign = this.tssNode.groupSign(this.messageMap[msg.txnHash].signatures)
           this.messageMap[msg.txnHash].verified = this.tssNode.verify(groupSign, this.messageMap[msg.txnHash].signatures[0].message)
           logger.log('Verified', msg.txnHash, this.messageMap[msg.txnHash].verified, groupSign)
