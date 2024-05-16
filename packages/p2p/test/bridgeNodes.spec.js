@@ -33,8 +33,14 @@ describe('Bridge node', function () {
     }
   })
   it.only('should create nodes and discover peers using DHT', async function(){
-    let nodes = await createBridgeNodes(6)
+    let nodes = await createBridgeNodes(2)
     await setTimeout(3000)
+    for (const node of nodes){
+      for (const peer of nodes){
+        if (node.multiaddrs[0] === peer.multiaddrs[0]) continue;
+        await node.connect(peer.multiaddrs[0])
+      }
+    }
     console.log('peerRouting find', nodes[1].peerIdJson.id, peerIdFromString(nodes[1].peerIdJson.id))
     const peerInfo = await nodes[0].p2p.peerRouting.findPeer(peerIdFromString(nodes[1].peerIdJson.id))
     console.log(peerInfo)
