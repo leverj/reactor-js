@@ -5,6 +5,8 @@ import {getBridgeInfos} from './fixtures.js'
 import path from 'path'
 import axios from 'axios'
 import {tryAgainIfConnectionError, waitToSync} from '../../src/utils.js'
+import {setTimeout} from 'node:timers/promises'
+
 const __dirname = process.cwd()
 console.log('dirname', __dirname)
 
@@ -18,7 +20,7 @@ export async function createApiNodes(count) {
     childProcesses.push(await createApiNode({index: i, isLeader: i === 0}))
   }
   await waitForWhitelistSync(Array(count).fill(0).map((_, i) => 9000 + i))
-  return childProcesses
+  return Array(count).fill(0).map((_, i) => 9000 + i)
 }
 
 export async function createApiNode({index, isLeader = false}) {
@@ -26,7 +28,9 @@ export async function createApiNode({index, isLeader = false}) {
     PORT: 9000 + index,
     BRIDGE_CONF_DIR: './.e2e/' + index,
     BRIDGE_PORT: config.bridgeNode.port + index,
-    BRIDGE_IS_LEADER: isLeader
+    BRIDGE_IS_LEADER: isLeader,
+    // TRY_COUNT: -1,
+    // TIMEOUT: 1000
   })
   await mkdir(env.BRIDGE_CONF_DIR, {recursive: true})
   return fork(`app.js`, [], {cwd: __dirname, env})
@@ -44,7 +48,7 @@ export async function createInfo_json(count) {
 
 export async function waitForWhitelistSync(ports) {
   const fn = (port) => async () => {
-    const {data: whitelists} = await axios.get(`http://127.0.0.1:${port}/api/peer/whitelist`)
+    const {data: whitelists} = await axios.get(`http://192.168.1.69:${port}/api/peer/whitelist`)
     return whitelists.length === ports.length
   }
   await waitToSync(ports.map(fn))

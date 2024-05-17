@@ -4,9 +4,9 @@ import config from 'config'
 const timeout_ = config.timeout
 const tryCount_ = config.tryCount
 
-console.log('timeout_', timeout_, typeof timeout_ ,'tryCount_', tryCount_, typeof tryCount_)
+console.log('timeout_', timeout_, typeof timeout_ ,'tryCount_', tryCount_, typeof tryCount_, config.port)
 export async function tryFor(fn, errorCode, tryCount = tryCount_) {
-  if (tryCount === 0) throw new Error(`Try for failed... ${errorCode}`)
+  if (tryCount === 0) throw new Error(`Try for failed... ${errorCode}, ${tryCount_}, ${config.port}`)
   try {
     return await fn()
   } catch (e) {
@@ -19,8 +19,8 @@ export async function tryFor(fn, errorCode, tryCount = tryCount_) {
   }
 }
 
-export const tryAgainIfConnectionError = async (fn, tryCount = tryCount_) => await tryFor(fn, ['ECONNREFUSED', 'ECONNRESET'], tryCount)
-export const tryAgainIfEncryptionFailed = async (fn, tryCount = tryCount_) => await tryFor(fn, 'ERR_ENCRYPTION_FAILED', tryCount)
+export const tryAgainIfConnectionError = async (fn) => await tryFor(fn, ['ECONNREFUSED', 'ECONNRESET'])
+export const tryAgainIfEncryptionFailed = async (fn) => await tryFor(fn, 'ERR_ENCRYPTION_FAILED')
 
 
 export async function waitToSync(fns, tryCount = tryCount_) {
