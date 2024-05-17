@@ -35,32 +35,27 @@ describe('p2p', function () {
   it('it should send data across stream from node1 to node2', async function () {
     const messageRecd = {}
     const responses = {}
-    const [node1, node2, node3, node4] = await startNetworkNodes(4, true)
-    node1.registerStreamHandler(meshProtocol, async (stream, peerId, msg) => {
+    const nodes = await startNetworkNodes(6)
+    nodes[0].registerStreamHandler(meshProtocol, async (stream, peerId, msg) => {
       messageRecd[peerId] = msg
-      node1.sendMessageOnStream(stream, `responding ${msg}`)
+      nodes[0].sendMessageOnStream(stream, `responding ${msg}`)
     })
 
-    const sendMsg = async (node, message) => await node.createAndSendMessage(node1.multiaddrs[0], meshProtocol, message, (msg) => { responses[node.peerId] = msg })
+    const sendMsg = async (node, message) => await node.createAndSendMessage(nodes[0].multiaddrs[0], meshProtocol, message, (msg) => { responses[node.peerId] = msg })
 
-    for (const node of [node2, node3, node4]) await sendMsg(node, `Verified Deposit Hash ${node.port}`)
+    for (const node of nodes.slice(1)) await sendMsg(node, `Verified Deposit Hash ${node.port}`)
 
     await setTimeout(100)
-    expect(messageRecd[node2.peerId]).toEqual(`Verified Deposit Hash ${node2.port}`)
-    expect(messageRecd[node3.peerId]).toEqual(`Verified Deposit Hash ${node3.port}`)
-    expect(messageRecd[node4.peerId]).toEqual(`Verified Deposit Hash ${node4.port}`)
-    expect(responses[node2.peerId]).toEqual(`responding Verified Deposit Hash ${node2.port}`)
-    expect(responses[node3.peerId]).toEqual(`responding Verified Deposit Hash ${node3.port}`)
-    expect(responses[node4.peerId]).toEqual(`responding Verified Deposit Hash ${node4.port}`)
-
-    for (const node of [node2, node3, node4]) await sendMsg(node, `Verified Deposit Hash ${node.port} again`)
+    for (const node of nodes.slice(1)) {
+      expect(messageRecd[node.peerId]).toEqual(`Verified Deposit Hash ${node.port}`)
+      expect(responses[node.peerId]).toEqual(`responding Verified Deposit Hash ${node.port}`)
+    }
+    for (const node of nodes.slice(1)) await sendMsg(node, `Verified Deposit Hash ${node.port} again`)
     await setTimeout(100)
-    expect(messageRecd[node2.peerId]).toEqual(`Verified Deposit Hash ${node2.port} again`)
-    expect(messageRecd[node3.peerId]).toEqual(`Verified Deposit Hash ${node3.port} again`)
-    expect(messageRecd[node4.peerId]).toEqual(`Verified Deposit Hash ${node4.port} again`)
-    expect(responses[node2.peerId]).toEqual(`responding Verified Deposit Hash ${node2.port} again`)
-    expect(responses[node3.peerId]).toEqual(`responding Verified Deposit Hash ${node3.port} again`)
-    expect(responses[node4.peerId]).toEqual(`responding Verified Deposit Hash ${node4.port} again`)
+    for (const node of nodes.slice(1)) {
+      expect(messageRecd[node.peerId]).toEqual(`Verified Deposit Hash ${node.port} again`)
+      expect(responses[node.peerId]).toEqual(`responding Verified Deposit Hash ${node.port} again`)
+    }
   })
 
 
