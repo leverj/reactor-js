@@ -1,8 +1,10 @@
 import {setTimeout} from 'timers/promises'
 import config from 'config'
+
 const timeout_ = config.timeout
 const tryCount_ = config.tryCount
 
+console.log('timeout_', timeout_, typeof timeout_ ,'tryCount_', tryCount_, typeof tryCount_)
 export async function tryFor(fn, errorCode, tryCount = tryCount_) {
   if (tryCount === 0) throw new Error(`Try for failed... ${errorCode}`)
   try {
