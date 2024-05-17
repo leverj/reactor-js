@@ -20,6 +20,7 @@
     "@libp2p/ping": "^1.0.13",
     "@libp2p/tcp": "^9.0.16",
     "@libp2p/kad-dht": "12.0.15",
+    "@libp2p/bootstrap": "10.0.23",
     "bls-wasm": "^1.1.1",
     "body-parser": "^1.20.2",
     "config": "^3.3.11",
