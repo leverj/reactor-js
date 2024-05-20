@@ -32,45 +32,17 @@ describe('Bridge node', function () {
       }
     }
   })
-  //DHT is needed only furing find(), but that also does not work properly
-  //Without DHT also, bootstrap works (partially) i.e. children nodes can locate bootstrap node
-  //and get added to its peer list. However, cascading sharing of address book is not happening still
-  it.only('should create nodes and discover peers using DHT', async function(){
-    let nodes = await createBridgeNodes(6)
+  //FIXME remove "only" once test is complete
+  it.only('should only create nodes and discovery should happen automatically', async function(){
+    const numNodes = 6
+    let nodes = await createBridgeNodes(numNodes)
     await setTimeout(3000)
-    
-    //const peerInfo = await nodes[3].p2p.peerRouting.findPeer(peerIdFromString(nodes[4].peerIdJson.id))
-    //console.log(peerInfo)
-
-        for (const node of nodes){
-      console.log("===================node peerStore===================", node.peerIdJson.id, node.p2p.getPeers())
-      //console.log(await node.p2p.peerStore.store.all())
-      //await node.p2p.peerStore.forEach(peer => {
-        //console.log("peer from store", peer.id)
-      //})
+    for (const node of nodes){
+      console.log("Peers of Node", node.p2p.getPeers())
+      expect(node.p2p.getPeers().length).toEqual(numNodes - 1)
     }
-    /*for (const node of nodes){
-      console.log("find Node", node.peerIdJson.id)
-      if (node.peerIdJson.id === nodes[1].peerIdJson.id) continue
-      try{
-        const peerInfo = await node.p2p.peerRouting.findPeer(peerIdFromString(nodes[1].peerIdJson.id))
-        console.log(peerInfo)
-      }
-      catch(e){
-        console.log(e)
-      }
-      
-    }*/
-    /*for (const node of nodes){
-      for (const peer of nodes){
-        if (node.multiaddrs[0] === peer.multiaddrs[0]) continue;
-        await node.connect(peer.multiaddrs[0])
-      }
-    }
-    console.log('peerRouting find', nodes[1].peerIdJson.id, peerIdFromString(nodes[1].peerIdJson.id))
-    const peerInfo = await nodes[0].p2p.peerRouting.findPeer(peerIdFromString(nodes[1].peerIdJson.id))
-    console.log(peerInfo)*/
-    
+    //FIXME TBD -- next find a node by its ID, using dht, and then verify the address matches. basically, a node should be able to 
+    //query for its peer's address before dialing in
   })
   it('it should be able to connect with other nodes', async function () {
     let [leader, node1, node2, node3, node4, node5, node6] = await createBridgeNodes(7)

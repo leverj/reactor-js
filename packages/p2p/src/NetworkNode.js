@@ -11,6 +11,7 @@ import map from 'it-map'
 import {pipe} from 'it-pipe'
 import {createFromJSON} from '@libp2p/peer-id-factory'
 import {bootstrap} from '@libp2p/bootstrap'
+import {identify} from '@libp2p/identify'
 import { kadDHT, removePublicAddressesMapper} from '@libp2p/kad-dht'
 import {affirm} from '@leverj/common/utils'
 
@@ -46,18 +47,19 @@ export default class NetworkNode {
       connectionEncryption: [noise()],
       streamMuxers: [yamux()],
       services: {ping: ping({protocolPrefix: 'ipfs'}), pubsub: gossipsub(), 
-      
-      //See note in TC. Where is DHT is needed ?
-      /*dht: kadDHT({
-        protocol: '/ipfs/lan/kad/1.0.0',
-        peerInfoMapper: removePublicAddressesMapper,
-        clientMode: false
-      })*/
+        identify: identify(),
+        dht: kadDHT({
+          protocol: '/ipfs/lan/kad/1.0.0',
+          peerInfoMapper: removePublicAddressesMapper, //FIXME This needs more investigation in real network
+          clientMode: false
+        })
       },
       peerDiscovery: [
         bootstrap({
+          interval: 60e3,
+          enabled: true,
             list: ['/ip4/127.0.0.1/tcp/9000/ipfs/12D3KooWRRqAo5f41sQmc9BpsfqarZgd7PWUiX14Mz1htXDEc7Gp']
-        })
+        }),
       ]
     })
     this.p2p.addEventListener('peer:connect', this.peerConnected.bind(this))
@@ -83,7 +85,7 @@ export default class NetworkNode {
 
   peerDiscovered(evt){
     const { detail: peer } = evt;
-    console.log("#onDiscoveryPeer", this.p2p.peerId, peer)
+    //console.log("Peer", peer, " Discovered By", this.p2p.peerId)
   }
   //fixme: remove this peer from the network
   peerConnected(evt) {

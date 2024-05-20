@@ -853,6 +853,25 @@
     uint8arraylist "^2.4.8"
     uint8arrays "^5.0.3"
 
+"@libp2p/identify@2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@libp2p/identify/-/identify-2.0.1.tgz#6df7f4ad0086f0702fd4cb8dd6fc1aa5df58aafc"
+  integrity sha512-jghsC3dnym8NBjGbtfXM61Lj2jOsiorfIfYSeTG1EU84C5Mdad8bKdeh1Xxkb1lylyNIr9ZMKxnuN+8s4yjhTQ==
+  dependencies:
+    "@libp2p/interface" "^1.3.1"
+    "@libp2p/interface-internal" "^1.2.1"
+    "@libp2p/peer-id" "^4.1.1"
+    "@libp2p/peer-record" "^7.0.17"
+    "@multiformats/multiaddr" "^12.2.1"
+    "@multiformats/multiaddr-matcher" "^1.2.0"
+    it-drain "^3.0.7"
+    it-parallel "^3.0.7"
+    it-protobuf-stream "^1.1.2"
+    protons-runtime "^5.4.0"
+    uint8arraylist "^2.4.8"
+    uint8arrays "^5.0.3"
+    wherearewe "^2.0.1"
+
 "@libp2p/interface-internal@^1.0.10", "@libp2p/interface-internal@^1.0.7":
   version "1.0.10"
   resolved "https://registry.npmjs.org/@libp2p/interface-internal/-/interface-internal-1.0.10.tgz"
@@ -870,6 +889,16 @@
   dependencies:
     "@libp2p/interface" "^1.3.1"
     "@libp2p/peer-collections" "^5.2.0"
+    "@multiformats/multiaddr" "^12.2.1"
+    uint8arraylist "^2.4.8"
+
+"@libp2p/interface-internal@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@libp2p/interface-internal/-/interface-internal-1.2.1.tgz#485bc25e591d236f045f12a978df92b17f712430"
+  integrity sha512-fylZoBOc5grNXxZlDZyQu04pOK33BSVP4QvhkQIEuZa/HDXAud1iBnsk45NVKxEt3j+tqOKoWB1K3EMZ4ane/Q==
+  dependencies:
+    "@libp2p/interface" "^1.3.1"
+    "@libp2p/peer-collections" "^5.2.1"
     "@multiformats/multiaddr" "^12.2.1"
     uint8arraylist "^2.4.8"
 
@@ -988,6 +1017,15 @@
     "@libp2p/peer-id" "^4.1.1"
     "@libp2p/utils" "^5.4.0"
 
+"@libp2p/peer-collections@^5.2.1":
+  version "5.2.1"
+  resolved "https://registry.yarnpkg.com/@libp2p/peer-collections/-/peer-collections-5.2.1.tgz#0e91be4eb60a76a691a8e980aa4e73d218703adf"
+  integrity sha512-sBC/RruYzYv3qaMTk4W1N3TnW2s8nCVuM69V2xJLy7R0Umbitw5rVZZW2IN10Dba3HGRVZD9sO99bdMbLsI4TQ==
+  dependencies:
+    "@libp2p/interface" "^1.3.1"
+    "@libp2p/peer-id" "^4.1.1"
+    "@libp2p/utils" "^5.4.1"
+
 "@libp2p/peer-id-factory@^4.0.8":
   version "4.0.8"
   resolved "https://registry.npmjs.org/@libp2p/peer-id-factory/-/peer-id-factory-4.0.8.tgz"
@@ -1032,6 +1070,21 @@
     uint8-varint "^2.0.4"
     uint8arraylist "^2.4.8"
     uint8arrays "^5.0.2"
+
+"@libp2p/peer-record@^7.0.17":
+  version "7.0.17"
+  resolved "https://registry.yarnpkg.com/@libp2p/peer-record/-/peer-record-7.0.17.tgz#b3d0862152d6ddea7b3687548d920061d600ffdd"
+  integrity sha512-Ey9Nn36GKJgiV21SrElfB22T9jcknlfWVGTXvYwnwwaU7y9IXq5KqW0lRa0hqX9vYzMD/Td3BWhOMmuHW4YypA==
+  dependencies:
+    "@libp2p/crypto" "^4.1.1"
+    "@libp2p/interface" "^1.3.1"
+    "@libp2p/peer-id" "^4.1.1"
+    "@libp2p/utils" "^5.4.1"
+    "@multiformats/multiaddr" "^12.2.1"
+    protons-runtime "^5.4.0"
+    uint8-varint "^2.0.4"
+    uint8arraylist "^2.4.8"
+    uint8arrays "^5.0.3"
 
 "@libp2p/peer-store@^10.0.12":
   version "10.0.12"
@@ -1138,6 +1191,33 @@
     "@multiformats/multiaddr-matcher" "^1.2.0"
     "@sindresorhus/fnv1a" "^3.1.0"
     "@types/murmurhash3js-revisited" "^3.0.3"
+    delay "^6.0.0"
+    get-iterator "^2.0.1"
+    is-loopback-addr "^2.0.2"
+    it-pushable "^3.2.3"
+    it-stream-types "^2.0.1"
+    murmurhash3js-revisited "^3.0.0"
+    netmask "^2.0.2"
+    p-defer "^4.0.1"
+    race-event "^1.2.0"
+    race-signal "^1.0.2"
+    uint8arraylist "^2.4.8"
+    uint8arrays "^5.0.3"
+
+"@libp2p/utils@^5.4.1":
+  version "5.4.1"
+  resolved "https://registry.yarnpkg.com/@libp2p/utils/-/utils-5.4.1.tgz#43e46ee2113523e96349473e16df963c51b65021"
+  integrity sha512-7QS6x24bEIJqSsNIPfob72mRos5Dc88zuPbfFvJHmCkiuAyWGEx8NtrLpImuUCe5oZ3RcvqN+4e/Ib1oc0Q+Sw==
+  dependencies:
+    "@chainsafe/is-ip" "^2.0.2"
+    "@libp2p/crypto" "^4.1.1"
+    "@libp2p/interface" "^1.3.1"
+    "@libp2p/logger" "^4.0.12"
+    "@multiformats/multiaddr" "^12.2.1"
+    "@multiformats/multiaddr-matcher" "^1.2.0"
+    "@sindresorhus/fnv1a" "^3.1.0"
+    "@types/murmurhash3js-revisited" "^3.0.3"
+    any-signal "^4.1.1"
     delay "^6.0.0"
     get-iterator "^2.0.1"
     is-loopback-addr "^2.0.2"
@@ -4779,6 +4859,11 @@ it-drain@^3.0.5:
   resolved "https://registry.npmjs.org/it-drain/-/it-drain-3.0.5.tgz"
   integrity sha512-qYFe4SWdvs9oJGUY5bSjvmiLUMLzFEODNOQUdYdCIkuIgQF+AUB2INhM4yQ09buJ2rhHKDFxvTD/+yUq6qg0XA==
 
+it-drain@^3.0.7:
+  version "3.0.7"
+  resolved "https://registry.yarnpkg.com/it-drain/-/it-drain-3.0.7.tgz#671a5d0220802c5bce9e68fc2b07088540fbc674"
+  integrity sha512-vy6S1JKjjHSIFHgBpLpD1zhkCRl3z1zYWUxE14+kAYf+BL9ssWSFImJfhl361IIcwr0ofw8etzg11VqqB+ntUA==
+
 it-filter@^3.0.4:
   version "3.0.4"
   resolved "https://registry.npmjs.org/it-filter/-/it-filter-3.0.4.tgz"
@@ -4853,6 +4938,13 @@ it-parallel@^3.0.6:
   integrity sha512-i7UM7I9LTkDJw3YIqXHFAPZX6CWYzGc+X3irdNrVExI4vPazrJdI7t5OqrSVN8CONXLAunCiqaSV/zZRbQR56A==
   dependencies:
     p-defer "^4.0.0"
+
+it-parallel@^3.0.7:
+  version "3.0.7"
+  resolved "https://registry.yarnpkg.com/it-parallel/-/it-parallel-3.0.7.tgz#7b2422f75f865fbcdae85839501258ae293b0974"
+  integrity sha512-aIIc2t8knfER/mQu4uEHaAYZrnj/2Tdp+Vj6BA94Gi7xghx1kblvpyrLkCYO9K+eDyPS1cE3Vfhh9a20MEmzXA==
+  dependencies:
+    p-defer "^4.0.1"
 
 it-peekable@^3.0.0:
   version "3.0.3"
