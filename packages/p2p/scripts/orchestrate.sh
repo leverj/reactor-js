@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-
+REMOTE_IPS=$REACTOR_REMOTE_IPS
 function local_build() {
     cd ..
     yarn docker:build
@@ -106,8 +106,24 @@ function remote_dkg() {
     curl --location --request POST $(remote_leader)/api/dkg/start
 }
 
-
-REMOTE_IPS=51.159.143.255,51.15.25.144
+function local_sign() {
+    echo "Local sign"
+    curl --location --request POST 'http://localhost:9000/api/tss/aggregateSign' \
+    --header 'Content-Type: application/json' \
+    --data '{
+        "txnHash": "hash123456",
+        "msg": "hello world"
+    }'
+}
+function remote_sign() {
+    echo "Remote sign"
+    curl --location --request POST $(remote_leader)/api/tss/aggregateSign \
+    --header 'Content-Type: application/json' \
+    --data '{
+        "txnHash": "hash123456",
+        "msg": "hello world"
+    }'
+}
 
 OPERATION=$1
 shift
@@ -118,6 +134,8 @@ local_whitelist) local_whitelist $@ ;;
 remote_whitelist) remote_whitelist $@ ;;
 local_dkg) local_dkg $@ ;;
 remote_dkg) remote_dkg $@ ;;
+local_sign) local_sign $@ ;;
+remote_sign) remote_sign $@ ;;
 esac
 
 

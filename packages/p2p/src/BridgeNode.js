@@ -155,8 +155,8 @@ class BridgeNode extends NetworkNode {
     }
   }
 
-  aggregateSignatureStatus(txnHash) {
-    return this.messageMap[txnHash].verified
+  getAggregateSignature(txnHash) {
+    return this.messageMap[txnHash]
   }
 
   async startDKG(threshold) {
