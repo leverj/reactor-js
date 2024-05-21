@@ -20,7 +20,7 @@ coverage.json
 local-*
 *.log*
 .ignore
-*.ignore.*
+*.ignore*
 *.njsproj
 *.ntvs*
 *.sln

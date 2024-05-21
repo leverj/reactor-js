@@ -14,8 +14,7 @@ describe('e2e', function () {
   afterEach(killChildProcesses)
 
   it('should create new nodes, connect and init DKG', async function () {
-    const allNodes = [9000, 9001, 9002, 9003, 9004, 9005, 9006]
-    await createApiNodes(allNodes.length)
+    const allNodes = await createApiNodes(7)
     const bootstrapNodeUrl = config.bridgeNode.bootstrapNode
     await connect(allNodes)
     await axios.post(`${bootstrapNodeUrl}/api/dkg/start`)

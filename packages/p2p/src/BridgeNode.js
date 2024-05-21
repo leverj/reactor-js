@@ -1,7 +1,6 @@
 import NetworkNode from './NetworkNode.js'
 import {TSSNode, generateDkgId} from './TSSNode.js'
-import config from 'config'
-import {affirm} from '@leverj/common/utils'
+import {affirm, logger} from '@leverj/common/utils'
 import {tryAgainIfEncryptionFailed} from './utils.js'
 
 export const TSS_RECEIVE_SIGNATURE_SHARE = 'TSS_RECEIVE_SIGNATURE_SHARE'
@@ -55,8 +54,7 @@ class BridgeNode extends NetworkNode {
     const signature = await this.tssNode.sign(message)
     this.messageMap[txnHash] = {}
     this.messageMap[txnHash].verified = false
-    this.messageMap[txnHash].signatures = []
-    this.messageMap[txnHash].signatures.push({message, signature: signature.serializeToHexStr(), 'signer': this.tssNode.id.serializeToHexStr()})
+    this.messageMap[txnHash].signatures = [{message, signature: signature.serializeToHexStr(), 'signer': this.tssNode.id.serializeToHexStr()}]
     await this.publish(SIGNATURE_START, JSON.stringify({txnHash, message}))
   }
 
@@ -79,9 +77,10 @@ class BridgeNode extends NetworkNode {
   async onPubSubMessage({peerId, topic, data}) {
     switch (topic) {
       case SIGNATURE_START:
-        const dataObj = JSON.parse(data)
-        const signature = await this.tssNode.sign(dataObj.message)
-        const signaturePayloadToLeader = {topic: TSS_RECEIVE_SIGNATURE_SHARE, signature: signature.serializeToHexStr(), signer: this.tssNode.id.serializeToHexStr(), txnHash: dataObj.txnHash}
+        const {txnHash, message} = JSON.parse(data)
+        const signature = await this.tssNode.sign(message)
+        logger.log(SIGNATURE_START, txnHash, message, signature.serializeToHexStr())
+        const signaturePayloadToLeader = {topic: TSS_RECEIVE_SIGNATURE_SHARE, signature: signature.serializeToHexStr(), signer: this.tssNode.id.serializeToHexStr(), txnHash}
         await this.createAndSendMessage(this.whitelisted[peerId].multiaddr, meshProtocol, JSON.stringify(signaturePayloadToLeader), (msg) => { console.log('SignaruePayload Ack', msg) })
         break
       default:
@@ -102,10 +101,11 @@ class BridgeNode extends NetworkNode {
         break
       case TSS_RECEIVE_SIGNATURE_SHARE:
         this.messageMap[msg.txnHash].signatures.push({signature: msg.signature, signer: msg.signer})
-        if (this.messageMap[msg.txnHash].signatures.length === config.bridgeNode.threshold) //FIXME Best way to get threshold ? config or initialize in constructor ?
-        {
+        logger.log('Received signature', msg.txnHash, msg.signature, )
+        if (this.messageMap[msg.txnHash].signatures.length === this.tssNode.threshold) {
           const groupSign = this.tssNode.groupSign(this.messageMap[msg.txnHash].signatures)
           this.messageMap[msg.txnHash].verified = this.tssNode.verify(groupSign, this.messageMap[msg.txnHash].signatures[0].message)
+          logger.log('Verified', msg.txnHash, this.messageMap[msg.txnHash].verified, groupSign)
         }
         break
       default:

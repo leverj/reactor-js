@@ -25,7 +25,7 @@ export class ApiApp {
     const leaderUrl = config.bridgeNode.bootstrapNode + '/api/peer/add'
     const peerId = bridgeNode.peerId
     const multiaddr = `/ip4/${externalIp}/tcp/${bridgePort}/p2p/${peerId}`
-    await tryAgainIfConnectionError(async () => axios.post(leaderUrl, [{peerId, multiaddr, ip: externalIp, port}]))
+    await tryAgainIfConnectionError(async () => await axios.post(leaderUrl, [{peerId, multiaddr, ip: externalIp, port}]))
     if (bridgeNode.isLeader) return
     const leaderInfoUrl = config.bridgeNode.bootstrapNode + '/api/info'
     const {data: leaderInfo} = await axios.get(leaderInfoUrl)
