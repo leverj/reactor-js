@@ -47,9 +47,6 @@ describe('Bridge node', function () {
         expect(lhs.split("/")[3]).toEqual(rhs.split("/")[3])
       }
     }
-    //FIXME TBD -- next find a node by its ID, using dht, and then verify the address matches. basically, a node should be able to 
-    //query for its peer's address before dialing in
-    
   })
   it('it should be able to connect with other nodes', async function () {
     let [leader, node1, node2, node3, node4, node5, node6] = await createBridgeNodes(7)
