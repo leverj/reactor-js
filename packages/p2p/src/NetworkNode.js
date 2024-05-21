@@ -10,7 +10,7 @@ import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
 import map from 'it-map'
 import {pipe} from 'it-pipe'
 import {createFromJSON} from '@libp2p/peer-id-factory'
-import {affirm} from '@leverj/common/utils'
+import {tryAgainIfError} from './utils.js'
 
 export default class NetworkNode {
   constructor({ip = '0.0.0.0', port = 0, isLeader = false, peerIdJson}) {
@@ -90,8 +90,7 @@ export default class NetworkNode {
 
   // p2p connection
   async createAndSendMessage(address, protocol, message, responseHandler) {
-    //console.log("createAndSendMessage", address)
-    let stream = await this.createStream(address, protocol)
+    let stream = await tryAgainIfError(_ => this.createStream(address, protocol))
     await this.sendMessageOnStream(stream, message)
     await this.readStream(stream, responseHandler)
     return stream
