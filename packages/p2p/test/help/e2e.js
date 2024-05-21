@@ -4,7 +4,7 @@ import {fork} from 'child_process'
 import {getBridgeInfos} from './fixtures.js'
 import path from 'path'
 import axios from 'axios'
-import {tryAgainIfConnectionError, waitToSync} from '../../src/utils.js'
+import {tryAgainIfConnectionError, tryAgainIfError, waitToSync} from '../../src/utils.js'
 import {setTimeout} from 'node:timers/promises'
 
 const __dirname = process.cwd()
@@ -54,13 +54,13 @@ export async function createInfo_json(count) {
 export async function waitForLeaderSync(ports) {
   for (const port of ports) {
     try {
-    const {data: {leader}} = await axios.get(`http://127.0.0.1:${port}/api/peer/leader`)
+      const {data: {leader}} = await tryAgainIfError(_ => axios.get(`http://127.0.0.1:${port}/api/peer/leader`))
       if (!leader) throw new Error(`leader not synced... port: ${port}`)
       await setTimeout(200)
     } catch (e) {
       console.log(port, e)
       throw e
-  }
+    }
 
   }
   console.log('leader synced...')
