@@ -16,7 +16,7 @@ describe('e2e', function () {
   it('should create new nodes, connect and init DKG', async function () {
     const allNodes = await createApiNodes(7)
     const bootstrapNodeUrl = config.bridgeNode.bootstrapNode
-    await connect(allNodes)
+    // await connect(allNodes)
     await axios.post(`${bootstrapNodeUrl}/api/dkg/start`)
     await setTimeout(1000)
     const publicKeys = await Promise.all(allNodes.map(async node => {
@@ -45,7 +45,7 @@ describe('e2e', function () {
     const allNodes = [9000, 9001, 9002, 9003, 9004, 9005, 9006]
     await createInfo_json(allNodes.length)
     await createApiNodes(allNodes.length)
-    await connect(allNodes)
+    // await connect(allNodes)
     for (const node of allNodes) {
       const apiResp = await axios.post(`http://127.0.0.1:${node}/api/tss/sign`, {'msg': message})
       const signature = new mcl.Signature()
@@ -80,7 +80,7 @@ describe('e2e', function () {
     const allNodes = [9000, 9001, 9002, 9003]
     await createInfo_json(allNodes.length)
     await createApiNodes(allNodes.length)
-    await connect(allNodes)
+    // await connect(allNodes)
     const txnHash = 'hash123456'
     await axios.post('http://localhost:9000/api/tss/aggregateSign', {txnHash, 'msg': message})
     const fn = async () => {

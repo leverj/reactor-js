@@ -13,7 +13,7 @@ import {createFromJSON} from '@libp2p/peer-id-factory'
 import {bootstrap} from '@libp2p/bootstrap'
 import {identify} from '@libp2p/identify'
 import { kadDHT, removePublicAddressesMapper} from '@libp2p/kad-dht'
-import {affirm} from '@leverj/common/utils'
+import {tryAgainIfError} from './utils.js'
 
 export default class NetworkNode {
   constructor({ip = '0.0.0.0', port = 0, isLeader = false, peerIdJson}) {
@@ -46,7 +46,7 @@ export default class NetworkNode {
       transports: [tcp()],
       connectionEncryption: [noise()],
       streamMuxers: [yamux()],
-      services: {ping: ping({protocolPrefix: 'ipfs'}), pubsub: gossipsub(), 
+      services: {ping: ping({protocolPrefix: 'ipfs'}), pubsub: gossipsub(),
         identify: identify(),
         dht: kadDHT({
           protocol: '/reactor/lan/kad/1.0.0',
@@ -112,8 +112,7 @@ export default class NetworkNode {
 
   // p2p connection
   async createAndSendMessage(address, protocol, message, responseHandler) {
-    //console.log("createAndSendMessage", address)
-    let stream = await this.createStream(address, protocol)
+    let stream = await tryAgainIfError(_ => this.createStream(address, protocol))
     await this.sendMessageOnStream(stream, message)
     await this.readStream(stream, responseHandler)
     return stream

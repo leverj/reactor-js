@@ -2,7 +2,7 @@ import bls from './bls.js'
 import {affirm} from '@leverj/common/utils'
 import {addContributionShares, addVerificationVectors, generateContributionForId, verifyContributionShare} from './dkg-bls.js'
 import * as mcl from '../src/mcl/mcl.js'
-import events, {DKG_DONE} from './events.js'
+import events, {INFO_CHANGED} from './events.js'
 
 function getMemberContributions(recievedShares, vvecs) {
   const ids = Object.keys(recievedShares).sort()
@@ -123,7 +123,7 @@ export class TSSNode {
     this.secretKeyShare = addContributionShares(this.previouslyShared ? [this.secretKeyShare, ...recievedShares] : recievedShares)
     this.vvec = addVerificationVectors(this.previouslyShared ? [this.vvec, ...vvecs] : vvecs)
     this.previouslyShared = true
-    events.emit(DKG_DONE)
+    events.emit(INFO_CHANGED)
   }
 
   get threshold() { return this.vvec?.length }
