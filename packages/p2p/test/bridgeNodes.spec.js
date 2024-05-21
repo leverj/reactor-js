@@ -33,7 +33,7 @@ describe('Bridge node', function () {
     }
   })
   //FIXME remove "only" once test is complete
-  it.only('should only create nodes and discovery should happen automatically', async function(){
+  it('should only create nodes and discovery should happen automatically', async function(){
     const numNodes = 6
     let nodes = await createBridgeNodes(numNodes)
     await setTimeout(3000)

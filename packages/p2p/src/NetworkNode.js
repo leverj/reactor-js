@@ -49,14 +49,14 @@ export default class NetworkNode {
       services: {ping: ping({protocolPrefix: 'ipfs'}), pubsub: gossipsub(), 
         identify: identify(),
         dht: kadDHT({
-          protocol: '/ipfs/lan/kad/1.0.0',
+          protocol: '/reactor/lan/kad/1.0.0',
           peerInfoMapper: removePublicAddressesMapper, //FIXME This needs more investigation in real network
           clientMode: false
         })
       },
       peerDiscovery: [
         bootstrap({
-          interval: 60e3,
+          interval: 60e3, //fixme: what is this?
           enabled: true,
             list: ['/ip4/127.0.0.1/tcp/9000/ipfs/12D3KooWRRqAo5f41sQmc9BpsfqarZgd7PWUiX14Mz1htXDEc7Gp']
         }),
