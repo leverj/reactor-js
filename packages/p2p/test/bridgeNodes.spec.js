@@ -40,9 +40,16 @@ describe('Bridge node', function () {
     for (const node of nodes){
       console.log("Peers of Node", node.p2p.getPeers())
       expect(node.p2p.getPeers().length).toEqual(numNodes - 1)
+      for (const peerId of node.p2p.getPeers()){
+        const peerInfo = await node.p2p.peerRouting.findPeer(peerId)
+        const lhs = peerInfo.multiaddrs[0].toString()
+        const rhs = nodes.find(n => n.peerIdJson.id == peerId.toString()).multiaddrs[0]
+        expect(lhs.split("/")[3]).toEqual(rhs.split("/")[3])
+      }
     }
     //FIXME TBD -- next find a node by its ID, using dht, and then verify the address matches. basically, a node should be able to 
     //query for its peer's address before dialing in
+    
   })
   it('it should be able to connect with other nodes', async function () {
     let [leader, node1, node2, node3, node4, node5, node6] = await createBridgeNodes(7)
