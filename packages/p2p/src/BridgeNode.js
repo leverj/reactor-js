@@ -154,9 +154,11 @@ class BridgeNode extends NetworkNode {
         console.log('Unknown message', msg)
     }
   }
-  aggregateSignatureStatus(txnHash){
+
+  aggregateSignatureStatus(txnHash) {
     return this.messageMap[txnHash].verified
   }
+
   async startDKG(threshold) {
     if (!this.isLeader) return
     const responseHandler = (msg) => console.log('dkg received', msg)

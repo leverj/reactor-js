@@ -2,7 +2,6 @@ import {expect} from 'expect'
 import { peerIdJsons} from './help/index.js'
 import {setTimeout} from 'timers/promises'
 import BridgeNode from '../src/BridgeNode.js'
-import { peerIdFromString } from '@libp2p/peer-id'
 const nodes = []
 const stopBridgeNodes = async () => {
   for (const node of nodes) await node.stop()
