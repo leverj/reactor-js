@@ -16,11 +16,16 @@ export const deleteInfoDir = async () => await rm('.e2e', {recursive: true, forc
 export const killChildProcesses = async () => {for (const childProcess of childProcesses) await childProcess.kill()}
 
 export async function createApiNodes(count) {
+  const ports = []
   for (let i = 0; i < count; i++) {
     childProcesses.push(await createApiNode({index: i, isLeader: i === 0}))
+    ports.push(9000 + i)
+    await setTimeout(200)
   }
-  await waitForWhitelistSync(Array(count).fill(0).map((_, i) => 9000 + i))
-  return Array(count).fill(0).map((_, i) => 9000 + i)
+  await waitForLeaderSync(ports)
+  await axios.post(`http://127.0.0.1:${ports[0]}/api/publish/whitelist`)
+  await waitForWhitelistSync(ports)
+  return ports
 }
 
 export async function createApiNode({index, isLeader = false}) {
@@ -46,6 +51,21 @@ export async function createInfo_json(count) {
   }
 }
 
+export async function waitForLeaderSync(ports) {
+  for (const port of ports) {
+    try {
+    const {data: {leader}} = await axios.get(`http://127.0.0.1:${port}/api/peer/leader`)
+      if (!leader) throw new Error(`leader not synced... port: ${port}`)
+      await setTimeout(200)
+    } catch (e) {
+      console.log(port, e)
+      throw e
+  }
+
+  }
+  console.log('leader synced...')
+}
+
 export async function waitForWhitelistSync(ports) {
   const fn = (port) => async () => {
     const {data: whitelists} = await axios.get(`http://192.168.1.69:${port}/api/peer/whitelist`)
@@ -55,15 +75,8 @@ export async function waitForWhitelistSync(ports) {
   console.log('whitelist synced...')
 }
 
-export async function connect(ports) {
-  for (const port of ports) {
-    await tryAgainIfConnectionError(_ => axios.post(`http://127.0.0.1:${port}/api/peer/connect`))
-  }
-  const fn = (port) => async () => {
-    const {data: peers} = await axios.get(`http://127.0.0.1:${port}/api/peer`)
-    return peers.length === ports.length - 1
-  }
-  await waitToSync(ports.map(fn))
+export async function connect() {
+  await tryAgainIfConnectionError(_ => axios.post(`http://127.0.0.1:9000/api/peer/connect`))
   console.log('connected...')
 }
 

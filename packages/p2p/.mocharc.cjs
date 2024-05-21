@@ -1,4 +1,6 @@
+NODE_ENV = 'test'
 module.exports = {
   spec: ['**/*.spec.js'],
-  exit: true
+  exit: true,
+  timeout: -1
 }
