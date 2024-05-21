@@ -18,8 +18,8 @@ export async function tryFor(fn, errorCode, tryCount = tryCount_) {
   }
 }
 
-export const tryAgainIfConnectionError = (fn) => tryFor(fn, ['ECONNREFUSED', 'ECONNRESET'])
-export const tryAgainIfEncryptionFailed = (fn) => tryFor(fn, 'ERR_ENCRYPTION_FAILED')
+export const tryAgainIfConnectionError = async (fn, tryCount) => await tryFor(fn, ['ECONNREFUSED', 'ECONNRESET'], tryCount)
+export const tryAgainIfEncryptionFailed = async (fn, tryCount) => await tryFor(fn, 'ERR_ENCRYPTION_FAILED', tryCount)
 
 
 export async function waitToSync(fns, tryCount = tryCount_) {

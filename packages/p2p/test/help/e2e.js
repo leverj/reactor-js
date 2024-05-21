@@ -23,11 +23,9 @@ export async function createApiNodes(count) {
     await setTimeout(200)
   }
   await waitForLeaderSync(ports)
-  // await connect(ports)
-  // await setTimeout(10000)
   await axios.post(`http://127.0.0.1:${ports[0]}/api/publish/whitelist`)
   await waitForWhitelistSync(ports)
-  return Array(count).fill(0).map((_, i) => 9000 + i)
+  return ports
 }
 
 export async function createApiNode({index, isLeader = false}) {
@@ -70,7 +68,7 @@ export async function waitForLeaderSync(ports) {
 
 export async function waitForWhitelistSync(ports) {
   const fn = (port) => async () => {
-    const {data: whitelists} = await axios.get(`http://127.0.0.1:${port}/api/peer/whitelist`)
+    const {data: whitelists} = await axios.get(`http://192.168.1.69:${port}/api/peer/whitelist`)
     return whitelists.length === ports.length
   }
   await waitToSync(ports.map(fn))

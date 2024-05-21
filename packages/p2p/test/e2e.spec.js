@@ -15,7 +15,6 @@ describe('e2e', function () {
 
   it('should create new nodes, connect and init DKG', async function () {
     const allNodes = await createApiNodes(7)
-    // return
     const bootstrapNodeUrl = config.bridgeNode.bootstrapNode
     // await connect(allNodes)
     await axios.post(`${bootstrapNodeUrl}/api/dkg/start`)
