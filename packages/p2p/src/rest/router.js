@@ -42,8 +42,8 @@ async function aggregateSignature(req, res) {
   res.send('ok')
 }
 
-async function aggregateSignatureStatus(req, res) {
-  res.send(bridgeNode.aggregateSignatureStatus(req.query.txnHash))
+async function getAggregateSignature(req, res) {
+  res.send(bridgeNode.getAggregateSignature(req.query.txnHash))
 }
 
 async function getPublicKey(req, res) {
@@ -72,7 +72,7 @@ router.get('/peer/leader', getLeader)
 router.post('/temp/toadmin/add', addPeer) //fixme: this is temporary for fast testing
 router.post('/tss/sign', signMessage)
 router.post('/tss/aggregateSign', aggregateSignature)
-router.get('/tss/aggregateSignStatus', aggregateSignatureStatus)
+router.get('/tss/aggregateSign', getAggregateSignature)
 router.post('/peer/connect', connect)
 router.post('/dkg/start', startDkg)
 router.get('/dkg/publicKey', getPublicKey)

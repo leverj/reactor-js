@@ -84,12 +84,12 @@ describe('e2e', function () {
     const txnHash = 'hash123456'
     await axios.post('http://localhost:9000/api/tss/aggregateSign', {txnHash, 'msg': message})
     const fn = async () => {
-      const {data: status} = await axios.get('http://localhost:9000/api/tss/aggregateSignStatus?txnHash=' + txnHash)
-      return status
+      const {data: {verified}} = await axios.get('http://localhost:9000/api/tss/aggregateSign?txnHash=' + txnHash)
+      return verified
     }
     await waitToSync([fn])
-    const status = await axios.get('http://localhost:9000/api/tss/aggregateSignStatus?txnHash=' + txnHash)
-    expect(status.data).toEqual(true)
+    const {data:{verified}} = await axios.get('http://localhost:9000/api/tss/aggregateSign?txnHash=' + txnHash)
+    expect(verified).toEqual(true)
   }).timeout(-1)
 })
 
