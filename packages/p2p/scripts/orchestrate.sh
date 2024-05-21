@@ -114,6 +114,8 @@ function local_sign() {
         "txnHash": "hash123456",
         "msg": "hello world"
     }'
+    sleep 5
+    curl http://localhost:9000/api/tss/aggregateSign?txnHash=hash123456
 }
 function remote_sign() {
     echo "Remote sign"
@@ -123,6 +125,10 @@ function remote_sign() {
         "txnHash": "hash123456",
         "msg": "hello world"
     }'
+    echo
+    sleep 5
+    curl $(remote_leader)/api/tss/aggregateSign?txnHash=hash123456
+    echo
 }
 
 OPERATION=$1
