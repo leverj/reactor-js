@@ -131,6 +131,16 @@ function remote_sign() {
     echo
 }
 
+function local_info() {
+    echo "Local info"
+    curl --location --request GET 'http://localhost:9000/api/info'
+}
+
+function remote_info() {
+    echo "Remote info"
+    curl --location --request GET $(remote_leader)/api/info
+}
+
 OPERATION=$1
 shift
 case "${OPERATION}" in
@@ -142,22 +152,6 @@ local_dkg) local_dkg $@ ;;
 remote_dkg) remote_dkg $@ ;;
 local_sign) local_sign $@ ;;
 remote_sign) remote_sign $@ ;;
+local_info) local_info $@ ;;
+remote_info) remote_info $@ ;;
 esac
-
-
-function install_docker_ubuntu() {
-  # Add Docker's official GPG key:
-  sudo apt-get update
-  sudo apt-get install ca-certificates curl
-  sudo install -m 0755 -d /etc/apt/keyrings
-  sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-  sudo chmod a+r /etc/apt/keyrings/docker.asc
-
-  # Add the repository to Apt sources:
-  echo \
-    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-    $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-    sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-  sudo apt-get update
-  sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-}
