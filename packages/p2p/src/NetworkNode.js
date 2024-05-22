@@ -46,6 +46,9 @@ export default class NetworkNode {
       transports: [tcp()],
       connectionEncryption: [noise()],
       streamMuxers: [yamux()],
+      connectionManager:{
+        inboundConnectionThreshold: 25, //Default is 5
+      },
       services: {ping: ping({protocolPrefix: 'ipfs'}), pubsub: gossipsub(),
         identify: identify(),
         dht: kadDHT({
@@ -89,7 +92,8 @@ export default class NetworkNode {
   }
   //fixme: remove this peer from the network
   peerConnected(evt) {
-    // const peerId = evt.detail.toString()
+    const peerId = evt.detail.toString()
+    console.log(peerId, "connected with", this.p2p.peerId)
     // if (!this.knownPeers[peerId]) {
     //   console.log('remove this peer from the network')
     //   // this.p2p.hangUp(peerId)

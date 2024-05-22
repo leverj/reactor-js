@@ -20,7 +20,18 @@ describe('p2p', function () {
     const latency = await node1.ping(node2.multiaddrs[0])
     expect(latency).toBeGreaterThan(0)
   })
-
+  //This test case is not fully automated. Comment out the connection manager and DHT blocks and then increase
+  //the num count of nodes. ECONNRESET error will start coming. Combination of inboundConnectionThreshold and DHT
+  //provides a relief in terms of incoming connections that a p2p node allows to itself
+  it.only('should test the throttle limits of p2p', async function () {
+    const nodes = await startNetworkNodes(10)
+    for (const node of nodes){
+      for (const peer of nodes){
+        if (node.p2p.peerId == peer.p2p.peerId) continue
+        await node.connect(peer.multiaddrs[0])
+      }
+    }
+  })
   it('spokes should be able to dial the hub, and become peers of the hub', async function () {
     const [hub, spoke1, spoke2, spoke3] = await startNetworkNodes(4, true)
     expect(hub.peers.length).toEqual(3)
