@@ -86,6 +86,22 @@ describe('p2p', function () {
     }
   })
 
+  it('should only create nodes and discovery should happen automatically', async function(){
+    const numNodes = 6
+    let nodes = await startNetworkNodes(numNodes)
+    await setTimeout(3000)
+    for (const node of nodes){
+      // console.log("Peers of Node", node.p2p.getPeers())
+      expect(node.peers.length).toEqual(numNodes - 1)
+      for (const peerId of node.peers){
+        const peerInfo = await node.findPeer(peerId)
+        const found = peerInfo.multiaddrs[0].toString()
+        const expected = nodes.find(node => node.peerId === peerId).multiaddrs[0]
+        expect(found.split("/")[3]).toEqual(expected.split("/")[3])
+      }
+    }
+  })
+
   // fixme: to be implemented
   it.skip('should not allow to connect a node if not approved', async function () {
     const [node1, node2] = await startNetworkNodes(2)

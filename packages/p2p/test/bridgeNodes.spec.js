@@ -31,22 +31,7 @@ describe('Bridge node', function () {
       }
     }
   })
-  //FIXME remove "only" once test is complete
-  it('should only create nodes and discovery should happen automatically', async function(){
-    const numNodes = 6
-    let nodes = await createBridgeNodes(numNodes)
-    await setTimeout(3000)
-    for (const node of nodes){
-      console.log("Peers of Node", node.p2p.getPeers())
-      expect(node.p2p.getPeers().length).toEqual(numNodes - 1)
-      for (const peerId of node.p2p.getPeers()){
-        const peerInfo = await node.p2p.peerRouting.findPeer(peerId)
-        const lhs = peerInfo.multiaddrs[0].toString()
-        const rhs = nodes.find(n => n.peerIdJson.id == peerId.toString()).multiaddrs[0]
-        expect(lhs.split("/")[3]).toEqual(rhs.split("/")[3])
-      }
-    }
-  })
+
   it('it should be able to connect with other nodes', async function () {
     let [leader, node1, node2, node3, node4, node5, node6] = await createBridgeNodes(7)
     let nodes = [leader, node1, node2, node3, node4, node5, node6]

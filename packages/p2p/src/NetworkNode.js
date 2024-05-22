@@ -1,4 +1,5 @@
 import {createLibp2p} from 'libp2p'
+import {peerIdFromString} from '@libp2p/peer-id'
 import {tcp} from '@libp2p/tcp'
 import {noise} from '@chainsafe/libp2p-noise'
 import {yamux} from '@chainsafe/libp2p-yamux'
@@ -12,8 +13,9 @@ import {pipe} from 'it-pipe'
 import {createFromJSON} from '@libp2p/peer-id-factory'
 import {bootstrap} from '@libp2p/bootstrap'
 import {identify} from '@libp2p/identify'
-import { kadDHT, removePublicAddressesMapper} from '@libp2p/kad-dht'
+import {kadDHT, removePrivateAddressesMapper, removePublicAddressesMapper} from '@libp2p/kad-dht'
 import {tryAgainIfError} from './utils.js'
+import config from 'config'
 
 export default class NetworkNode {
   constructor({ip = '0.0.0.0', port = 0, isLeader = false, peerIdJson}) {
@@ -46,14 +48,15 @@ export default class NetworkNode {
       transports: [tcp()],
       connectionEncryption: [noise()],
       streamMuxers: [yamux()],
-      connectionManager:{
+      connectionManager: {
         inboundConnectionThreshold: 25, //Default is 5
       },
-      services: {ping: ping({protocolPrefix: 'ipfs'}), pubsub: gossipsub(),
+      services: {
+        ping: ping({protocolPrefix: 'ipfs'}), pubsub: gossipsub(),
         identify: identify(),
         dht: kadDHT({
           protocol: '/reactor/lan/kad/1.0.0',
-          peerInfoMapper: removePublicAddressesMapper, //FIXME This needs more investigation in real network
+          peerInfoMapper: config.bridgeNode.isPublic ? removePrivateAddressesMapper : removePublicAddressesMapper,
           clientMode: false
         })
       },
@@ -61,7 +64,7 @@ export default class NetworkNode {
         bootstrap({
           interval: 60e3, //fixme: what is this?
           enabled: true,
-            list: ['/ip4/127.0.0.1/tcp/9000/ipfs/12D3KooWRRqAo5f41sQmc9BpsfqarZgd7PWUiX14Mz1htXDEc7Gp']
+          list: ['/ip4/127.0.0.1/tcp/9000/ipfs/12D3KooWRRqAo5f41sQmc9BpsfqarZgd7PWUiX14Mz1htXDEc7Gp']
         }),
       ]
     })
@@ -86,10 +89,13 @@ export default class NetworkNode {
     return this
   }
 
-  peerDiscovered(evt){
-    const { detail: peer } = evt;
+  findPeer(peerId) { return this.p2p.peerRouting.findPeer(peerIdFromString(peerId)) }
+
+  peerDiscovered(evt) {
+    const {detail: peer} = evt
     //console.log("Peer", peer, " Discovered By", this.p2p.peerId)
   }
+
   //fixme: remove this peer from the network
   peerConnected(evt) {
     const peerId = evt.detail.toString()
