@@ -13,7 +13,10 @@ console.log('dirname', __dirname)
 const childProcesses = []
 
 export const deleteInfoDir = async () => await rm('.e2e', {recursive: true, force: true})
-export const killChildProcesses = async () => {for (const childProcess of childProcesses) await childProcess.kill()}
+export const killChildProcesses = async () => {
+  for (const childProcess of childProcesses) await childProcess.kill()
+  await setTimeout(200)
+}
 
 export async function createApiNodes(count) {
   const ports = []
