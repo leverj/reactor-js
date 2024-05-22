@@ -43,6 +43,9 @@ export default class NetworkNode {
       transports: [tcp()],
       connectionEncryption: [noise()],
       streamMuxers: [yamux()],
+      connectionManager:{
+        inboundConnectionThreshold: 25, //Default is 5
+      },
       services: {ping: ping({protocolPrefix: 'ipfs'}), pubsub: gossipsub(),},
     })
     this.p2p.addEventListener('peer:connect', this.peerConnected.bind(this))
