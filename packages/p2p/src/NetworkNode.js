@@ -93,7 +93,7 @@ export default class NetworkNode {
   //fixme: remove this peer from the network
   peerConnected(evt) {
     const peerId = evt.detail.toString()
-    console.log(peerId, "connected with", this.p2p.peerId)
+    // console.log(peerId, "connected with", this.p2p.peerId)
     // if (!this.knownPeers[peerId]) {
     //   console.log('remove this peer from the network')
     //   // this.p2p.hangUp(peerId)
