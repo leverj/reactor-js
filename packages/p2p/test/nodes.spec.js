@@ -1,6 +1,8 @@
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
 import {peerIdJsons, startNetworkNodes, stopNetworkNodes} from './help/index.js'
+import {peerIdFromString} from '@libp2p/peer-id'
+
 
 describe('p2p', function () {
   const meshProtocol = '/mesh/1.0.0'
@@ -101,6 +103,30 @@ describe('p2p', function () {
       }
     }
   })
+  //FIXME If this test case approach is ok, then p2p occurences can move to NetworkNode
+  //basically createAndSendMessage function can be changed to take PeerId as opposed to address (current impl) 
+  it.only('should create p2p nodes and send stream message to peers without using their address', async function(){
+    const numNodes = 6
+    let mesgPrefix = "Hello from sender "
+    let nodes = await startNetworkNodes(numNodes)
+    await setTimeout(3000)
+    for (const node of nodes){
+      await node.registerStreamHandler(meshProtocol, function(stream, peerId, msgStr){console.log(node.peerId, "Recd stream msg from", peerId, msgStr)})
+    }
+    const sender = nodes[0]
+    for (const peerId of sender.peers){
+      const stream = await sender.p2p.dialProtocol(peerIdFromString(peerId), meshProtocol)
+      await sender.sendMessageOnStream(stream, mesgPrefix + Math.random())
+    }
+    /* following also works since this is the old way. we are just constructing the address w/o storing it. Extra lookup step though.
+    const peerId = nodes[1].peerId
+    const peerInfo = await nodes[0].findPeer(peerId)
+    const peerAddress = peerInfo.multiaddrs[0]
+    const addressToSend = peerAddress + '/p2p/' + peerId
+    await nodes[0].createAndSendMessage(addressToSend, meshProtocol, "HI", (msg) => {console.log("ACK RESP", msg)})*/
+    await setTimeout(1000)
+    
+  }).timeout(-1)
 
   // fixme: to be implemented
   it.skip('should not allow to connect a node if not approved', async function () {

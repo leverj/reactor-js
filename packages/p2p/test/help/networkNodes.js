@@ -13,6 +13,7 @@ export const startNetworkNodes = async (count, connectToLeader = false) => {
       networkNodes.push(_)
       return _
     })
+    //FIXME Do we still need this. Review after DHT is integated
     if (connectToLeader && i > 0) await node.connect(networkNodes[0].multiaddrs[0])
   }
   return networkNodes
