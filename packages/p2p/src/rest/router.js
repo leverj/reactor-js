@@ -3,8 +3,11 @@ import config from 'config'
 import {bridgeNode} from './manager.js'
 
 const multiaddr = `/ip4/${config.externalIp}/tcp/${config.bridgeNode.port}/p2p/${bridgeNode.peerId}`
+
 async function getMultiaddrs(req, res) {
-  res.send({multiaddr})}
+  console.log('#'.repeat(50), 'getMultiaddrs', '#'.repeat(50))
+  res.send({multiaddr})
+}
 
 async function getInfo(req, res) { res.send(bridgeNode.exportJson())}
 
@@ -20,13 +23,13 @@ async function startDkg(req, res) {
   res.send('ok')
 }
 
-async function addPeer(req, res) {
-  if (!bridgeNode.isLeader) return
-  const peers = req.body
-  bridgeNode.addPeersToWhiteList(...peers)
-  let leaderInfo = {peerId: bridgeNode.peerId, multiaddr, ip: config.externalIp, port: config.port}
-  res.send(leaderInfo)
-}
+// async function addPeer(req, res) {
+//   if (!bridgeNode.isLeader) return
+//   const peers = req.body
+//   bridgeNode.addPeersToWhiteList(...peers)
+//   let leaderInfo = {peerId: bridgeNode.peerId, multiaddr, ip: config.externalIp, port: config.port}
+//   res.send(leaderInfo)
+// }
 
 async function signMessage(req, res) {
   const msg = req.body
@@ -69,7 +72,7 @@ router.get('/fixme/bridge/multiaddr', getMultiaddrs)
 router.get('/info', getInfo)
 router.get('/peer', getPeers)
 router.get('/peer/leader', getLeader)
-router.post('/temp/toadmin/add', addPeer) //fixme: this is temporary for fast testing
+// router.post('/temp/toadmin/add', addPeer) //fixme: this is temporary for fast testing
 router.post('/tss/sign', signMessage)
 router.post('/tss/aggregateSign', aggregateSignature)
 router.get('/tss/aggregateSign', getAggregateSignature)

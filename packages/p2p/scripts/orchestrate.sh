@@ -1,10 +1,16 @@
 #!/usr/bin/env bash
 
 REMOTE_IPS=$REACTOR_REMOTE_IPS
+BRANCH=$(get_branch)
 function local_build() {
     cd ..
     yarn docker:build
     cd scripts
+}
+
+function get_branch() {
+  local BRANCH=$(git branch | grep \* | cut -d ' ' -f2)
+  echo $BRANCH
 }
 
 function deployDocker() {
@@ -31,7 +37,7 @@ function deployDocker() {
       -p $PORT:$PORT \
       -p $BRIDGE_PORT:$BRIDGE_PORT \
       -v $DATA_DIR/$PORT:/dist/data \
-      leverj/p2p:dev node app.js"
+      leverj/p2p:$BRANCH node app.js"
 
 #    echo $DOCKER_COMMAND
      if [ -n "$REMOTE" ]; then
@@ -79,7 +85,7 @@ function remote_install() {
       ssh root@$EXTERNAL_IP "
         rm -rf /var/lib/reactor/data
         docker ps -aq -f NAME=p2p-node | xargs docker stop | xargs docker rm
-        docker pull leverj/p2p:dev
+        docker pull leverj/p2p:$BRANCH
       "
       [[ $? -ne 0 ]] && echo "no docker containers on $EXTERNAL_IP"
 #      echo \

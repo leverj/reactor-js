@@ -10,7 +10,7 @@ module.exports = {
     port: 10000,
     isLeader: false,
     threshold: 4,
-    bootstrapNode:'http://127.0.0.1:9000',
     isPublic: true,
+    bootstrapNodes: []
   }
 }

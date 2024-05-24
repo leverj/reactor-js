@@ -20,13 +20,13 @@ export class ApiApp {
   }
 
   // fixme: move to bridgeNode after kad-dht node discovery is implemented
-  async connectToLeader() {
-    const leaderUrl = config.bridgeNode.bootstrapNode + '/api/temp/toadmin/add'
-    const peerId = bridgeNode.peerId
-    const multiaddr = `/ip4/${externalIp}/tcp/${bridgePort}/p2p/${peerId}`
-    const {data: leader} = await tryAgainIfConnectionError(async () => await axios.post(leaderUrl, [{peerId, multiaddr, ip: externalIp, port}]))
-    await bridgeNode.addLeader(leader)
-  }
+  // async connectToLeader() {
+  //   const leaderUrl = config.bridgeNode.bootstrapNode + '/api/temp/toadmin/add'
+  //   const peerId = bridgeNode.peerId
+  //   const multiaddr = `/ip4/${externalIp}/tcp/${bridgePort}/p2p/${peerId}`
+  //   const {data: leader} = await tryAgainIfConnectionError(async () => await axios.post(leaderUrl, [{peerId, multiaddr, ip: externalIp, port}]))
+  //   await bridgeNode.addLeader(leader)
+  // }
 
   stop() {
     this.server.close()

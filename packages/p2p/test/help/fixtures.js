@@ -558,3 +558,5 @@ export function getBridgeInfos(count) {
   infos.forEach(info => info.whitelistedPeers = _.pick(info.whitelistedPeers, peers))
   return infos
 }
+
+export function getBootstrapNodes () {  return [`/ip4/127.0.0.1/tcp/10006/p2p/${bridgeInfos[0].p2p.id}`]}

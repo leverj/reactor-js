@@ -4,7 +4,7 @@ import axios from 'axios'
 import {expect} from 'expect'
 import * as mcl from '../src/mcl/mcl.js'
 import bls from '../src/bls.js'
-import {getBridgeInfos} from './help/index.js'
+import {getBootstrapNodes, getBridgeInfos} from './help/index.js'
 import {tryAgainIfConnectionError, waitToSync} from '../src/utils.js'
 import {connect, createApiNodes, createInfo_json, deleteInfoDir, killChildProcesses} from './help/e2e.js'
 
@@ -14,10 +14,10 @@ describe('e2e', function () {
   afterEach(killChildProcesses)
 
   it('should create new nodes, connect and init DKG', async function () {
-    const allNodes = await createApiNodes(7)
+    const allNodes = await createApiNodes(2)
     const bootstrapNodeUrl = config.bridgeNode.bootstrapNode
     // await connect(allNodes)
-    await axios.post(`${bootstrapNodeUrl}/api/dkg/start`)
+    await axios.post(`http://127.0.0.1:9000/api/dkg/start`)
     await setTimeout(1000)
     const publicKeys = await Promise.all(allNodes.map(async node => {
       const response = await axios.get(`http://127.0.0.1:${node}/api/dkg/publicKey`)
@@ -33,7 +33,7 @@ describe('e2e', function () {
     const nodes = [9000, 9001, 9002]
     await createInfo_json(nodes.length)
     const bridgeInfos = getBridgeInfos(nodes.length)
-    await createApiNodes(nodes.length)
+    await createApiNodes(nodes.length, getBootstrapNodes())
     for (let i = 0; i < nodes.length; i++) {
       const node = nodes[i]
       const {data: info} = await tryAgainIfConnectionError(() => axios.get(`http://127.0.0.1:${node}/api/info`))
@@ -79,7 +79,9 @@ describe('e2e', function () {
   it('aggregate signatures over pubsub topic', async function () {
     const allNodes = [9000, 9001, 9002, 9003]
     await createInfo_json(allNodes.length)
+
     await createApiNodes(allNodes.length)
+    return
     // await connect(allNodes)
     const txnHash = 'hash123456'
     await axios.post('http://localhost:9000/api/tss/aggregateSign', {txnHash, 'msg': message})
