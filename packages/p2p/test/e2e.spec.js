@@ -15,8 +15,6 @@ describe('e2e', function () {
 
   it('should create new nodes, connect and init DKG', async function () {
     const allNodes = await createApiNodes(2)
-    const bootstrapNodeUrl = config.bridgeNode.bootstrapNode
-    // await connect(allNodes)
     await axios.post(`http://127.0.0.1:9000/api/dkg/start`)
     await setTimeout(1000)
     const publicKeys = await Promise.all(allNodes.map(async node => {
@@ -27,7 +25,7 @@ describe('e2e', function () {
       expect(publicKey).not.toBeNull()
       expect(publicKey).toEqual(publicKeys[0])
     }
-  }).timeout(-1)
+  })
 
   it('should be able to create node with already existing info.json', async function () {
     const nodes = [9000, 9001, 9002]
@@ -39,7 +37,7 @@ describe('e2e', function () {
       const {data: info} = await tryAgainIfConnectionError(() => axios.get(`http://127.0.0.1:${node}/api/info`))
       expect(info).toEqual(bridgeInfos[i])
     }
-  }).timeout(-1)
+  })
 
   it('should create new nodes, load secret shares from local storage, sign message, and verify with individual pub key', async function () {
     const allNodes = [9000, 9001, 9002, 9003, 9004, 9005, 9006]
@@ -54,7 +52,7 @@ describe('e2e', function () {
       const verified = await individualPublicKey.verify(signature, message)
       expect(verified).toEqual(true)
     }
-  }).timeout(-1)
+  })
 
   it('aggregate signatures over pubsub topic', async function () {
     const allNodes = [9000, 9001, 9002, 9003]
@@ -71,7 +69,7 @@ describe('e2e', function () {
     await waitToSync([fn])
     const {data:{verified}} = await axios.get('http://localhost:9000/api/tss/aggregateSign?txnHash=' + txnHash)
     expect(verified).toEqual(true)
-  }).timeout(-1)
+  })
 })
 
 

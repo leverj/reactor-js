@@ -52,7 +52,7 @@ describe('Bridge node', function () {
       let nodeSecret = node.tssNode.secretKeyShare.serializeToHexStr()
       expect(leaderSecret).not.toBe(nodeSecret)
     }
-  }).timeout(-1)
+  })
 
 })
 

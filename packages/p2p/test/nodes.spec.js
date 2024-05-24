@@ -109,7 +109,7 @@ describe('p2p', function () {
     await nodes[0].createAndSendMessage(addressToSend, meshProtocol, "HI", (msg) => {console.log("ACK RESP", msg)})*/
     // await setTimeout(1000)
 
-  }).timeout(-1)
+  })
 
   // fixme: to be implemented
   it.skip('should not allow to connect a node if not approved', async function () {
