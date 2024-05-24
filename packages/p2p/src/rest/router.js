@@ -9,6 +9,11 @@ async function getMultiaddrs(req, res) {
   res.send({multiaddr})
 }
 
+async function getAllMultiaddrs(req, res) {
+  console.log('#'.repeat(50), 'getAllMultiaddrs', '#'.repeat(50))
+  res.send(bridgeNode.multiaddrs)
+}
+
 async function getInfo(req, res) { res.send(bridgeNode.exportJson())}
 
 async function getPeers(req, res) { res.send(bridgeNode.peers)}
@@ -69,6 +74,7 @@ async function getLeader(req, res) {
 
 export const router = Router()
 router.get('/fixme/bridge/multiaddr', getMultiaddrs)
+router.get('/fixme/bridge/multiaddr/all', getAllMultiaddrs)
 router.get('/info', getInfo)
 router.get('/peer', getPeers)
 router.get('/peer/leader', getLeader)

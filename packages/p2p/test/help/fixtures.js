@@ -45,52 +45,31 @@ export const bridgeInfos = [
     'whitelistedPeers': {
       '12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA': {
         'peerId':'12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA',
-        'dkgId': '5ea86ada47b0ddb3c6a1ed3d5a8fe0637ef14b12790d846a70bb383df5ad1714',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10000/p2p/12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA',
-        'ip': '127.0.0.1',
-        'port': '9000'
+        'dkgId': '5ea86ada47b0ddb3c6a1ed3d5a8fe0637ef14b12790d846a70bb383df5ad1714'
       },
       '12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof': {
         'peerId':'12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof',
-        'dkgId': '51ccda496d57f886e24a9926c35befaab6d8dda4bec815465524bc86b9611b17',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10001/p2p/12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof',
-        'ip': '127.0.0.1',
-        'port': '9001'
+        'dkgId': '51ccda496d57f886e24a9926c35befaab6d8dda4bec815465524bc86b9611b17'
       },
       '12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3': {
         'peerId':'12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3',
-        'dkgId': '342921a2f2c2f6ca8841d8cffb75bc6a2c142ec87e04e31a0203bb06b2fdea07',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10002/p2p/12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3',
-        'ip': '127.0.0.1',
-        'port': '9002'
+        'dkgId': '342921a2f2c2f6ca8841d8cffb75bc6a2c142ec87e04e31a0203bb06b2fdea07'
       },
       '12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7': {
         'peerId':'12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7',
-        'dkgId': '4bb33d936ac5633f5c2df8a31e8be959be4b7db820ef2cefce4d6ef9fc031715',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10003/p2p/12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7',
-        'ip': '127.0.0.1',
-        'port': '9003'
+        'dkgId': '4bb33d936ac5633f5c2df8a31e8be959be4b7db820ef2cefce4d6ef9fc031715'
       },
       '12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs': {
         'peerId':'12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs',
-        'dkgId': 'f1b6420296e8e621279137fec9c6e8cf32191d35fdb76235833319e2e29ab22c',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10004/p2p/12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs',
-        'ip': '127.0.0.1',
-        'port': '9004'
+        'dkgId': 'f1b6420296e8e621279137fec9c6e8cf32191d35fdb76235833319e2e29ab22c'
       },
       '12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe': {
         'peerId':'12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe',
-        'dkgId': 'f6b2839c0f03fdb387da85cd8f52ea307d7fa20984c10e39a02d7bf3f247ab11',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10005/p2p/12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe',
-        'ip': '127.0.0.1',
-        'port': '9005'
+        'dkgId': 'f6b2839c0f03fdb387da85cd8f52ea307d7fa20984c10e39a02d7bf3f247ab11'
       },
       '12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS': {
         'peerId':'12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS',
-        'dkgId': '5df4ad8c1e5a6a9428279f30295e3e71419106f3aec9611da2b6088b8c21b211',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10006/p2p/12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS',
-        'ip': '127.0.0.1',
-        'port': '9006'
+        'dkgId': '5df4ad8c1e5a6a9428279f30295e3e71419106f3aec9611da2b6088b8c21b211'
       }
     }
   },
@@ -121,52 +100,31 @@ export const bridgeInfos = [
     'whitelistedPeers': {
       '12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA': {
         'peerId':'12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA',
-        'dkgId': '5ea86ada47b0ddb3c6a1ed3d5a8fe0637ef14b12790d846a70bb383df5ad1714',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10000/p2p/12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA',
-        'ip': '127.0.0.1',
-        'port': '9000'
+        'dkgId': '5ea86ada47b0ddb3c6a1ed3d5a8fe0637ef14b12790d846a70bb383df5ad1714'
       },
       '12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof': {
         'peerId':'12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof',
-        'dkgId': '51ccda496d57f886e24a9926c35befaab6d8dda4bec815465524bc86b9611b17',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10001/p2p/12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof',
-        'ip': '127.0.0.1',
-        'port': '9001'
+        'dkgId': '51ccda496d57f886e24a9926c35befaab6d8dda4bec815465524bc86b9611b17'
       },
       '12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3': {
         'peerId':'12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3',
-        'dkgId': '342921a2f2c2f6ca8841d8cffb75bc6a2c142ec87e04e31a0203bb06b2fdea07',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10002/p2p/12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3',
-        'ip': '127.0.0.1',
-        'port': '9002'
+        'dkgId': '342921a2f2c2f6ca8841d8cffb75bc6a2c142ec87e04e31a0203bb06b2fdea07'
       },
       '12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7': {
         'peerId':'12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7',
-        'dkgId': '4bb33d936ac5633f5c2df8a31e8be959be4b7db820ef2cefce4d6ef9fc031715',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10003/p2p/12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7',
-        'ip': '127.0.0.1',
-        'port': '9003'
+        'dkgId': '4bb33d936ac5633f5c2df8a31e8be959be4b7db820ef2cefce4d6ef9fc031715'
       },
       '12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs': {
         'peerId':'12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs',
-        'dkgId': 'f1b6420296e8e621279137fec9c6e8cf32191d35fdb76235833319e2e29ab22c',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10004/p2p/12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs',
-        'ip': '127.0.0.1',
-        'port': '9004'
+        'dkgId': 'f1b6420296e8e621279137fec9c6e8cf32191d35fdb76235833319e2e29ab22c'
       },
       '12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe': {
         'peerId':'12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe',
-        'dkgId': 'f6b2839c0f03fdb387da85cd8f52ea307d7fa20984c10e39a02d7bf3f247ab11',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10005/p2p/12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe',
-        'ip': '127.0.0.1',
-        'port': '9005'
+        'dkgId': 'f6b2839c0f03fdb387da85cd8f52ea307d7fa20984c10e39a02d7bf3f247ab11'
       },
       '12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS': {
         'peerId':'12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS',
-        'dkgId': '5df4ad8c1e5a6a9428279f30295e3e71419106f3aec9611da2b6088b8c21b211',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10006/p2p/12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS',
-        'ip': '127.0.0.1',
-        'port': '9006'
+        'dkgId': '5df4ad8c1e5a6a9428279f30295e3e71419106f3aec9611da2b6088b8c21b211'
       }
     }
   },
@@ -197,52 +155,31 @@ export const bridgeInfos = [
     'whitelistedPeers': {
       '12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA': {
         'peerId':'12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA',
-        'dkgId': '5ea86ada47b0ddb3c6a1ed3d5a8fe0637ef14b12790d846a70bb383df5ad1714',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10000/p2p/12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA',
-        'ip': '127.0.0.1',
-        'port': '9000'
+        'dkgId': '5ea86ada47b0ddb3c6a1ed3d5a8fe0637ef14b12790d846a70bb383df5ad1714'
       },
       '12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof': {
         'peerId':'12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof',
-        'dkgId': '51ccda496d57f886e24a9926c35befaab6d8dda4bec815465524bc86b9611b17',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10001/p2p/12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof',
-        'ip': '127.0.0.1',
-        'port': '9001'
+        'dkgId': '51ccda496d57f886e24a9926c35befaab6d8dda4bec815465524bc86b9611b17'
       },
       '12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3': {
         'peerId':'12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3',
-        'dkgId': '342921a2f2c2f6ca8841d8cffb75bc6a2c142ec87e04e31a0203bb06b2fdea07',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10002/p2p/12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3',
-        'ip': '127.0.0.1',
-        'port': '9002'
+        'dkgId': '342921a2f2c2f6ca8841d8cffb75bc6a2c142ec87e04e31a0203bb06b2fdea07'
       },
       '12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7': {
         'peerId':'12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7',
-        'dkgId': '4bb33d936ac5633f5c2df8a31e8be959be4b7db820ef2cefce4d6ef9fc031715',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10003/p2p/12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7',
-        'ip': '127.0.0.1',
-        'port': '9003'
+        'dkgId': '4bb33d936ac5633f5c2df8a31e8be959be4b7db820ef2cefce4d6ef9fc031715'
       },
       '12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs': {
         'peerId':'12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs',
-        'dkgId': 'f1b6420296e8e621279137fec9c6e8cf32191d35fdb76235833319e2e29ab22c',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10004/p2p/12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs',
-        'ip': '127.0.0.1',
-        'port': '9004'
+        'dkgId': 'f1b6420296e8e621279137fec9c6e8cf32191d35fdb76235833319e2e29ab22c'
       },
       '12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe': {
         'peerId':'12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe',
-        'dkgId': 'f6b2839c0f03fdb387da85cd8f52ea307d7fa20984c10e39a02d7bf3f247ab11',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10005/p2p/12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe',
-        'ip': '127.0.0.1',
-        'port': '9005'
+        'dkgId': 'f6b2839c0f03fdb387da85cd8f52ea307d7fa20984c10e39a02d7bf3f247ab11'
       },
       '12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS': {
         'peerId':'12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS',
-        'dkgId': '5df4ad8c1e5a6a9428279f30295e3e71419106f3aec9611da2b6088b8c21b211',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10006/p2p/12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS',
-        'ip': '127.0.0.1',
-        'port': '9006'
+        'dkgId': '5df4ad8c1e5a6a9428279f30295e3e71419106f3aec9611da2b6088b8c21b211'
       }
     }
   },
@@ -273,52 +210,31 @@ export const bridgeInfos = [
     'whitelistedPeers': {
       '12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA': {
         'peerId':'12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA',
-        'dkgId': '5ea86ada47b0ddb3c6a1ed3d5a8fe0637ef14b12790d846a70bb383df5ad1714',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10000/p2p/12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA',
-        'ip': '127.0.0.1',
-        'port': '9000'
+        'dkgId': '5ea86ada47b0ddb3c6a1ed3d5a8fe0637ef14b12790d846a70bb383df5ad1714'
       },
       '12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof': {
         'peerId':'12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof',
-        'dkgId': '51ccda496d57f886e24a9926c35befaab6d8dda4bec815465524bc86b9611b17',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10001/p2p/12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof',
-        'ip': '127.0.0.1',
-        'port': '9001'
+        'dkgId': '51ccda496d57f886e24a9926c35befaab6d8dda4bec815465524bc86b9611b17'
       },
       '12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3': {
         'peerId':'12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3',
-        'dkgId': '342921a2f2c2f6ca8841d8cffb75bc6a2c142ec87e04e31a0203bb06b2fdea07',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10002/p2p/12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3',
-        'ip': '127.0.0.1',
-        'port': '9002'
+        'dkgId': '342921a2f2c2f6ca8841d8cffb75bc6a2c142ec87e04e31a0203bb06b2fdea07'
       },
       '12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7': {
         'peerId':'12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7',
-        'dkgId': '4bb33d936ac5633f5c2df8a31e8be959be4b7db820ef2cefce4d6ef9fc031715',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10003/p2p/12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7',
-        'ip': '127.0.0.1',
-        'port': '9003'
+        'dkgId': '4bb33d936ac5633f5c2df8a31e8be959be4b7db820ef2cefce4d6ef9fc031715'
       },
       '12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs': {
         'peerId':'12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs',
-        'dkgId': 'f1b6420296e8e621279137fec9c6e8cf32191d35fdb76235833319e2e29ab22c',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10004/p2p/12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs',
-        'ip': '127.0.0.1',
-        'port': '9004'
+        'dkgId': 'f1b6420296e8e621279137fec9c6e8cf32191d35fdb76235833319e2e29ab22c'
       },
       '12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe': {
         'peerId':'12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe',
-        'dkgId': 'f6b2839c0f03fdb387da85cd8f52ea307d7fa20984c10e39a02d7bf3f247ab11',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10005/p2p/12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe',
-        'ip': '127.0.0.1',
-        'port': '9005'
+        'dkgId': 'f6b2839c0f03fdb387da85cd8f52ea307d7fa20984c10e39a02d7bf3f247ab11'
       },
       '12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS': {
         'peerId':'12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS',
-        'dkgId': '5df4ad8c1e5a6a9428279f30295e3e71419106f3aec9611da2b6088b8c21b211',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10006/p2p/12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS',
-        'ip': '127.0.0.1',
-        'port': '9006'
+        'dkgId': '5df4ad8c1e5a6a9428279f30295e3e71419106f3aec9611da2b6088b8c21b211'
       }
     }
   },
@@ -349,52 +265,31 @@ export const bridgeInfos = [
     'whitelistedPeers': {
       '12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA': {
         'peerId':'12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA',
-        'dkgId': '5ea86ada47b0ddb3c6a1ed3d5a8fe0637ef14b12790d846a70bb383df5ad1714',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10000/p2p/12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA',
-        'ip': '127.0.0.1',
-        'port': '9000'
+        'dkgId': '5ea86ada47b0ddb3c6a1ed3d5a8fe0637ef14b12790d846a70bb383df5ad1714'
       },
       '12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof': {
         'peerId':'12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof',
-        'dkgId': '51ccda496d57f886e24a9926c35befaab6d8dda4bec815465524bc86b9611b17',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10001/p2p/12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof',
-        'ip': '127.0.0.1',
-        'port': '9001'
+        'dkgId': '51ccda496d57f886e24a9926c35befaab6d8dda4bec815465524bc86b9611b17'
       },
       '12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3': {
         'peerId':'12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3',
-        'dkgId': '342921a2f2c2f6ca8841d8cffb75bc6a2c142ec87e04e31a0203bb06b2fdea07',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10002/p2p/12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3',
-        'ip': '127.0.0.1',
-        'port': '9002'
+        'dkgId': '342921a2f2c2f6ca8841d8cffb75bc6a2c142ec87e04e31a0203bb06b2fdea07'
       },
       '12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7': {
         'peerId':'12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7',
-        'dkgId': '4bb33d936ac5633f5c2df8a31e8be959be4b7db820ef2cefce4d6ef9fc031715',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10003/p2p/12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7',
-        'ip': '127.0.0.1',
-        'port': '9003'
+        'dkgId': '4bb33d936ac5633f5c2df8a31e8be959be4b7db820ef2cefce4d6ef9fc031715'
       },
       '12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs': {
         'peerId':'12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs',
-        'dkgId': 'f1b6420296e8e621279137fec9c6e8cf32191d35fdb76235833319e2e29ab22c',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10004/p2p/12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs',
-        'ip': '127.0.0.1',
-        'port': '9004'
+        'dkgId': 'f1b6420296e8e621279137fec9c6e8cf32191d35fdb76235833319e2e29ab22c'
       },
       '12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe': {
         'peerId':'12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe',
-        'dkgId': 'f6b2839c0f03fdb387da85cd8f52ea307d7fa20984c10e39a02d7bf3f247ab11',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10005/p2p/12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe',
-        'ip': '127.0.0.1',
-        'port': '9005'
+        'dkgId': 'f6b2839c0f03fdb387da85cd8f52ea307d7fa20984c10e39a02d7bf3f247ab11'
       },
       '12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS': {
         'peerId':'12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS',
-        'dkgId': '5df4ad8c1e5a6a9428279f30295e3e71419106f3aec9611da2b6088b8c21b211',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10006/p2p/12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS',
-        'ip': '127.0.0.1',
-        'port': '9006'
+        'dkgId': '5df4ad8c1e5a6a9428279f30295e3e71419106f3aec9611da2b6088b8c21b211'
       }
     }
   },
@@ -425,52 +320,31 @@ export const bridgeInfos = [
     'whitelistedPeers': {
       '12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA': {
         'peerId':'12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA',
-        'dkgId': '5ea86ada47b0ddb3c6a1ed3d5a8fe0637ef14b12790d846a70bb383df5ad1714',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10000/p2p/12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA',
-        'ip': '127.0.0.1',
-        'port': '9000'
+        'dkgId': '5ea86ada47b0ddb3c6a1ed3d5a8fe0637ef14b12790d846a70bb383df5ad1714'
       },
       '12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof': {
         'peerId':'12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof',
-        'dkgId': '51ccda496d57f886e24a9926c35befaab6d8dda4bec815465524bc86b9611b17',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10001/p2p/12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof',
-        'ip': '127.0.0.1',
-        'port': '9001'
+        'dkgId': '51ccda496d57f886e24a9926c35befaab6d8dda4bec815465524bc86b9611b17'
       },
       '12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3': {
         'peerId':'12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3',
-        'dkgId': '342921a2f2c2f6ca8841d8cffb75bc6a2c142ec87e04e31a0203bb06b2fdea07',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10002/p2p/12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3',
-        'ip': '127.0.0.1',
-        'port': '9002'
+        'dkgId': '342921a2f2c2f6ca8841d8cffb75bc6a2c142ec87e04e31a0203bb06b2fdea07'
       },
       '12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7': {
         'peerId':'12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7',
-        'dkgId': '4bb33d936ac5633f5c2df8a31e8be959be4b7db820ef2cefce4d6ef9fc031715',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10003/p2p/12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7',
-        'ip': '127.0.0.1',
-        'port': '9003'
+        'dkgId': '4bb33d936ac5633f5c2df8a31e8be959be4b7db820ef2cefce4d6ef9fc031715'
       },
       '12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs': {
         'peerId':'12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs',
-        'dkgId': 'f1b6420296e8e621279137fec9c6e8cf32191d35fdb76235833319e2e29ab22c',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10004/p2p/12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs',
-        'ip': '127.0.0.1',
-        'port': '9004'
+        'dkgId': 'f1b6420296e8e621279137fec9c6e8cf32191d35fdb76235833319e2e29ab22c'
       },
       '12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe': {
         'peerId':'12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe',
-        'dkgId': 'f6b2839c0f03fdb387da85cd8f52ea307d7fa20984c10e39a02d7bf3f247ab11',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10005/p2p/12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe',
-        'ip': '127.0.0.1',
-        'port': '9005'
+        'dkgId': 'f6b2839c0f03fdb387da85cd8f52ea307d7fa20984c10e39a02d7bf3f247ab11'
       },
       '12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS': {
         'peerId':'12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS',
-        'dkgId': '5df4ad8c1e5a6a9428279f30295e3e71419106f3aec9611da2b6088b8c21b211',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10006/p2p/12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS',
-        'ip': '127.0.0.1',
-        'port': '9006'
+        'dkgId': '5df4ad8c1e5a6a9428279f30295e3e71419106f3aec9611da2b6088b8c21b211'
       }
     }
   },
@@ -501,52 +375,31 @@ export const bridgeInfos = [
     'whitelistedPeers': {
       '12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA': {
         'peerId':'12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA',
-        'dkgId': '5ea86ada47b0ddb3c6a1ed3d5a8fe0637ef14b12790d846a70bb383df5ad1714',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10000/p2p/12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA',
-        'ip': '127.0.0.1',
-        'port': '9000'
+        'dkgId': '5ea86ada47b0ddb3c6a1ed3d5a8fe0637ef14b12790d846a70bb383df5ad1714'
       },
       '12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof': {
         'peerId':'12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof',
-        'dkgId': '51ccda496d57f886e24a9926c35befaab6d8dda4bec815465524bc86b9611b17',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10001/p2p/12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof',
-        'ip': '127.0.0.1',
-        'port': '9001'
+        'dkgId': '51ccda496d57f886e24a9926c35befaab6d8dda4bec815465524bc86b9611b17'
       },
       '12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3': {
         'peerId':'12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3',
-        'dkgId': '342921a2f2c2f6ca8841d8cffb75bc6a2c142ec87e04e31a0203bb06b2fdea07',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10002/p2p/12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3',
-        'ip': '127.0.0.1',
-        'port': '9002'
+        'dkgId': '342921a2f2c2f6ca8841d8cffb75bc6a2c142ec87e04e31a0203bb06b2fdea07'
       },
       '12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7': {
         'peerId':'12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7',
-        'dkgId': '4bb33d936ac5633f5c2df8a31e8be959be4b7db820ef2cefce4d6ef9fc031715',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10003/p2p/12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7',
-        'ip': '127.0.0.1',
-        'port': '9003'
+        'dkgId': '4bb33d936ac5633f5c2df8a31e8be959be4b7db820ef2cefce4d6ef9fc031715'
       },
       '12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs': {
         'peerId':'12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs',
-        'dkgId': 'f1b6420296e8e621279137fec9c6e8cf32191d35fdb76235833319e2e29ab22c',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10004/p2p/12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs',
-        'ip': '127.0.0.1',
-        'port': '9004'
+        'dkgId': 'f1b6420296e8e621279137fec9c6e8cf32191d35fdb76235833319e2e29ab22c'
       },
       '12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe': {
         'peerId':'12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe',
-        'dkgId': 'f6b2839c0f03fdb387da85cd8f52ea307d7fa20984c10e39a02d7bf3f247ab11',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10005/p2p/12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe',
-        'ip': '127.0.0.1',
-        'port': '9005'
+        'dkgId': 'f6b2839c0f03fdb387da85cd8f52ea307d7fa20984c10e39a02d7bf3f247ab11'
       },
       '12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS': {
         'peerId':'12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS',
-        'dkgId': '5df4ad8c1e5a6a9428279f30295e3e71419106f3aec9611da2b6088b8c21b211',
-        'multiaddr': '/ip4/127.0.0.1/tcp/10006/p2p/12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS',
-        'ip': '127.0.0.1',
-        'port': '9006'
+        'dkgId': '5df4ad8c1e5a6a9428279f30295e3e71419106f3aec9611da2b6088b8c21b211'
       }
     }
   }

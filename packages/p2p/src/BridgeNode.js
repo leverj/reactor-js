@@ -46,15 +46,12 @@ class BridgeNode extends NetworkNode {
     }
     events.emit(INFO_CHANGED)
     await this.start()
-    // console.log('BridgeNode created', this.port, this.peerId, this.isLeader)
-    if(config.bridgeNode.bootstrapNodes.length > 0) await this.addLeader()
-    // console.log('BridgeNode leader added', this.port, this.peerId, this.isLeader)
+    await this.addLeader()
     return this
   }
 
   async addLeader() {
-    if (config.bridgeNode.bootstrapNodes?.length === 0) return
-    this.leader = config.bridgeNode.bootstrapNodes[0].split('/').pop()
+    this.leader = this.isLeader? this.peerId : config.bridgeNode.bootstrapNodes[0].split('/').pop()
     this.addPeersToWhiteList({peerId: this.leader})
     if (this.isLeader) return
     await waitToSync([_ => this.peers.indexOf(this.leader) !== -1])

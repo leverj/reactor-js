@@ -19,24 +19,21 @@ export const killChildProcesses = async () => {
 }
 
 async function getBootstrapNodes() {
-  const firstInstance = await createApiNode({index: 0, isLeader: true, bootstrapNodes: "[]"})
   await setTimeout(1000)
   const {data: {multiaddr}} = await axios.get(`http://localhost:9000/api/fixme/bridge/multiaddr`)
-  firstInstance.kill()
-  await setTimeout(200)
   return [multiaddr]
 }
 
-export async function createApiNodes(count, bootstrapNodes = null) {
-  bootstrapNodes = bootstrapNodes || await getBootstrapNodes()
+export async function createApiNodes(count) {
+  let bootstrapNodes = []// bootstrapNodes || await getBootstrapNodes()
   const ports = []
   for (let i = 0; i < count; i++) {
     childProcesses.push(await createApiNode({index: i, isLeader: i === 0, bootstrapNodes: JSON.stringify(bootstrapNodes)}))
     ports.push(9000 + i)
     await setTimeout(200)
+    if(i === 0) bootstrapNodes = await getBootstrapNodes()
   }
   await waitForBootstrapSync(ports)
-  // await waitForLeaderSync(ports)
   await tryAgainIfError(_=>axios.post(`http://127.0.0.1:${ports[0]}/api/publish/whitelist`))
   await waitForWhitelistSync(ports)
   return ports

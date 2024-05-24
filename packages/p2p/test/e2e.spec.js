@@ -33,7 +33,7 @@ describe('e2e', function () {
     const nodes = [9000, 9001, 9002]
     await createInfo_json(nodes.length)
     const bridgeInfos = getBridgeInfos(nodes.length)
-    await createApiNodes(nodes.length, getBootstrapNodes())
+    await createApiNodes(nodes.length)
     for (let i = 0; i < nodes.length; i++) {
       const node = nodes[i]
       const {data: info} = await tryAgainIfConnectionError(() => axios.get(`http://127.0.0.1:${node}/api/info`))
@@ -55,33 +55,12 @@ describe('e2e', function () {
       expect(verified).toEqual(true)
     }
   }).timeout(-1)
-  it('aggregate signatures', async function () {
-    const allNodes = [9000, 9001, 9002, 9003]
-    await createInfo_json(allNodes.length)
-    await createApiNodes(allNodes.length)
-    const {data: {publicKey}} = await axios.get(`http://127.0.0.1:${allNodes[0]}/api/dkg/publicKey`)
-    const groupPublicKey = mcl.deserializeHexStrToPublicKey(publicKey)
-    const aggregateSignature = new bls.Signature()
-    const signs = [], signers = []
-    for (const node of allNodes) {
-      const apiResp = await axios.post(`http://127.0.0.1:${node}/api/tss/sign`, {'msg': message})
-      const signature = new mcl.Signature()
-      const signer = new bls.SecretKey()
-      signer.deserializeHexStr(apiResp.data.signer)
-      signature.deserializeHexStr(apiResp.data.signature)
-      signs.push(signature)
-      signers.push(signer)
-    }
-    aggregateSignature.recover(signs, signers)
-    const verified = await groupPublicKey.verify(aggregateSignature, message)
-    expect(verified).toEqual(true)
-  }).timeout(-1)
+
   it('aggregate signatures over pubsub topic', async function () {
     const allNodes = [9000, 9001, 9002, 9003]
     await createInfo_json(allNodes.length)
 
     await createApiNodes(allNodes.length)
-    return
     // await connect(allNodes)
     const txnHash = 'hash123456'
     await axios.post('http://localhost:9000/api/tss/aggregateSign', {txnHash, 'msg': message})

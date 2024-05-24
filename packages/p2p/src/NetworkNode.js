@@ -4,7 +4,7 @@ import {tcp} from '@libp2p/tcp'
 import {noise} from '@chainsafe/libp2p-noise'
 import {yamux} from '@chainsafe/libp2p-yamux'
 import {ping} from '@libp2p/ping'
-import {multiaddr} from 'multiaddr'
+import {autoNAT} from '@libp2p/autonat'
 import {gossipsub} from '@chainsafe/libp2p-gossipsub'
 import {fromString as uint8ArrayFromString} from 'uint8arrays/from-string'
 import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
@@ -43,15 +43,24 @@ export default class NetworkNode {
       interval: 60e3, //fixme: what is this?
       enabled: true, list: config.bridgeNode.bootstrapNodes
     }),] : undefined
-
     this.p2p = await createLibp2p({
-      peerId, addresses: {listen: [`/ip4/${this.ip}/tcp/${this.port}`],}, transports: [tcp()], connectionEncryption: [noise()], streamMuxers: [yamux()], connectionManager: {
-        inboundConnectionThreshold: 25, //Default is 5
-      }, services: {
-        ping: ping({protocolPrefix: 'reactor'}), pubsub: gossipsub(), identify: identify(), dht: kadDHT({
-          protocol: '/reactor/lan/kad/1.0.0', peerInfoMapper: config.bridgeNode.isPublic ? removePrivateAddressesMapper : removePublicAddressesMapper, clientMode: false
+      peerId,
+      addresses: {listen: [`/ip4/${this.ip}/tcp/${this.port}`]},
+      transports: [tcp()],
+      connectionEncryption: [noise()],
+      streamMuxers: [yamux()],
+      connectionManager: {inboundConnectionThreshold: 25, /*Default is 5*/},
+      services: {
+        ping: ping({protocolPrefix: 'reactor'}), pubsub: gossipsub(), identify: identify(),
+        dht: kadDHT({protocol: '/reactor/lan/kad/1.0.0', peerInfoMapper: config.bridgeNode.isPublic ? removePrivateAddressesMapper : removePublicAddressesMapper, clientMode: false}),
+        nat: autoNAT({
+          protocolPrefix: 'my-node', // this should be left as the default value to ensure maximum compatibility
+          timeout: 30000, // the remote must complete the AutoNAT protocol within this timeout
+          maxInboundStreams: 1, // how many concurrent inbound AutoNAT protocols streams to allow on each connection
+          maxOutboundStreams: 1 // how many concurrent outbound AutoNAT protocols streams to allow on each connection
         })
-      }, peerDiscovery
+      },
+      peerDiscovery
     })
 
     this.p2p.addEventListener('peer:connect', this.peerConnected.bind(this))
@@ -133,26 +142,10 @@ export default class NetworkNode {
   }
 
   registerStreamHandler(protocol, handler) {
-    //console.log("registerStreamHandler", this.peerId)
     this.p2p.handle(protocol, async ({stream, connection: {remotePeer}}) => {
       pipe(stream.source, (source) => map(source, (buf) => uint8ArrayToString(buf.subarray())), async (source) => {
         for await (const msg of source) handler(stream, remotePeer.string, msg)
       })
-    })
-  }
-
-  registerStreamHandler_new(protocol, handler) {
-    //console.log("registerStreamHandler", this.peerId)
-    this.p2p.handle(protocol, async ({stream, connection: {remotePeer}}) => {
-      const buffered = map(stream.source, (buf) => uint8ArrayToString(buf.subarray()))
-      for await (const msg of buffered) handler(stream, remotePeer.string, msg)
-      //   pipe(
-      //     stream.source,
-      //     (source) => map(source, (buf) => uint8ArrayToString(buf.subarray())),
-      //     async (source) => {
-      //       for await (const msg of source) handler(stream, remotePeer.string, msg)
-      //     }
-      //   )
     })
   }
 
