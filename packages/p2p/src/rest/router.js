@@ -5,12 +5,10 @@ import {bridgeNode} from './manager.js'
 const multiaddr = `/ip4/${config.externalIp}/tcp/${config.bridgeNode.port}/p2p/${bridgeNode.peerId}`
 
 async function getMultiaddrs(req, res) {
-  console.log('#'.repeat(50), 'getMultiaddrs', '#'.repeat(50))
   res.send({multiaddr})
 }
 
 async function getAllMultiaddrs(req, res) {
-  console.log('#'.repeat(50), 'getAllMultiaddrs', '#'.repeat(50))
   res.send(bridgeNode.multiaddrs)
 }
 
@@ -19,7 +17,7 @@ async function getInfo(req, res) { res.send(bridgeNode.exportJson())}
 async function getPeers(req, res) { res.send(bridgeNode.peers)}
 
 async function connect(req, res) {
-  await bridgeNode.connectToWhiteListedPeers().catch(console.error)
+  await bridgeNode.connectToWhiteListedPeers().catch(logger.error)
   res.send('ok')
 }
 

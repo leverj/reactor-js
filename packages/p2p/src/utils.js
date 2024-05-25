@@ -1,5 +1,6 @@
 import {setTimeout} from 'timers/promises'
 import config from 'config'
+import {logger} from '@leverj/common/utils'
 
 const timeout_ = config.timeout
 const tryCount_ = config.tryCount
@@ -10,7 +11,7 @@ export async function tryFor(fn, errorCode, tryCount = tryCount_) {
     return await fn()
   } catch (e) {
     if (e.code === errorCode || (Array.isArray(errorCode) && errorCode.includes(e.code))) {
-      console.log('Retrying...', e.message, e.code)
+      logger.log('Retrying...', e.message, e.code)
       await setTimeout(timeout_)
       return tryFor(fn, errorCode, tryCount - 1)
     }
@@ -34,3 +35,5 @@ export async function waitToSync(fns, tryCount = tryCount_) {
     }
   }
 }
+
+export const shortHash = (hash) => hash.slice(0, 4) + '..' + hash.slice(-3)

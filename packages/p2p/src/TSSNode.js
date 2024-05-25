@@ -1,5 +1,5 @@
 import bls from './bls.js'
-import {affirm} from '@leverj/common/utils'
+import {affirm, logger} from '@leverj/common/utils'
 import {addContributionShares, addVerificationVectors, generateContributionForId, verifyContributionShare} from './dkg-bls.js'
 import * as mcl from '../src/mcl/mcl.js'
 import events, {INFO_CHANGED} from './events.js'
@@ -151,7 +151,7 @@ export class TSSNode {
   }
 
   print() {
-    console.log([this.id, this.secretKeyShare, this.groupPublicKey].map(_ => _?.serializeToHexStr()).join('\n\t'))
+    logger.log([this.id, this.secretKeyShare, this.groupPublicKey].map(_ => _?.serializeToHexStr()).join('\n\t'))
   }
 
   exportJson() {

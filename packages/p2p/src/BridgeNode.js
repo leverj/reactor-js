@@ -1,7 +1,7 @@
 import NetworkNode from './NetworkNode.js'
 import {TSSNode, generateDkgId} from './TSSNode.js'
 import {affirm, logger} from '@leverj/common/utils'
-import {tryAgainIfEncryptionFailed, tryAgainIfError, waitToSync} from './utils.js'
+import {shortHash, tryAgainIfEncryptionFailed, tryAgainIfError, waitToSync} from './utils.js'
 import events, {INFO_CHANGED} from './events.js'
 import config from 'config'
 
@@ -11,7 +11,7 @@ const WHITELIST_TOPIC = 'WHITELIST'
 const DKG_INIT_THRESHOLD_VECTORS = 'DKG_INIT_THRESHOLD_VECTORS'
 const DKG_RECEIVE_KEY_SHARE = 'DKG_RECEIVE_KEY_SHARE'
 const meshProtocol = '/bridgeNode/0.0.1'
-console.log('BridgeNodes', config.bridgeNode.bootstrapNodes)
+logger.log('bootstrapNodes', config.bridgeNode.bootstrapNodes)
 
 class BridgeNode extends NetworkNode {
   constructor({ip = '0.0.0.0', port = 0, isLeader = false, json}) {
@@ -59,7 +59,7 @@ class BridgeNode extends NetworkNode {
     await this.connectPubSub(this.leader)
     // await this.subscribe(WHITELIST_TOPIC)
     await this.subscribe(SIGNATURE_START)
-    console.log('Connected to leader', this.port, this.leader)
+    logger.log('Connected to leader', this.port, shortHash(this.leader))
   }
 
   addPeersToWhiteList(...peers) {
@@ -69,6 +69,7 @@ class BridgeNode extends NetworkNode {
       this.whitelisted[peerId] = {peerId, dkgId}
       if (peerId !== this.peerId) this.tssNode.addMember(dkgId, this.sendMessageToPeer.bind(this, peerId, DKG_RECEIVE_KEY_SHARE))
     }
+    logger.log('Added to whitelist', peers.map(p => shortHash(p.peerId)).join(', '))
     events.emit(INFO_CHANGED)
   }
 
@@ -169,7 +170,7 @@ class BridgeNode extends NetworkNode {
 
   async startDKG(threshold) {
     if (!this.isLeader) return
-    const responseHandler = (msg) => console.log('dkg received', msg)
+    const responseHandler = (msg) => logger.log('dkg received', msg)
     for (const peerId of Object.keys(this.whitelisted)) {
       if (this.peerId === peerId) continue
       let message = JSON.stringify({topic: DKG_INIT_THRESHOLD_VECTORS, threshold})
