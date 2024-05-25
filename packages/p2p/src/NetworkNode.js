@@ -54,7 +54,7 @@ export default class NetworkNode {
         ping: ping({protocolPrefix: 'reactor'}), pubsub: gossipsub(), identify: identify(),
         dht: kadDHT({protocol: '/reactor/lan/kad/1.0.0', peerInfoMapper: config.bridgeNode.isPublic ? removePrivateAddressesMapper : removePublicAddressesMapper, clientMode: false}),
         nat: autoNAT({
-          protocolPrefix: 'my-node', // this should be left as the default value to ensure maximum compatibility
+          protocolPrefix: 'reactor', // this should be left as the default value to ensure maximum compatibility
           timeout: 30000, // the remote must complete the AutoNAT protocol within this timeout
           maxInboundStreams: 1, // how many concurrent inbound AutoNAT protocols streams to allow on each connection
           maxOutboundStreams: 1 // how many concurrent outbound AutoNAT protocols streams to allow on each connection

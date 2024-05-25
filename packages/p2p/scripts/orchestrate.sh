@@ -39,16 +39,22 @@ function deployDocker() {
 
 #    echo $DOCKER_COMMAND
      if [ -n "$REMOTE" ]; then
-#       echo its remote
+       echo its remote. $DOCKER_COMMAND
        ssh root@$EXTERNAL_IP "$DOCKER_COMMAND"
      else
-#       echo its local. $DOCKER_COMMAND
+       echo its local. $DOCKER_COMMAND
        $DOCKER_COMMAND
      fi
      if [ "$i" -eq "9000" ]; then
        sleep 10
        local LEADER_ADDR=$(curl -s http://$EXTERNAL_IP:9000/api/fixme/bridge/multiaddr | jq -r .multiaddr)
-       BRIDGE_BOOTSTRAP_NODES="[\"$LEADER_ADDR\"]"
+       if [ -n "$REMOTE" ]; then
+         echo remote
+         BRIDGE_BOOTSTRAP_NODES=[\\\"$LEADER_ADDR\\\"]
+       else
+         echo local
+         BRIDGE_BOOTSTRAP_NODES=[\"$LEADER_ADDR\"]
+       fi
      fi
   done
 }
@@ -92,7 +98,7 @@ function remote_install() {
       "
       [[ $? -ne 0 ]] && echo "no docker containers on $EXTERNAL_IP"
 #      echo \
-      REMOTE=true EXTERNAL_IP=$EXTERNAL_IP BRIDGE_THRESHOLD=$BRIDGE_THRESHOLD BRIDGE_BOOTSTRAP_NODE=$BRIDGE_BOOTSTRAP_NODE \
+      REMOTE=true EXTERNAL_IP=$EXTERNAL_IP BRIDGE_IS_PUBLIC=true BRIDGE_THRESHOLD=$BRIDGE_THRESHOLD BRIDGE_BOOTSTRAP_NODE=$BRIDGE_BOOTSTRAP_NODE \
         DATA_DIR=/var/lib/reactor/data  deployDocker $START $END
       START=$(($END + 1))
     done
