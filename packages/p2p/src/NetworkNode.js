@@ -13,10 +13,10 @@ import {pipe} from 'it-pipe'
 import {createFromJSON} from '@libp2p/peer-id-factory'
 import {bootstrap} from '@libp2p/bootstrap'
 import {identify} from '@libp2p/identify'
-import {kadDHT, removePrivateAddressesMapper, removePublicAddressesMapper} from '@libp2p/kad-dht'
+import {kadDHT, passthroughMapper} from '@libp2p/kad-dht'
 import {tryAgainIfError} from './utils.js'
 import config from 'config'
-import {logger} from '@leverj/common/utils'
+// import {logger} from '@leverj/common/utils'
 
 export default class NetworkNode {
   constructor({ip = '0.0.0.0', port = 0, peerIdJson}) {
@@ -53,7 +53,7 @@ export default class NetworkNode {
       connectionManager: {inboundConnectionThreshold: 25, /*Default is 5*/},
       services: {
         ping: ping({protocolPrefix: 'reactor'}), pubsub: gossipsub(), identify: identify(),
-        dht: kadDHT({protocol: '/reactor/lan/kad/1.0.0', peerInfoMapper: config.bridgeNode.isPublic ? removePrivateAddressesMapper : removePublicAddressesMapper, clientMode: false}),
+        dht: kadDHT({protocol: '/reactor/lan/kad/1.0.0', peerInfoMapper: passthroughMapper, clientMode: false}),
         nat: autoNAT({
           protocolPrefix: 'reactor', // this should be left as the default value to ensure maximum compatibility
           timeout: 30000, // the remote must complete the AutoNAT protocol within this timeout
