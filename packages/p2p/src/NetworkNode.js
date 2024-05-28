@@ -16,6 +16,7 @@ import {identify} from '@libp2p/identify'
 import {kadDHT, removePrivateAddressesMapper, removePublicAddressesMapper} from '@libp2p/kad-dht'
 import {tryAgainIfError} from './utils.js'
 import config from 'config'
+import {logger} from '@leverj/common/utils'
 
 export default class NetworkNode {
   constructor({ip = '0.0.0.0', port = 0, peerIdJson}) {
@@ -117,6 +118,7 @@ export default class NetworkNode {
 
   // p2p connection
   async createAndSendMessage(peerId, protocol, message, responseHandler) {
+    console.log('Sending', topic, peerId, message)
     let stream = await this.createStream(peerId, protocol)
     await this.sendMessageOnStream(stream, message)
     await this.readStream(stream, responseHandler)

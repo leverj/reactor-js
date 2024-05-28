@@ -72,6 +72,13 @@ function local_install() {
 #    echo \
     EXTERNAL_IP=$EXTERNAL_IP BRIDGE_IS_PUBLIC=false BRIDGE_THRESHOLD=$BRIDGE_THRESHOLD BRIDGE_BOOTSTRAP_NODE=$BRIDGE_BOOTSTRAP_NODE \
       DATA_DIR=${PWD}/../.node.ignore deployDocker 9000 $(($COUNT + 9000 - 1))
+
+    sleep 10
+    local_whitelist
+    sleep 10
+    local_dkg
+    sleep 10
+    local_sign
 }
 
 function remote_leader(){
@@ -102,6 +109,13 @@ function remote_install() {
         DATA_DIR=/var/lib/reactor/data  deployDocker $START $END
       START=$(($END + 1))
     done
+
+    sleep 10
+    remote_whitelist
+#    sleep 10
+#    remote_dkg
+#    sleep 10
+#    remote_sign
 }
 
 function local_whitelist() {
@@ -169,4 +183,6 @@ local_sign) local_sign $@ ;;
 remote_sign) remote_sign $@ ;;
 local_info) local_info $@ ;;
 remote_info) remote_info $@ ;;
+local_docker_stop) docker ps -aq -f NAME=p2p-node | xargs docker stop | xargs docker rm ;;
+remote_docker_stop) ssh root@$EXTERNAL_IP "docker ps -aq -f NAME=p2p-node | xargs docker stop | xargs docker rm" ;;
 esac
