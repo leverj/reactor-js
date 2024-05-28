@@ -105,13 +105,13 @@ function remote_install() {
       "
       [[ $? -ne 0 ]] && echo "no docker containers on $EXTERNAL_IP"
 #      echo \
-      REMOTE=true EXTERNAL_IP=$EXTERNAL_IP BRIDGE_IS_PUBLIC=true BRIDGE_THRESHOLD=$BRIDGE_THRESHOLD BRIDGE_BOOTSTRAP_NODE=$BRIDGE_BOOTSTRAP_NODE \
+      REMOTE=true EXTERNAL_IP=$EXTERNAL_IP BRIDGE_IS_PUBLIC=false BRIDGE_THRESHOLD=$BRIDGE_THRESHOLD BRIDGE_BOOTSTRAP_NODE=$BRIDGE_BOOTSTRAP_NODE \
         DATA_DIR=/var/lib/reactor/data  deployDocker $START $END
       START=$(($END + 1))
     done
 
-    sleep 10
-    remote_whitelist
+#    sleep 10
+#    remote_whitelist
 #    sleep 10
 #    remote_dkg
 #    sleep 10

@@ -118,7 +118,7 @@ export default class NetworkNode {
 
   // p2p connection
   async createAndSendMessage(peerId, protocol, message, responseHandler) {
-    console.log('Sending', topic, peerId, message)
+    console.log('Sending', peerId, message)
     let stream = await this.createStream(peerId, protocol)
     await this.sendMessageOnStream(stream, message)
     await this.readStream(stream, responseHandler)
