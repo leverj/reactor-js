@@ -60,7 +60,6 @@ function deployDocker() {
 }
 
 function local_install() {
-    echo "Local install"
     local_build
     local COUNT=$1
     local BRIDGE_THRESHOLD=$(($COUNT/2 + 1))
@@ -86,7 +85,16 @@ function remote_leader(){
   echo http://$FIRST_IP:9000
 }
 
+function copy_docker_image() {
+  local EXTERNAL_IP=$1
+  docker save -o image.gzip leverj/p2p:$BRANCH
+  scp image.gzip root@$EXTERNAL_IP:/tmp
+  rm image.gzip
+  ssh root@$EXTERNAL_IP "gzip -c /tmp/image.gzip | docker load"
+}
+
 function remote_install() {
+    if [ "$IMAGE" = "NEW" ]; then local_build; fi
     local COUNT=$1
     local IP_COUNT=$(echo $REMOTE_IPS | tr ',' '\n' | wc -l)
     local EACH_COUNT=$(($COUNT/$IP_COUNT))
@@ -97,11 +105,12 @@ function remote_install() {
     local START=9000
     for IP in $(echo $REMOTE_IPS | tr ',' '\n'); do
       local EXTERNAL_IP=$IP
+      if [ "$IMAGE" = "NEW" ]; then copy_docker_image $EXTERNAL_IP; fi
       local END=$(($START + $EACH_COUNT - 1 ))
       ssh root@$EXTERNAL_IP "
         rm -rf /var/lib/reactor/data
         docker ps -aq -f NAME=p2p-node | xargs docker stop | xargs docker rm
-        docker pull leverj/p2p:$BRANCH
+        if [ -z "$IMAGE" ]; then docker pull leverj/p2p:$BRANCH; fi
       "
       [[ $? -ne 0 ]] && echo "no docker containers on $EXTERNAL_IP"
 #      echo \
@@ -186,3 +195,8 @@ remote_info) remote_info $@ ;;
 local_docker_stop) docker ps -aq -f NAME=p2p-node | xargs docker stop | xargs docker rm ;;
 remote_docker_stop) ssh root@$EXTERNAL_IP "docker ps -aq -f NAME=p2p-node | xargs docker stop | xargs docker rm" ;;
 esac
+
+# IMAGE=NEW                  create local image and copy to remote
+# IMAGE=anything             use existing image
+# IMAGE=       pull image from docker hub
+

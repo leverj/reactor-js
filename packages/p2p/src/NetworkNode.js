@@ -23,7 +23,7 @@ export default class NetworkNode {
     this.peerIdJson = peerIdJson
     this.ip = ip
     this.port = port
-    this.streams = {}
+    // this.streams = {}
   }
 
   get multiaddrs() { return this.p2p.getMultiaddrs().map((addr) => addr.toString()) }
@@ -39,29 +39,29 @@ export default class NetworkNode {
   }
 
   async create() {
-    const peerId = this.peerIdJson ? await createFromJSON(this.peerIdJson) : undefined
-    const peerDiscovery = config.bridgeNode.bootstrapNodes.length ? [bootstrap({
-      interval: 60e3, //fixme: what is this?
-      enabled: true, list: config.bridgeNode.bootstrapNodes
-    }),] : undefined
     this.p2p = await createLibp2p({
-      peerId,
+      peerId: this.peerIdJson ? await createFromJSON(this.peerIdJson) : undefined,
       addresses: {listen: [`/ip4/${this.ip}/tcp/${this.port}`]},
       transports: [tcp()],
       connectionEncryption: [noise()],
       streamMuxers: [yamux()],
       connectionManager: {inboundConnectionThreshold: 25, /*Default is 5*/},
       services: {
-        ping: ping({protocolPrefix: 'reactor'}), pubsub: gossipsub(), identify: identify(),
-        dht: kadDHT({protocol: '/reactor/lan/kad/1.0.0', peerInfoMapper: passthroughMapper, clientMode: false}),
+        ping: ping({protocolPrefix: 'autonat'}), pubsub: gossipsub(), identify: identify(),
+        dht: kadDHT({protocol: '/libp2p/autonat/1.0.0', peerInfoMapper: passthroughMapper, clientMode: false}),
         nat: autoNAT({
-          protocolPrefix: 'reactor', // this should be left as the default value to ensure maximum compatibility
+          protocolPrefix: 'autonat', // this should be left as the default value to ensure maximum compatibility
           timeout: 30000, // the remote must complete the AutoNAT protocol within this timeout
           maxInboundStreams: 1, // how many concurrent inbound AutoNAT protocols streams to allow on each connection
           maxOutboundStreams: 1 // how many concurrent outbound AutoNAT protocols streams to allow on each connection
         })
       },
-      peerDiscovery
+      peerDiscovery: config.bridgeNode.bootstrapNodes.length ? [bootstrap({
+        autoDial: true,
+        interval: 60e3, //fixme: what is this?
+        enabled: true,
+        list: config.bridgeNode.bootstrapNodes
+      }),] : undefined
     })
 
     this.p2p.addEventListener('peer:connect', this.peerConnected.bind(this))
@@ -76,7 +76,7 @@ export default class NetworkNode {
 
   async stop() {
     await this.p2p.stop()
-    for (const stream of Object.values(this.streams)) await stream.close()
+    // for (const stream of Object.values(this.streams)) await stream.close()
     return this
   }
 
@@ -126,9 +126,9 @@ export default class NetworkNode {
   }
 
   async createStream(peerId, protocol) {
-    if (this.streams[protocol]) this.streams[protocol].close()
+    // if (this.streams[protocol]) this.streams[protocol].close()
     let stream = await tryAgainIfError(_ => this.p2p.dialProtocol(peerIdFromString(peerId), protocol))
-    this.streams[protocol] = stream
+    // this.streams[protocol] = stream
     return stream
   }
 

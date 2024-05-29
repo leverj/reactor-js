@@ -1,12 +1,10 @@
 import {setTimeout} from 'timers/promises'
-import config from 'config'
 import axios from 'axios'
 import {expect} from 'expect'
 import * as mcl from '../src/mcl/mcl.js'
-import bls from '../src/bls.js'
-import {getBootstrapNodes, getBridgeInfos} from './help/index.js'
+import {getBridgeInfos} from './help/index.js'
 import {tryAgainIfConnectionError, waitToSync} from '../src/utils.js'
-import {connect, createApiNodes, createInfo_json, deleteInfoDir, killChildProcesses} from './help/e2e.js'
+import {createApiNodes, createInfo_json, deleteInfoDir, killChildProcesses} from './help/e2e.js'
 
 const message = 'hello world'
 describe('e2e', function () {
@@ -36,6 +34,7 @@ describe('e2e', function () {
       const node = nodes[i]
       const {data: info} = await tryAgainIfConnectionError(() => axios.get(`http://127.0.0.1:${node}/api/info`))
       expect(info).toEqual(bridgeInfos[i])
+      // await axios.get(`http://127.0.0.1:${node}/api/peer/bootstrapped`)
     }
   })
 
