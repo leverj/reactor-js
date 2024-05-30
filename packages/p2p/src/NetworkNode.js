@@ -4,7 +4,7 @@ import {tcp} from '@libp2p/tcp'
 import {noise} from '@chainsafe/libp2p-noise'
 import {yamux} from '@chainsafe/libp2p-yamux'
 import {ping} from '@libp2p/ping'
-import {autoNAT} from '@libp2p/autonat'
+// import {autoNAT} from '@libp2p/autonat'
 import {gossipsub} from '@chainsafe/libp2p-gossipsub'
 import {fromString as uint8ArrayFromString} from 'uint8arrays/from-string'
 import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
@@ -49,12 +49,12 @@ export default class NetworkNode {
       services: {
         ping: ping({protocolPrefix: 'autonat'}), pubsub: gossipsub(), identify: identify(),
         dht: kadDHT({protocol: '/libp2p/autonat/1.0.0', peerInfoMapper: passthroughMapper, clientMode: false}),
-        nat: autoNAT({
-          protocolPrefix: 'autonat', // this should be left as the default value to ensure maximum compatibility
-          timeout: 30000, // the remote must complete the AutoNAT protocol within this timeout
-          maxInboundStreams: 1, // how many concurrent inbound AutoNAT protocols streams to allow on each connection
-          maxOutboundStreams: 1 // how many concurrent outbound AutoNAT protocols streams to allow on each connection
-        })
+        // nat: autoNAT({
+        //   protocolPrefix: 'autonat', // this should be left as the default value to ensure maximum compatibility
+        //   timeout: 30000, // the remote must complete the AutoNAT protocol within this timeout
+        //   maxInboundStreams: 1, // how many concurrent inbound AutoNAT protocols streams to allow on each connection
+        //   maxOutboundStreams: 1 // how many concurrent outbound AutoNAT protocols streams to allow on each connection
+        // })
       },
       peerDiscovery: config.bridgeNode.bootstrapNodes.length ? [bootstrap({
         autoDial: true,

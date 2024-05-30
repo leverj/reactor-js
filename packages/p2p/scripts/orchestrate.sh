@@ -119,12 +119,12 @@ function remote_install() {
       START=$(($END + 1))
     done
 
-#    sleep 10
-#    remote_whitelist
-#    sleep 10
-#    remote_dkg
-#    sleep 10
-#    remote_sign
+    sleep 10
+    remote_whitelist
+    sleep 10
+    remote_dkg
+    sleep 10
+    remote_sign
 }
 
 function local_whitelist() {
