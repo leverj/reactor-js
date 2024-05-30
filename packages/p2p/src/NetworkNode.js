@@ -41,7 +41,7 @@ export default class NetworkNode {
   async create() {
     this.p2p = await createLibp2p({
       peerId: this.peerIdJson ? await createFromJSON(this.peerIdJson) : undefined,
-      addresses: {listen: [`/ip4/${this.ip}/tcp/${this.port}`]},
+      addresses: {listen: [`/ip4/${this.ip}/tcp/${this.port}`], announce: [`/ip4/${config.externalIp}/tcp/${this.port}`]},
       transports: [tcp()],
       connectionEncryption: [noise()],
       streamMuxers: [yamux()],
