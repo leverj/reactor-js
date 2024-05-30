@@ -9,7 +9,7 @@
     "start": "node app.js",
     "test": "yarn compile; yarn test:js",
     "compile": "npx hardhat compile",
-    "test:js": "NODE_ENV=test mocha --exit --recursive --timeout 10000 test/**/*.spec.js",
+    "test:js": "mocha test/**/*.spec.js",
     "coverage": "NODE_OPTIONS='--experimental-loader @istanbuljs/esm-loader-hook' npx nyc mocha",
     "docker:build": "mkdir -p dist && cp -r src config package.json app.js ../../yarn.lock dist/ && docker build -t leverj/p2p:$(git branch | grep \\* | cut -d ' ' -f2) ."
   },
