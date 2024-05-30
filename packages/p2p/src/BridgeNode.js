@@ -51,7 +51,7 @@ class BridgeNode extends NetworkNode {
   }
 
   async addLeader() {
-    this.leader = this.isLeader? this.peerId : config.bridgeNode.bootstrapNodes[0].split('/').pop()
+    this.leader = this.isLeader ? this.peerId : config.bridgeNode.bootstrapNodes[0].split('/').pop()
     this.addPeersToWhiteList({peerId: this.leader})
     if (this.isLeader) return
     await waitToSync([_ => this.peers.indexOf(this.leader) !== -1])
@@ -84,7 +84,6 @@ class BridgeNode extends NetworkNode {
     if (!fanOut) return await this.publish(topic, message)
     for (const {peerId} of Object.values(this.whitelisted)) {
       if (peerId === this.peerId) continue
-      console.log('FanOut', peerId, topic, message)
       await this.sendMessageToPeer(peerId, topic, message)
     }
   }
@@ -94,7 +93,8 @@ class BridgeNode extends NetworkNode {
     this.messageMap[txnHash] = {}
     this.messageMap[txnHash].verified = false
     this.messageMap[txnHash].signatures = [{message, signature: signature.serializeToHexStr(), 'signer': this.tssNode.id.serializeToHexStr()}]
-    await this.publish(SIGNATURE_START, JSON.stringify({txnHash, message}))
+    await this.publishOrFanOut(SIGNATURE_START, JSON.stringify({txnHash, message}))
+    // await this.publish(SIGNATURE_START, JSON.stringify({txnHash, message}))
   }
 
   async connectToWhiteListedPeers() {
@@ -119,12 +119,7 @@ class BridgeNode extends NetworkNode {
         await this.handleWhitelistMessage(peerId, JSON.parse(data))
         break
       case SIGNATURE_START:
-        if (this.leader !== peerId) return logger.log('Ignoring signature start from non-leader', peerId, this.leader)
-        const {txnHash, message} = JSON.parse(data)
-        const signature = await this.tssNode.sign(message)
-        logger.log(SIGNATURE_START, txnHash, message, signature.serializeToHexStr())
-        const signaturePayloadToLeader = {topic: TSS_RECEIVE_SIGNATURE_SHARE, signature: signature.serializeToHexStr(), signer: this.tssNode.id.serializeToHexStr(), txnHash}
-        await this.createAndSendMessage(peerId, meshProtocol, JSON.stringify(signaturePayloadToLeader), (msg) => { console.log('SignaruePayload Ack', msg) })
+        await this.handleSignatureStart(peerId, JSON.parse(data))
         break
       default:
         console.log('Unknown topic', topic)
@@ -134,6 +129,15 @@ class BridgeNode extends NetworkNode {
   async handleWhitelistMessage(peerId, peers) {
     if (this.leader !== peerId) return logger.log('Ignoring whitelist from non-leader', peerId)
     this.addPeersToWhiteList(...peers)
+  }
+
+  async handleSignatureStart(peerId, data) {
+    if (this.leader !== peerId) return logger.log('Ignoring signature start from non-leader', peerId, this.leader)
+    const {txnHash, message} = data
+    const signature = await this.tssNode.sign(message)
+    logger.log(SIGNATURE_START, txnHash, message, signature.serializeToHexStr())
+    const signaturePayloadToLeader = {topic: TSS_RECEIVE_SIGNATURE_SHARE, signature: signature.serializeToHexStr(), signer: this.tssNode.id.serializeToHexStr(), txnHash}
+    await this.createAndSendMessage(peerId, meshProtocol, JSON.stringify(signaturePayloadToLeader), (msg) => { console.log('SignaruePayload Ack', msg) })
   }
 
   async onStreamMessage(stream, peerId, msgStr) {
@@ -151,13 +155,17 @@ class BridgeNode extends NetworkNode {
         this.tssNode.onDkgShare(msg.message)
         break
       case TSS_RECEIVE_SIGNATURE_SHARE:
-        this.messageMap[msg.txnHash].signatures.push({signature: msg.signature, signer: msg.signer})
-        logger.log('Received signature', msg.txnHash, msg.signature,)
-        if (this.messageMap[msg.txnHash].signatures.length === this.tssNode.threshold) {
-          const groupSign = this.tssNode.groupSign(this.messageMap[msg.txnHash].signatures)
-          this.messageMap[msg.txnHash].verified = this.tssNode.verify(groupSign, this.messageMap[msg.txnHash].signatures[0].message)
-          logger.log('Verified', msg.txnHash, this.messageMap[msg.txnHash].verified, groupSign)
+        const {txnHash, signature, signer} = msg
+        this.messageMap[txnHash].signatures.push({signature: signature, signer: signer})
+        logger.log('Received signature', txnHash, signature,)
+        if (this.messageMap[txnHash].signatures.length === this.tssNode.threshold) {
+          const groupSign = this.tssNode.groupSign(this.messageMap[txnHash].signatures)
+          this.messageMap[txnHash].verified = this.tssNode.verify(groupSign, this.messageMap[txnHash].signatures[0].message)
+          logger.log('Verified', txnHash, this.messageMap[txnHash].verified, groupSign)
         }
+        break
+      case SIGNATURE_START:
+        await this.handleSignatureStart(peerId, JSON.parse(msg.message))
         break
       default:
         console.log('Unknown message', msg)
