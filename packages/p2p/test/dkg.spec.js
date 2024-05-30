@@ -155,5 +155,5 @@ describe('dkg', function () {
       times.push(time)
     }
     console.table(times)
-  }).timeout(-1)
+  })
 })

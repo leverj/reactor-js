@@ -49,7 +49,7 @@ describe('blsVerify', () => {
     let sig_ser = mcl.g1ToBN(signature)
     let res = await contract.verifySignature(sig_ser, pubkey_ser, message_ser)
     expect(res).toEqual(true)
-  }).timeout(-1)
+  })
 
   it('should be able to convert message to point', async function () {
     let res = await contract.hashToPoint(stringToHex('testing evmbls'), stringToHex(messageString))

@@ -13,27 +13,39 @@ console.log('dirname', __dirname)
 const childProcesses = []
 
 export const deleteInfoDir = async () => await rm('.e2e', {recursive: true, force: true})
-export const killChildProcesses = async () => {for (const childProcess of childProcesses) await childProcess.kill()}
+export const killChildProcesses = async () => {
+  for (const childProcess of childProcesses) await childProcess.kill()
+  await setTimeout(200)
+}
+
+async function getBootstrapNodes() {
+  await setTimeout(1000)
+  const {data: {multiaddr}} = await axios.get(`http://localhost:9000/api/fixme/bridge/multiaddr`)
+  return [multiaddr]
+}
 
 export async function createApiNodes(count) {
+  let bootstrapNodes = []// bootstrapNodes || await getBootstrapNodes()
   const ports = []
   for (let i = 0; i < count; i++) {
-    childProcesses.push(await createApiNode({index: i, isLeader: i === 0}))
+    childProcesses.push(await createApiNode({index: i, isLeader: i === 0, bootstrapNodes: JSON.stringify(bootstrapNodes)}))
     ports.push(9000 + i)
     await setTimeout(200)
+    if(i === 0) bootstrapNodes = await getBootstrapNodes()
   }
-  await waitForLeaderSync(ports)
-  await axios.post(`http://127.0.0.1:${ports[0]}/api/publish/whitelist`)
+  await waitForBootstrapSync(ports)
+  await tryAgainIfError(_=>axios.post(`http://127.0.0.1:${ports[0]}/api/publish/whitelist`))
   await waitForWhitelistSync(ports)
   return ports
 }
 
-export async function createApiNode({index, isLeader = false}) {
+export async function createApiNode({index, isLeader = false, bootstrapNodes}) {
   const env = Object.assign({}, process.env, {
     PORT: 9000 + index,
     BRIDGE_CONF_DIR: './.e2e/' + index,
     BRIDGE_PORT: config.bridgeNode.port + index,
     BRIDGE_IS_LEADER: isLeader,
+    BRIDGE_BOOTSTRAP_NODES: bootstrapNodes,
     // TRY_COUNT: -1,
     // TIMEOUT: 1000
   })
@@ -51,20 +63,15 @@ export async function createInfo_json(count) {
   }
 }
 
-export async function waitForLeaderSync(ports) {
-  for (const port of ports) {
-    try {
-      const {data: {leader}} = await tryAgainIfError(_ => axios.get(`http://127.0.0.1:${port}/api/peer/leader`))
-      if (!leader) throw new Error(`leader not synced... port: ${port}`)
-      await setTimeout(200)
-    } catch (e) {
-      console.log(port, e)
-      throw e
-    }
-
+async function waitForBootstrapSync(ports) {
+  const fn = (port) => async () => {
+    const {data: peers} = await axios.get(`http://localhost:${port}/api/peer`)
+    return peers.length === ports.length - 1
   }
-  console.log('leader synced...')
+  await waitToSync(ports.map(fn))
+  console.log('bootstrap synced...')
 }
+
 
 export async function waitForWhitelistSync(ports) {
   const fn = (port) => async () => {
