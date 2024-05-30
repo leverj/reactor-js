@@ -45,7 +45,7 @@ export default class NetworkNode {
       transports: [tcp()],
       connectionEncryption: [noise()],
       streamMuxers: [yamux()],
-      connectionManager: {inboundConnectionThreshold: 25, /*Default is 5*/},
+      connectionManager: {inboundConnectionThreshold: 100, /*Default is 5*/},
       services: {
         ping: ping({protocolPrefix: 'autonat'}), pubsub: gossipsub(), identify: identify(),
         dht: kadDHT({protocol: '/libp2p/autonat/1.0.0', peerInfoMapper: passthroughMapper, clientMode: false}),

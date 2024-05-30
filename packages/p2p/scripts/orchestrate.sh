@@ -121,10 +121,10 @@ function remote_install() {
 
     sleep 10
     remote_whitelist
-    sleep 10
-    remote_dkg
-    sleep 10
-    remote_sign
+#    sleep 10
+#    remote_dkg
+#    sleep 10
+#    remote_sign
 }
 
 function local_whitelist() {
