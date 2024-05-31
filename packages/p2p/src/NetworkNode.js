@@ -4,7 +4,6 @@ import {tcp} from '@libp2p/tcp'
 import {noise} from '@chainsafe/libp2p-noise'
 import {yamux} from '@chainsafe/libp2p-yamux'
 import {ping} from '@libp2p/ping'
-// import {autoNAT} from '@libp2p/autonat'
 import {gossipsub} from '@chainsafe/libp2p-gossipsub'
 import {fromString as uint8ArrayFromString} from 'uint8arrays/from-string'
 import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
@@ -16,14 +15,14 @@ import {identify} from '@libp2p/identify'
 import {kadDHT, passthroughMapper} from '@libp2p/kad-dht'
 import {tryAgainIfError} from './utils.js'
 import config from 'config'
-// import {logger} from '@leverj/common/utils'
+import events, {PEER_CONNECT, PEER_DISCOVERY} from './events.js'
+import {logger} from '@leverj/common/utils'
 
 export default class NetworkNode {
   constructor({ip = '0.0.0.0', port = 0, peerIdJson}) {
     this.peerIdJson = peerIdJson
     this.ip = ip
     this.port = port
-    // this.streams = {}
   }
 
   get multiaddrs() { return this.p2p.getMultiaddrs().map((addr) => addr.toString()) }
@@ -32,25 +31,29 @@ export default class NetworkNode {
 
   get peers() { return this.p2p.getPeers().map((peer) => peer.toString()) }
 
+  isPeerConnected(peerId) { return this.p2p.getPeers().find(_=> _.toString() === peerId) }
+
   exportJson() {
     return {
       privKey: uint8ArrayToString(this.p2p.peerId.privateKey, 'base64'), pubKey: uint8ArrayToString(this.p2p.peerId.publicKey, 'base64'), id: this.peerId
     }
   }
+
   //Return true to block, false to allow the incoming to join network
   //FIXME - how do we want to control ? IP seems most logical choice, since peerID and ports can be generated at will.
-  async gater(addr){
+  async gater(addr) {
     const ipsToBlock = [] //The blocklist can come from config
     const idx = ipsToBlock.findIndex(_ => addr.indexOf(_) > -1)
-    console.log("ConnectonGater", addr, idx)
+    console.log('ConnectonGater', addr, idx)
     return idx > -1
   }
+
   async create() {
     this.p2p = await createLibp2p({
       peerId: this.peerIdJson ? await createFromJSON(this.peerIdJson) : undefined,
       addresses: {listen: [`/ip4/${this.ip}/tcp/${this.port}`], announce: [`/ip4/${config.externalIp}/tcp/${this.port}`]},
-      connectionGater:{
-        denyInboundConnection: (maConn => this.gater(maConn.remoteAddr.toString())) 
+      connectionGater: {
+        denyInboundConnection: (maConn => this.gater(maConn.remoteAddr.toString()))
       },
       transports: [tcp()],
       connectionEncryption: [noise()],
@@ -74,8 +77,8 @@ export default class NetworkNode {
       }),] : undefined
     })
 
-    this.p2p.addEventListener('peer:connect', this.peerConnected.bind(this))
-    this.p2p.addEventListener('peer:discovery', this.peerDiscovered.bind(this))
+    this.p2p.addEventListener(PEER_CONNECT, this.peerConnected.bind(this))
+    this.p2p.addEventListener(PEER_DISCOVERY, this.peerDiscovered.bind(this))
     return this
   }
 
@@ -86,7 +89,6 @@ export default class NetworkNode {
 
   async stop() {
     await this.p2p.stop()
-    // for (const stream of Object.values(this.streams)) await stream.close()
     return this
   }
 
@@ -99,13 +101,14 @@ export default class NetworkNode {
 
   peerDiscovered(evt) {
     const {detail: peer} = evt
-    console.log("Peer", peer, " Discovered By", this.p2p.peerId)
+    events.emit(PEER_DISCOVERY, peer.id.toString())
+    // console.log('Peer', peer, ' Discovered By', this.p2p.peerId)
   }
 
   //fixme: remove this peer from the network
   peerConnected(evt) {
     const peerId = evt.detail.toString()
-     console.log(peerId, "connected with", this.p2p.peerId)
+    // console.log(peerId, 'connected with', this.p2p.peerId)
     // if (!this.knownPeers[peerId]) {
     //   console.log('remove this peer from the network')
     //   // this.p2p.hangUp(peerId)
@@ -129,17 +132,18 @@ export default class NetworkNode {
   // p2p connection
   async createAndSendMessage(peerId, protocol, message, responseHandler) {
     console.log('Sending', peerId, message)
-    let stream = await this.createStream(peerId, protocol)
-    await this.sendMessageOnStream(stream, message)
-    await this.readStream(stream, responseHandler)
-    return stream
+    try {
+      let stream = await this.createStream(peerId, protocol)
+      await this.sendMessageOnStream(stream, message)
+      await this.readStream(stream, responseHandler)
+      return stream
+    } catch (e) {
+      logger.error(`fail to send message to ${peerId}. message: ${message}`, e)
+    }
   }
 
   async createStream(peerId, protocol) {
-    // if (this.streams[protocol]) this.streams[protocol].close()
-    let stream = await tryAgainIfError(_ => this.p2p.dialProtocol(peerIdFromString(peerId), protocol))
-    // this.streams[protocol] = stream
-    return stream
+    return await tryAgainIfError(_ => this.p2p.dialProtocol(peerIdFromString(peerId), protocol))
   }
 
   async sendMessageOnStream(stream, message) {

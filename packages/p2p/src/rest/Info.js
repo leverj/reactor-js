@@ -22,7 +22,7 @@ export class Info {
 
   set() {
     if (this.timer) clearTimeout(this.timer)
-    this.timer = setTimeout(() => this._write(), 100)
+    this.timer = setTimeout(() => this._write(), 10)
   }
 
   _write() {
