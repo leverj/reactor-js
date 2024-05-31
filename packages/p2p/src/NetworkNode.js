@@ -37,11 +37,21 @@ export default class NetworkNode {
       privKey: uint8ArrayToString(this.p2p.peerId.privateKey, 'base64'), pubKey: uint8ArrayToString(this.p2p.peerId.publicKey, 'base64'), id: this.peerId
     }
   }
-
+  //Return true to block, false to allow the incoming to join network
+  //FIXME - how do we want to control ? IP seems most logical choice, since peerID and ports can be generated at will.
+  async gater(addr){
+    const ipsToBlock = [] //The blocklist can come from config
+    const idx = ipsToBlock.findIndex(_ => addr.indexOf(_) > -1)
+    console.log("ConnectonGater", addr, idx)
+    return idx > -1
+  }
   async create() {
     this.p2p = await createLibp2p({
       peerId: this.peerIdJson ? await createFromJSON(this.peerIdJson) : undefined,
       addresses: {listen: [`/ip4/${this.ip}/tcp/${this.port}`], announce: [`/ip4/${config.externalIp}/tcp/${this.port}`]},
+      connectionGater:{
+        denyInboundConnection: (maConn => this.gater(maConn.remoteAddr.toString())) 
+      },
       transports: [tcp()],
       connectionEncryption: [noise()],
       streamMuxers: [yamux()],
@@ -89,13 +99,13 @@ export default class NetworkNode {
 
   peerDiscovered(evt) {
     const {detail: peer} = evt
-    //console.log("Peer", peer, " Discovered By", this.p2p.peerId)
+    console.log("Peer", peer, " Discovered By", this.p2p.peerId)
   }
 
   //fixme: remove this peer from the network
   peerConnected(evt) {
     const peerId = evt.detail.toString()
-    // console.log(peerId, "connected with", this.p2p.peerId)
+     console.log(peerId, "connected with", this.p2p.peerId)
     // if (!this.knownPeers[peerId]) {
     //   console.log('remove this peer from the network')
     //   // this.p2p.hangUp(peerId)
