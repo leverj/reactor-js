@@ -1,16 +1,19 @@
 import config from 'config'
-import {mkdir, rm, writeFile} from 'node:fs/promises'
+import {mkdir, readFile, rm, writeFile} from 'node:fs/promises'
 import {fork} from 'child_process'
 import {getBridgeInfos} from './fixtures.js'
 import path from 'path'
 import axios from 'axios'
-import {tryAgainIfConnectionError, tryAgainIfError, waitToSync} from '../../src/utils.js'
+import {tryAgainIfError, waitToSync} from '../../src/utils.js'
 import {setTimeout} from 'node:timers/promises'
 
 const __dirname = process.cwd()
 console.log('dirname', __dirname)
 
 const childProcesses = []
+
+const filePath = (i) => path.join(__dirname, '.e2e', i.toString(), 'info.json')
+const dirPath = (i) => path.join(__dirname, '.e2e', i.toString())
 
 export const deleteInfoDir = async () => await rm('.e2e', {recursive: true, force: true})
 export const killChildProcesses = async () => {
@@ -19,9 +22,8 @@ export const killChildProcesses = async () => {
 }
 
 async function getBootstrapNodes() {
-  await setTimeout(1000)
-  const {data: {multiaddr}} = await axios.get(`http://localhost:9000/api/fixme/bridge/multiaddr`)
-  return [multiaddr]
+  let peerId = await tryAgainIfError(_=> getPeerId(0))
+  return  [`/ip4/${config.externalIp}/tcp/10000/p2p/${peerId}`]
 }
 
 export async function createApiNodes(count) {
@@ -57,10 +59,14 @@ export async function createInfo_json(count) {
   const bridgeInfos = getBridgeInfos(count)
   for (let i = 0; i < count; i++) {
     const info = bridgeInfos[i]
-    let dir = path.join(__dirname, '.e2e', i.toString())
-    await mkdir(dir, {recursive: true})
-    await writeFile(path.join(dir, 'info.json'), JSON.stringify(info, null, 2))
+    await mkdir(dirPath(i), {recursive: true})
+    await writeFile(filePath(i), JSON.stringify(info, null, 2))
   }
+}
+
+async function getPeerId(i){
+  const file = await readFile(filePath(i))
+  return JSON.parse(file.toString()).p2p.id
 }
 
 async function waitForBootstrapSync(ports) {
@@ -80,10 +86,5 @@ export async function waitForWhitelistSync(ports) {
   }
   await waitToSync(ports.map(fn))
   console.log('whitelist synced...')
-}
-
-export async function connect() {
-  await tryAgainIfConnectionError(_ => axios.post(`http://127.0.0.1:9000/api/peer/connect`))
-  console.log('connected...')
 }
 

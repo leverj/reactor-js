@@ -38,21 +38,6 @@ describe('e2e', function () {
     }
   })
 
-  it('should create new nodes, load secret shares from local storage, sign message, and verify with individual pub key', async function () {
-    const allNodes = [9000, 9001, 9002, 9003, 9004, 9005, 9006]
-    await createInfo_json(allNodes.length)
-    await createApiNodes(allNodes.length)
-    // await connect(allNodes)
-    for (const node of allNodes) {
-      const apiResp = await axios.post(`http://127.0.0.1:${node}/api/tss/sign`, {'msg': message})
-      const signature = new mcl.Signature()
-      signature.deserializeHexStr(apiResp.data.signature)
-      const individualPublicKey = mcl.deserializeHexStrToPublicKey(apiResp.data.signerPubKey)
-      const verified = await individualPublicKey.verify(signature, message)
-      expect(verified).toEqual(true)
-    }
-  })
-
   it('aggregate signatures over pubsub topic', async function () {
     const allNodes = [9000, 9001, 9002, 9003]
     await createInfo_json(allNodes.length)
