@@ -23,6 +23,7 @@ export default class NetworkNode {
     this.peerIdJson = peerIdJson
     this.ip = ip
     this.port = port
+    setInterval(_=> console.log('Peers', this.peers.length), 5000)
   }
 
   get multiaddrs() { return this.p2p.getMultiaddrs().map((addr) => addr.toString()) }
