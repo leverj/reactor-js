@@ -23,7 +23,6 @@ export default class NetworkNode {
     this.peerIdJson = peerIdJson
     this.ip = ip
     this.port = port
-    setInterval(_=> console.log('Peers', this.peers.length), 5000)
   }
 
   get multiaddrs() { return this.p2p.getMultiaddrs().map((addr) => addr.toString()) }
@@ -31,8 +30,6 @@ export default class NetworkNode {
   get peerId() { return this.p2p.peerId.toString() }
 
   get peers() { return this.p2p.getPeers().map((peer) => peer.toString()) }
-
-  isPeerConnected(peerId) { return this.p2p.getPeers().find(_=> _.toString() === peerId) }
 
   exportJson() {
     return {
@@ -167,5 +164,11 @@ export default class NetworkNode {
   }
 
   // implement ping pong between nodes to maintain status
-  async ping(peerId) { return await this.p2p.services.ping.ping(peerIdFromString(peerId)) }
+  async ping(peerId) {
+    try {
+      return await this.p2p.services.ping.ping(peerIdFromString(peerId))
+    } catch (e) {
+      return -1
+    }
+  }
 }

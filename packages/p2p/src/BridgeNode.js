@@ -4,6 +4,8 @@ import {affirm, logger} from '@leverj/common/utils'
 import {shortHash, tryAgainIfEncryptionFailed, waitToSync} from './utils.js'
 import events, {INFO_CHANGED, PEER_DISCOVERY} from './events.js'
 import config from 'config'
+import {setTimeout} from 'node:timers/promises'
+import Monitor from './Monitor.js'
 
 const TSS_RECEIVE_SIGNATURE_SHARE = 'TSS_RECEIVE_SIGNATURE_SHARE'
 const SIGNATURE_START = 'SIGNATURE_START'
@@ -35,7 +37,7 @@ class Whitelist {
   exportJson() { return this.get()}
 }
 
-class BridgeNode extends NetworkNode {
+export default class BridgeNode extends NetworkNode {
   constructor({ip = '0.0.0.0', port = 0, isLeader = false, json}) {
     super({ip, port, peerIdJson: json?.p2p})
     this.isLeader = isLeader
@@ -44,6 +46,7 @@ class BridgeNode extends NetworkNode {
     this.leader = json?.leader
     this.tssNode = null
     this.messageMap = {}
+    this.monitor = new Monitor()
     //fixme: changes when real whitelisting done
     if (this.isLeader) {
       events.on(PEER_DISCOVERY, (peerId) => this.addPeersToWhiteList(peerId))
@@ -70,6 +73,7 @@ class BridgeNode extends NetworkNode {
     await this.addLeader()
     await this.requestWhitelist()
     events.emit(INFO_CHANGED)
+    this.ping()
     return this
   }
 
@@ -208,6 +212,17 @@ class BridgeNode extends NetworkNode {
     await this.tssNode.generateVectors(threshold)
     await this.tssNode.generateContribution()
   }
+
+  async ping() {
+    let peerIds = this.whitelist.get()
+    console.log('pinging', peerIds)
+    for (const peerId of peerIds) {
+      if (peerId === this.peerId) continue
+      this.monitor.updateLatency(peerId, await super.ping(peerId))
+      await setTimeout(100)
+    }
+    setTimeout(1000).then(this.ping.bind(this))
+  }
+
 }
 
-export default BridgeNode
