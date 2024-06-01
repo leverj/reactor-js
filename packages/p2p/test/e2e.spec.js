@@ -39,14 +39,14 @@ describe('e2e', function () {
     await createInfo_json(allNodes.length)
 
     await createApiNodes(allNodes.length)
-    // await connect(allNodes)
+    // await setTimeout(2000)
     const txnHash = 'hash123456'
     await axios.post('http://localhost:9000/api/tss/aggregateSign', {txnHash, 'msg': message})
     const fn = async () => {
       const {data: {verified}} = await axios.get('http://localhost:9000/api/tss/aggregateSign?txnHash=' + txnHash)
       return verified
     }
-    await waitToSync([fn])
+    await waitToSync([fn], 200)
     const {data: {verified}} = await axios.get('http://localhost:9000/api/tss/aggregateSign?txnHash=' + txnHash)
     expect(verified).toEqual(true)
   })
@@ -56,13 +56,13 @@ describe('e2e', function () {
       const ports = await createApiNodes(4, false)
       await axios.get(`http://127.0.0.1:9001/api/peer/bootstrapped`)
       await stop(...ports.slice(2))
-      await publishWhitelist(ports.slice(0, 2), ports.length)
+      await publishWhitelist(ports.slice(0, 2), 4,2)
       expect((await getWhitelists(ports[0])).length).toEqual(4)
       expect((await getWhitelists(ports[1])).length).toEqual(4)
       expect((await getWhitelists(ports[2])).length).toEqual(1)
       expect((await getWhitelists(ports[3])).length).toEqual(1)
       await createFrom(ports.slice(2), 3)
-      await waitForWhitelistSync(ports, ports.length)
+      await waitForWhitelistSync(ports)
       expect((await getWhitelists(ports[0])).length).toEqual(4)
       expect((await getWhitelists(ports[1])).length).toEqual(4)
       expect((await getWhitelists(ports[2])).length).toEqual(4)

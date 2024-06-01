@@ -107,7 +107,7 @@ export default class BridgeNode extends NetworkNode {
     if (!this.isLeader) return
     this.whitelist.canPublish = true
     let message = JSON.stringify(this.whitelist.exportJson())
-    await this.publishOrFanOut(WHITELIST_TOPIC, message, this.whitelist.get())
+    await this.publishOrFanOut(WHITELIST_TOPIC, message, this.monitor.filter(this.whitelist.get()))
   }
 
   async publishOrFanOut(topic, message, peerIds, fanOut = true) {
@@ -123,7 +123,7 @@ export default class BridgeNode extends NetworkNode {
     this.messageMap[txnHash] = {}
     this.messageMap[txnHash].verified = false
     this.messageMap[txnHash].signatures = [{message, signature: signature.serializeToHexStr(), 'signer': this.tssNode.id.serializeToHexStr()}]
-    await this.publishOrFanOut(SIGNATURE_START, JSON.stringify({txnHash, message}), this.whitelist.get())
+    await this.publishOrFanOut(SIGNATURE_START, JSON.stringify({txnHash, message}), this.monitor.filter(this.whitelist.get()))
   }
 
   async sendMessageToPeer(peerId, topic, message) {
@@ -215,7 +215,6 @@ export default class BridgeNode extends NetworkNode {
 
   async ping() {
     let peerIds = this.whitelist.get()
-    console.log('pinging', peerIds)
     for (const peerId of peerIds) {
       if (peerId === this.peerId) continue
       this.monitor.updateLatency(peerId, await super.ping(peerId))

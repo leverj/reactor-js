@@ -8,5 +8,7 @@ export default class Monitor {
 
   getPeersStatus() { return Object.entries(this.peers).map(([peerId, {latency}]) => ({peerId, latency})) }
 
+  filter(peerIds) { return peerIds.filter(peerId => this.peers[peerId]?.latency !== -1)}
+
   print() { console.table(this.peers) }
 }

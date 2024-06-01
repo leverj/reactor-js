@@ -32,9 +32,9 @@ async function getBootstrapNodes() {
   return [`/ip4/${config.externalIp}/tcp/10000/p2p/${peerId}`]
 }
 
-export async function publishWhitelist(ports, total) {
+export async function publishWhitelist(ports, total, available) {
   await tryAgainIfError(_ => axios.post(`http://127.0.0.1:${ports[0]}/api/publish/whitelist`))
-  await waitForWhitelistSync(ports, total)
+  await waitForWhitelistSync(ports, total, available)
 }
 
 export async function createFrom(ports, count) {
@@ -88,6 +88,11 @@ export async function getWhitelists(port) {
   return JSON.parse(file.toString()).whitelist
 }
 
+export async function getMonitorStatus(port) {
+  const {data: peers} = await axios.get(`http://127.0.0.1:${port}/api/peer/status`)
+  return peers
+}
+
 
 async function waitForBootstrapSync(ports, count = ports.length - 1) {
   const fn = (port) => async () => {
@@ -99,11 +104,11 @@ async function waitForBootstrapSync(ports, count = ports.length - 1) {
 }
 
 
-export async function waitForWhitelistSync(ports, total = ports.length) {
+export async function waitForWhitelistSync(ports, total = ports.length, available = ports.length) {
   console.log('#'.repeat(50), 'waitForWhitelistSync', ports, total)
   const fn = (port) => async () => {
-    const whitelists = await getWhitelists(port)
-    return whitelists.length === total
+    const whitelists = await getMonitorStatus(port)
+    return whitelists.length === total - 1 && whitelists.filter(_ => _.latency !== -1).length === available - 1
   }
   await waitToSync(ports.map(fn))
   console.log('whitelisted synced...')
