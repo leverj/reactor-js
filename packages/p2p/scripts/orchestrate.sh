@@ -30,7 +30,7 @@ function deployDocker() {
       -e BRIDGE_IS_LEADER=$BRIDGE_IS_LEADER \
       -e BRIDGE_THRESHOLD=$BRIDGE_THRESHOLD \
       -e BRIDGE_BOOTSTRAP_NODES=$BRIDGE_BOOTSTRAP_NODES \
-      -e TRY_COUNT=-1 \
+      -e TRY_COUNT=50 \
       -e BRIDGE_IS_PUBLIC=$BRIDGE_IS_PUBLIC \
       -p $PORT:$PORT \
       -p $BRIDGE_PORT:$BRIDGE_PORT \
@@ -72,12 +72,12 @@ function local_install() {
     EXTERNAL_IP=$EXTERNAL_IP BRIDGE_IS_PUBLIC=true BRIDGE_THRESHOLD=$BRIDGE_THRESHOLD BRIDGE_BOOTSTRAP_NODE=$BRIDGE_BOOTSTRAP_NODE \
       DATA_DIR=${PWD}/../.node.ignore deployDocker 9000 $(($COUNT + 9000 - 1))
 
-    sleep 10
-    local_whitelist
-    sleep 10
-    local_dkg
-    sleep 10
-    local_sign
+#    sleep 10
+#    local_whitelist
+#    sleep 10
+#    local_dkg
+#    sleep 10
+#    local_sign
 }
 
 function remote_leader(){

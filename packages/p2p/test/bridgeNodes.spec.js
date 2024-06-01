@@ -34,11 +34,11 @@ describe('Bridge node', function () {
   it('it should be able to connect with other nodes', async function () {
     const [leader, node1, node2, node3, node4, node5, node6] = await createBridgeNodes(7)
     const nodes = [leader, node1, node2, node3, node4, node5, node6]
-    // whitelist nodes
+    // whitelisted nodes
     await leader.publishWhitelist()
     await setTimeout(100)
     for (const node of nodes) {
-      expect(Object.values(node.whitelisted).length).toEqual(7)
+      expect(node.whitelist.get().length).toEqual(7)
     }
     await leader.startDKG(4)
     await setTimeout(2000)

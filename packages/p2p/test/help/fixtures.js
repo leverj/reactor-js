@@ -42,36 +42,6 @@ export const bridgeInfos = [
         'ae15947fdc0856a8f124ca8d9806e2daca74ec2851459da6b4a6a572c1a1e0091a32232b55e7171f6763c003fe6b7ee13c982159e8b66e8f460aa5461f411613'
       ]
     },
-    'whitelistedPeers': {
-      '12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA': {
-        'peerId':'12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA',
-        'dkgId': '5ea86ada47b0ddb3c6a1ed3d5a8fe0637ef14b12790d846a70bb383df5ad1714'
-      },
-      '12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof': {
-        'peerId':'12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof',
-        'dkgId': '51ccda496d57f886e24a9926c35befaab6d8dda4bec815465524bc86b9611b17'
-      },
-      '12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3': {
-        'peerId':'12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3',
-        'dkgId': '342921a2f2c2f6ca8841d8cffb75bc6a2c142ec87e04e31a0203bb06b2fdea07'
-      },
-      '12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7': {
-        'peerId':'12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7',
-        'dkgId': '4bb33d936ac5633f5c2df8a31e8be959be4b7db820ef2cefce4d6ef9fc031715'
-      },
-      '12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs': {
-        'peerId':'12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs',
-        'dkgId': 'f1b6420296e8e621279137fec9c6e8cf32191d35fdb76235833319e2e29ab22c'
-      },
-      '12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe': {
-        'peerId':'12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe',
-        'dkgId': 'f6b2839c0f03fdb387da85cd8f52ea307d7fa20984c10e39a02d7bf3f247ab11'
-      },
-      '12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS': {
-        'peerId':'12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS',
-        'dkgId': '5df4ad8c1e5a6a9428279f30295e3e71419106f3aec9611da2b6088b8c21b211'
-      }
-    }
   },
   {
     'p2p': {
@@ -97,36 +67,6 @@ export const bridgeInfos = [
         'ae15947fdc0856a8f124ca8d9806e2daca74ec2851459da6b4a6a572c1a1e0091a32232b55e7171f6763c003fe6b7ee13c982159e8b66e8f460aa5461f411613'
       ]
     },
-    'whitelistedPeers': {
-      '12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA': {
-        'peerId':'12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA',
-        'dkgId': '5ea86ada47b0ddb3c6a1ed3d5a8fe0637ef14b12790d846a70bb383df5ad1714'
-      },
-      '12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof': {
-        'peerId':'12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof',
-        'dkgId': '51ccda496d57f886e24a9926c35befaab6d8dda4bec815465524bc86b9611b17'
-      },
-      '12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3': {
-        'peerId':'12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3',
-        'dkgId': '342921a2f2c2f6ca8841d8cffb75bc6a2c142ec87e04e31a0203bb06b2fdea07'
-      },
-      '12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7': {
-        'peerId':'12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7',
-        'dkgId': '4bb33d936ac5633f5c2df8a31e8be959be4b7db820ef2cefce4d6ef9fc031715'
-      },
-      '12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs': {
-        'peerId':'12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs',
-        'dkgId': 'f1b6420296e8e621279137fec9c6e8cf32191d35fdb76235833319e2e29ab22c'
-      },
-      '12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe': {
-        'peerId':'12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe',
-        'dkgId': 'f6b2839c0f03fdb387da85cd8f52ea307d7fa20984c10e39a02d7bf3f247ab11'
-      },
-      '12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS': {
-        'peerId':'12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS',
-        'dkgId': '5df4ad8c1e5a6a9428279f30295e3e71419106f3aec9611da2b6088b8c21b211'
-      }
-    }
   },
   {
     'p2p': {
@@ -152,36 +92,6 @@ export const bridgeInfos = [
         'ae15947fdc0856a8f124ca8d9806e2daca74ec2851459da6b4a6a572c1a1e0091a32232b55e7171f6763c003fe6b7ee13c982159e8b66e8f460aa5461f411613'
       ]
     },
-    'whitelistedPeers': {
-      '12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA': {
-        'peerId':'12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA',
-        'dkgId': '5ea86ada47b0ddb3c6a1ed3d5a8fe0637ef14b12790d846a70bb383df5ad1714'
-      },
-      '12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof': {
-        'peerId':'12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof',
-        'dkgId': '51ccda496d57f886e24a9926c35befaab6d8dda4bec815465524bc86b9611b17'
-      },
-      '12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3': {
-        'peerId':'12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3',
-        'dkgId': '342921a2f2c2f6ca8841d8cffb75bc6a2c142ec87e04e31a0203bb06b2fdea07'
-      },
-      '12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7': {
-        'peerId':'12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7',
-        'dkgId': '4bb33d936ac5633f5c2df8a31e8be959be4b7db820ef2cefce4d6ef9fc031715'
-      },
-      '12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs': {
-        'peerId':'12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs',
-        'dkgId': 'f1b6420296e8e621279137fec9c6e8cf32191d35fdb76235833319e2e29ab22c'
-      },
-      '12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe': {
-        'peerId':'12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe',
-        'dkgId': 'f6b2839c0f03fdb387da85cd8f52ea307d7fa20984c10e39a02d7bf3f247ab11'
-      },
-      '12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS': {
-        'peerId':'12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS',
-        'dkgId': '5df4ad8c1e5a6a9428279f30295e3e71419106f3aec9611da2b6088b8c21b211'
-      }
-    }
   },
   {
     'p2p': {
@@ -207,36 +117,6 @@ export const bridgeInfos = [
         'ae15947fdc0856a8f124ca8d9806e2daca74ec2851459da6b4a6a572c1a1e0091a32232b55e7171f6763c003fe6b7ee13c982159e8b66e8f460aa5461f411613'
       ]
     },
-    'whitelistedPeers': {
-      '12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA': {
-        'peerId':'12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA',
-        'dkgId': '5ea86ada47b0ddb3c6a1ed3d5a8fe0637ef14b12790d846a70bb383df5ad1714'
-      },
-      '12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof': {
-        'peerId':'12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof',
-        'dkgId': '51ccda496d57f886e24a9926c35befaab6d8dda4bec815465524bc86b9611b17'
-      },
-      '12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3': {
-        'peerId':'12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3',
-        'dkgId': '342921a2f2c2f6ca8841d8cffb75bc6a2c142ec87e04e31a0203bb06b2fdea07'
-      },
-      '12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7': {
-        'peerId':'12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7',
-        'dkgId': '4bb33d936ac5633f5c2df8a31e8be959be4b7db820ef2cefce4d6ef9fc031715'
-      },
-      '12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs': {
-        'peerId':'12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs',
-        'dkgId': 'f1b6420296e8e621279137fec9c6e8cf32191d35fdb76235833319e2e29ab22c'
-      },
-      '12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe': {
-        'peerId':'12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe',
-        'dkgId': 'f6b2839c0f03fdb387da85cd8f52ea307d7fa20984c10e39a02d7bf3f247ab11'
-      },
-      '12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS': {
-        'peerId':'12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS',
-        'dkgId': '5df4ad8c1e5a6a9428279f30295e3e71419106f3aec9611da2b6088b8c21b211'
-      }
-    }
   },
   {
     'p2p': {
@@ -262,36 +142,6 @@ export const bridgeInfos = [
         'ae15947fdc0856a8f124ca8d9806e2daca74ec2851459da6b4a6a572c1a1e0091a32232b55e7171f6763c003fe6b7ee13c982159e8b66e8f460aa5461f411613'
       ]
     },
-    'whitelistedPeers': {
-      '12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA': {
-        'peerId':'12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA',
-        'dkgId': '5ea86ada47b0ddb3c6a1ed3d5a8fe0637ef14b12790d846a70bb383df5ad1714'
-      },
-      '12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof': {
-        'peerId':'12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof',
-        'dkgId': '51ccda496d57f886e24a9926c35befaab6d8dda4bec815465524bc86b9611b17'
-      },
-      '12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3': {
-        'peerId':'12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3',
-        'dkgId': '342921a2f2c2f6ca8841d8cffb75bc6a2c142ec87e04e31a0203bb06b2fdea07'
-      },
-      '12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7': {
-        'peerId':'12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7',
-        'dkgId': '4bb33d936ac5633f5c2df8a31e8be959be4b7db820ef2cefce4d6ef9fc031715'
-      },
-      '12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs': {
-        'peerId':'12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs',
-        'dkgId': 'f1b6420296e8e621279137fec9c6e8cf32191d35fdb76235833319e2e29ab22c'
-      },
-      '12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe': {
-        'peerId':'12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe',
-        'dkgId': 'f6b2839c0f03fdb387da85cd8f52ea307d7fa20984c10e39a02d7bf3f247ab11'
-      },
-      '12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS': {
-        'peerId':'12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS',
-        'dkgId': '5df4ad8c1e5a6a9428279f30295e3e71419106f3aec9611da2b6088b8c21b211'
-      }
-    }
   },
   {
     'p2p': {
@@ -317,36 +167,6 @@ export const bridgeInfos = [
         'ae15947fdc0856a8f124ca8d9806e2daca74ec2851459da6b4a6a572c1a1e0091a32232b55e7171f6763c003fe6b7ee13c982159e8b66e8f460aa5461f411613'
       ]
     },
-    'whitelistedPeers': {
-      '12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA': {
-        'peerId':'12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA',
-        'dkgId': '5ea86ada47b0ddb3c6a1ed3d5a8fe0637ef14b12790d846a70bb383df5ad1714'
-      },
-      '12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof': {
-        'peerId':'12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof',
-        'dkgId': '51ccda496d57f886e24a9926c35befaab6d8dda4bec815465524bc86b9611b17'
-      },
-      '12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3': {
-        'peerId':'12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3',
-        'dkgId': '342921a2f2c2f6ca8841d8cffb75bc6a2c142ec87e04e31a0203bb06b2fdea07'
-      },
-      '12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7': {
-        'peerId':'12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7',
-        'dkgId': '4bb33d936ac5633f5c2df8a31e8be959be4b7db820ef2cefce4d6ef9fc031715'
-      },
-      '12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs': {
-        'peerId':'12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs',
-        'dkgId': 'f1b6420296e8e621279137fec9c6e8cf32191d35fdb76235833319e2e29ab22c'
-      },
-      '12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe': {
-        'peerId':'12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe',
-        'dkgId': 'f6b2839c0f03fdb387da85cd8f52ea307d7fa20984c10e39a02d7bf3f247ab11'
-      },
-      '12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS': {
-        'peerId':'12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS',
-        'dkgId': '5df4ad8c1e5a6a9428279f30295e3e71419106f3aec9611da2b6088b8c21b211'
-      }
-    }
   },
   {
     'p2p': {
@@ -372,44 +192,14 @@ export const bridgeInfos = [
         'ae15947fdc0856a8f124ca8d9806e2daca74ec2851459da6b4a6a572c1a1e0091a32232b55e7171f6763c003fe6b7ee13c982159e8b66e8f460aa5461f411613'
       ]
     },
-    'whitelistedPeers': {
-      '12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA': {
-        'peerId':'12D3KooWNTok63zJ2n4f1BUjxoiCke2Qrw3rbmj9b1CEWLcG24iA',
-        'dkgId': '5ea86ada47b0ddb3c6a1ed3d5a8fe0637ef14b12790d846a70bb383df5ad1714'
-      },
-      '12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof': {
-        'peerId':'12D3KooWK17Npac4k5EqD9Me6WvEbpsHje34UEaMmyf4FdjPPaof',
-        'dkgId': '51ccda496d57f886e24a9926c35befaab6d8dda4bec815465524bc86b9611b17'
-      },
-      '12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3': {
-        'peerId':'12D3KooWLq4c7wDBDZBiP1tVVbwvmi4VhZSTcGBrUZWopfdvHxP3',
-        'dkgId': '342921a2f2c2f6ca8841d8cffb75bc6a2c142ec87e04e31a0203bb06b2fdea07'
-      },
-      '12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7': {
-        'peerId':'12D3KooWE4uPz6DnkHfrffcA5qaJpirh5CLJZXfXKY4NzMFCPEL7',
-        'dkgId': '4bb33d936ac5633f5c2df8a31e8be959be4b7db820ef2cefce4d6ef9fc031715'
-      },
-      '12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs': {
-        'peerId':'12D3KooWFFdnFgJMfwaXwtVZHGj5ui8U8c7KFx9DSH5fYDQRLmqs',
-        'dkgId': 'f1b6420296e8e621279137fec9c6e8cf32191d35fdb76235833319e2e29ab22c'
-      },
-      '12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe': {
-        'peerId':'12D3KooWRXpnbtYTiR6isHyjEbWayvChQP6um8JLVXu7RLNe9wDe',
-        'dkgId': 'f6b2839c0f03fdb387da85cd8f52ea307d7fa20984c10e39a02d7bf3f247ab11'
-      },
-      '12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS': {
-        'peerId':'12D3KooWSBHNAsuHiubML3uGMoEMZYNdZMJ7ZTMnudE5TvSZ3meS',
-        'dkgId': '5df4ad8c1e5a6a9428279f30295e3e71419106f3aec9611da2b6088b8c21b211'
-      }
-    }
   }
 ]
 
 export function getBridgeInfos(count) {
   const infos = _.cloneDeep(bridgeInfos).splice(0, count)
   const peers = infos.map(info => info.p2p.id)
-  infos.forEach(info => info.whitelistedPeers = _.pick(info.whitelistedPeers, peers))
+  infos.forEach(info => info.whitelist = peers)
   return infos
 }
 
-export function getBootstrapNodes () {  return [`/ip4/127.0.0.1/tcp/10006/p2p/${bridgeInfos[0].p2p.id}`]}
+export function getBootstrapNodes() { return [`/ip4/127.0.0.1/tcp/10006/p2p/${bridgeInfos[0].p2p.id}`]}

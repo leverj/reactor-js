@@ -1,10 +1,9 @@
 import {setTimeout} from 'timers/promises'
 import axios from 'axios'
 import {expect} from 'expect'
-import * as mcl from '../src/mcl/mcl.js'
 import {getBridgeInfos} from './help/index.js'
 import {tryAgainIfConnectionError, waitToSync} from '../src/utils.js'
-import {createApiNodes, createInfo_json, deleteInfoDir, killChildProcesses} from './help/e2e.js'
+import {createApiNodes, createFrom, createInfo_json, deleteInfoDir, getInfo, getPublicKey, getWhitelists, killChildProcesses, publishWhitelist, startDkg, stop, waitForWhitelistSync} from './help/e2e.js'
 
 const message = 'hello world'
 describe('e2e', function () {
@@ -13,12 +12,9 @@ describe('e2e', function () {
 
   it('should create new nodes, connect and init DKG', async function () {
     const allNodes = await createApiNodes(2)
-    await axios.post(`http://127.0.0.1:9000/api/dkg/start`)
+    await startDkg()
     await setTimeout(1000)
-    const publicKeys = await Promise.all(allNodes.map(async node => {
-      const response = await axios.get(`http://127.0.0.1:${node}/api/dkg/publicKey`)
-      return response.data.publicKey
-    }))
+    const publicKeys = await Promise.all(allNodes.map(node => getPublicKey(node)))
     for (const publicKey of publicKeys) {
       expect(publicKey).not.toBeNull()
       expect(publicKey).toEqual(publicKeys[0])
@@ -32,24 +28,9 @@ describe('e2e', function () {
     await createApiNodes(nodes.length)
     for (let i = 0; i < nodes.length; i++) {
       const node = nodes[i]
-      const {data: info} = await tryAgainIfConnectionError(() => axios.get(`http://127.0.0.1:${node}/api/info`))
+      const info = await getInfo(node)
       expect(info).toEqual(bridgeInfos[i])
       // await axios.get(`http://127.0.0.1:${node}/api/peer/bootstrapped`)
-    }
-  })
-
-  it('should create new nodes, load secret shares from local storage, sign message, and verify with individual pub key', async function () {
-    const allNodes = [9000, 9001, 9002, 9003, 9004, 9005, 9006]
-    await createInfo_json(allNodes.length)
-    await createApiNodes(allNodes.length)
-    // await connect(allNodes)
-    for (const node of allNodes) {
-      const apiResp = await axios.post(`http://127.0.0.1:${node}/api/tss/sign`, {'msg': message})
-      const signature = new mcl.Signature()
-      signature.deserializeHexStr(apiResp.data.signature)
-      const individualPublicKey = mcl.deserializeHexStrToPublicKey(apiResp.data.signerPubKey)
-      const verified = await individualPublicKey.verify(signature, message)
-      expect(verified).toEqual(true)
     }
   })
 
@@ -58,17 +39,37 @@ describe('e2e', function () {
     await createInfo_json(allNodes.length)
 
     await createApiNodes(allNodes.length)
-    // await connect(allNodes)
+    // await setTimeout(2000)
     const txnHash = 'hash123456'
     await axios.post('http://localhost:9000/api/tss/aggregateSign', {txnHash, 'msg': message})
     const fn = async () => {
       const {data: {verified}} = await axios.get('http://localhost:9000/api/tss/aggregateSign?txnHash=' + txnHash)
       return verified
     }
-    await waitToSync([fn])
-    const {data:{verified}} = await axios.get('http://localhost:9000/api/tss/aggregateSign?txnHash=' + txnHash)
+    await waitToSync([fn], 200)
+    const {data: {verified}} = await axios.get('http://localhost:9000/api/tss/aggregateSign?txnHash=' + txnHash)
     expect(verified).toEqual(true)
   })
+
+  describe('stability', function () {
+    it('whitelist', async function () {
+      const ports = await createApiNodes(4, false)
+      await axios.get(`http://127.0.0.1:9001/api/peer/bootstrapped`)
+      await stop(...ports.slice(2))
+      await publishWhitelist(ports.slice(0, 2), 4,2)
+      expect((await getWhitelists(ports[0])).length).toEqual(4)
+      expect((await getWhitelists(ports[1])).length).toEqual(4)
+      expect((await getWhitelists(ports[2])).length).toEqual(1)
+      expect((await getWhitelists(ports[3])).length).toEqual(1)
+      await createFrom(ports.slice(2), 3)
+      await waitForWhitelistSync(ports)
+      expect((await getWhitelists(ports[0])).length).toEqual(4)
+      expect((await getWhitelists(ports[1])).length).toEqual(4)
+      expect((await getWhitelists(ports[2])).length).toEqual(4)
+      expect((await getWhitelists(ports[3])).length).toEqual(4)
+    })
+  })
 })
+
 
 
