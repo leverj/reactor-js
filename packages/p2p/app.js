@@ -8,7 +8,7 @@ process.on('SIGTERM', () => {
   process.exit()
 })
 
-// fixme: only for testing purpose... need to remove before production
+// fixme: only for testing purpose...
 if (process.env.FAIL) {
   const minute = 60000
   let timeout = Math.round(minute + Math.random() * minute)
