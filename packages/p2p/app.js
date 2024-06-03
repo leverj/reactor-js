@@ -1,4 +1,5 @@
 import {ApiApp} from './src/apiApp.js'
+
 const api = new ApiApp()
 api.start()
 process.on('SIGTERM', () => {
@@ -8,10 +9,12 @@ process.on('SIGTERM', () => {
 })
 
 // fixme: only for testing purpose... need to remove before production
-const minute = 60000
-if(process.env.FAIL)
+if (process.env.FAIL) {
+  const minute = 60000
+  let timeout = Math.round(2 * minute + Math.random() * minute)
   setTimeout(() => {
-    console.log('Exiting after 10 seconds')
+    console.log(`Exiting after ${timeout / 1000} seconds`)
     api.stop()
     process.exit(1)
-  }, Math.round(2* minute + Math.random() * minute))
+  }, timeout)
+}
