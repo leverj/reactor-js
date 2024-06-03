@@ -24,12 +24,14 @@ function deployDocker() {
     echo "Starting node... $PORT $BRIDGE_PORT"
 
     local DOCKER_COMMAND="docker run -d --name p2p-node-$PORT  \
+      --restart=unless-stopped \
       -e EXTERNAL_IP=$EXTERNAL_IP \
       -e PORT=$PORT \
       -e BRIDGE_PORT=$BRIDGE_PORT \
       -e BRIDGE_IS_LEADER=$BRIDGE_IS_LEADER \
       -e BRIDGE_THRESHOLD=$BRIDGE_THRESHOLD \
       -e BRIDGE_BOOTSTRAP_NODES=$BRIDGE_BOOTSTRAP_NODES \
+      -e FAIL=true \
       -e TRY_COUNT=50 \
       -e BRIDGE_IS_PUBLIC=$BRIDGE_IS_PUBLIC \
       -p $PORT:$PORT \
@@ -51,6 +53,7 @@ function deployDocker() {
        if [ -n "$REMOTE" ]; then
          echo remote
          BRIDGE_BOOTSTRAP_NODES=[\\\"$LEADER_ADDR\\\"]
+#         ssh root@$EXTERNAL_IP "docker stop p2p-node-$PORT"
        else
          echo local
          BRIDGE_BOOTSTRAP_NODES=[\"$LEADER_ADDR\"]
@@ -119,8 +122,8 @@ function remote_install() {
       START=$(($END + 1))
     done
 
-    sleep 10
-    remote_whitelist
+#    sleep 10
+#    remote_whitelist
 #    sleep 10
 #    remote_dkg
 #    sleep 10

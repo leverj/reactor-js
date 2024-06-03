@@ -2,8 +2,11 @@ import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
 import {peerIdJsons, startNetworkNodes, stopNetworkNodes} from './help/index.js'
 import {peerIdFromString} from '@libp2p/peer-id'
-import {waitToSync} from '../src/utils.js'
-
+import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
+import { unmarshalPrivateKey, unmarshalPublicKey } from '@libp2p/crypto/keys'
+import {x25519, edwardsToMontgomeryPub, edwardsToMontgomeryPriv} from '@noble/curves/ed25519'
+import {createFromJSON} from '@libp2p/peer-id-factory'
+import AESEncryption from 'aes-encryption'
 
 describe('p2p', function () {
   const meshProtocol = '/mesh/1.0.0'
@@ -123,5 +126,43 @@ describe('p2p', function () {
     await setTimeout(100)
     expect(node1.peers.length).toEqual(1)
     expect(node2.peers.length).toEqual(1)
+  })
+
+  it('should get public key from peerId', async function () {
+    const {privKey, pubKey, id} = peerIdJsons[0]
+    const {publicKey} = peerIdFromString(id)
+    expect(uint8ArrayToString(publicKey, 'base64')).toEqual(pubKey)
+
+  })
+
+  async function createSharedSecret(privateKey, publicKey){
+    let unmarshelledPriv = await unmarshalPrivateKey(privateKey)
+    const ms = edwardsToMontgomeryPriv(unmarshelledPriv._key)
+    let edwardsPub = await unmarshalPublicKey(publicKey)
+    const mp = edwardsToMontgomeryPub(edwardsPub._key)
+    return x25519.getSharedSecret(ms, mp)
+  }
+  function encrypt(message, secretKey){
+    const aes = new AESEncryption()
+    aes.setSecretKey(secretKey)
+    return aes.encrypt(message)
+  }
+  function decrypt(encrypted, secretKey){
+    const aes = new AESEncryption()
+    aes.setSecretKey(secretKey)
+    return aes.decrypt(encrypted)
+  }
+
+  it('message encryption and decryption', async function () {
+    const {publicKey: publicKey1, privateKey: privateKey1} = await createFromJSON(peerIdJsons[1])
+    const {publicKey: publicKey2, privateKey: privateKey2} = await createFromJSON(peerIdJsons[2])
+    const secret1 = await createSharedSecret(privateKey1, publicKey2)
+    const secret2 = await createSharedSecret(privateKey2, publicKey1)
+    expect(secret1).toEqual(secret2)
+    for (const message of ['hello world', 'hello world2', 'jqiweuouqwoeuopqweopiqwoeiwqoiepqwiepiqwpoei']) {
+      const encrypted = encrypt(message, uint8ArrayToString(secret1, 'hex'))
+      const decrypted = decrypt(encrypted, uint8ArrayToString(secret1, 'hex'))
+      expect(decrypted).toEqual(message)
+    }
   })
 })

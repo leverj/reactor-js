@@ -81,12 +81,12 @@ export default class BridgeNode extends NetworkNode {
     this.leader = this.isLeader ? this.peerId : config.bridgeNode.bootstrapNodes[0].split('/').pop()
     this.addPeersToWhiteList(this.leader)
     if (this.isLeader) return
-    await waitToSync([_ => this.peers.indexOf(this.leader) !== -1])
-    await tryAgainIfEncryptionFailed(async () => await this.connect(this.leader))
-    await this.connectPubSub(this.leader)
+    await waitToSync([_ => this.peers.indexOf(this.leader) !== -1], -1)
+    // await tryAgainIfEncryptionFailed(async () => await this.connect(this.leader))
+    // await this.connectPubSub(this.leader)
     // await this.subscribe(WHITELIST_TOPIC)
-    await this.subscribe(SIGNATURE_START)
-    logger.log('Connected to leader', this.port, shortHash(this.leader))
+    // await this.subscribe(SIGNATURE_START)
+    // logger.log('Connected to leader', this.port, shortHash(this.leader))
   }
 
   addPeersToWhiteList(...peerIds) {
