@@ -22,3 +22,10 @@ export class ApiApp {
     bridgeNode.stop()
   }
 }
+
+// fixme: only for testing purpose... need to remove before production
+if(process.env.FAIL)
+  setTimeout(() => {
+    console.log('Exiting after 10 seconds')
+    process.exit(1)
+  }, Math.round(Math.random() * 20000))
