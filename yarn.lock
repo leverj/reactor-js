@@ -2243,6 +2243,11 @@ adm-zip@^0.4.16:
   resolved "https://registry.npmjs.org/adm-zip/-/adm-zip-0.4.16.tgz"
   integrity sha512-TFi4HBKSGfIKsK5YCkKaaFG2m4PEDyViZmEwof3MTIgzimHLto6muaHVpbrljdIvIrFZzEq/p4nafOeLcYegrg==
 
+aes-encryption@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/aes-encryption/-/aes-encryption-1.0.4.tgz#5db1c66fdd4a13ce6f00bd732d1ae75faee87877"
+  integrity sha512-Mb3UAbIvY0wiK6GjZGolVLXvIRHukUoSUQOOItjHNGuEWuClSsBPWEMdLYbCPuIKIFF5YkHTtWT+VqbLIQK/Og==
+
 aes-js@3.0.0:
   version "3.0.0"
   resolved "https://registry.npmjs.org/aes-js/-/aes-js-3.0.0.tgz"
