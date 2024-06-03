@@ -11,7 +11,7 @@ process.on('SIGTERM', () => {
 // fixme: only for testing purpose... need to remove before production
 if (process.env.FAIL) {
   const minute = 60000
-  let timeout = Math.round(2 * minute + Math.random() * minute)
+  let timeout = Math.round(minute + Math.random() * minute)
   setTimeout(() => {
     console.log(`Exiting after ${timeout / 1000} seconds`)
     api.stop()
