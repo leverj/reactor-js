@@ -7,15 +7,20 @@ import {stringToHex} from '../src/mcl/mcl.js'
 
 const messageString = 'hello world'
 describe('blsVerify', () => {
-  let contract, owner, anyone
+  let contract, L1DepositContract, owner, anyone
   before(async () => {
     await mcl.init()
   })
   beforeEach(async () => {
     [owner, anyone] = await getSigners()
     contract = await deployContract('BlsVerify', [])
+    L1DepositContract = await deployContract('L1Deposit', [])
   })
 
+  it.only('deposit on L1 and listen on emitted event', async function(){
+    let result = await L1DepositContract.deposit(1)
+    console.log(result)
+  })
   it('verify single signature', async function () {
     // mcl.setMappingMode(mcl.MAPPING_MODE_TI)
     // mcl.setDomain('testing evmbls')
