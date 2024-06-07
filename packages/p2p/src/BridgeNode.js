@@ -14,7 +14,6 @@ const WHITELIST_REQUEST = 'WHITELIST_REQUEST'
 const DKG_INIT_THRESHOLD_VECTORS = 'DKG_INIT_THRESHOLD_VECTORS'
 const DKG_RECEIVE_KEY_SHARE = 'DKG_RECEIVE_KEY_SHARE'
 const meshProtocol = '/bridgeNode/0.0.1'
-logger.log('bootstrapNodes', config.bridgeNode.bootstrapNodes)
 
 class Whitelist {
   constructor(json) {
@@ -40,6 +39,7 @@ class Whitelist {
 export default class BridgeNode extends NetworkNode {
   constructor({ip = '0.0.0.0', port = 0, isLeader = false, json}) {
     super({ip, port, peerIdJson: json?.p2p})
+    logger.log('bootstrapNodes', config.bridgeNode.bootstrapNodes, process.env.BRIDGE_BOOTSTRAP_NODES, port)
     this.isLeader = isLeader
     this.tssNodeJson = json?.tssNode
     this.whitelist = new Whitelist(json?.whitelist)

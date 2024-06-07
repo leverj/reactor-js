@@ -96,7 +96,7 @@ export async function getMonitorStatus(port) {
 
 async function waitForBootstrapSync(ports, count = ports.length - 1) {
   const fn = (port) => async () => {
-    const {data: peers} = await axios.get(`http://localhost:${port}/api/peer`)
+    const {data: peers} = await axios.get(`http://127.0.0.1:${port}/api/peer`)
     return peers.length === count
   }
   await waitToSync(ports.map(fn))

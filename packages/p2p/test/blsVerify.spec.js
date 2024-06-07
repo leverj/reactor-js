@@ -23,7 +23,7 @@ describe('blsVerify', () => {
     L1DepositContract = await deployContract('L1Deposit', [])
   })
 
-  it.skip('deposit on L1 and listen on emitted event', async function () {
+  it('deposit on L1 and listen on emitted event', async function () {
     const tx = await L1DepositContract.deposit(20)
     const receipt = await tx.wait()
     
@@ -36,13 +36,13 @@ describe('blsVerify', () => {
       if (event.event !== 'L1DepositByUser') continue;
       const message = JSON.stringify(event.args)
       const txnHash = event.transactionHash
-      await axios.post('http://localhost:9000/api/tss/aggregateSign', { txnHash, 'msg': message })
+      await axios.post('http://127.0.0.1:9000/api/tss/aggregateSign', { txnHash, 'msg': message })
       const fn = async () => {
-        const { data: { verified } } = await axios.get('http://localhost:9000/api/tss/aggregateSign?txnHash=' + txnHash)
+        const { data: { verified } } = await axios.get('http://127.0.0.1:9000/api/tss/aggregateSign?txnHash=' + txnHash)
         return verified
       }
       await waitToSync([fn], 200)
-      const { data: { verified } } = await axios.get('http://localhost:9000/api/tss/aggregateSign?txnHash=' + txnHash)
+      const { data: { verified } } = await axios.get('http://127.0.0.1:9000/api/tss/aggregateSign?txnHash=' + txnHash)
       expect(verified).toEqual(true)
 
     }
