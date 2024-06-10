@@ -9,4 +9,7 @@ contract L1Deposit{
     function deposit(uint amount) external {
         emit L1DepositByUser(msg.sender, amount);
     }
+    function test(uint a, uint b) pure external returns (uint){
+        return a + b;
+    }
 }
