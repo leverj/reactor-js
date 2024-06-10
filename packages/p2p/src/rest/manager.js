@@ -6,8 +6,14 @@ import {Info} from './Info.js'
 
 const {bridgeNode: {port, isLeader, contractAddress, providerUrl}} = config
 const info = new Info()
-//FIXME change BridgeNode to BlockchainNode for the new flow
 const bootstrapNodes = config.bridgeNode.bootstrapNodes
-export const bridgeNode = new BlockchainNode({port, isLeader, json: info.get(), contractAddress, providerUrl, bootstrapNodes})
-info.setBridgeNode(bridgeNode)
-await bridgeNode.create()
+//FIXME hack for testing now. should be gone after separate e2e tests
+let node
+if (process.env.CONTRACT_TESTING === 'false') {
+  node = new BridgeNode({port, isLeader, json: info.get(), bootstrapNodes})
+} else {
+  node = new BlockchainNode({port, isLeader, json: info.get(), contractAddress, providerUrl, bootstrapNodes})
+}
+export default node
+info.setBridgeNode(node)
+await node.create()

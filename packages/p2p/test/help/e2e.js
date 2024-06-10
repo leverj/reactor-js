@@ -61,6 +61,7 @@ export async function createApiNode({index, isLeader = false, bootstrapNodes}) {
     BRIDGE_PORT: config.bridgeNode.port + index,
     BRIDGE_IS_LEADER: isLeader,
     BRIDGE_BOOTSTRAP_NODES: bootstrapNodes,
+    CONTRACT_TESTING: false,
     // TRY_COUNT: -1,
     // TIMEOUT: 1000
   })
