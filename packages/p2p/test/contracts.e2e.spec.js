@@ -1,30 +1,29 @@
 import { setTimeout } from 'timers/promises'
 import { expect } from 'expect'
-import axios from 'axios'
-import { deployContract, getSigners} from './help/index.js'
-import {tryAgainIfConnectionError, waitToSync} from '../src/utils.js'
-import { createApiNodes, createFrom, createInfo_json, deleteInfoDir, getInfo, getPublicKey, getWhitelists, killChildProcesses, publishWhitelist, startDkg, stop, waitForWhitelistSync } from './help/e2e.js'
+import { getSigners} from './help/index.js'
+import {createContracts, createNodes, stop} from './help/contracts.e2e.js'
 
-describe('blsVerify', () => {
-    let contract, L1DepositContract, owner, anyone
+describe('contract e2e', () => {
+    let depositContract, owner, anyone
     beforeEach(async () => {
-        [owner, anyone] = await getSigners()
-        contract = await deployContract('BlsVerify', [])
-        L1DepositContract = await deployContract('L1Deposit', [])
+        [owner, anyone] = await getSigners();
+        [depositContract] =await createContracts()
     })
-    afterEach(killChildProcesses)
-    it.skip('deposit on L1 and listen on emitted event', async function () {
-        console.log("L1DepositContract.address", L1DepositContract.address)
+    afterEach(stop)
+    it('deposit on L1 and listen on emitted event', async function () {
+        const nodes = await createNodes(4, owner.provider, depositContract.address)
+        return
+        await L1DepositContract.test(1, 2).then(console.log)
         const allNodes = [9000, 9001, 9002, 9003]
         await createInfo_json(allNodes.length)
 
         await createApiNodes(allNodes.length)
         await setTimeout(1000)
-        
+
         const tx = await L1DepositContract.deposit(20)
         const receipt = await tx.wait()
         await setTimeout(1000)
-        
+
         
         /*for (const event of receipt.events) {
             if (event.event !== 'L1DepositByUser') continue;

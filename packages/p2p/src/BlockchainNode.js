@@ -4,19 +4,25 @@ import BridgeNode from './BridgeNode.js';
 import abi from '../artifacts/contracts/L1Deposit.sol/L1Deposit.json' assert { type: "json" };
 
 export default class BlockchainNode extends BridgeNode {
-    constructor({ip = '0.0.0.0', port = 0, isLeader = false, json, providerUrl, contractAddress}) {
-        super({ip, port, isLeader, json})
-        this.providerUrl = providerUrl
-        this.provider = new ethers.providers.JsonRpcProvider(this.providerUrl)
+    static create({ip, port, isLeader, json, providerUrl, contractAddress, bootstrapNodes}){
+        const provider = new ethers.providers.JsonRpcProvider(providerUrl)
+        return new BlockchainNode({ip, port, isLeader, json, provider, contractAddress, bootstrapNodes})
+    }
+
+    static fromConfiguredEvms({ip, port, isLeader, json, provider, contractAddress, bootstrapNodes}) {
+        return new BlockchainNode({ip, port, isLeader, json, provider, contractAddress, bootstrapNodes})
+    }
+
+    constructor({ip = '0.0.0.0', port = 0, isLeader = false, json, provider, contractAddress, bootstrapNodes}) {
+        super({ip, port, isLeader, json, bootstrapNodes})
+        this.provider = provider
         this.contract = new Contract(contractAddress, abi.abi, this.provider)
     }
+
     async create() {
         await super.create()
         if (this.isLeader){
-            console.log("BlockchainNode", await this.contract.address)
             const test = await this.contract.test(1,2)
-            console.log("test", test)
-            //console.log("Setting listener on contract", this.provider, this.contract)
             this.contract.on("L1DepositByUser", (depositor, amount)=>{
                 console.log("OnDepositEvent", depositor, amount)
             })

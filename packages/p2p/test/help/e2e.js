@@ -8,7 +8,6 @@ import {tryAgainIfConnectionError, tryAgainIfError, waitToSync} from '../../src/
 import {setTimeout} from 'node:timers/promises'
 
 const __dirname = process.cwd()
-console.log('dirname', __dirname)
 
 const childProcesses = {}
 

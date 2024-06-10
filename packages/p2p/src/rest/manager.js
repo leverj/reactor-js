@@ -7,6 +7,7 @@ import {Info} from './Info.js'
 const {bridgeNode: {port, isLeader, contractAddress, providerUrl}} = config
 const info = new Info()
 //FIXME change BridgeNode to BlockchainNode for the new flow
-export const bridgeNode = new BridgeNode({port, isLeader, json: info.get(), contractAddress, providerUrl})
+const bootstrapNodes = config.bridgeNode.bootstrapNodes
+export const bridgeNode = new BlockchainNode({port, isLeader, json: info.get(), contractAddress, providerUrl, bootstrapNodes})
 info.setBridgeNode(bridgeNode)
 await bridgeNode.create()

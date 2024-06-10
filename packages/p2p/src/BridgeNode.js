@@ -37,9 +37,9 @@ class Whitelist {
 }
 
 export default class BridgeNode extends NetworkNode {
-  constructor({ip = '0.0.0.0', port = 0, isLeader = false, json}) {
+  constructor({ip = '0.0.0.0', port = 0, isLeader = false, json, bootstrapNodes}) {
     super({ip, port, peerIdJson: json?.p2p})
-    logger.log('bootstrapNodes', config.bridgeNode.bootstrapNodes, process.env.BRIDGE_BOOTSTRAP_NODES, port)
+    this.bootstrapNodes = bootstrapNodes
     this.isLeader = isLeader
     this.tssNodeJson = json?.tssNode
     this.whitelist = new Whitelist(json?.whitelist)
@@ -78,7 +78,7 @@ export default class BridgeNode extends NetworkNode {
   }
 
   async addLeader() {
-    this.leader = this.isLeader ? this.peerId : config.bridgeNode.bootstrapNodes[0].split('/').pop()
+    this.leader = this.isLeader ? this.peerId : this.bootstrapNodes[0].split('/').pop()
     this.addPeersToWhiteList(this.leader)
     if (this.isLeader) return
     await waitToSync([_ => this.peers.indexOf(this.leader) !== -1], -1)
