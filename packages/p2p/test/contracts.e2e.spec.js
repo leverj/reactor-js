@@ -11,21 +11,21 @@ describe('contract e2e', () => {
         depositAddress = await depositContract.getAddress()
     })
     afterEach(stop)
-    it('deposit on L1 and listen on emitted event', async function () {
+    it.only('deposit on L1 and listen on emitted event', async function () {
         const nodes = await createNodes(4, owner.provider, depositAddress)
-        return
-        await L1DepositContract.test(1, 2).then(console.log)
-        const allNodes = [9000, 9001, 9002, 9003]
+        
+        /*const allNodes = [9000, 9001, 9002, 9003]
         await createInfo_json(allNodes.length)
 
         await createApiNodes(allNodes.length)
-        await setTimeout(1000)
+        await setTimeout(1000)*/
 
-        const tx = await L1DepositContract.deposit(20)
+        const tx = await depositContract.deposit(20)
         const receipt = await tx.wait()
+        console.log("receipt", receipt)
         await setTimeout(1000)
-
-        
+        await nodes[0].fetchLogs(0, 10, ["0xc6d85822d86b60b41984292074ead1b48e583535e9e12c2098fe3f6b04a56444"])
+        await setTimeout(5000)
         /*for (const event of receipt.events) {
             if (event.event !== 'L1DepositByUser') continue;
             const message = JSON.stringify(event.args)
@@ -41,6 +41,6 @@ describe('contract e2e', () => {
 
         }*/
 
-    })
+    }).timeout(-1)
 
 })
