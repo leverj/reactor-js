@@ -1,7 +1,6 @@
 import {JsonRpcProvider, Contract} from 'ethers';
 import BridgeNode from './BridgeNode.js';
-//FIXME import {abi} does not work "SyntaxError: The requested module does not provide an export named 'abi'"
-import abi from '../artifacts/contracts/L1Deposit.sol/L1Deposit.json' assert { type: "json" };
+import abi from '../artifacts/contracts/L1Vault.sol/L1Vault.json' assert { type: "json" };
 
 export default class BlockchainNode extends BridgeNode {
     static create({ip, port, isLeader, json, providerUrl, contractAddress, bootstrapNodes}){

@@ -3,7 +3,6 @@ import {generateDkgId, TSSNode} from './TSSNode.js'
 import {affirm, logger} from '@leverj/common/utils'
 import {shortHash, tryAgainIfEncryptionFailed, waitToSync} from './utils/utils.js'
 import events, {INFO_CHANGED, PEER_DISCOVERY} from './utils/events.js'
-import config from 'config'
 import {setTimeout} from 'node:timers/promises'
 import Monitor from './utils/Monitor.js'
 import Whitelist  from './Whitelist.js'
@@ -27,6 +26,7 @@ export default class BridgeNode extends NetworkNode {
     this.tssNode = null
     this.messageMap = {}
     this.monitor = new Monitor()
+    this.components = {}
     //fixme: changes when real whitelisting done
     if (this.isLeader) {
       events.on(PEER_DISCOVERY, (peerId) => this.addPeersToWhiteList(peerId))
@@ -40,6 +40,10 @@ export default class BridgeNode extends NetworkNode {
       whitelist: this.whitelist.exportJson(),
       leader: this.leader
     }
+  }
+
+  addComponent(component) {
+    this.components[component.id] = component
   }
 
   async create() {

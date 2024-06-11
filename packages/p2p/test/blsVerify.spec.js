@@ -4,11 +4,10 @@ import bls from '../src/utils/bls.js'
 
 const messageString = 'hello world'
 describe('blsVerify', () => {
-  let contract, L1DepositContract, owner, anyone
+  let contract, owner, anyone
   beforeEach(async () => {
     [owner, anyone] = await getSigners()
     contract = await deployContract('BlsVerify', [])
-    L1DepositContract = await deployContract('L1Deposit', [])
   })
 
   it('verify single signature', async function () {

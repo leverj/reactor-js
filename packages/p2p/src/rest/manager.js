@@ -1,19 +1,21 @@
 import config from 'config'
-import BlockchainNode from '../BlockchainNode.js'
 import BridgeNode from '../BridgeNode.js'
-
 import {Info} from './Info.js'
+import DepositWithdraw from '../deposit_withdraw/depositWithdraw.js'
+
+const componentsMap = {
+  [DepositWithdraw.id]: DepositWithdraw,
+}
 
 const {bridgeNode: {port, isLeader, contractAddress, providerUrl}} = config
 const info = new Info()
 const bootstrapNodes = config.bridgeNode.bootstrapNodes
-//FIXME hack for testing now. should be gone after separate e2e tests
-let node
-if (process.env.CONTRACT_TESTING === 'false') {
-  node = new BridgeNode({port, isLeader, json: info.get(), bootstrapNodes})
-} else {
-  node = new BlockchainNode({port, isLeader, json: info.get(), contractAddress, providerUrl, bootstrapNodes})
+const bridgeNode = new BridgeNode({port, isLeader, json: info.get(), bootstrapNodes})
+info.setBridgeNode(bridgeNode)
+await bridgeNode.create()
+for (const component of config.components) {
+  const componentInstance = componentsMap[component].from(bridgeNode, config)
+  componentInstance.start()
 }
-export default node
-info.setBridgeNode(node)
-await node.create()
+
+export default bridgeNode
