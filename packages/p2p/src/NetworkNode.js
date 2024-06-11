@@ -13,9 +13,9 @@ import {createFromJSON} from '@libp2p/peer-id-factory'
 import {bootstrap} from '@libp2p/bootstrap'
 import {identify} from '@libp2p/identify'
 import {kadDHT, passthroughMapper} from '@libp2p/kad-dht'
-import {tryAgainIfError} from './utils.js'
+import {tryAgainIfError} from './utils/utils.js'
 import config from 'config'
-import events, {PEER_CONNECT, PEER_DISCOVERY} from './events.js'
+import events, {PEER_CONNECT, PEER_DISCOVERY} from './utils/events.js'
 import {logger} from '@leverj/common/utils'
 
 export default class NetworkNode {

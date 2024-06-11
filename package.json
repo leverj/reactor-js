@@ -10,7 +10,7 @@
     "packages/*"
   ],
   "scripts": {
-    "test": "yarn workspaces run test"
+    "test": "yarn workspaces run test --stream"
   },
   "devDependencies": {
     "@istanbuljs/esm-loader-hook": "^0.2.0",

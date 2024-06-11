@@ -1,4 +1,3 @@
-import {ethers} from 'ethers'
 import {bigToHex, FIELD_ORDER, randHex, stringToHex, toBig} from './utils.js'
 import {hashToField} from './hash_to_field.js'
 import mcl from 'mcl-wasm'

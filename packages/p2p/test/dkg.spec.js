@@ -1,4 +1,4 @@
-import bls from '../src/bls.js'
+import bls from '../src/utils/bls.js'
 import {createDkgMembers, setupMembers, signMessage, signAndVerify, addMember, deployContract, getSigners} from './help/index.js'
 import {expect} from 'expect'
 import {TSSNode} from '../src/TSSNode.js'

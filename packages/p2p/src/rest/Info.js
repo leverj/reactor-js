@@ -1,6 +1,6 @@
 import path from 'path'
 import config from 'config'
-import events, {INFO_CHANGED} from '../events.js'
+import events, {INFO_CHANGED} from '../utils/events.js'
 import {existsSync, readFileSync, writeFileSync} from 'node:fs'
 
 export class Info {

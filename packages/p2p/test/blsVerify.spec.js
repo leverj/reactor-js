@@ -1,18 +1,10 @@
-import {setTimeout} from 'timers/promises'
 import { expect } from 'expect'
-import axios from 'axios'
 import { deployContract, getSigners, createDkgMembers, signMessage } from './help/index.js'
-import bls from '../src/bls.js'
-import * as mcl from '../src/mcl/mcl.js'
-import { deserializeHexStrToG1, deserializeHexStrToG2 } from 'mcl-wasm'
-import { stringToHex } from '../src/mcl/mcl.js'
+import bls from '../src/utils/bls.js'
 
 const messageString = 'hello world'
 describe('blsVerify', () => {
   let contract, L1DepositContract, owner, anyone
-  before(async () => {
-    await mcl.init()
-  })
   beforeEach(async () => {
     [owner, anyone] = await getSigners()
     contract = await deployContract('BlsVerify', [])
@@ -20,14 +12,14 @@ describe('blsVerify', () => {
   })
 
   it('verify single signature', async function () {
-    // mcl.setMappingMode(mcl.MAPPING_MODE_TI)
-    // mcl.setDomain('testing evmbls')
-    const message = mcl.stringToHex(messageString)
-    const { pubkey, secret } = mcl.newKeyPair()
-    const { signature, M } = mcl.sign(message, secret)
-    let sig_ser = mcl.g1ToBN(signature)
-    let pubkey_ser = mcl.g2ToBN(pubkey)
-    let message_ser = mcl.g1ToBN(M)
+    // bls.setMappingMode(bls.MAPPING_MODE_TI)
+    // bls.setDomain('testing evmbls')
+    const message = bls.stringToHex(messageString)
+    const { pubkey, secret } = bls.newKeyPair()
+    const { signature, M } = bls.sign(message, secret)
+    let sig_ser = bls.g1ToBN(signature)
+    let pubkey_ser = bls.g2ToBN(pubkey)
+    let message_ser = bls.g1ToBN(M)
 
     let res = await contract.verifySignature(sig_ser, pubkey_ser, message_ser)
     expect(res).toEqual(true)
@@ -43,20 +35,20 @@ describe('blsVerify', () => {
 
     const signatureHex = groupsSign.serializeToHexStr()
     const pubkeyHex = members[0].groupPublicKey.serializeToHexStr()
-    const M = mcl.hashToPoint(messageString)
+    const M = bls.hashToPoint(messageString)
 
-    const signature = deserializeHexStrToG1(signatureHex)
-    const pubkey = deserializeHexStrToG2(pubkeyHex)
-    let message_ser = mcl.g1ToBN(M)
-    let pubkey_ser = mcl.g2ToBN(pubkey)
-    let sig_ser = mcl.g1ToBN(signature)
+    const signature = bls.deserializeHexStrToG1(signatureHex)
+    const pubkey = bls.deserializeHexStrToG2(pubkeyHex)
+    let message_ser = bls.g1ToBN(M)
+    let pubkey_ser = bls.g2ToBN(pubkey)
+    let sig_ser = bls.g1ToBN(signature)
     let res = await contract.verifySignature(sig_ser, pubkey_ser, message_ser)
     expect(res).toEqual(true)
   })
 
   it('should be able to convert message to point', async function () {
-    let res = await contract.hashToPoint(stringToHex('testing evmbls'), stringToHex(messageString))
-    let fromJs = mcl.g1ToBN(mcl.hashToPoint(messageString))
+    let res = await contract.hashToPoint(bls.stringToHex('testing evmbls'), bls.stringToHex(messageString))
+    let fromJs = bls.g1ToBN(bls.hashToPoint(messageString))
     // console.log('from js', fromJs)
     // console.log('from contract', res)
     expect(res).toEqual(fromJs)

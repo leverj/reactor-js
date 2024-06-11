@@ -2,7 +2,7 @@ import {setTimeout} from 'timers/promises'
 import axios from 'axios'
 import {expect} from 'expect'
 import {getBridgeInfos} from './help/index.js'
-import {tryAgainIfConnectionError, waitToSync} from '../src/utils.js'
+import {tryAgainIfConnectionError, waitToSync} from '../src/utils/utils.js'
 import {createApiNodes, createFrom, createInfo_json, deleteInfoDir, getInfo, getPublicKey, getWhitelists, killChildProcesses, publishWhitelist, startDkg, stop, waitForWhitelistSync} from './help/e2e.js'
 
 const message = 'hello world'

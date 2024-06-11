@@ -1,0 +1,16 @@
+{
+  "name": "@leverj/layer2-mcl",
+  "version": "0.0.1",
+  "type": "module",
+  "license": "UNLICENSED",
+  "exports": {
+    "./mcl": "./src/mcl.js",
+    "./utils": "./src/utils.js"
+  },
+  "scripts": {
+    "test": "mocha test/**/*.spec.js"
+  },
+  "dependencies": {
+    "ethers": "^5.7.2"
+  }
+}

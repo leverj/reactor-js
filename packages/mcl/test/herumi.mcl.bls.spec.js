@@ -1,12 +1,13 @@
 import bls from 'bls-wasm'
 import mcl from 'mcl-wasm'
-import {expect} from 'expect';
+import {expect} from 'expect'
 
-it('should match the signature between bls-wasm and mcl-wasm', async function () {
+describe('mcl-bls-herumi', () => {
+  it('should match the signature between bls-wasm and mcl-wasm', async function () {
 
-    await bls.init(4);
-    bls.setMapToMode(0);
-    await mcl.init(mcl.BN_SNARK1);
+    await bls.init(4)
+    bls.setMapToMode(0)
+    await mcl.init(mcl.BN_SNARK1)
     mcl.setMapToMode(0)
 
     const messageStr = 'hello world'
@@ -20,4 +21,5 @@ it('should match the signature between bls-wasm and mcl-wasm', async function ()
     Fr.deserialize(Uint8Array.from(secret.serialize()))
     const sign_mcl_wasm = mcl.mul(hashToG1, Fr)
     expect(sign_bls_wasm.serializeToHexStr()).toEqual(sign_mcl_wasm.serializeToHexStr())
+  })
 })

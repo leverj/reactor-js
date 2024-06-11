@@ -4,7 +4,7 @@ import {fork} from 'child_process'
 import {getBridgeInfos} from './fixtures.js'
 import path from 'path'
 import axios from 'axios'
-import {tryAgainIfConnectionError, tryAgainIfError, waitToSync} from '../../src/utils.js'
+import {tryAgainIfConnectionError, tryAgainIfError, waitToSync} from '../../src/utils/utils.js'
 import {setTimeout} from 'node:timers/promises'
 
 const __dirname = process.cwd()

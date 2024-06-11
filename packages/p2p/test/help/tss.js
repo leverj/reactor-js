@@ -1,6 +1,5 @@
 import {TSSNode} from '../../src/TSSNode.js'
-import bls from '../../src/bls.js'
-import * as mcl from '../../src/mcl/mcl.js'
+import bls from '../../src/utils/bls.js'
 import {expect} from 'expect'
 
 export async function signAndVerify(contract, message, members) {
@@ -17,12 +16,12 @@ export async function signAndVerify(contract, message, members) {
 }
 
 async function verifyInContract(signatureHex, pubkeyHex, message, contract){
-  const M = mcl.hashToPoint(message)
-  const signature = mcl.deserializeHexStrToG1(signatureHex)
-  const pubkey = mcl.deserializeHexStrToG2(pubkeyHex)
-  let message_ser = mcl.g1ToBN(M)
-  let pubkey_ser = mcl.g2ToBN(pubkey)
-  let sig_ser = mcl.g1ToBN(signature)
+  const M = bls.hashToPoint(message)
+  const signature = bls.deserializeHexStrToG1(signatureHex)
+  const pubkey = bls.deserializeHexStrToG2(pubkeyHex)
+  let message_ser = bls.g1ToBN(M)
+  let pubkey_ser = bls.g2ToBN(pubkey)
+  let sig_ser = bls.g1ToBN(signature)
   return  await contract.verifySignature(sig_ser, pubkey_ser, message_ser)
 }
 
