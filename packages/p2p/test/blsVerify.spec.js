@@ -51,6 +51,6 @@ describe('blsVerify', () => {
     let fromJs = bls.g1ToBN(bls.hashToPoint(messageString))
     // console.log('from js', fromJs)
     // console.log('from contract', res)
-    expect(res).toEqual(fromJs)
+    expect(res.map(_=>_.toString())).toEqual(fromJs)
   })
 })

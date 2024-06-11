@@ -4,14 +4,15 @@ import { getSigners} from './help/index.js'
 import {createContracts, createNodes, stop} from './help/contracts.e2e.js'
 
 describe('contract e2e', () => {
-    let depositContract, owner, anyone
+    let depositContract, owner, anyone, depositAddress
     beforeEach(async () => {
         [owner, anyone] = await getSigners();
         [depositContract] =await createContracts()
+        depositAddress = await depositContract.getAddress()
     })
     afterEach(stop)
     it('deposit on L1 and listen on emitted event', async function () {
-        const nodes = await createNodes(4, owner.provider, depositContract.address)
+        const nodes = await createNodes(4, owner.provider, depositAddress)
         return
         await L1DepositContract.test(1, 2).then(console.log)
         const allNodes = [9000, 9001, 9002, 9003]

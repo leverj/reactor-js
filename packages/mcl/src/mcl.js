@@ -123,7 +123,7 @@ export function g1ToBN(p) {
   p.normalize()
   const x = toBig(mclToHex(p.getX()))
   const y = toBig(mclToHex(p.getY()))
-  return [x, y]
+  return [x, y].map(_=>_.toString())
 }
 
 export function g1ToHex(p) {
@@ -153,7 +153,7 @@ export function g2ToBN(p) {
     toBig('0x' + x.slice(0, 64)),
     toBig('0x' + y.slice(64)),
     toBig('0x' + y.slice(0, 64)),
-  ]
+  ].map(_=>_.toString())
 }
 
 export function g2ToHex(p) {
