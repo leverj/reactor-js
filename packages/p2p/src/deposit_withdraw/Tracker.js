@@ -14,6 +14,8 @@ import abi2 from '../../artifacts/contracts/L2Vault.sol/L2Vault.json' assert {ty
   }
 
   //FIXME Tracker is basically for {Chain, Contract, Topic}. Send via constructor, and should be read as env/config
+  //Design decision : Should all topics for a provider be listened by single tracker or per topic tracker ?
+  //How much granular is right
 const topics = ["0xc6d85822d86b60b41984292074ead1b48e583535e9e12c2098fe3f6b04a56444"]
 const ifaces = {
     L1Vault: new Interface(abi1.abi),

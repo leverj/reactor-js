@@ -3,6 +3,7 @@ import {JsonRpcProvider, Contract} from 'ethers'
 import abi1 from '../../artifacts/contracts/L1Vault.sol/L1Vault.json' assert {type: 'json'}
 import abi2 from '../../artifacts/contracts/L2Vault.sol/L2Vault.json' assert {type: 'json'}
 import { Tracker } from './Tracker.js'
+import {Marker} from './Marker.js'
 class DepositWithdraw {
   static from(bridgeNode, config) {
     const l1 = {
@@ -32,8 +33,10 @@ class DepositWithdraw {
     this.isRunning = true
     const chainIdBigInt = (await this.l1.provider.getNetwork()).chainId; //returns BigInt => 1337n for hardhat
     console.log("chainId", chainIdBigInt.toString())
-    this.tracker = new Tracker(this.l1.provider, chainIdBigInt.toString(), 1) //FIXME ChainId should come from config, provider does not have
-    //await this.pollForEvents()
+    const marker = new Marker(1, 0);
+    //console.log("this.marker", marker)
+    this.tracker = new Tracker(this.l1.provider, chainIdBigInt.toString(), marker) //FIXME ChainId should come from config, provider does not have
+    console.log("this.tracker", this.tracker)
     this.tracker.addContract(this.l1.address, "L1Vault")
     this.tracker.addComponent(this, "L1Vault")
     await this.tracker.start()
