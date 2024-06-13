@@ -63,5 +63,5 @@ jobs:
 workflows:
   workflow:
     jobs:
-      - docker-creation: {name: docker-reactor, package: p2p}
+      - docker-creation: {name: docker-reactor, package: p2p, copy: "src ../mcl/leverj-layer2-mcl-0.0.1.tgz config package.json app.js ../../yarn.lock"}
       - individual-test: {name: test-p2p, package: p2p}
