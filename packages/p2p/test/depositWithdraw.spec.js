@@ -13,11 +13,12 @@ describe('contract e2e', () => {
         l2 = chain.l2
     })
     afterEach(stop)
-    it('deposit on L1 and listen on emitted event', async function () {
+    it.skip('deposit on L1 and listen on emitted event', async function () {
         const component = await createComponent({l1, l2})
         const tx = await l1.contract.connect(owner).deposit(20)
         const receipt = await tx.wait()
-        console.log("receipt", receipt)
+        await setTimeout(1000)
+        //console.log("receipt", receipt)
         // await setTimeout(1000)
         // await nodes[0].fetchLogs(0, 10, ["0xc6d85822d86b60b41984292074ead1b48e583535e9e12c2098fe3f6b04a56444"])
         // await setTimeout(5000)

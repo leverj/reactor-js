@@ -9,7 +9,6 @@ export const stop = async () => {
   for (const node of nodes) await node.stop()
   nodes.length = 0
 }
-
 export const createChain = async () => {
   const contract1 =  await deployContract('L1Vault', [])
   const contract2 =  await deployContract('L2Vault', [])
@@ -33,6 +32,9 @@ class MockBridgeNode {
   }
   addComponent(component) {
     this.components[component.id] = component
+  }
+  aggregateSignature(txnHash, data){
+    console.log("Do aggregate signature for ", txnHash, data)
   }
 }
 

@@ -2,7 +2,7 @@ import {JsonRpcProvider, Contract} from 'ethers'
 //fixme: should be getting from src directory. yarn script should save this in /src/abi directory
 import abi1 from '../../artifacts/contracts/L1Vault.sol/L1Vault.json' assert {type: 'json'}
 import abi2 from '../../artifacts/contracts/L2Vault.sol/L2Vault.json' assert {type: 'json'}
-
+import { Tracker } from './Tracker.js'
 class DepositWithdraw {
   static from(bridgeNode, config) {
     const l1 = {
@@ -23,11 +23,27 @@ class DepositWithdraw {
     this.l2 = l2
     this.l1.contract = new Contract(l1.address, abi1.abi, l1.provider)
     this.l2.contract = new Contract(l2.address, abi2.abi, l2.provider)
+    this.isRunning = false
+    this.lastBlock = 0
     bridgeNode.addComponent(this)
   }
-
-  start() {
+  async start() {
     console.log('#'.repeat(50), 'starting deposit withdraw', '#'.repeat(50))
+    this.isRunning = true
+    const chainIdBigInt = (await this.l1.provider.getNetwork()).chainId; //returns BigInt => 1337n for hardhat
+    console.log("chainId", chainIdBigInt.toString())
+    this.tracker = new Tracker(this.l1.provider, chainIdBigInt.toString(), 1) //FIXME ChainId should come from config, provider does not have
+    //await this.pollForEvents()
+    this.tracker.addContract(this.l1.address, "L1Vault")
+    this.tracker.addComponent(this, "L1Vault")
+    await this.tracker.start()
+  }
+  async stop() {
+    this.isRunning = false
+  }
+  async consume(blockchainEvent){
+    console.log("BlockchainEvent consume deposit_withdraw", blockchainEvent)
+    await this.bridgeNode.aggregateSignature(blockchainEvent.transactionHash, blockchainEvent.args)
   }
 }
 
