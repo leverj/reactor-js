@@ -48,6 +48,7 @@ jobs:
           command: |
             cd packages/<< parameters.package >>
             mkdir -p dist
+            cd ../mcl && npm pack && mv leverj-layer2-mcl-*.tgz ../p2p/dist/leverj-layer2-mcl.tgz && cd ../p2p 
             cp -r << parameters.copy >> dist/
       - setup_remote_docker: { docker_layer_caching: true}
       - run:
@@ -63,5 +64,5 @@ jobs:
 workflows:
   workflow:
     jobs:
-      - docker-creation: {name: docker-reactor, package: p2p, copy: "src ../mcl/leverj-layer2-mcl-0.0.1.tgz config package.json app.js ../../yarn.lock"}
+      - docker-creation: {name: docker-reactor, package: p2p}
       - individual-test: {name: test-p2p, package: p2p}
