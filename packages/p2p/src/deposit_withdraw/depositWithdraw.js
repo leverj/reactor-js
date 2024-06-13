@@ -1,7 +1,6 @@
 import {JsonRpcProvider, Contract} from 'ethers'
-//fixme: should be getting from src directory. yarn script should save this in /src/abi directory
-import abi1 from '../../artifacts/contracts/L1Vault.sol/L1Vault.json' assert {type: 'json'}
-import abi2 from '../../artifacts/contracts/L2Vault.sol/L2Vault.json' assert {type: 'json'}
+import abi1 from '../abi/L1Vault.json' assert {type: 'json'}
+import abi2 from '../abi/L2Vault.json' assert {type: 'json'}
 import { Tracker } from './Tracker.js'
 import {Marker} from './Marker.js'
 class DepositWithdraw {

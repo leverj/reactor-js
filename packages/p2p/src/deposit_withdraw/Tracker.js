@@ -4,8 +4,8 @@ import {List} from 'immutable'
 import {compact} from 'lodash-es'
 import { Marker } from './Marker.js'
 import {affirm, InvalidArgument, logger, telegram} from '@leverj/common/utils'
-import abi1 from '../../artifacts/contracts/L1Vault.sol/L1Vault.json' assert {type: 'json'}
-import abi2 from '../../artifacts/contracts/L2Vault.sol/L2Vault.json' assert {type: 'json'}
+import abi1 from '../abi/L1Vault.json' assert {type: 'json'}
+import abi2 from '../abi/L2Vault.json' assert {type: 'json'}
 
 //FIXME needs to come from config
   const polling = {

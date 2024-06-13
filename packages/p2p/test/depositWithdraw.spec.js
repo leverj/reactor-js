@@ -13,7 +13,7 @@ describe('contract e2e', () => {
         l2 = chain.l2
     })
     afterEach(stop)
-    it.only('deposit on L1 and listen on emitted event', async function () {
+    it('deposit on L1 and listen on emitted event', async function () {
         const component = await createComponent({l1, l2})
         const tx = await l1.contract.connect(owner).deposit(20)
         const receipt = await tx.wait()
