@@ -48,7 +48,7 @@ jobs:
           command: |
             cd packages/<< parameters.package >>
             mkdir -p dist
-            cd ../mcl && npm pack && mv leverj-layer2-mcl-*.tgz dist/leverj-layer2-mcl.tgz && cd - 
+            cd ../mcl && npm pack && mv leverj-layer2-mcl-*.tgz ../p2p/dist/leverj-layer2-mcl.tgz && cd - 
             cp -r << parameters.copy >> dist/
       - setup_remote_docker: { docker_layer_caching: true}
       - run:
