@@ -16,22 +16,39 @@ import abi2 from '../abi/L2Vault.json' assert {type: 'json'}
   //FIXME Tracker is basically for {Chain, Contract, Topic}. Send via constructor, and should be read as env/config
   //Design decision : Should all topics for a provider be listened by single tracker or per topic tracker ?
   //How much granular is right
-const topics = ["0xc6d85822d86b60b41984292074ead1b48e583535e9e12c2098fe3f6b04a56444"]
+//const topics = ["0xc6d85822d86b60b41984292074ead1b48e583535e9e12c2098fe3f6b04a56444"]
 const ifaces = {
     L1Vault: new Interface(abi1.abi),
     L2Vault: new Interface(abi2.abi),
   }
 
 export class Tracker {
-  static async of(provider, chainId, startBlock) {
-    /*const marker = await TrackerMarker.exists({chainId}) ?
-      await TrackerMarker.findOne({chainId}) :
-      await TrackerMarker.create({chainId, block: startBlock})*/
+  /*static async of(provider, chainId, startBlock) {
     const marker = Marker.getMarker(chainId)  
     return new this(provider, chainId, marker)
-  }
+  }*/
+  /*chainBeingTracked = {
+    chainId: '',
+    provider: {}
+    deposit_at_source: {
+        contract_address:'',
+        contract_abi: '',
+        topics: []
+    },
+    withdraw_from_target: {
+        contract_address:'',
+        contract_abi: '',
+        topics: []
+    }
 
-  constructor(provider, chainId, marker) {
+  }*/
+  constructor(provider, chainId, topics){
+    this.provider = provider
+    this.chainId = chainId
+    this.topics = topics
+    this.marker = Marker.getMarker(this.chainId)
+  }
+  /*constructor(provider, chainId, marker) {
     this.contracts = {}
     this.provider = provider
     this.chainId = chainId
@@ -39,15 +56,15 @@ export class Tracker {
     this.isRunning = false
     this.components = {}
     exitHook(() => this.stop())
-  }
+  }*/
 
   get lastBlock() { return this.marker.block }
 
-  trackingInfo() { return `chain[${this.chainId}]` }
+  //trackingInfo() { return `chain[${this.chainId}]` }
 
-  setContracts(contracts) { this.contracts = contracts }
-  addContract(address, kind) {console.log("Tracker: addContract", address, kind);  this.contracts[address] = kind }
-  addComponent(component, id){this.components[id] = component}
+  //setContracts(contracts) { this.contracts = contracts }
+  //addContract(address, kind) {console.log("Tracker: addContract", address, kind);  this.contracts[address] = kind }
+  addConsumer(consumer, topic){this.consumers[topic] = consumer}
   async start() {
     console.log("Tracker.start", this.isRunning)
     if (!this.isRunning) {
@@ -78,19 +95,16 @@ export class Tracker {
     } catch (e) {
         console.log("Poll err", e)
       if (attempts === 1) logger.error(`tracker [${this.trackingInfo()}] failed during polling for events`, e, e.cause || '')
-      this.marker = Marker.getMarker(this.chainId)
       return attempts === polling.attempts ? this.fail(e) : this.pollForEvents(attempts + 1)
     }
     if (this.isRunning) this.pollingTimer = setTimeout(this.pollForEvents.bind(this), polling.interval)
   }
 
   async poll() {
-    //FIXME uncomment once we can export these state variables from the Marker class
-    //const fromBlock = this.lastBlock + (this.marker.blockWasProcessed ? 1 : 0) 
-    const fromBlock = 1
+    const fromBlock = this.marker.getBlockNumber()
     const toBlock = await this.provider.getBlockNumber()
     console.log("poll", fromBlock, toBlock)
-    if (fromBlock <= toBlock) await this.processLogs(fromBlock, toBlock)
+    if (fromBlock <= toBlock) await this.processLogs(fromBlock, toBlock, this.topics)
   }
 
   async getSingleBlockLogsFallback(fromBlock, toBlock) {
@@ -103,7 +117,7 @@ export class Tracker {
     return logs
   }
 
-  async processLogs(fromBlock, toBlock) {
+  async processLogs(fromBlock, toBlock, topics) {
     console.log("processLogs", fromBlock, toBlock)
     affirm(toBlock >= fromBlock , `invalid get logs parameters, from: ${fromBlock}, to: ${toBlock} ` )
     const filter = {fromBlock, toBlock, topics}
@@ -116,8 +130,8 @@ export class Tracker {
       else {
         logger.info(`splitting blocks to read logs from:${fromBlock} to:${toBlock}`, e?.error?.message)
         const midway = fromBlock + Math.floor((toBlock - fromBlock) / 2)
-        await this.processLogs(fromBlock, midway)
-        await this.processLogs(midway + 1, toBlock)
+        await this.processLogs(fromBlock, midway, topics)
+        await this.processLogs(midway + 1, toBlock, topics)
       }
     }
     const {block, logIndex, blockWasProcessed} = this.marker //FIXME how to expose these as exports in Marker class
@@ -132,13 +146,13 @@ export class Tracker {
   }
 
   parseLog(log) {
-    const {chainId} = this
-    const {address, blockNumber, logIndex, transactionHash} = log
+    //const {chainId} = this
+    const {address, blockNumber, logIndex, transactionHash, topic} = log
     const kind = this.contracts[address]
     if (!kind) return null
 
     const {name, args} = ifaces[kind].parseLog(log)
-    logger.log('tracker:', JSON.stringify({chainId, blockNumber, logIndex, transactionHash, contract: address, event: name, args}))
+    //logger.log('tracker:', JSON.stringify({chainId, blockNumber, logIndex, transactionHash, contract: address, event: name, args}))
     return {
       kind,
       address: getAddress(address),
@@ -146,7 +160,8 @@ export class Tracker {
       logIndex,
       name,
       args,
-      transactionHash
+      transactionHash,
+      topic
     }
   }
 
@@ -154,7 +169,7 @@ export class Tracker {
     await this.update(block > this.lastBlock ? {block, logIndex: -1, blockWasProcessed: false} : {blockWasProcessed: false})
     const events = compact(logs.map(_ => this.parseLog(_)))
     for (let each of events) {
-      await this.components[each.kind].consume(each)
+      await this.consumers[each.topic].consume(each)
     }
     await this.update({blockWasProcessed: true})
   }

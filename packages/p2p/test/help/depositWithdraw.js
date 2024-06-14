@@ -14,14 +14,18 @@ export const createChain = async () => {
   const contract2 =  await deployContract('L2Vault', [])
   return {
     l1: {
-      contract: contract1,
       provider: provider,
-      address: await contract1.getAddress()
+      depositContract: contract1,
+      depositTopic: '',
+      //withdrawContract: contract1,
+      //withdrawTopic: ''
     },
     l2: {
-      contract: contract2,
       provider: provider,
-      address: await contract2.getAddress()
+      //depositContract: contract1,
+      //depositTopic: '',
+      withdrawContract: contract2,
+      withdrawTopic: ''
     }
   }
 }
@@ -39,7 +43,7 @@ class MockBridgeNode {
 }
 
 
-export const createComponent = async ({l1, l2}, bridgeNode = new MockBridgeNode()) => {
+export const createComponent = async (l1, l2, bridgeNode = new MockBridgeNode()) => {
   let depositWithdraw = new DepositWithdraw({bridgeNode, l1, l2})
   depositWithdraw.start()
   return depositWithdraw
