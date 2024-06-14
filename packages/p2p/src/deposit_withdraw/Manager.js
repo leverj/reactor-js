@@ -10,8 +10,8 @@ export default class Manager{
     //This is our immediate use case, so specific function for now, for clarity
     async createL1andL2(L1Info, L2Info){
         console.log("createL1andL2")
-        const deposit = new Deposit(L1Info.depositContract, L2Info.depositVerifierContract)
-        const withdraw = new Withdraw(L2Info.withdrawContract, L1Info.withdrawVerifierContract)
+        const deposit = new Deposit({contract: L1Info.depositContract, abi: L1Info.depositContractAbi}, {contract: L2Info.depositVerifierContract, abi: L2Info.depositVerifierAbi})
+        const withdraw = new Withdraw({contract: L2Info.withdrawContract, abi: L1Info.withdrawContractAbi}, {contract: L1Info.withdrawVerifierContract, abi: L2Info.withdrawVerifierAbi})
 
         const depositEventsTracker = new Tracker(L1Info.provider, L1Info.chainId, [L1Info.depositTopic])
         const withdrawEventsTracker = new Tracker(L2Info.provider, L2Info.chainId, [L2Info.withdrawTopic])
