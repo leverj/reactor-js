@@ -9,5 +9,5 @@ export class Marker{
     setBlockNumber(blockNumber){this.blockNumber = blockNumber}
     filePath(){return ""}
     async serialize(){await writeFile(filePath(), JSON.stringify({chainId: this.chainId, blockNumber: this.blockNumber}))}
-    getMarker(chainId){return new Marker(chainId, 0)} 
+    static getMarker(chainId){return new Marker(chainId, 0)} 
 }

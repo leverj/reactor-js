@@ -47,6 +47,7 @@ export class Tracker {
     this.chainId = chainId
     this.topics = topics
     this.marker = Marker.getMarker(this.chainId)
+    this.consumers = []
   }
   /*constructor(provider, chainId, marker) {
     this.contracts = {}
@@ -94,8 +95,8 @@ export class Tracker {
       await this.poll()
     } catch (e) {
         console.log("Poll err", e)
-      if (attempts === 1) logger.error(`tracker [${this.trackingInfo()}] failed during polling for events`, e, e.cause || '')
-      return attempts === polling.attempts ? this.fail(e) : this.pollForEvents(attempts + 1)
+      //if (attempts === 1) logger.error(`tracker [${this.trackingInfo()}] failed during polling for events`, e, e.cause || '')
+      //return attempts === polling.attempts ? this.fail(e) : this.pollForEvents(attempts + 1)
     }
     if (this.isRunning) this.pollingTimer = setTimeout(this.pollForEvents.bind(this), polling.interval)
   }
@@ -124,8 +125,8 @@ export class Tracker {
     let logs
     try {
       logs = await this.provider.getLogs(filter).then(_ => _.filter(_ => !_.removed))
-      console.log("provider.getLogs", logs)
     } catch (e) {
+        console.log(e)
       if (fromBlock === toBlock) logs = await this.getSingleBlockLogsFallback(fromBlock, toBlock)
       else {
         logger.info(`splitting blocks to read logs from:${fromBlock} to:${toBlock}`, e?.error?.message)
@@ -167,9 +168,9 @@ export class Tracker {
 
   async onNewBlock(block, logs) {
     await this.update(block > this.lastBlock ? {block, logIndex: -1, blockWasProcessed: false} : {blockWasProcessed: false})
-    const events = compact(logs.map(_ => this.parseLog(_)))
-    for (let each of events) {
-      await this.consumers[each.topic].consume(each)
+    //const events = compact(logs.map(_ => this.parseLog(_)))
+    for (let each of logs) {
+      await this.consumers[each.topics[0]].consume(each)
     }
     await this.update({blockWasProcessed: true})
   }

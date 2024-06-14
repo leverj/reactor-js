@@ -5,7 +5,7 @@ export default class Deposit{
         this.depositContract = depositContract
         this.verifierContract = verifierContract
     }
-    async consume(depositData){
-        
+    async consume(depositLog){
+        console.log("consume deposit", depositLog)
     }
 }

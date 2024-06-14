@@ -3,6 +3,7 @@ import BlockchainNode from '../../src/BlockchainNode.js'
 import {bridgeInfos} from './fixtures.js'
 import {setTimeout} from 'timers/promises'
 import DepositWithdraw from '../../src/deposit_withdraw/depositWithdraw.js'
+import Manager from '../../src/deposit_withdraw/Manager.js'
 export const nodes = []
 
 export const stop = async () => {
@@ -16,7 +17,7 @@ export const createChain = async () => {
     l1: {
       provider: provider,
       depositContract: contract1,
-      depositTopic: '',
+      depositTopic: '0xc6d85822d86b60b41984292074ead1b48e583535e9e12c2098fe3f6b04a56444',
       //withdrawContract: contract1,
       //withdrawTopic: ''
     },
@@ -44,9 +45,11 @@ class MockBridgeNode {
 
 
 export const createComponent = async (l1, l2, bridgeNode = new MockBridgeNode()) => {
-  let depositWithdraw = new DepositWithdraw({bridgeNode, l1, l2})
+  /*let depositWithdraw = new DepositWithdraw({bridgeNode, l1, l2})
   depositWithdraw.start()
-  return depositWithdraw
+  return depositWithdraw*/
+  const manager = new Manager(bridgeNode)
+  await manager.createL1andL2(l1, l2)
 
 }
 
