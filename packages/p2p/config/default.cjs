@@ -16,15 +16,16 @@ module.exports = {
     contractAddress: '',
     providerUrl: ''
   },
-  depositWithdraw: {
-    l1: {
-      contractAddress: '',
+
+  depositWithdraw:{
+    contractAddress1: {
+      chainId: 1,
       providerUrl: '',
     },
-    l2: {
-      contractAddress: '',
+    contractAddress2:{
+      chainId: 2,
       providerUrl: '',
-    },
+    }
   },
   components: ['DEPOSIT_WITHDRAW']
 
