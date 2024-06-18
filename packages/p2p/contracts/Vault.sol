@@ -22,9 +22,15 @@ contract Vault {
         pool[ETH] += msg.value;
         uint counter = depositCounter++;
         bytes32 hash = keccak256(abi.encodePacked(msg.sender, ETH, toChainId, msg.value, counter));
+        deposited[hash] = true;
         emit Deposited(msg.sender, ETH, toChainId, msg.value, counter);
     }
-
+    //This function will be called both externally and internally, hence public. 
+    //Clients could calculate the hash off-chain also and then simply query the public deposited map above.
+    function isDeposited(address depositor, address token, uint toChainId, uint amount, uint counter) public view returns (bool){
+        bytes32 hash = keccak256(abi.encodePacked(depositor, token, toChainId, amount, counter));
+        return deposited[hash];
+    }
 
     function depositToken(uint amount) external {
 //        emit Deposited(msg.sender, amount);
