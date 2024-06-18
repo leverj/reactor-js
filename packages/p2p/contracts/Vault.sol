@@ -94,6 +94,7 @@ contract Vault {
     //Signing Public Key is same as the one in contract here
     //The message string is a correct hash of the business params
     //Check if message (G1 on curve) is actually the representation of message string on G1 curve
+    //FIXME -- we need to distinguish b/w Withdraw and Deposit, should that also be part of the hash or separate
     function verifySignature(uint256[2] memory signature, uint256[4] memory signerKey, uint256[2] memory message, string memory messageString, address depositor, address token, uint toChainId, uint amount, uint counter) public view returns (bool) {
         require(pubkey.length == signerKey.length, 'Invalid Public Key length');
         require((pubkey[0] == signerKey[0] && pubkey[1] == signerKey[1] && pubkey[2] == signerKey[2] && pubkey[3] == signerKey[3]), 'Invalid Public Key');
