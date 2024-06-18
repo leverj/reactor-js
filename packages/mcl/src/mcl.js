@@ -1,18 +1,20 @@
 import {bigToHex, FIELD_ORDER, randHex, stringToHex, toBig} from './utils.js'
 import {hashToField} from './hash_to_field.js'
 import mcl from 'mcl-wasm'
+import bls from '@leverj/layer2-p2p/src/utils/bls.js'
 
 export {stringToHex} from './utils.js'
 export * from 'mcl-wasm'
 export const MAPPING_MODE_TI = 'TI'
 export const MAPPING_MODE_FT = 'FT'
-
+const cipher_suite_domain = 'BN256-HASHTOPOINT';
+export const DOMAIN_STRING = cipher_suite_domain
 let DOMAIN
 
 export async function init() {
   await mcl.init(mcl.BN_SNARK1)
   setMappingMode(MAPPING_MODE_FT)
-  setDomain('testing evmbls')
+  setDomain(DOMAIN_STRING)
 }
 
 export function setDomain(domain) {

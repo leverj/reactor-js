@@ -11,7 +11,7 @@ const cipher_suite_domain = 'BN256-HASHTOPOINT';
 bls.setDomain(cipher_suite_domain);
 describe('vault contract', function () {
 
-  it.only('should be able to deposit ether', async function () {
+  it('should be able to deposit ether', async function () {
     const threshold = 4
     const members = await createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399], threshold)
     const pubkeyHex = members[0].groupPublicKey.serializeToHexStr()
@@ -19,11 +19,10 @@ describe('vault contract', function () {
     let pubkey_ser = bls.g2ToBN(pubkey)
     let member_pub_key = bls.deserializeHexStrToG2(members[0].publicKey.serializeToHexStr())
     let member_pub_key_g2 = bls.g2ToBN(member_pub_key)
-    const contract = await createVault()
-    await contract.setPublicKey(pubkey_ser)
+    const contract = await createVault(pubkey_ser)
     const amount = BigInt(1e+6)
     const toChain = 10101
-    const txnReceipt = await contract.depositEth(toChain, { value: amount })
+    const txnReceipt = await (await contract.depositEth(toChain, { value: amount })).wait()
     const logs = await provider.getLogs(txnReceipt)
     for (const log of logs) {
       const parsedLog = new Interface(vaultAbi.abi).parseLog(log)
@@ -38,6 +37,7 @@ describe('vault contract', function () {
       console.log("hashOf", hashOf);
       //Compute hash off-chain and check deposit status
       const hashOffChain = keccak256(parsedLog.args[0], parsedLog.args[1], BigInt(parsedLog.args[2]).toString(), BigInt(parsedLog.args[3]).toString(), BigInt(parsedLog.args[4]).toString())
+      expect(hashOf).toEqual(hashOffChain)
       isDeposited = await contract.deposited(hashOffChain)
       expect(isDeposited).toEqual(true)
 

@@ -13,20 +13,21 @@ contract Vault {
     event Minted(uint amount);
     event Disbursed(uint amount);
 
-    uint256[4] public pubkey;
+    uint256[4] public publicKey;
     mapping(address => uint)   public pool;
     mapping(bytes32 => bool) public deposited;
     uint public depositCounter = 0;
 
     BlsVerify verifier;
 
-    constructor() {
+    constructor(uint[4] memory publicKey_) {
+        publicKey = publicKey_;
         verifier = new BlsVerify();
     }
-    //FIXME who can call this ? isOwner or some multi-sig operation like a DAO op?
-    function setPublicKey(uint[4] memory publicKey) external {
-        pubkey = publicKey;
-    }
+//    //FIXME who can call this ? isOwner or some multi-sig operation like a DAO op?
+//    function setPublicKey(uint[4] memory publicKey_) external {
+//        publicKey = publicKey_;
+//    }
     function depositEth(uint toChainId) external payable {
         pool[ETH] += msg.value;
         uint counter = depositCounter++;
@@ -42,7 +43,8 @@ contract Vault {
         bytes32 hash = hashOf(depositor, token, toChainId, amount, counter);
         return deposited[hash];
     }
-    function hashOf(address depositor, address token, uint toChainId, uint amount, uint counter) public view returns (bytes32){
+
+    function hashOf(address depositor, address token, uint toChainId, uint amount, uint counter) public pure returns (bytes32){
         return keccak256(abi.encodePacked(depositor, token, toChainId, amount, counter));
     }
 
@@ -96,8 +98,8 @@ contract Vault {
     //Check if message (G1 on curve) is actually the representation of message string on G1 curve
     //FIXME -- we need to distinguish b/w Withdraw and Deposit, should that also be part of the hash or separate
     function verifySignature(uint256[2] memory signature, uint256[4] memory signerKey, uint256[2] memory message, string memory messageString, address depositor, address token, uint toChainId, uint amount, uint counter) public view returns (bool) {
-        require(pubkey.length == signerKey.length, 'Invalid Public Key length');
-        require((pubkey[0] == signerKey[0] && pubkey[1] == signerKey[1] && pubkey[2] == signerKey[2] && pubkey[3] == signerKey[3]), 'Invalid Public Key');
+        require(publicKey.length == signerKey.length, 'Invalid Public Key length');
+        require((publicKey[0] == signerKey[0] && publicKey[1] == signerKey[1] && publicKey[2] == signerKey[2] && publicKey[3] == signerKey[3]), 'Invalid Public Key');
 
         bytes32 hashOf = hashOf(depositor, token, toChainId, amount, counter);
         string memory bytes32ToString = bytes32ToHexString(hashOf);

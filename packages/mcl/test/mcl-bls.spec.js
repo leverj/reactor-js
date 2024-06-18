@@ -31,9 +31,7 @@ describe('mcl-bls', () => {
 
   it('different secrets for different domains', async function () {
     const secretHex = 'a3e9769b84c095eca6b98449ac86b6e2c589834fe24cb8fbb7b36f814fd06113'
-    new Keymap(messageString, 'testing evmbls').replenish(secretHex).printSignatures()
-    new Keymap(messageString, 'testing evmbls2').replenish(secretHex).printSignatures()
-    new Keymap(messageString, 'something').replenish(secretHex).printSignatures()
+    new Keymap(messageString).replenish(secretHex).printSignatures()
   })
   it('should verify mcl signature via pairings', async function () {
     const secretHex = 'a3e9769b84c095eca6b98449ac86b6e2c589834fe24cb8fbb7b36f814fd06113'
@@ -58,10 +56,8 @@ describe('mcl-bls', () => {
 })
 
 class Keymap {
-  constructor(messageString, domain = 'testing evmbls') {
+  constructor(messageString) {
     this.messageString = messageString
-    // mcl.setMappingMode(mcl.MAPPING_MODE_TI)
-    // mcl.setDomain(domain)
     this.mcl = {secret: null, pubkey: null, signature: null}
     this.bls = {secret: null, pubkey: null, signature: null}
     this.serialized = {secret: null, pubkey: null, signature: null}

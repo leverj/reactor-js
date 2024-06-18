@@ -1,6 +1,7 @@
 import { expect } from 'expect'
 import { deployContract, getSigners, createDkgMembers, signMessage } from './help/index.js'
 import bls from '../src/utils/bls.js'
+import {DOMAIN_STRING} from '@leverj/layer2-mcl/mcl'
 
 const messageString = 'hello world'
 describe('blsVerify', () => {
@@ -11,8 +12,6 @@ describe('blsVerify', () => {
   })
 
   it('verify single signature', async function () {
-    // bls.setMappingMode(bls.MAPPING_MODE_TI)
-    // bls.setDomain('testing evmbls')
     const message = bls.stringToHex(messageString)
     const { pubkey, secret } = bls.newKeyPair()
     const { signature, M } = bls.sign(message, secret)
@@ -46,7 +45,7 @@ describe('blsVerify', () => {
   })
 
   it('should be able to convert message to point', async function () {
-    let res = await contract.hashToPoint(bls.stringToHex('testing evmbls'), bls.stringToHex(messageString))
+    let res = await contract.hashToPoint(bls.stringToHex(DOMAIN_STRING), bls.stringToHex(messageString))
     let fromJs = bls.g1ToBN(bls.hashToPoint(messageString))
     // console.log('from js', fromJs)
     // console.log('from contract', res)
