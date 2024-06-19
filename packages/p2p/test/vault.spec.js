@@ -53,13 +53,11 @@ describe('vault contract', function () {
 
       const signature = bls.deserializeHexStrToG1(signatureHex)
 
-      let message_ser = bls.g1ToBN(M)
-
       let sig_ser = bls.g1ToBN(signature)
-      let res = await contract.verifySignature(sig_ser, pubkey_ser, message_ser, messageString, parsedLog.args[0], parsedLog.args[1], BigInt(parsedLog.args[2]), BigInt(parsedLog.args[3]), BigInt(parsedLog.args[4]))
+      let res = await contract.mint(sig_ser, pubkey_ser, messageString, parsedLog.args[0], parsedLog.args[1], BigInt(parsedLog.args[2]), BigInt(parsedLog.args[3]), BigInt(parsedLog.args[4]))
       expect(res).toEqual(true)
       //Sending Public key of member (i.e. wrong pub key)
-      await expect(contract.verifySignature(sig_ser, member_pub_key_g2, message_ser, messageString, parsedLog.args[0], parsedLog.args[1], BigInt(parsedLog.args[2]), BigInt(parsedLog.args[3]), BigInt(parsedLog.args[4]))).rejects.toThrow(/Invalid Public Key/)
+      await expect(contract.mint(sig_ser, member_pub_key_g2, messageString, parsedLog.args[0], parsedLog.args[1], BigInt(parsedLog.args[2]), BigInt(parsedLog.args[3]), BigInt(parsedLog.args[4]))).rejects.toThrow(/Invalid Public Key/)
 
     }
     expect(await provider.getBalance(await contract.getAddress())).toEqual(amount)
