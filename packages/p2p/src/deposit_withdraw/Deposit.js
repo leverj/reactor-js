@@ -15,22 +15,25 @@ export default class Deposit {
     async processDepositLog(chainId, depositLog){
         if (this.bridgeNode.isLeader !== true) return;
         const parsedLog = new Interface(vaultAbi.abi).parseLog(depositLog)
-        //fixme: name the arguments
-        const hashOffChain = keccak256(parsedLog.args[0], parsedLog.args[1], BigInt(parsedLog.args[2]).toString(), BigInt(parsedLog.args[3]).toString(), BigInt(parsedLog.args[4]).toString())
-        const isDeposited = await this.contracts[chainId].deposited(hashOffChain)
+        const depositor = parsedLog.args[0]
+        const tokenAddress = parsedLog.args[1]
+        const toChainId = parsedLog.args[2]
+        const amount = parsedLog.args[3]
+        const depositCounter = parsedLog.args[4]
+        const depositHash = keccak256(depositor, tokenAddress, BigInt(toChainId).toString(), BigInt(amount).toString(), BigInt(depositCounter).toString())
+        const isDeposited = await this.contracts[chainId].deposited(depositHash)
         if (isDeposited === false) return;
-        //fixme: let txHash be depositHash (hashOffChain)
-        await this.bridgeNode.aggregateSignature(depositLog.transactionHash, hashOffChain, chainId, 'DEPOSIT')
+        await this.bridgeNode.aggregateSignature(depositHash, depositHash, chainId, 'DEPOSIT')
         await setTimeout(1000)
-        const aggregateSignature = this.bridgeNode.getAggregateSignature(depositLog.transactionHash)
+        const aggregateSignature = this.bridgeNode.getAggregateSignature(depositHash)
         if (aggregateSignature.verified === true){
             const signature = bls.deserializeHexStrToG1(aggregateSignature.groupSign)
             const sig_ser = bls.g1ToBN(signature)
             const pubkeyHex = this.bridgeNode.tssNode.groupPublicKey.serializeToHexStr()
             const pubkey = bls.deserializeHexStrToG2(pubkeyHex)
             const pubkey_ser = bls.g2ToBN(pubkey)  
-            const targetContract = this.contracts[parsedLog.args[2]]
-            return await targetContract.mint(sig_ser, pubkey_ser, parsedLog.args[0], parsedLog.args[1], BigInt(parsedLog.args[2]), BigInt(parsedLog.args[3]), BigInt(parsedLog.args[4]))    
+            const targetContract = this.contracts[toChainId]
+            return await targetContract.mint(sig_ser, pubkey_ser, depositor, tokenAddress, BigInt(toChainId), BigInt(amount), BigInt(depositCounter))    
         }
         return false
     }
