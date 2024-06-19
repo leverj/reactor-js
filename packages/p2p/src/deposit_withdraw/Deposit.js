@@ -22,16 +22,18 @@ export default class Deposit {
         await this.bridgeNode.aggregateSignature(depositLog.transactionHash, hashOffChain)
         await setTimeout(1000)
         const aggregateSignature = this.bridgeNode.getAggregateSignature(depositLog.transactionHash)
-        console.log('aggregatesign', aggregateSignature)
         if (aggregateSignature.verified === true){
+            const signature = bls.deserializeHexStrToG1(aggregateSignature.groupSign)
+            const sig_ser = bls.g1ToBN(signature)
+            const pubkeyHex = this.bridgeNode.tssNode.groupPublicKey.serializeToHexStr()
+            const pubkey = bls.deserializeHexStrToG2(pubkeyHex)
+            const pubkey_ser = bls.g2ToBN(pubkey)  
             const targetContract = this.contracts[parsedLog.args[2]]
-            //let sig_ser = bls.g1ToBN(aggregateSignature)
-            //return await targetContract.mint(sig_ser, pubkey_ser, messageString, parsedLog.args[0], parsedLog.args[1], BigInt(parsedLog.args[2]), BigInt(parsedLog.args[3]), BigInt(parsedLog.args[4]))    
+            return await targetContract.mint(sig_ser, pubkey_ser, hashOffChain, parsedLog.args[0], parsedLog.args[1], BigInt(parsedLog.args[2]), BigInt(parsedLog.args[3]), BigInt(parsedLog.args[4]))    
         }
-        return aggregateSignature.verified
+        return false
     }
     async verifyDepositHash(chainId, data){
-        console.log("verifyDepositHash", chainId, this.contracts)
         return await this.contracts[chainId].deposited(data.message)
     }
 }

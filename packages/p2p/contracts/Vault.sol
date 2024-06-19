@@ -110,7 +110,6 @@ contract Vault {
 
         bool validSignature = verifier.verifySignature(signature, signerKey, messageToPoint);
         require(validSignature == true, 'Invalid Signature');
-        
         //process business data now like minting burning
         return validSignature;
     }

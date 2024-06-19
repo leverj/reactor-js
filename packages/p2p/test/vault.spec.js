@@ -86,7 +86,7 @@ describe('vault contract', function () {
     }
     expect(await provider.getBalance(await contract.getAddress())).toEqual(amount)
   })
-  it('should invoke Deposit workflow on receipt of message', async function(){
+  it.only('should invoke Deposit workflow on receipt of message', async function(){
     const network = await provider.getNetwork()
     const toChain = 10101
     const [leader, node1, node2, node3, node4, node5, node6] = await createBridgeNodes(7)

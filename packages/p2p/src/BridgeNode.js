@@ -171,6 +171,7 @@ export default class BridgeNode extends NetworkNode {
         logger.log('Received signature', txnHash, signature,)
         if (this.messageMap[txnHash].signatures.length === this.tssNode.threshold) {
           const groupSign = this.tssNode.groupSign(this.messageMap[txnHash].signatures)
+          this.messageMap[txnHash].groupSign = groupSign
           this.messageMap[txnHash].verified = this.tssNode.verify(groupSign, this.messageMap[txnHash].signatures[0].message)
           logger.log('Verified', txnHash, this.messageMap[txnHash].verified, groupSign)
         }
