@@ -18,31 +18,9 @@ export default class BlockchainNode extends BridgeNode {
         this.contractAddress = contractAddress
         this.contract = new Contract(contractAddress, abi.abi, this.provider)
     }
-    //import config from '@leverj/gallery.config/chain-tracking-server'
-    //const {polling} = config
-    /*const polling = {
-        interval: {
-          format: 'nat',
-          default: 15  * 1000,
-          env: 'POLLING_INTERVAL',
-        },
-        attempts: {
-          format: 'nat',
-          default: 5,
-          env: 'POLLING_ATTEMPTS',
-        },
-      }*/
+    
     async create() {
         await super.create()
-        /*if (this.isLeader){
-            const filter = {
-                address: this.contractAddress,
-                topics: ["0xc6d85822d86b60b41984292074ead1b48e583535e9e12c2098fe3f6b04a56444"]
-            }
-            this.provider.on(filter, (data) => {
-                console.log("topic listener", data)
-            })
-        }*/
     }
     //Leader function
     async fetchLogs(fromBlock, toBlock, topics){

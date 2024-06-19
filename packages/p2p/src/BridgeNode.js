@@ -6,7 +6,6 @@ import events, {INFO_CHANGED, PEER_DISCOVERY} from './utils/events.js'
 import {setTimeout} from 'node:timers/promises'
 import Monitor from './utils/Monitor.js'
 import Whitelist  from './Whitelist.js'
-
 const TSS_RECEIVE_SIGNATURE_SHARE = 'TSS_RECEIVE_SIGNATURE_SHARE'
 const SIGNATURE_START = 'SIGNATURE_START'
 const WHITELIST_TOPIC = 'WHITELIST'
@@ -138,6 +137,9 @@ export default class BridgeNode extends NetworkNode {
   }
 
   async handleSignatureStart(peerId, data) {
+    const network = await this.deposit.provider.getNetwork()
+    const verifiedHash = await this.deposit.verifyDepositHash(network.chainId, data)
+    if (verifiedHash !== true) return
     if (this.leader !== peerId) return logger.log('Ignoring signature start from non-leader', peerId, this.leader)
     const {txnHash, message} = data
     const signature = await this.tssNode.sign(message)
@@ -184,7 +186,9 @@ export default class BridgeNode extends NetworkNode {
   getAggregateSignature(txnHash) {
     return this.messageMap[txnHash]
   }
-
+  setDeposit(deposit){
+    this.deposit = deposit
+  }
   async startDKG(threshold) {
     if (!this.isLeader) return
     const responseHandler = (msg) => logger.log('dkg received', msg)
