@@ -20,13 +20,13 @@ const stopBridgeNodes = async () => {
   nodes.length = 0
 }
 const createBridgeNodes = async (count) => {
-  //const chainId = await provider.getNetwork().chainId
+  const network = await provider.getNetwork()
   const bootstraps = []
   for (let i = 0; i < count; i++) {
     // fixme: get peerid from config eventually some file
     const node = new BridgeNode({port: 9000 + i, isLeader: i === 0, json: {p2p: peerIdJsons[i]}, bootstrapNodes: bootstraps})
     await node.create()
-    const deposit = new Deposit(provider, node)
+    const deposit = new Deposit(node)
     node.setDeposit(deposit)
     nodes.push(deposit)
     if(i === 0) bootstraps.push(node.multiaddrs[0])

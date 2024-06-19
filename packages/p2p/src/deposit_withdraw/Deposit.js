@@ -5,8 +5,7 @@ import {setTimeout} from 'timers/promises'
 import bls from '../utils/bls.js'
 
 export default class Deposit {
-    constructor(provider, bridgeNode){
-        this.provider = provider
+    constructor(bridgeNode){
         this.bridgeNode = bridgeNode
         this.contracts = {}
     }
@@ -19,7 +18,7 @@ export default class Deposit {
         const hashOffChain = keccak256(parsedLog.args[0], parsedLog.args[1], BigInt(parsedLog.args[2]).toString(), BigInt(parsedLog.args[3]).toString(), BigInt(parsedLog.args[4]).toString())
         const isDeposited = await this.contracts[chainId].deposited(hashOffChain)
         if (isDeposited === false) return; 
-        await this.bridgeNode.aggregateSignature(depositLog.transactionHash, hashOffChain)
+        await this.bridgeNode.aggregateSignature(depositLog.transactionHash, hashOffChain, chainId, 'DEPOSIT')
         await setTimeout(1000)
         const aggregateSignature = this.bridgeNode.getAggregateSignature(depositLog.transactionHash)
         if (aggregateSignature.verified === true){
@@ -33,7 +32,7 @@ export default class Deposit {
         }
         return false
     }
-    async verifyDepositHash(chainId, data){
-        return await this.contracts[chainId].deposited(data.message)
+    async verifyDepositHash(chainId, depositHash){
+        return await this.contracts[chainId].deposited(depositHash)
     }
 }

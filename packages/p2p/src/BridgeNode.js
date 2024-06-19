@@ -101,12 +101,12 @@ export default class BridgeNode extends NetworkNode {
     }
   }
 
-  async aggregateSignature(txnHash, message) {
+  async aggregateSignature(txnHash, message, chainId, eventType) {
     const signature = await this.tssNode.sign(message)
     this.messageMap[txnHash] = {}
     this.messageMap[txnHash].verified = false
     this.messageMap[txnHash].signatures = [{message, signature: signature.serializeToHexStr(), 'signer': this.tssNode.id.serializeToHexStr()}]
-    await this.publishOrFanOut(SIGNATURE_START, JSON.stringify({txnHash, message}), this.monitor.filter(this.whitelist.get()))
+    await this.publishOrFanOut(SIGNATURE_START, JSON.stringify({txnHash, message, chainId, eventType}), this.monitor.filter(this.whitelist.get()))
   }
 
   async sendMessageToPeer(peerId, topic, message) {
@@ -137,11 +137,11 @@ export default class BridgeNode extends NetworkNode {
   }
 
   async handleSignatureStart(peerId, data) {
-    const network = await this.deposit.provider.getNetwork()
-    const verifiedHash = await this.deposit.verifyDepositHash(network.chainId, data)
+    const {txnHash, message, chainId, eventType} = data
+    const verifiedHash = await this.deposit.verifyDepositHash(chainId, data.message)
     if (verifiedHash !== true) return
     if (this.leader !== peerId) return logger.log('Ignoring signature start from non-leader', peerId, this.leader)
-    const {txnHash, message} = data
+    
     const signature = await this.tssNode.sign(message)
     logger.log(SIGNATURE_START, txnHash, message, signature.serializeToHexStr())
     const signaturePayloadToLeader = {topic: TSS_RECEIVE_SIGNATURE_SHARE, signature: signature.serializeToHexStr(), signer: this.tssNode.id.serializeToHexStr(), txnHash}
