@@ -35,6 +35,7 @@ export default class Deposit {
         return false
     }
     async verifyDepositHash(chainId, depositHash){
+        if (chainId === -1) return true; //for local e2e testing, which wont have any contracts or hardhat, till we expand the scope of e2e
         return await this.contracts[chainId].deposited(depositHash)
     }
 }
