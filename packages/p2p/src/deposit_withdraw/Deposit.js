@@ -30,7 +30,7 @@ export default class Deposit {
             const pubkey = bls.deserializeHexStrToG2(pubkeyHex)
             const pubkey_ser = bls.g2ToBN(pubkey)  
             const targetContract = this.contracts[parsedLog.args[2]]
-            return await targetContract.mint(sig_ser, pubkey_ser, hashOffChain, parsedLog.args[0], parsedLog.args[1], BigInt(parsedLog.args[2]), BigInt(parsedLog.args[3]), BigInt(parsedLog.args[4]))    
+            return await targetContract.mint(sig_ser, pubkey_ser, parsedLog.args[0], parsedLog.args[1], BigInt(parsedLog.args[2]), BigInt(parsedLog.args[3]), BigInt(parsedLog.args[4]))    
         }
         return false
     }

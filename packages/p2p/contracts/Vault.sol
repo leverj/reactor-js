@@ -24,10 +24,6 @@ contract Vault {
         publicKey = publicKey_;
         verifier = new BlsVerify();
     }
-//    //FIXME who can call this ? isOwner or some multi-sig operation like a DAO op?
-//    function setPublicKey(uint[4] memory publicKey_) external {
-//        publicKey = publicKey_;
-//    }
     function depositEth(uint toChainId) external payable {
         pool[ETH] += msg.value;
         uint counter = depositCounter++;
@@ -37,8 +33,6 @@ contract Vault {
         console.logBytes32(hash);
         emit Deposited(msg.sender, ETH, toChainId, msg.value, counter);
     }
-    //This function will be called both externally and internally, hence public. 
-    //Clients could calculate the hash off-chain also and then simply query the public deposited map above.
     function isDeposited(address depositor, address token, uint toChainId, uint amount, uint counter) public view returns (bool){
         bytes32 hash = hashOf(depositor, token, toChainId, amount, counter);
         return deposited[hash];
@@ -92,13 +86,7 @@ contract Vault {
         }
         revert("Invalid hex character");
     }
-    //Series of validations 
-    //Signing Public Key is same as the one in contract here
-    //The message string is a correct hash of the business params
-    //Check if message (G1 on curve) is actually the representation of message string on G1 curve
-    //FIXME -- we need to distinguish b/w Withdraw and Deposit, should that also be part of the hash or separate
-    //FIXME: messageString not needed
-    function mint(uint256[2] memory signature, uint256[4] memory signerKey, string memory messageString, address depositor, address token, uint toChainId, uint amount, uint counter) public view returns (bool) {
+    function mint(uint256[2] memory signature, uint256[4] memory signerKey, address depositor, address token, uint toChainId, uint amount, uint counter) public view returns (bool) {
         require(publicKey.length == signerKey.length, 'Invalid Public Key length');
         require((publicKey[0] == signerKey[0] && publicKey[1] == signerKey[1] && publicKey[2] == signerKey[2] && publicKey[3] == signerKey[3]), 'Invalid Public Key');
 
