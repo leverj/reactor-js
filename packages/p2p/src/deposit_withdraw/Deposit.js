@@ -15,9 +15,11 @@ export default class Deposit {
     async processDepositLog(chainId, depositLog){
         if (this.bridgeNode.isLeader !== true) return;
         const parsedLog = new Interface(vaultAbi.abi).parseLog(depositLog)
+        //fixme: name the arguments
         const hashOffChain = keccak256(parsedLog.args[0], parsedLog.args[1], BigInt(parsedLog.args[2]).toString(), BigInt(parsedLog.args[3]).toString(), BigInt(parsedLog.args[4]).toString())
         const isDeposited = await this.contracts[chainId].deposited(hashOffChain)
-        if (isDeposited === false) return; 
+        if (isDeposited === false) return;
+        //fixme: let txHash be depositHash (hashOffChain)
         await this.bridgeNode.aggregateSignature(depositLog.transactionHash, hashOffChain, chainId, 'DEPOSIT')
         await setTimeout(1000)
         const aggregateSignature = this.bridgeNode.getAggregateSignature(depositLog.transactionHash)

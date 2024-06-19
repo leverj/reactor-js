@@ -97,15 +97,16 @@ contract Vault {
     //The message string is a correct hash of the business params
     //Check if message (G1 on curve) is actually the representation of message string on G1 curve
     //FIXME -- we need to distinguish b/w Withdraw and Deposit, should that also be part of the hash or separate
+    //FIXME: messageString not needed
     function mint(uint256[2] memory signature, uint256[4] memory signerKey, string memory messageString, address depositor, address token, uint toChainId, uint amount, uint counter) public view returns (bool) {
         require(publicKey.length == signerKey.length, 'Invalid Public Key length');
         require((publicKey[0] == signerKey[0] && publicKey[1] == signerKey[1] && publicKey[2] == signerKey[2] && publicKey[3] == signerKey[3]), 'Invalid Public Key');
 
-        bytes32 hashOf = hashOf(depositor, token, toChainId, amount, counter);
-        string memory bytes32ToString = bytes32ToHexString(hashOf);
-        require (keccak256(abi.encodePacked(messageString)) == keccak256(abi.encodePacked(bytes32ToString)), 'Invalid Message');
-        
-        uint256[2] memory messageToPoint = verifier.hashToPoint(bytes(cipher_suite_domain), bytes(messageString));
+        bytes32 depositHash = hashOf(depositor, token, toChainId, amount, counter);
+//        string memory bytes32ToString = bytes32ToHexString(depositHash);
+//        require (keccak256(abi.encodePacked(messageString)) == keccak256(abi.encodePacked(bytes32ToString)), 'Invalid Message');
+
+        uint256[2] memory messageToPoint = verifier.hashToPoint(bytes(cipher_suite_domain), bytes(bytes32ToHexString(depositHash)));
         //require(hashToPoint[0] == message[0] && hashToPoint[1] == message[1], 'Invalid hash to point');
 
         bool validSignature = verifier.verifySignature(signature, signerKey, messageToPoint);

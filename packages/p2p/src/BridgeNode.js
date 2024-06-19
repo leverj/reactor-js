@@ -105,6 +105,7 @@ export default class BridgeNode extends NetworkNode {
     const signature = await this.tssNode.sign(message)
     this.messageMap[txnHash] = {}
     this.messageMap[txnHash].verified = false
+    //fixme: change array to objects with signer as key
     this.messageMap[txnHash].signatures = [{message, signature: signature.serializeToHexStr(), 'signer': this.tssNode.id.serializeToHexStr()}]
     await this.publishOrFanOut(SIGNATURE_START, JSON.stringify({txnHash, message, chainId, eventType}), this.monitor.filter(this.whitelist.get()))
   }
