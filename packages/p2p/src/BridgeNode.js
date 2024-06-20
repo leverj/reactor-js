@@ -27,7 +27,6 @@ export default class BridgeNode extends NetworkNode {
     this.messageMap = {}
     this.monitor = new Monitor()
     this.components = {}
-    this.depositCallback = {} // make this part of message map
     //fixme: changes when real whitelisting done
     if (this.isLeader) {
       events.on(PEER_DISCOVERY, (peerId) => this.addPeersToWhiteList(peerId))
@@ -67,11 +66,6 @@ export default class BridgeNode extends NetworkNode {
     this.addPeersToWhiteList(this.leader)
     if (this.isLeader) return
     await waitToSync([_ => this.peers.indexOf(this.leader) !== -1], -1)
-    // await tryAgainIfEncryptionFailed(async () => await this.connect(this.leader))
-    // await this.connectPubSub(this.leader)
-    // await this.subscribe(WHITELIST_TOPIC)
-    // await this.subscribe(SIGNATURE_START)
-    // logger.log('Connected to leader', this.port, shortHash(this.leader))
   }
 
   addPeersToWhiteList(...peerIds) {
@@ -106,11 +100,7 @@ export default class BridgeNode extends NetworkNode {
   async aggregateSignature(txnHash, message, chainId, eventType, callback) {
     console.log('aggregateSignature callback', callback)
     const signature = await this.tssNode.sign(message)
-    this.messageMap[txnHash] = {}
-    this.messageMap[txnHash].signatures = {}
-    this.messageMap[txnHash].verified = false
-    this.depositCallback = callback
-    //fixme: change array to objects with signer as key
+    this.messageMap[txnHash] = {signatures: {}, verified: false, depositCallback: callback}
     this.messageMap[txnHash].signatures[this.tssNode.id.serializeToHexStr()] = {message, signature: signature.serializeToHexStr(), 'signer': this.tssNode.id.serializeToHexStr()}
     await this.publishOrFanOut(SIGNATURE_START, JSON.stringify({txnHash, message, chainId, eventType}), this.monitor.filter(this.whitelist.get()))
   }
@@ -180,7 +170,7 @@ export default class BridgeNode extends NetworkNode {
           this.messageMap[txnHash].groupSign = groupSign
           this.messageMap[txnHash].verified = this.tssNode.verify(groupSign, this.messageMap[txnHash].signatures[this.tssNode.id.serializeToHexStr()].message)
           logger.log('Verified', txnHash, this.messageMap[txnHash].verified, groupSign)
-          this.depositCallback(this.messageMap[txnHash])
+          this.messageMap[txnHash].depositCallback(this.messageMap[txnHash])
         }
         break
       case SIGNATURE_START:

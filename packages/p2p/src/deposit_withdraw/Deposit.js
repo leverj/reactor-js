@@ -21,7 +21,7 @@ export default class Deposit {
         const amount = parsedLog.args[3]
         const depositCounter = parsedLog.args[4]
         const depositHash = keccak256(depositor, tokenAddress, BigInt(toChainId).toString(), BigInt(amount).toString(), BigInt(depositCounter).toString())
-        const isDeposited = await this.contracts[chainId].deposited(depositHash)
+        const isDeposited = await this.contracts[chainId].deposits(depositHash)
         if (isDeposited === false) return;
         await this.bridgeNode.aggregateSignature(depositHash, depositHash, chainId, 'DEPOSIT', this.signatureVerified.bind(this, depositor, tokenAddress, toChainId, amount, depositCounter))
         await setTimeout(1000)

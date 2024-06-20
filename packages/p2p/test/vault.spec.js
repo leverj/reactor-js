@@ -62,7 +62,7 @@ describe('vault contract', function () {
       //Compute hash off-chain and check deposit status
       const hashOffChain = keccak256(parsedLog.args[0], parsedLog.args[1], BigInt(parsedLog.args[2]).toString(), BigInt(parsedLog.args[3]).toString(), BigInt(parsedLog.args[4]).toString())
       expect(hashOf).toEqual(hashOffChain)
-      isDeposited = await contract.deposited(hashOffChain)
+      isDeposited = await contract.deposits(hashOffChain)
       expect(isDeposited).toEqual(true)
 
       const messageString = hashOffChain
