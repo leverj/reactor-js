@@ -24,7 +24,7 @@ async function startDkg(req, res) {
 async function aggregateSignature(req, res) {
   if (!bridgeNode.isLeader) return
   const msg = req.body
-  await bridgeNode.aggregateSignature(msg.txnHash, msg.msg, -1, 'DEPOSIT')
+  await bridgeNode.aggregateSignature(msg.txnHash, msg.msg, -1, 'DEPOSIT', ()=>{})
   res.send('ok')
 }
 

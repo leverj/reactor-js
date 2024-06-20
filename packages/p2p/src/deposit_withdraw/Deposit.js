@@ -23,9 +23,11 @@ export default class Deposit {
         const depositHash = keccak256(depositor, tokenAddress, BigInt(toChainId).toString(), BigInt(amount).toString(), BigInt(depositCounter).toString())
         const isDeposited = await this.contracts[chainId].deposited(depositHash)
         if (isDeposited === false) return;
-        await this.bridgeNode.aggregateSignature(depositHash, depositHash, chainId, 'DEPOSIT')
+        await this.bridgeNode.aggregateSignature(depositHash, depositHash, chainId, 'DEPOSIT', this.signatureVerified.bind(this, depositor, tokenAddress, toChainId, amount, depositCounter))
         await setTimeout(1000)
-        const aggregateSignature = this.bridgeNode.getAggregateSignature(depositHash)
+        
+    }
+    async signatureVerified(depositor, tokenAddress, toChainId, amount, depositCounter, aggregateSignature){
         if (aggregateSignature.verified === true){
             const signature = bls.deserializeHexStrToG1(aggregateSignature.groupSign)
             const sig_ser = bls.g1ToBN(signature)
@@ -33,9 +35,9 @@ export default class Deposit {
             const pubkey = bls.deserializeHexStrToG2(pubkeyHex)
             const pubkey_ser = bls.g2ToBN(pubkey)  
             const targetContract = this.contracts[toChainId]
-            return await targetContract.mint(sig_ser, pubkey_ser, depositor, tokenAddress, BigInt(toChainId), BigInt(amount), BigInt(depositCounter))    
+            const verified = await targetContract.mint(sig_ser, pubkey_ser, depositor, tokenAddress, BigInt(toChainId), BigInt(amount), BigInt(depositCounter))    
+            console.log("Minted by contract", verified)
         }
-        return false
     }
     async verifyDepositHash(chainId, depositHash){
         if (chainId === -1) return true; //for local e2e testing, which wont have any contracts or hardhat, till we expand the scope of e2e
