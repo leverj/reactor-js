@@ -89,17 +89,10 @@ contract Vault {
     function mint(uint256[2] memory signature, uint256[4] memory signerKey, address depositor, address token, uint toChainId, uint amount, uint counter) public view returns (bool) {
         require(publicKey.length == signerKey.length, 'Invalid Public Key length');
         require((publicKey[0] == signerKey[0] && publicKey[1] == signerKey[1] && publicKey[2] == signerKey[2] && publicKey[3] == signerKey[3]), 'Invalid Public Key');
-
         bytes32 depositHash = hashOf(depositor, token, toChainId, amount, counter);
-//        string memory bytes32ToString = bytes32ToHexString(depositHash);
-//        require (keccak256(abi.encodePacked(messageString)) == keccak256(abi.encodePacked(bytes32ToString)), 'Invalid Message');
-
         uint256[2] memory messageToPoint = verifier.hashToPoint(bytes(cipher_suite_domain), bytes(bytes32ToHexString(depositHash)));
-        //require(hashToPoint[0] == message[0] && hashToPoint[1] == message[1], 'Invalid hash to point');
-
         bool validSignature = verifier.verifySignature(signature, signerKey, messageToPoint);
         require(validSignature == true, 'Invalid Signature');
-        //process business data now like minting burning
         return validSignature;
     }
 }
