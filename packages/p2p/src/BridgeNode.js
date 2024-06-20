@@ -5,7 +5,8 @@ import {shortHash, tryAgainIfEncryptionFailed, waitToSync} from './utils/utils.j
 import events, {INFO_CHANGED, PEER_DISCOVERY} from './utils/events.js'
 import {setTimeout} from 'node:timers/promises'
 import Monitor from './utils/Monitor.js'
-import Whitelist  from './Whitelist.js'
+import Whitelist from './Whitelist.js'
+
 const TSS_RECEIVE_SIGNATURE_SHARE = 'TSS_RECEIVE_SIGNATURE_SHARE'
 const SIGNATURE_START = 'SIGNATURE_START'
 const WHITELIST_TOPIC = 'WHITELIST'
@@ -26,7 +27,7 @@ export default class BridgeNode extends NetworkNode {
     this.messageMap = {}
     this.monitor = new Monitor()
     this.components = {}
-    this.depositCallback = {}
+    this.depositCallback = {} // make this part of message map
     //fixme: changes when real whitelisting done
     if (this.isLeader) {
       events.on(PEER_DISCOVERY, (peerId) => this.addPeersToWhiteList(peerId))
@@ -103,7 +104,7 @@ export default class BridgeNode extends NetworkNode {
   }
 
   async aggregateSignature(txnHash, message, chainId, eventType, callback) {
-    console.log("aggregateSignature callback", callback)
+    console.log('aggregateSignature callback', callback)
     const signature = await this.tssNode.sign(message)
     this.messageMap[txnHash] = {}
     this.messageMap[txnHash].signatures = {}

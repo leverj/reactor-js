@@ -15,7 +15,7 @@ contract Vault {
 
     uint256[4] public publicKey;
     mapping(address => uint)   public pool;
-    mapping(bytes32 => bool) public deposited;
+    mapping(bytes32 => bool) public deposits;
     uint public depositCounter = 0;
 
     BlsVerify verifier;
@@ -28,14 +28,15 @@ contract Vault {
         pool[ETH] += msg.value;
         uint counter = depositCounter++;
         bytes32 hash = hashOf(msg.sender, ETH, toChainId, msg.value, counter);
-        deposited[hash] = true;
+        deposits[hash] = true;
         console.logString('depositEth');
         console.logBytes32(hash);
         emit Deposited(msg.sender, ETH, toChainId, msg.value, counter);
     }
+    //fixme: do we need this
     function isDeposited(address depositor, address token, uint toChainId, uint amount, uint counter) public view returns (bool){
         bytes32 hash = hashOf(depositor, token, toChainId, amount, counter);
-        return deposited[hash];
+        return deposits[hash];
     }
 
     function hashOf(address depositor, address token, uint toChainId, uint amount, uint counter) public pure returns (bytes32){
@@ -74,6 +75,7 @@ contract Vault {
         return string(hexString);
     }
 
+    //fixme: do we need this
     function hexCharToByte(bytes1 char) internal pure returns (bytes1) {
         if (uint8(char) >= 48 && uint8(char) <= 57) {
             return bytes1(uint8(char) - 48); // '0' - '9'
@@ -93,6 +95,17 @@ contract Vault {
         uint256[2] memory messageToPoint = verifier.hashToPoint(bytes(cipher_suite_domain), bytes(bytes32ToHexString(depositHash)));
         bool validSignature = verifier.verifySignature(signature, signerKey, messageToPoint);
         require(validSignature == true, 'Invalid Signature');
+        /*
+         map(originatingNetwork => map(originalTokenAddress => proxyTokenAddress)) proxyTokenMap;
+         map(depositHash => bool) minted;
+         if (!proxyTokenMap[originatingNetwork][originalTokenAddress]) {
+          proxyToken = create proxy token (name, symbol, decimals, originalTokenAddress, originatingNetwork);
+          proxyTokenMap[originatingNetwork][originalTokenAddress] = proxyToken;
+         }
+         proxyToken = proxyTokenMap[originatingNetwork][originalTokenAddress];
+         proxyToken.mint(depositor, amount);
+         minted[depositHash] = true;
+         */
         return validSignature;
     }
 }
