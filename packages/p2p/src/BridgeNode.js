@@ -106,10 +106,11 @@ export default class BridgeNode extends NetworkNode {
     console.log("aggregateSignature callback", callback)
     const signature = await this.tssNode.sign(message)
     this.messageMap[txnHash] = {}
+    this.messageMap[txnHash].signatures = {}
     this.messageMap[txnHash].verified = false
     this.depositCallback = callback
     //fixme: change array to objects with signer as key
-    this.messageMap[txnHash].signatures = [{message, signature: signature.serializeToHexStr(), 'signer': this.tssNode.id.serializeToHexStr()}]
+    this.messageMap[txnHash].signatures[this.tssNode.id.serializeToHexStr()] = {message, signature: signature.serializeToHexStr(), 'signer': this.tssNode.id.serializeToHexStr()}
     await this.publishOrFanOut(SIGNATURE_START, JSON.stringify({txnHash, message, chainId, eventType}), this.monitor.filter(this.whitelist.get()))
   }
 
@@ -171,12 +172,12 @@ export default class BridgeNode extends NetworkNode {
         break
       case TSS_RECEIVE_SIGNATURE_SHARE:
         const {txnHash, signature, signer} = msg
-        this.messageMap[txnHash].signatures.push({signature: signature, signer: signer})
+        this.messageMap[txnHash].signatures[signer] = ({signature: signature, signer: signer})
         logger.log('Received signature', txnHash, signature,)
-        if (this.messageMap[txnHash].signatures.length === this.tssNode.threshold) {
-          const groupSign = this.tssNode.groupSign(this.messageMap[txnHash].signatures)
+        if (Object.keys(this.messageMap[txnHash].signatures).length === this.tssNode.threshold) {
+          const groupSign = this.tssNode.groupSign(Object.values(this.messageMap[txnHash].signatures))
           this.messageMap[txnHash].groupSign = groupSign
-          this.messageMap[txnHash].verified = this.tssNode.verify(groupSign, this.messageMap[txnHash].signatures[0].message)
+          this.messageMap[txnHash].verified = this.tssNode.verify(groupSign, this.messageMap[txnHash].signatures[this.tssNode.id.serializeToHexStr()].message)
           logger.log('Verified', txnHash, this.messageMap[txnHash].verified, groupSign)
           this.depositCallback(this.messageMap[txnHash])
         }
