@@ -50,38 +50,33 @@ describe('vault contract', function () {
     const logs = await provider.getLogs(txnReceipt)
     for (const log of logs) {
       const parsedLog = new Interface(vaultAbi.abi).parseLog(log)
-      let isDeposited = await contract.isDeposited(parsedLog.args[0], parsedLog.args[1], BigInt(parsedLog.args[2]), BigInt(parsedLog.args[3]), BigInt(parsedLog.args[4]))
-      expect(isDeposited).toEqual(true)
-      //Changing even one data point should fail
-      isDeposited = await contract.isDeposited(parsedLog.args[1], parsedLog.args[0], BigInt(parsedLog.args[2]), BigInt(parsedLog.args[3]), BigInt(parsedLog.args[4]))
-      expect(isDeposited).toEqual(false)
-      isDeposited = await contract.isDeposited(parsedLog.args[0], parsedLog.args[1], BigInt(parsedLog.args[2]), BigInt(parsedLog.args[4]), BigInt(parsedLog.args[3]))
-      expect(isDeposited).toEqual(false)
-      const hashOf = await contract.hashOf(parsedLog.args[0], parsedLog.args[1], BigInt(parsedLog.args[2]), BigInt(parsedLog.args[3]), BigInt(parsedLog.args[4]));
-      console.log("hashOf", hashOf);
+      const depositor = parsedLog.args[0]
+      const tokenAddress = parsedLog.args[1]
+      const decimals = parsedLog.args[2]
+      const toChainId = parsedLog.args[3]
+      const amount = parsedLog.args[4]
+      const depositCounter = parsedLog.args[5]
+      const hashOnChain = await contract.hashOf(depositor, tokenAddress, BigInt(decimals), BigInt(toChainId), BigInt(amount), BigInt(depositCounter));
       //Compute hash off-chain and check deposit status
-      const hashOffChain = keccak256(parsedLog.args[0], parsedLog.args[1], BigInt(parsedLog.args[2]).toString(), BigInt(parsedLog.args[3]).toString(), BigInt(parsedLog.args[4]).toString())
-      expect(hashOf).toEqual(hashOffChain)
-      isDeposited = await contract.deposits(hashOffChain)
+      const depositHash = keccak256(depositor, tokenAddress, BigInt(decimals).toString(), BigInt(toChainId).toString(), BigInt(amount).toString(), BigInt(depositCounter).toString())
+      expect(hashOnChain).toEqual(depositHash)
+      const isDeposited = await contract.deposits(depositHash)
       expect(isDeposited).toEqual(true)
 
-      const messageString = hashOffChain
+      const messageString = depositHash
       const { signs, signers } = signMessage(messageString, members)
       const groupsSign = new bls.Signature()
       groupsSign.recover(signs, signers)
-
-
       const signatureHex = groupsSign.serializeToHexStr()
-
       const M = bls.hashToPoint(messageString)
-
       const signature = bls.deserializeHexStrToG1(signatureHex)
-
       let sig_ser = bls.g1ToBN(signature)
-      let res = await contract.mint(sig_ser, pubkey_ser, parsedLog.args[0], parsedLog.args[1], BigInt(parsedLog.args[2]), BigInt(parsedLog.args[3]), BigInt(parsedLog.args[4]))
+      //console.log({sig_ser, pubkey_ser, depositor, tokenAddress, decimals, toChainId, amount, depositCounter})
+      await contract.mint(sig_ser, pubkey_ser, depositor, tokenAddress, BigInt(decimals), BigInt(toChainId), BigInt(amount), BigInt(depositCounter))
+      const res = await contract.mintedForDepositHash(depositHash)
       expect(res).toEqual(true)
       //Sending Public key of member (i.e. wrong pub key)
-      await expect(contract.mint(sig_ser, member_pub_key_g2, parsedLog.args[0], parsedLog.args[1], BigInt(parsedLog.args[2]), BigInt(parsedLog.args[3]), BigInt(parsedLog.args[4]))).rejects.toThrow(/Invalid Public Key/)
+      await expect(contract.mint(sig_ser, member_pub_key_g2, depositor, tokenAddress, BigInt(decimals), BigInt(toChainId), BigInt(amount), BigInt(depositCounter))).rejects.toThrow(/Invalid Public Key/)
 
     }
     expect(await provider.getBalance(await contract.getAddress())).toEqual(amount)
@@ -106,7 +101,45 @@ describe('vault contract', function () {
     const txnReceipt = await (await contract.depositEth(toChain, { value: amount })).wait()
     const logs = await provider.getLogs(txnReceipt)
     for (const log of logs) {
-      await leader.processDepositLog(network.chainId, log)
+      const parsedLog = new Interface(vaultAbi.abi).parseLog(log)
+      const depositor = parsedLog.args[0]
+      const tokenAddress = parsedLog.args[1]
+      const decimals = parsedLog.args[2]
+      const toChainId = parsedLog.args[3]
+      const amount = parsedLog.args[4]
+      const depositCounter = parsedLog.args[5]
+      const depositHash = keccak256(depositor, tokenAddress, BigInt(decimals).toString(), BigInt(toChainId).toString(), BigInt(amount).toString(), BigInt(depositCounter).toString())
+      await leader.processDeposit(network.chainId, depositor, tokenAddress, decimals, toChainId, amount, depositCounter)
+      await setTimeout(1000)
+      const minted = await contract.mintedForDepositHash(depositHash)
+      expect(minted).toEqual(true)
     }
+  })
+  it('should mint token using fixture data', async function(){
+    const fixture = {
+      sig_ser: [
+        '17501379548414473118975493418296770409004790518587989275104077991423278766345',
+        '10573459840926036933226410278548182531900093958496894445083855256191507622572'
+      ],
+      pubkey_ser: [
+        '17952266123624120693867949189877327115939693121746953888788663343366186261263',
+        '3625386958213971493190482798835911536597490696820041295198885612842303573644',
+        '14209805107538060976447556508818330114663332071460618570948978043188559362801',
+        '6106226559240500500676195643085343038285250451936828952647773685858315556632'
+      ],
+      depositor: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      tokenAddress: '0x0000000000000000000000000000000000000000',
+      decimals: 18n,
+      toChainId: 10101n,
+      amount: 1000000n,
+      depositCounter: 0n
+    }
+    const contract = await createVault(fixture.pubkey_ser)
+    await contract.mint(fixture.sig_ser, fixture.pubkey_ser, fixture.depositor, fixture.tokenAddress, BigInt(fixture.decimals), BigInt(fixture.toChainId), BigInt(fixture.amount), BigInt(fixture.depositCounter))
+    await setTimeout(1000)
+    const depositHash = keccak256(fixture.depositor, fixture.tokenAddress, BigInt(fixture.decimals).toString(), BigInt(fixture.toChainId).toString(), BigInt(fixture.amount).toString(), BigInt(fixture.depositCounter).toString())
+      
+    const minted = await contract.mintedForDepositHash(depositHash)
+    expect(minted).toEqual(true)
   })
 })

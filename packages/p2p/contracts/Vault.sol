@@ -8,7 +8,7 @@ contract Vault {
     address constant public ETH = address(0);
     string constant cipher_suite_domain = 'BN256-HASHTOPOINT';
 
-    event Deposited(address indexed depositor, address indexed tokenAddress, uint toChainId, uint amount, uint depositCounter);
+    event Deposited(address indexed depositor, address indexed tokenAddress, uint decimals, uint toChainId, uint amount, uint depositCounter);
     event Withdrawn(address depositor, uint amount);
     event Minted(uint amount);
     event Disbursed(uint amount);
@@ -16,6 +16,7 @@ contract Vault {
     uint256[4] public publicKey;
     mapping(address => uint)   public pool;
     mapping(bytes32 => bool) public deposits;
+    mapping(bytes32 => bool) public mintedForDepositHash;
     uint public depositCounter = 0;
 
     BlsVerify verifier;
@@ -27,20 +28,18 @@ contract Vault {
     function depositEth(uint toChainId) external payable {
         pool[ETH] += msg.value;
         uint counter = depositCounter++;
-        bytes32 hash = hashOf(msg.sender, ETH, toChainId, msg.value, counter);
+        bytes32 hash = hashOf(msg.sender, ETH, 18, toChainId, msg.value, counter);
         deposits[hash] = true;
-        console.logString('depositEth');
-        console.logBytes32(hash);
-        emit Deposited(msg.sender, ETH, toChainId, msg.value, counter);
+        emit Deposited(msg.sender, ETH, 18, toChainId, msg.value, counter);
     }
     //fixme: do we need this
-    function isDeposited(address depositor, address token, uint toChainId, uint amount, uint counter) public view returns (bool){
+    /*function isDeposited(address depositor, address token, uint toChainId, uint amount, uint counter) public view returns (bool){
         bytes32 hash = hashOf(depositor, token, toChainId, amount, counter);
         return deposits[hash];
-    }
+    }*/
 
-    function hashOf(address depositor, address token, uint toChainId, uint amount, uint counter) public pure returns (bytes32){
-        return keccak256(abi.encodePacked(depositor, token, toChainId, amount, counter));
+    function hashOf(address depositor, address token, uint decimals, uint toChainId, uint amount, uint counter) public pure returns (bytes32){
+        return keccak256(abi.encodePacked(depositor, token, decimals, toChainId, amount, counter));
     }
 
     function depositToken(uint amount) external {
@@ -88,13 +87,15 @@ contract Vault {
         }
         revert("Invalid hex character");
     }
-    function mint(uint256[2] memory signature, uint256[4] memory signerKey, address depositor, address token, uint toChainId, uint amount, uint counter) public view returns (bool) {
+    function mint(uint256[2] memory signature, uint256[4] memory signerKey, address depositor, address token, uint decimals, uint toChainId, uint amount, uint counter) public {
         require(publicKey.length == signerKey.length, 'Invalid Public Key length');
         require((publicKey[0] == signerKey[0] && publicKey[1] == signerKey[1] && publicKey[2] == signerKey[2] && publicKey[3] == signerKey[3]), 'Invalid Public Key');
-        bytes32 depositHash = hashOf(depositor, token, toChainId, amount, counter);
+        bytes32 depositHash = hashOf(depositor, token, decimals, toChainId, amount, counter);
+        require(mintedForDepositHash[depositHash] == false, 'Already minted for deposit hash');
         uint256[2] memory messageToPoint = verifier.hashToPoint(bytes(cipher_suite_domain), bytes(bytes32ToHexString(depositHash)));
         bool validSignature = verifier.verifySignature(signature, signerKey, messageToPoint);
         require(validSignature == true, 'Invalid Signature');
+        mintedForDepositHash[depositHash] = true;
         /*
          map(originatingNetwork => map(originalTokenAddress => proxyTokenAddress)) proxyTokenMap;
          map(depositHash => bool) minted;
@@ -106,6 +107,5 @@ contract Vault {
          proxyToken.mint(depositor, amount);
          minted[depositHash] = true;
          */
-        return validSignature;
     }
 }
