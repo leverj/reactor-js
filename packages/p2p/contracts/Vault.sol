@@ -132,6 +132,39 @@ contract Vault {
         console.logUint(out14);
         console.logUint(out15);
     }
+    //Declaring depositor variable has no issues, but doing console itself breaks. uncomment console.log(depositor) to get Stack Too Deep
+    function testEncodeInputPlusLocal_PartialExtraction(bytes calldata encodedPayload1) external view{
+        (address depositor, , uint decimals2, uint toChainId3, uint amount4, uint counter5, 
+        ,,,,,) = abi.decode(encodedPayload1, (address, address, uint, uint, uint, uint, string, string, string, string, string, string));
+        uint out6 = decimals2 * 10;
+        uint out7 = toChainId3 * 10;
+        uint out8 = amount4 * 10;
+        uint out9 = counter5 + 10;
+        uint out10 = counter5 + 20;
+        
+        uint out11 = decimals2 * 100;
+        uint out12 = toChainId3 * 1000;
+        uint out13 = amount4 * 20;
+        uint out14 = counter5 + 20;
+        uint out15 = counter5 + 30;
+        uint out16 = counter5 + 40;
+        uint out17 = counter5 + 40;
+        
+        console.logString('Unit testEncodeInputPlusLocal_PartialExtraction');
+        
+        //console.log(depositor);
+        console.logUint(out6);
+        console.logUint(out7);
+        console.logUint(out8);
+        console.logUint(out9);
+        console.logUint(out10);
+        console.logUint(out11);
+        console.logUint(out12);
+        console.logUint(out13);
+        console.logUint(out14);
+        console.logUint(out15);
+        console.logUint(out16);
+    }
     function _validateHashAndSignature(uint256[2] memory signature, uint256[4] memory signerKey, bytes calldata depositPayload) internal returns (bytes32){
         (address depositor, address token, uint decimals, uint toChainId, uint amount, uint counter) = abi.decode(depositPayload, (address, address, uint, uint, uint, uint));
         bytes32 depositHash = hashOf(depositor, token, decimals, toChainId, amount, counter);
