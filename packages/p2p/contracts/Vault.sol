@@ -86,27 +86,38 @@ contract Vault {
         }
         revert("Invalid hex character");
     }
+    //Solidity stack too deep is supposed to break at 16 variables, including input, output and local
+    //However, following function breaks at 12 vars, assuming one arg to function, it is 13 totally. So some 'temporary' stuff is still there
     function testEncode(bytes calldata encodedPayload) external view{
-        console.logString('Vault.sol testEncode');
-        console.logBytes(encodedPayload);
-        (address depositor, address token, uint decimals, uint toChainId, uint amount, uint counter) = abi.decode(encodedPayload, (address, address, uint, uint, uint, uint));
+        (address depositor1, address token2, uint decimals3, uint toChainId4, uint amount5, uint counter6, 
+        string memory data7, string memory data8,string memory data9, string memory data10,string memory data11, string memory data12) = abi.decode(encodedPayload, (address, address, uint, uint, uint, uint, string, string, string, string, string, string));
         console.logString('Unit testEncode address, address, uint');
-        console.logAddress(depositor);
-        console.logAddress(token);
-        console.logUint(decimals);
-        console.logUint(toChainId);
-        console.logUint(amount);
-        console.logUint(counter);
+        console.logAddress(depositor1);
+        console.logAddress(token2);
+        console.logUint(decimals3);
+        console.logUint(toChainId4);
+        console.logUint(amount5);
+        console.logUint(counter6);
+        console.logString(data7);
+        console.logString(data8);
+        console.logString(data9);
+        console.logString(data10);
+        console.logString(data11);
+        console.logString(data12);
     }
-    function mint(uint256[2] memory signature, uint256[4] memory signerKey, bytes calldata encodedPayload) public {
-        require(publicKey.length == signerKey.length, 'Invalid Public Key length');
-        require((publicKey[0] == signerKey[0] && publicKey[1] == signerKey[1] && publicKey[2] == signerKey[2] && publicKey[3] == signerKey[3]), 'Invalid Public Key');
-        (address depositor, address token, uint decimals, uint toChainId, uint amount, uint counter) = abi.decode(encodedPayload, (address, address, uint, uint, uint, uint));
+    function _validateHashAndSignature(uint256[2] memory signature, uint256[4] memory signerKey, bytes calldata depositPayload) internal returns (bytes32){
+        (address depositor, address token, uint decimals, uint toChainId, uint amount, uint counter) = abi.decode(depositPayload, (address, address, uint, uint, uint, uint));
         bytes32 depositHash = hashOf(depositor, token, decimals, toChainId, amount, counter);
         require(mintedForDepositHash[depositHash] == false, 'Already minted for deposit hash');
         uint256[2] memory messageToPoint = verifier.hashToPoint(bytes(cipher_suite_domain), bytes(bytes32ToHexString(depositHash)));
         bool validSignature = verifier.verifySignature(signature, signerKey, messageToPoint);
         require(validSignature == true, 'Invalid Signature');
+        return depositHash;
+    }
+    function mint(uint256[2] memory signature, uint256[4] memory signerKey, bytes calldata depositPayload) public {
+        require(publicKey.length == signerKey.length, 'Invalid Public Key length');
+        require((publicKey[0] == signerKey[0] && publicKey[1] == signerKey[1] && publicKey[2] == signerKey[2] && publicKey[3] == signerKey[3]), 'Invalid Public Key');
+        bytes32 depositHash = _validateHashAndSignature(signature, signerKey, depositPayload);
         mintedForDepositHash[depositHash] = true;
         /*
          map(originatingNetwork => map(originalTokenAddress => proxyTokenAddress)) proxyTokenMap;

@@ -163,7 +163,7 @@ describe('vault contract', function () {
     }
     const contract = await createVault(fixture.pubkey_ser);
     //await contract.testEncodePacked(abi.encode(["address", "address", "uint"], [fixture.depositor, fixture.tokenAddress, BigInt(fixture.amount).toString()]));
-    await contract.testEncode(abi.encode(["address", "address", "uint", "uint", "uint", "uint"], [fixture.depositor, fixture.tokenAddress, BigInt(fixture.decimals), BigInt(fixture.toChainId), BigInt(fixture.amount), BigInt(fixture.depositCounter)]));
+    await contract.testEncode(abi.encode(["address", "address", "uint", "uint", "uint", "uint", "string", "string", "string", "string", "string", "string"], [fixture.depositor, fixture.tokenAddress, BigInt(fixture.decimals), BigInt(fixture.toChainId), BigInt(fixture.amount), BigInt(fixture.depositCounter), "stringData7", "stringData8", "stringData9", "stringData10", "stringData11", "stringData12"]));
   })
   it.skip("should test encode packed", async function(){
     const fixture = {
