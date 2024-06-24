@@ -2,6 +2,7 @@
 pragma solidity ^0.8.20;
 import "hardhat/console.sol";
 import './BlsVerify.sol';
+import './tokens/ERC20Token.sol';
 
 contract Vault {
 
@@ -17,6 +18,8 @@ contract Vault {
     mapping(address => uint)   public pool;
     mapping(bytes32 => bool) public deposits;
     mapping(bytes32 => bool) public mintedForDepositHash;
+    //DepositingChainId => {DepositingTokenAddress => ProxyTokenAddress}
+    mapping(uint => mapping(address => address)) public proxyTokenMap;
     uint public depositCounter = 0;
 
     BlsVerify verifier;
@@ -32,16 +35,12 @@ contract Vault {
         deposits[hash] = true;
         emit Deposited(msg.sender, ETH, 18, toChainId, msg.value, counter);
     }
-    //fixme: do we need this
-    /*function isDeposited(address depositor, address token, uint toChainId, uint amount, uint counter) public view returns (bool){
-        bytes32 hash = hashOf(depositor, token, toChainId, amount, counter);
-        return deposits[hash];
-    }*/
-
     function hashOf(address depositor, address token, uint decimals, uint toChainId, uint amount, uint counter) public pure returns (bytes32){
         return keccak256(abi.encodePacked(depositor, token, decimals, toChainId, amount, counter));
     }
-
+    function balanceOf(address proxyToken, address depositor) external view returns (uint) {
+        return ERC20Token(proxyToken).balanceOf(depositor);
+    }
     function depositToken(uint amount) external {
 //        emit Deposited(msg.sender, amount);
     }
@@ -87,9 +86,22 @@ contract Vault {
         }
         revert("Invalid hex character");
     }
-    function mint(uint256[2] memory signature, uint256[4] memory signerKey, address depositor, address token, uint decimals, uint toChainId, uint amount, uint counter) public {
+    function testEncode(bytes calldata encodedPayload) external view{
+        console.logString('Vault.sol testEncode');
+        console.logBytes(encodedPayload);
+        (address depositor, address token, uint decimals, uint toChainId, uint amount, uint counter) = abi.decode(encodedPayload, (address, address, uint, uint, uint, uint));
+        console.logString('Unit testEncode address, address, uint');
+        console.logAddress(depositor);
+        console.logAddress(token);
+        console.logUint(decimals);
+        console.logUint(toChainId);
+        console.logUint(amount);
+        console.logUint(counter);
+    }
+    function mint(uint256[2] memory signature, uint256[4] memory signerKey, bytes calldata encodedPayload) public {
         require(publicKey.length == signerKey.length, 'Invalid Public Key length');
         require((publicKey[0] == signerKey[0] && publicKey[1] == signerKey[1] && publicKey[2] == signerKey[2] && publicKey[3] == signerKey[3]), 'Invalid Public Key');
+        (address depositor, address token, uint decimals, uint toChainId, uint amount, uint counter) = abi.decode(encodedPayload, (address, address, uint, uint, uint, uint));
         bytes32 depositHash = hashOf(depositor, token, decimals, toChainId, amount, counter);
         require(mintedForDepositHash[depositHash] == false, 'Already minted for deposit hash');
         uint256[2] memory messageToPoint = verifier.hashToPoint(bytes(cipher_suite_domain), bytes(bytes32ToHexString(depositHash)));

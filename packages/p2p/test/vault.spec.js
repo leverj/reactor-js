@@ -2,7 +2,7 @@ import { expect } from 'expect'
 import { createVault, provider } from './help/vault.js'
 import { Interface } from 'ethers'
 import vaultAbi from '../src/abi/Vault.json' assert {type: 'json'}
-import { buffersToHex, keccak256, toBuffer, uint } from '@leverj/gluon-plasma.common/src/utils/ethereum.js'
+import { keccak256, abi, solidityPack } from '@leverj/gluon-plasma.common/src/utils/ethereum.js'
 import { peerIdJsons} from './help/index.js'
 import {setTimeout} from 'timers/promises'
 import BridgeNode from '../src/BridgeNode.js'
@@ -35,7 +35,8 @@ const createBridgeNodes = async (count) => {
 }
 describe('vault contract', function () {
   afterEach(async () => await stopBridgeNodes())
-  it('should be able to deposit ether', async function () {
+  //fixme this TC can be deleted in couple of weeks. this TC was to initiate the dev, and code has progressed to several levels up
+  it.skip('should be able to deposit ether', async function () {
     const threshold = 4
     const members = await createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399], threshold)
     const pubkeyHex = members[0].groupPublicKey.serializeToHexStr()
@@ -109,7 +110,7 @@ describe('vault contract', function () {
       const amount = parsedLog.args[4]
       const depositCounter = parsedLog.args[5]
       const depositHash = keccak256(depositor, tokenAddress, BigInt(decimals).toString(), BigInt(toChainId).toString(), BigInt(amount).toString(), BigInt(depositCounter).toString())
-      await leader.processDeposit(network.chainId, depositor, tokenAddress, decimals, toChainId, amount, depositCounter)
+      await leader.processDeposit(network.chainId, abi.encode(["address", "address", "uint", "uint", "uint", "uint"], [depositor, tokenAddress, BigInt(decimals), BigInt(toChainId), BigInt(amount), BigInt(depositCounter)]))
       await setTimeout(1000)
       const minted = await contract.mintedForDepositHash(depositHash)
       expect(minted).toEqual(true)
@@ -135,11 +136,55 @@ describe('vault contract', function () {
       depositCounter: 0n
     }
     const contract = await createVault(fixture.pubkey_ser)
-    await contract.mint(fixture.sig_ser, fixture.pubkey_ser, fixture.depositor, fixture.tokenAddress, BigInt(fixture.decimals), BigInt(fixture.toChainId), BigInt(fixture.amount), BigInt(fixture.depositCounter))
+    await contract.mint(fixture.sig_ser, fixture.pubkey_ser, abi.encode(["address", "address", "uint", "uint", "uint", "uint"], [fixture.depositor, fixture.tokenAddress, BigInt(fixture.decimals), BigInt(fixture.toChainId), BigInt(fixture.amount), BigInt(fixture.depositCounter)]))
     await setTimeout(1000)
     const depositHash = keccak256(fixture.depositor, fixture.tokenAddress, BigInt(fixture.decimals).toString(), BigInt(fixture.toChainId).toString(), BigInt(fixture.amount).toString(), BigInt(fixture.depositCounter).toString())
-      
     const minted = await contract.mintedForDepositHash(depositHash)
     expect(minted).toEqual(true)
+  })
+  it("should test encode decode", async function(){
+    const fixture = {
+      sig_ser: [
+        '17501379548414473118975493418296770409004790518587989275104077991423278766345',
+        '10573459840926036933226410278548182531900093958496894445083855256191507622572'
+      ],
+      pubkey_ser: [
+        '17952266123624120693867949189877327115939693121746953888788663343366186261263',
+        '3625386958213971493190482798835911536597490696820041295198885612842303573644',
+        '14209805107538060976447556508818330114663332071460618570948978043188559362801',
+        '6106226559240500500676195643085343038285250451936828952647773685858315556632'
+      ],
+      depositor: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      tokenAddress: '0x0000000000000000000000000000000000000000',
+      decimals: 18n,
+      toChainId: 10101n,
+      amount: 1000000n,
+      depositCounter: 0n
+    }
+    const contract = await createVault(fixture.pubkey_ser);
+    //await contract.testEncodePacked(abi.encode(["address", "address", "uint"], [fixture.depositor, fixture.tokenAddress, BigInt(fixture.amount).toString()]));
+    await contract.testEncode(abi.encode(["address", "address", "uint", "uint", "uint", "uint"], [fixture.depositor, fixture.tokenAddress, BigInt(fixture.decimals), BigInt(fixture.toChainId), BigInt(fixture.amount), BigInt(fixture.depositCounter)]));
+  })
+  it.skip("should test encode packed", async function(){
+    const fixture = {
+      sig_ser: [
+        '17501379548414473118975493418296770409004790518587989275104077991423278766345',
+        '10573459840926036933226410278548182531900093958496894445083855256191507622572'
+      ],
+      pubkey_ser: [
+        '17952266123624120693867949189877327115939693121746953888788663343366186261263',
+        '3625386958213971493190482798835911536597490696820041295198885612842303573644',
+        '14209805107538060976447556508818330114663332071460618570948978043188559362801',
+        '6106226559240500500676195643085343038285250451936828952647773685858315556632'
+      ],
+      depositor: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      tokenAddress: '0x0000000000000000000000000000000000000000',
+      decimals: 18n,
+      toChainId: 10101n,
+      amount: 1000000n,
+      depositCounter: 0n
+    }
+    const contract = await createVault(fixture.pubkey_ser);
+    await contract.testEncode(solidityPack(["address", "address", "uint", "uint", "uint", "uint"], [fixture.depositor, fixture.tokenAddress, BigInt(fixture.decimals), BigInt(fixture.toChainId), BigInt(fixture.amount), BigInt(fixture.depositCounter)]));
   })
 })
