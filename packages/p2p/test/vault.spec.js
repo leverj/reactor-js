@@ -102,15 +102,7 @@ describe('vault contract', function () {
     const txnReceipt = await (await contract.depositEth(toChain, { value: amount })).wait()
     const logs = await provider.getLogs(txnReceipt)
     for (const log of logs) {
-      const parsedLog = new Interface(vaultAbi.abi).parseLog(log)
-      const depositor = parsedLog.args[0]
-      const tokenAddress = parsedLog.args[1]
-      const decimals = parsedLog.args[2]
-      const toChainId = parsedLog.args[3]
-      const amount = parsedLog.args[4]
-      const depositCounter = parsedLog.args[5]
-      const depositHash = keccak256(depositor, tokenAddress, BigInt(decimals).toString(), BigInt(toChainId).toString(), BigInt(amount).toString(), BigInt(depositCounter).toString())
-      await leader.processDeposit(network.chainId, abi.encode(["address", "address", "uint", "uint", "uint", "uint"], [depositor, tokenAddress, BigInt(decimals), BigInt(toChainId), BigInt(amount), BigInt(depositCounter)]))
+      const depositHash = await leader.processDeposit(network.chainId, log)
       await setTimeout(1000)
       const minted = await contract.mintedForDepositHash(depositHash)
       expect(minted).toEqual(true)
