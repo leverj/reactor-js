@@ -105,6 +105,33 @@ contract Vault {
         console.logString(data11);
         console.logString(data12);
     }
+
+
+    //Here the var numbers is actually touching 16. Uncomment following line to get StackTooDeep : uint out16 = counter6 * 10; 
+    function testEncodeInputPlusLocal(bytes calldata encodedPayload) external view{
+        (address depositor1, address token2, uint decimals3, uint toChainId4, uint amount5, uint counter6, 
+        string memory data7, string memory data8,string memory data9, string memory data10,string memory data11, string memory data12) = abi.decode(encodedPayload, (address, address, uint, uint, uint, uint, string, string, string, string, string, string));
+        uint out13 = decimals3 * 10;
+        uint out14 = toChainId4 * 10;
+        uint out15 = amount5 * 10;
+        //uint out16 = counter6 * 10;
+        console.logString('Unit testEncode address, address, uint');
+        console.logAddress(depositor1);
+        console.logAddress(token2);
+        console.logUint(decimals3);
+        console.logUint(toChainId4);
+        console.logUint(amount5);
+        console.logUint(counter6);
+        console.logString(data7);
+        console.logString(data8);
+        console.logString(data9);
+        console.logString(data10);
+        console.logString(data11);
+        console.logString(data12);
+        console.logUint(out13);
+        console.logUint(out14);
+        console.logUint(out15);
+    }
     function _validateHashAndSignature(uint256[2] memory signature, uint256[4] memory signerKey, bytes calldata depositPayload) internal returns (bytes32){
         (address depositor, address token, uint decimals, uint toChainId, uint amount, uint counter) = abi.decode(depositPayload, (address, address, uint, uint, uint, uint));
         bytes32 depositHash = hashOf(depositor, token, decimals, toChainId, amount, counter);
