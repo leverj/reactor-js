@@ -88,6 +88,7 @@ contract Vault {
     }
     //Solidity stack too deep is supposed to break at 16 variables, including input, output and local
     //However, following function breaks at 12 vars, assuming one arg to function, it is 13 totally. So some 'temporary' stuff is still there
+    //These unit functions can be deleted, if Stack Too Deep does not need any further experimentation 
     function testEncode(bytes calldata encodedPayload) external view{
         (address depositor1, address token2, uint decimals3, uint toChainId4, uint amount5, uint counter6, 
         string memory data7, string memory data8,string memory data9, string memory data10,string memory data11, string memory data12) = abi.decode(encodedPayload, (address, address, uint, uint, uint, uint, string, string, string, string, string, string));
@@ -174,10 +175,21 @@ contract Vault {
         require(validSignature == true, 'Invalid Signature');
         return depositHash;
     }
+    function _createProxyTokenAndMint(bytes calldata depositPayload) internal {
+        ERC20Token proxyToken;
+        (address depositor, address token, uint decimals, uint chainId, uint amount, ,string memory name, string memory symbol) = abi.decode(depositPayload, (address, address, uint, uint, uint, uint, string, string));
+        if (proxyTokenMap[chainId][token] == address(0)){
+            proxyToken = new ERC20Token(name, symbol, uint8(decimals), token, chainId);
+            proxyTokenMap[chainId][token] = address(proxyToken);
+        }
+        proxyToken = ERC20Token(proxyTokenMap[chainId][token]);
+        proxyToken.mint(depositor, amount);
+    }
     function mint(uint256[2] memory signature, uint256[4] memory signerKey, bytes calldata depositPayload) public {
         require(publicKey.length == signerKey.length, 'Invalid Public Key length');
         require((publicKey[0] == signerKey[0] && publicKey[1] == signerKey[1] && publicKey[2] == signerKey[2] && publicKey[3] == signerKey[3]), 'Invalid Public Key');
         bytes32 depositHash = _validateHashAndSignature(signature, signerKey, depositPayload);
+        _createProxyTokenAndMint(depositPayload);
         mintedForDepositHash[depositHash] = true;
         /*
          map(originatingNetwork => map(originalTokenAddress => proxyTokenAddress)) proxyTokenMap;

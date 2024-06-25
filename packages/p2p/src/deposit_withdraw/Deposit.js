@@ -34,7 +34,14 @@ export default class Deposit {
     return depositHash
 
   }
-
+  //fixme - how is the name derived. If address is 0x0 then Wrapper_ETH, W_ETH can be name/symbol ? For other token address get it from 
+  //its ERC-20 contract and suffix with _PROXY ?
+  async getNameAndSymbol(tokenAddress){
+    return {
+        name: 'PROXY_NAME',
+        symbol: 'PRX'
+    }
+  }
   async signatureVerified(depositor, tokenAddress, decimals, toChainId, amount, depositCounter, aggregateSignature) {
     if (aggregateSignature.verified !== true) return
     const signature = bls.deserializeHexStrToG1(aggregateSignature.groupSign)
@@ -43,7 +50,8 @@ export default class Deposit {
     const pubkey = bls.deserializeHexStrToG2(pubkeyHex)
     const pubkey_ser = bls.g2ToBN(pubkey)
     const targetContract = this.contracts[toChainId]
-    await targetContract.mint(sig_ser, pubkey_ser, abi.encode(['address', 'address', 'uint', 'uint', 'uint', 'uint'], [depositor, tokenAddress, BigInt(decimals), BigInt(toChainId), BigInt(amount), BigInt(depositCounter)]))
+    const {name, symbol} = await this.getNameAndSymbol(tokenAddress)
+    await targetContract.mint(sig_ser, pubkey_ser, abi.encode(['address', 'address', 'uint', 'uint', 'uint', 'uint', 'string', 'string'], [depositor, tokenAddress, BigInt(decimals), BigInt(toChainId), BigInt(amount), BigInt(depositCounter), name, symbol]))
 
   }
 
