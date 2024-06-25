@@ -2,6 +2,7 @@
 pragma solidity ^0.8.20;
 import "hardhat/console.sol";
 import './BlsVerify.sol';
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import './tokens/ERC20Token.sol';
 
 contract Vault {
@@ -34,6 +35,16 @@ contract Vault {
         bytes32 hash = hashOf(msg.sender, ETH, 18, toChainId, msg.value, counter);
         deposits[hash] = true;
         emit Deposited(msg.sender, ETH, 18, toChainId, msg.value, counter);
+    }
+    function depositToken(uint toChainId, address tokenAddress, uint tokenAmount) external {
+        ERC20 token = ERC20(tokenAddress);
+        require(token.balanceOf(msg.sender) >= tokenAmount, 'Insufficient balance');
+        token.transferFrom(msg.sender, address(this), tokenAmount);
+        pool[tokenAddress] += tokenAmount;
+        uint counter = depositCounter++;
+        bytes32 hash = hashOf(msg.sender, tokenAddress, token.decimals(), toChainId, tokenAmount, counter);
+        deposits[hash] = true;
+        emit Deposited(msg.sender, tokenAddress, token.decimals(), toChainId, tokenAmount, counter);
     }
     function hashOf(address depositor, address token, uint decimals, uint toChainId, uint amount, uint counter) public pure returns (bytes32){
         return keccak256(abi.encodePacked(depositor, token, decimals, toChainId, amount, counter));
@@ -71,20 +82,6 @@ contract Vault {
         }
         
         return string(hexString);
-    }
-
-    //fixme: do we need this
-    function hexCharToByte(bytes1 char) internal pure returns (bytes1) {
-        if (uint8(char) >= 48 && uint8(char) <= 57) {
-            return bytes1(uint8(char) - 48); // '0' - '9'
-        }
-        if (uint8(char) >= 65 && uint8(char) <= 70) {
-            return bytes1(uint8(char) - 55); // 'A' - 'F'
-        }
-        if (uint8(char) >= 97 && uint8(char) <= 102) {
-            return bytes1(uint8(char) - 87); // 'a' - 'f'
-        }
-        revert("Invalid hex character");
     }
     function _validateHashAndSignature(uint256[2] memory signature, uint256[4] memory signerKey, bytes calldata depositPayload) internal returns (bytes32){
         (address depositor, address token, uint decimals, ,uint toChainId, uint amount, uint counter) = abi.decode(depositPayload, (address, address, uint, uint, uint, uint, uint));
