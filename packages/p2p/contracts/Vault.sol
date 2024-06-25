@@ -95,7 +95,7 @@ contract Vault {
     function _createProxyTokenAndMint(bytes calldata depositPayload) internal {
         ERC20Token proxyToken;
         (address depositor, address token, uint decimals, uint fromChainId,, uint amount, ,string memory name, string memory symbol) = abi.decode(depositPayload, (address, address, uint, uint, uint, uint, uint, string, string));
-        if (proxyTokenMap[fromChainId][token] == address(0)){
+        if (proxyTokenMap[fromChainId][token] == address(0)){ // if proxyToken does not exist
             proxyToken = new ERC20Token(name, symbol, uint8(decimals), token, fromChainId);
             proxyTokenMap[fromChainId][token] = address(proxyToken);
         }
