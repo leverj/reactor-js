@@ -86,88 +86,8 @@ contract Vault {
         }
         revert("Invalid hex character");
     }
-    //Solidity stack too deep is supposed to break at 16 variables, including input, output and local
-    //However, following function breaks at 12 vars, assuming one arg to function, it is 13 totally. So some 'temporary' stuff is still there
-    //These unit functions can be deleted, if Stack Too Deep does not need any further experimentation 
-    function testEncode(bytes calldata encodedPayload) external view{
-        (address depositor1, address token2, uint decimals3, uint toChainId4, uint amount5, uint counter6, 
-        string memory data7, string memory data8,string memory data9, string memory data10,string memory data11, string memory data12) = abi.decode(encodedPayload, (address, address, uint, uint, uint, uint, string, string, string, string, string, string));
-        console.logString('Unit testEncode address, address, uint');
-        console.logAddress(depositor1);
-        console.logAddress(token2);
-        console.logUint(decimals3);
-        console.logUint(toChainId4);
-        console.logUint(amount5);
-        console.logUint(counter6);
-        console.logString(data7);
-        console.logString(data8);
-        console.logString(data9);
-        console.logString(data10);
-        console.logString(data11);
-        console.logString(data12);
-    }
-
-
-    //Here the var numbers is actually touching 16. Uncomment following line to get StackTooDeep : uint out16 = counter6 * 10; 
-    function testEncodeInputPlusLocal(bytes calldata encodedPayload) external view{
-        (address depositor1, address token2, uint decimals3, uint toChainId4, uint amount5, uint counter6, 
-        string memory data7, string memory data8,string memory data9, string memory data10,string memory data11, string memory data12) = abi.decode(encodedPayload, (address, address, uint, uint, uint, uint, string, string, string, string, string, string));
-        uint out13 = decimals3 * 10;
-        uint out14 = toChainId4 * 10;
-        uint out15 = amount5 * 10;
-        //uint out16 = counter6 * 10;
-        console.logString('Unit testEncode address, address, uint');
-        console.logAddress(depositor1);
-        console.logAddress(token2);
-        console.logUint(decimals3);
-        console.logUint(toChainId4);
-        console.logUint(amount5);
-        console.logUint(counter6);
-        console.logString(data7);
-        console.logString(data8);
-        console.logString(data9);
-        console.logString(data10);
-        console.logString(data11);
-        console.logString(data12);
-        console.logUint(out13);
-        console.logUint(out14);
-        console.logUint(out15);
-    }
-    //Declaring depositor variable has no issues, but doing console itself breaks. uncomment console.log(depositor) to get Stack Too Deep
-    function testEncodeInputPlusLocal_PartialExtraction(bytes calldata encodedPayload1) external view{
-        (address depositor, , uint decimals2, uint toChainId3, uint amount4, uint counter5, 
-        ,,,,,) = abi.decode(encodedPayload1, (address, address, uint, uint, uint, uint, string, string, string, string, string, string));
-        uint out6 = decimals2 * 10;
-        uint out7 = toChainId3 * 10;
-        uint out8 = amount4 * 10;
-        uint out9 = counter5 + 10;
-        uint out10 = counter5 + 20;
-        
-        uint out11 = decimals2 * 100;
-        uint out12 = toChainId3 * 1000;
-        uint out13 = amount4 * 20;
-        uint out14 = counter5 + 20;
-        uint out15 = counter5 + 30;
-        uint out16 = counter5 + 40;
-        uint out17 = counter5 + 40;
-        
-        console.logString('Unit testEncodeInputPlusLocal_PartialExtraction');
-        
-        //console.log(depositor);
-        console.logUint(out6);
-        console.logUint(out7);
-        console.logUint(out8);
-        console.logUint(out9);
-        console.logUint(out10);
-        console.logUint(out11);
-        console.logUint(out12);
-        console.logUint(out13);
-        console.logUint(out14);
-        console.logUint(out15);
-        console.logUint(out16);
-    }
     function _validateHashAndSignature(uint256[2] memory signature, uint256[4] memory signerKey, bytes calldata depositPayload) internal returns (bytes32){
-        (address depositor, address token, uint decimals, uint toChainId, uint amount, uint counter) = abi.decode(depositPayload, (address, address, uint, uint, uint, uint));
+        (address depositor, address token, uint decimals, ,uint toChainId, uint amount, uint counter) = abi.decode(depositPayload, (address, address, uint, uint, uint, uint, uint));
         bytes32 depositHash = hashOf(depositor, token, decimals, toChainId, amount, counter);
         require(mintedForDepositHash[depositHash] == false, 'Already minted for deposit hash');
         uint256[2] memory messageToPoint = verifier.hashToPoint(bytes(cipher_suite_domain), bytes(bytes32ToHexString(depositHash)));
@@ -177,12 +97,12 @@ contract Vault {
     }
     function _createProxyTokenAndMint(bytes calldata depositPayload) internal {
         ERC20Token proxyToken;
-        (address depositor, address token, uint decimals, uint chainId, uint amount, ,string memory name, string memory symbol) = abi.decode(depositPayload, (address, address, uint, uint, uint, uint, string, string));
-        if (proxyTokenMap[chainId][token] == address(0)){
-            proxyToken = new ERC20Token(name, symbol, uint8(decimals), token, chainId);
-            proxyTokenMap[chainId][token] = address(proxyToken);
+        (address depositor, address token, uint decimals, uint fromChainId,, uint amount, ,string memory name, string memory symbol) = abi.decode(depositPayload, (address, address, uint, uint, uint, uint, uint, string, string));
+        if (proxyTokenMap[fromChainId][token] == address(0)){
+            proxyToken = new ERC20Token(name, symbol, uint8(decimals), token, fromChainId);
+            proxyTokenMap[fromChainId][token] = address(proxyToken);
         }
-        proxyToken = ERC20Token(proxyTokenMap[chainId][token]);
+        proxyToken = ERC20Token(proxyTokenMap[fromChainId][token]);
         proxyToken.mint(depositor, amount);
     }
     function mint(uint256[2] memory signature, uint256[4] memory signerKey, bytes calldata depositPayload) public {

@@ -30,7 +30,7 @@ export default class Deposit {
     const depositHash = keccak256(depositor, tokenAddress, BigInt(decimals).toString(), BigInt(toChainId).toString(), BigInt(amount).toString(), BigInt(depositCounter).toString())
     const isDeposited = await this.contracts[chainId].deposits(depositHash)
     if (isDeposited === false) return
-    await this.bridgeNode.aggregateSignature(depositHash, depositHash, chainId, 'DEPOSIT', this.signatureVerified.bind(this, depositor, tokenAddress, decimals, toChainId, amount, depositCounter))
+    await this.bridgeNode.aggregateSignature(depositHash, depositHash, chainId, 'DEPOSIT', this.signatureVerified.bind(this, depositor, tokenAddress, decimals, chainId, toChainId, amount, depositCounter))
     return depositHash
 
   }
@@ -42,7 +42,7 @@ export default class Deposit {
         symbol: 'PRX'
     }
   }
-  async signatureVerified(depositor, tokenAddress, decimals, toChainId, amount, depositCounter, aggregateSignature) {
+  async signatureVerified(depositor, tokenAddress, decimals, fromChainId, toChainId, amount, depositCounter, aggregateSignature) {
     if (aggregateSignature.verified !== true) return
     const signature = bls.deserializeHexStrToG1(aggregateSignature.groupSign)
     const sig_ser = bls.g1ToBN(signature)
@@ -51,7 +51,7 @@ export default class Deposit {
     const pubkey_ser = bls.g2ToBN(pubkey)
     const targetContract = this.contracts[toChainId]
     const {name, symbol} = await this.getNameAndSymbol(tokenAddress)
-    await targetContract.mint(sig_ser, pubkey_ser, abi.encode(['address', 'address', 'uint', 'uint', 'uint', 'uint', 'string', 'string'], [depositor, tokenAddress, BigInt(decimals), BigInt(toChainId), BigInt(amount), BigInt(depositCounter), name, symbol]))
+    await targetContract.mint(sig_ser, pubkey_ser, abi.encode(['address', 'address', 'uint', 'uint', 'uint', 'uint', 'uint', 'string', 'string'], [depositor, tokenAddress, BigInt(decimals), BigInt(fromChainId), BigInt(toChainId), BigInt(amount), BigInt(depositCounter), name, symbol]))
 
   }
 

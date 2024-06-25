@@ -107,12 +107,14 @@ describe('vault contract', function () {
       const minted = await contract.mintedForDepositHash(depositHash)
       expect(minted).toEqual(true)
       //Check the balance of the minted proxy for the depositor in the target chain
-      const proxyToken = await contract.proxyTokenMap(BigInt(toChain).toString(), '0x0000000000000000000000000000000000000000')
+      const proxyToken = await contract.proxyTokenMap(BigInt(network.chainId).toString(), '0x0000000000000000000000000000000000000000')
       const proxyBalanceOfDepositor = await contract.balanceOf(proxyToken, owner.address)
+      console.log('proxyToken', proxyToken, proxyBalanceOfDepositor)
       expect(amount).toEqual(proxyBalanceOfDepositor)
     }
   })
   it('should mint token using fixture data', async function(){
+    const network = await provider.getNetwork()
     const fixture = {
       sig_ser: [
         '17501379548414473118975493418296770409004790518587989275104077991423278766345',
@@ -134,12 +136,12 @@ describe('vault contract', function () {
     const contract = await createVault(fixture.pubkey_ser)
     const name = "PROXY_NAME" //fixme this can be 'constant' or derived from the original token. ultimately, it's always the address that's the unique/primary key
     const symbol = "PROXY_SYMBOL"
-    await contract.mint(fixture.sig_ser, fixture.pubkey_ser, abi.encode(["address", "address", "uint", "uint", "uint", "uint", "string", "string"], [fixture.depositor, fixture.tokenAddress, BigInt(fixture.decimals), BigInt(fixture.toChainId), BigInt(fixture.amount), BigInt(fixture.depositCounter), name, symbol]))
+    await contract.mint(fixture.sig_ser, fixture.pubkey_ser, abi.encode(["address", "address", "uint", "uint", "uint", "uint", "uint", "string", "string"], [fixture.depositor, fixture.tokenAddress, BigInt(fixture.decimals), BigInt(network.chainId),BigInt(fixture.toChainId), BigInt(fixture.amount), BigInt(fixture.depositCounter), name, symbol]))
     await setTimeout(1000)
     const depositHash = keccak256(fixture.depositor, fixture.tokenAddress, BigInt(fixture.decimals).toString(), BigInt(fixture.toChainId).toString(), BigInt(fixture.amount).toString(), BigInt(fixture.depositCounter).toString())
     const minted = await contract.mintedForDepositHash(depositHash)
     expect(minted).toEqual(true)
-    const proxyToken = await contract.proxyTokenMap(BigInt(fixture.toChainId).toString(), fixture.tokenAddress)
+    const proxyToken = await contract.proxyTokenMap(BigInt(network.chainId).toString(), fixture.tokenAddress)
     const proxyBalanceOfDepositor = await contract.balanceOf(proxyToken, fixture.depositor)
     expect(fixture.amount).toEqual(proxyBalanceOfDepositor)
 
