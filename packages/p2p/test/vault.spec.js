@@ -1,5 +1,5 @@
 import { expect } from 'expect'
-import { createVault, provider, owner } from './help/vault.js'
+import { createVault, provider, owner, account1, createERC20Token } from './help/vault.js'
 import { Interface, solidityPackedKeccak256, solidityPackedSha256 } from 'ethers'
 import vaultAbi from '../src/abi/Vault.json' assert {type: 'json'}
 import { keccak256, abi, solidityPack } from '@leverj/gluon-plasma.common/src/utils/ethereum.js'
@@ -96,8 +96,8 @@ describe('vault contract', function () {
     for (const node of [leader, node1, node2, node3, node4, node5, node6]){
       node.setContract(network.chainId, contract)
     }
-    const contract_target = await createVault(pubkey_ser)
-    leader.setContract(toChain, contract_target)
+    const contract_L2 = await createVault(pubkey_ser)
+    leader.setContract(toChain, contract_L2)
     const amount = BigInt(1e+6)
     
     const txnReceipt = await (await contract.depositEth(toChain, { value: amount })).wait()
@@ -105,15 +105,50 @@ describe('vault contract', function () {
     for (const log of logs) {
       const depositHash = await leader.processDeposit(network.chainId, log)
       await setTimeout(1000)
-      const minted = await contract_target.mintedForDepositHash(depositHash)
+      const minted = await contract_L2.mintedForDepositHash(depositHash)
       expect(minted).toEqual(true)
       //Check the balance of the minted proxy for the depositor in the target chain
-      const proxyToken = await contract_target.proxyTokenMap(BigInt(network.chainId).toString(), '0x0000000000000000000000000000000000000000')
-      const proxyBalanceOfDepositor = await contract_target.balanceOf(proxyToken, owner.address)
+      const proxyToken = await contract_L2.proxyTokenMap(BigInt(network.chainId).toString(), '0x0000000000000000000000000000000000000000')
+      const proxyBalanceOfDepositor = await contract_L2.balanceOf(proxyToken, owner.address)
       console.log('proxyToken', proxyToken, proxyBalanceOfDepositor)
       expect(amount).toEqual(proxyBalanceOfDepositor)
     }
   })
+  it('should deposit ERC20 on source chain and mint on target chain', async function(){
+    const erc20 = await createERC20Token('L2Test', 'L2Test', 12, '0x0000000000000000000000000000000000000000', 1)
+    await erc20.mint(account1, 1e9)
+    const network = await provider.getNetwork()
+    const toChain = 10101
+    const [leader, node1, node2, node3, node4, node5, node6] = await createBridgeNodes(7)
+    await leader.bridgeNode.publishWhitelist()
+    await leader.bridgeNode.startDKG(4)
+    await setTimeout(1000)
+    const pubkeyHex = leader.bridgeNode.tssNode.groupPublicKey.serializeToHexStr()
+    const pubkey = bls.deserializeHexStrToG2(pubkeyHex)
+    let pubkey_ser = bls.g2ToBN(pubkey)
+    const contract = await createVault(pubkey_ser)
+    for (const node of [leader, node1, node2, node3, node4, node5, node6]){
+      node.setContract(network.chainId, contract)
+    }
+    const contract_L2 = await createVault(pubkey_ser)
+    leader.setContract(toChain, contract_L2)
+    const amount = BigInt(1e+6)
+    const erc20WithAccount1 = erc20.connect(account1)
+    await erc20WithAccount1.approve(contract.target, 1000000)
+    const contractWithAccount1 = contract.connect(account1);
+    const txReceipt = await contractWithAccount1.depositToken(toChain, erc20.target, amount)
+    const logs = await provider.getLogs(txReceipt)
+    //console.log(logs)
+    const depositHash = await leader.processDeposit(network.chainId, logs[1])
+    await setTimeout(1000)
+    const minted = await contract_L2.mintedForDepositHash(depositHash)
+    expect(minted).toEqual(true)
+    const proxyToken = await contract_L2.proxyTokenMap(BigInt(network.chainId).toString(), erc20.target)
+    const proxyBalanceOfDepositor = await contract_L2.balanceOf(proxyToken, account1)
+    console.log('proxyToken', proxyToken, proxyBalanceOfDepositor)
+    expect(amount).toEqual(proxyBalanceOfDepositor)  
+  })
+
   it('should mint token using fixture data', async function(){
     const network = await provider.getNetwork()
     const fixture = {
