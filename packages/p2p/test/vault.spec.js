@@ -100,7 +100,7 @@ describe('vault contract', function () {
     leader.setContract(toChain, contract_L2)
     const amount = BigInt(1e+6)
     
-    const txnReceipt = await (await contract.depositEth(toChain, { value: amount })).wait()
+    const txnReceipt = await contract.depositEth(toChain, { value: amount }).then(tx => tx.wait())
     const logs = await provider.getLogs(txnReceipt)
     for (const log of logs) {
       const depositHash = await leader.processDeposit(network.chainId, log)
@@ -134,9 +134,9 @@ describe('vault contract', function () {
     leader.setContract(toChain, contract_L2)
     const amount = BigInt(1e+6)
     const erc20WithAccount1 = erc20.connect(account1)
-    await erc20WithAccount1.approve(contract.target, 1000000)
+    await erc20WithAccount1.approve(contract.target, 1000000, {from: account1.address}).then(tx => tx.wait())
     const contractWithAccount1 = contract.connect(account1);
-    const txReceipt = await contractWithAccount1.depositToken(toChain, erc20.target, amount)
+    const txReceipt = await contractWithAccount1.depositToken(toChain, erc20.target, amount).then(tx => tx.wait())
     const logs = await provider.getLogs(txReceipt)
     //console.log(logs)
     const depositHash = await leader.processDeposit(network.chainId, logs[1])
@@ -227,5 +227,27 @@ describe('vault contract', function () {
     }
     const contract = await createVault(fixture.pubkey_ser);
     await contract.testEncode(solidityPack(["address", "address", "uint", "uint", "uint", "uint"], [fixture.depositor, fixture.tokenAddress, BigInt(fixture.decimals), BigInt(fixture.toChainId), BigInt(fixture.amount), BigInt(fixture.depositCounter)]));
+  })
+
+  it('should desburse when withdrawn from target chain', async function() {
+    /*
+    L2: withdraw
+         burn
+         withdrawn(withdrawHash(account, token originating address, token originating chain, amount, withdrawCounter), true)
+    L1: disburse
+        check disbursed(withdrawHash) !== true
+        transfer original token and amount to account
+     */
+  })
+
+  it('should mint when withdrawn from target chain to not an originating chain', async function() {
+    /*
+    L2: withdraw
+         burn
+         withdrawn(withdrawHash(account, token originating address, token originating chain, amount, withdrawCounter), true)
+    L3: mint
+        check minted(withdrawHash) !== true
+        mint token to account
+     */
   })
 })

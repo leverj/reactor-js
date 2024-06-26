@@ -51,8 +51,7 @@ export default class Deposit {
     const pubkey_ser = bls.g2ToBN(pubkey)
     const targetContract = this.contracts[toChainId]
     const {name, symbol} = await this.getNameAndSymbol(tokenAddress)
-    await targetContract.mint(sig_ser, pubkey_ser, abi.encode(['address', 'address', 'uint', 'uint', 'uint', 'uint', 'uint', 'string', 'string'], [depositor, tokenAddress, BigInt(decimals), BigInt(fromChainId), BigInt(toChainId), BigInt(amount), BigInt(depositCounter), name, symbol]))
-
+    await targetContract.mint(sig_ser, pubkey_ser, abi.encode(['address', 'address', 'uint', 'uint', 'uint', 'uint', 'uint', 'string', 'string'], [depositor, tokenAddress, BigInt(decimals), BigInt(fromChainId), BigInt(toChainId), BigInt(amount), BigInt(depositCounter), name, symbol])).then(tx => tx.wait())
   }
 
   async verifyDepositHash(chainId, depositHash) {
