@@ -96,7 +96,8 @@ describe('vault contract', function () {
     for (const node of [leader, node1, node2, node3, node4, node5, node6]){
       node.setContract(network.chainId, contract)
     }
-    leader.setContract(toChain, contract)
+    const contract_target = await createVault(pubkey_ser)
+    leader.setContract(toChain, contract_target)
     const amount = BigInt(1e+6)
     
     const txnReceipt = await (await contract.depositEth(toChain, { value: amount })).wait()
@@ -104,11 +105,11 @@ describe('vault contract', function () {
     for (const log of logs) {
       const depositHash = await leader.processDeposit(network.chainId, log)
       await setTimeout(1000)
-      const minted = await contract.mintedForDepositHash(depositHash)
+      const minted = await contract_target.mintedForDepositHash(depositHash)
       expect(minted).toEqual(true)
       //Check the balance of the minted proxy for the depositor in the target chain
-      const proxyToken = await contract.proxyTokenMap(BigInt(network.chainId).toString(), '0x0000000000000000000000000000000000000000')
-      const proxyBalanceOfDepositor = await contract.balanceOf(proxyToken, owner.address)
+      const proxyToken = await contract_target.proxyTokenMap(BigInt(network.chainId).toString(), '0x0000000000000000000000000000000000000000')
+      const proxyBalanceOfDepositor = await contract_target.balanceOf(proxyToken, owner.address)
       console.log('proxyToken', proxyToken, proxyBalanceOfDepositor)
       expect(amount).toEqual(proxyBalanceOfDepositor)
     }

@@ -70,7 +70,21 @@ contract BlsVerify {
         require(success, "");
         return p0;
     }
+    function bytes32ToHexString(bytes32 _bytes32) public pure returns (string memory) {
+        bytes memory hexString = new bytes(64 + 2); // 64 characters for the hash + 2 for "0x"
+        bytes memory hexAlphabet = "0123456789abcdef";
 
+        hexString[0] = '0';
+        hexString[1] = 'x';
+
+        for (uint i = 0; i < 32; i++) {
+            uint8 byteValue = uint8(_bytes32[i]);
+            hexString[2 * i + 2] = hexAlphabet[byteValue >> 4];
+            hexString[2 * i + 3] = hexAlphabet[byteValue & 0x0f];
+        }
+        
+        return string(hexString);
+    }
     function hashToField(bytes memory domain, bytes memory messages) internal pure returns (uint256[2] memory) {
         bytes memory _msg = expandMsgTo96(domain, messages);
         uint256 z0;

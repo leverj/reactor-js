@@ -68,26 +68,12 @@ contract Vault {
         emit Withdrawn(address(0), amount);
     }
     
-    function bytes32ToHexString(bytes32 _bytes32) internal pure returns (string memory) {
-        bytes memory hexString = new bytes(64 + 2); // 64 characters for the hash + 2 for "0x"
-        bytes memory hexAlphabet = "0123456789abcdef";
-
-        hexString[0] = '0';
-        hexString[1] = 'x';
-
-        for (uint i = 0; i < 32; i++) {
-            uint8 byteValue = uint8(_bytes32[i]);
-            hexString[2 * i + 2] = hexAlphabet[byteValue >> 4];
-            hexString[2 * i + 3] = hexAlphabet[byteValue & 0x0f];
-        }
-        
-        return string(hexString);
-    }
+    
     function _validateHashAndSignature(uint256[2] memory signature, uint256[4] memory signerKey, bytes calldata depositPayload) internal returns (bytes32){
         (address depositor, address token, uint decimals, ,uint toChainId, uint amount, uint counter) = abi.decode(depositPayload, (address, address, uint, uint, uint, uint, uint));
         bytes32 depositHash = hashOf(depositor, token, decimals, toChainId, amount, counter);
         require(mintedForDepositHash[depositHash] == false, 'Already minted for deposit hash');
-        uint256[2] memory messageToPoint = verifier.hashToPoint(bytes(cipher_suite_domain), bytes(bytes32ToHexString(depositHash)));
+        uint256[2] memory messageToPoint = verifier.hashToPoint(bytes(cipher_suite_domain), bytes(verifier.bytes32ToHexString(depositHash)));
         bool validSignature = verifier.verifySignature(signature, signerKey, messageToPoint);
         require(validSignature == true, 'Invalid Signature');
         return depositHash;
@@ -108,16 +94,5 @@ contract Vault {
         bytes32 depositHash = _validateHashAndSignature(signature, signerKey, depositPayload);
         _createProxyTokenAndMint(depositPayload);
         mintedForDepositHash[depositHash] = true;
-        /*
-         map(originatingNetwork => map(originalTokenAddress => proxyTokenAddress)) proxyTokenMap;
-         map(depositHash => bool) minted;
-         if (!proxyTokenMap[originatingNetwork][originalTokenAddress]) {
-          proxyToken = create proxy token (name, symbol, decimals, originalTokenAddress, originatingNetwork);
-          proxyTokenMap[originatingNetwork][originalTokenAddress] = proxyToken;
-         }
-         proxyToken = proxyTokenMap[originatingNetwork][originalTokenAddress];
-         proxyToken.mint(depositor, amount);
-         minted[depositHash] = true;
-         */
     }
 }
