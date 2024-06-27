@@ -19,7 +19,7 @@ const stopBridgeNodes = async () => {
   for (const deposit of nodes) await deposit.bridgeNode.stop()
   nodes.length = 0
 }
-const createBridgeNodes = async (count) => {
+const createDepositNodes = async (count) => {
   const network = await provider.getNetwork()
   const bootstraps = []
   for (let i = 0; i < count; i++) {
@@ -74,7 +74,7 @@ describe('vault contract', function () {
       let sig_ser = bls.g1ToBN(signature)
       //console.log({sig_ser, pubkey_ser, depositor, tokenAddress, decimals, toChainId, amount, depositCounter})
       await contract.mint(sig_ser, pubkey_ser, depositor, tokenAddress, BigInt(decimals), BigInt(toChainId), BigInt(amount), BigInt(depositCounter))
-      const res = await contract.mintedForDepositHash(depositHash)
+      const res = await contract.minted(depositHash)
       expect(res).toEqual(true)
       //Sending Public key of member (i.e. wrong pub key)
       await expect(contract.mint(sig_ser, member_pub_key_g2, depositor, tokenAddress, BigInt(decimals), BigInt(toChainId), BigInt(amount), BigInt(depositCounter))).rejects.toThrow(/Invalid Public Key/)
@@ -85,7 +85,7 @@ describe('vault contract', function () {
   it('should invoke Deposit workflow on receipt of message', async function(){
     const network = await provider.getNetwork()
     const toChain = 10101
-    const [leader, node1, node2, node3, node4, node5, node6] = await createBridgeNodes(7)
+    const [leader, node1, node2, node3, node4, node5, node6] = await createDepositNodes(7)
     await leader.bridgeNode.publishWhitelist()
     await leader.bridgeNode.startDKG(4)
     await setTimeout(1000)
@@ -105,7 +105,7 @@ describe('vault contract', function () {
     for (const log of logs) {
       const depositHash = await leader.processDeposit(network.chainId, log)
       await setTimeout(1000)
-      const minted = await contract_L2.mintedForDepositHash(depositHash)
+      const minted = await contract_L2.minted(depositHash)
       expect(minted).toEqual(true)
       //Check the balance of the minted proxy for the depositor in the target chain
       const proxyToken = await contract_L2.proxyTokenMap(BigInt(network.chainId).toString(), '0x0000000000000000000000000000000000000000')
@@ -119,7 +119,7 @@ describe('vault contract', function () {
     await erc20.mint(account1, 1e9)
     const network = await provider.getNetwork()
     const toChain = 10101
-    const [leader, node1, node2, node3, node4, node5, node6] = await createBridgeNodes(7)
+    const [leader, node1, node2, node3, node4, node5, node6] = await createDepositNodes(7)
     await leader.bridgeNode.publishWhitelist()
     await leader.bridgeNode.startDKG(4)
     await setTimeout(1000)
@@ -141,7 +141,7 @@ describe('vault contract', function () {
     //console.log(logs)
     const depositHash = await leader.processDeposit(network.chainId, logs[1])
     await setTimeout(1000)
-    const minted = await contract_L2.mintedForDepositHash(depositHash)
+    const minted = await contract_L2.minted(depositHash)
     expect(minted).toEqual(true)
     const proxyToken = await contract_L2.proxyTokenMap(BigInt(network.chainId).toString(), erc20.target)
     const proxyBalanceOfDepositor = await contract_L2.balanceOf(proxyToken, account1)
@@ -175,7 +175,7 @@ describe('vault contract', function () {
     await contract.mint(fixture.sig_ser, fixture.pubkey_ser, abi.encode(["address", "address", "uint", "uint", "uint", "uint", "uint", "string", "string"], [fixture.depositor, fixture.tokenAddress, BigInt(fixture.decimals), BigInt(network.chainId),BigInt(fixture.toChainId), BigInt(fixture.amount), BigInt(fixture.depositCounter), name, symbol]))
     await setTimeout(1000)
     const depositHash = keccak256(fixture.depositor, fixture.tokenAddress, BigInt(fixture.decimals).toString(), BigInt(fixture.toChainId).toString(), BigInt(fixture.amount).toString(), BigInt(fixture.depositCounter).toString())
-    const minted = await contract.mintedForDepositHash(depositHash)
+    const minted = await contract.minted(depositHash)
     expect(minted).toEqual(true)
     const proxyToken = await contract.proxyTokenMap(BigInt(network.chainId).toString(), fixture.tokenAddress)
     const proxyBalanceOfDepositor = await contract.balanceOf(proxyToken, fixture.depositor)

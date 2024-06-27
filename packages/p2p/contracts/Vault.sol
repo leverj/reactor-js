@@ -18,7 +18,7 @@ contract Vault {
     uint256[4] public publicKey;
     mapping(address => uint)   public pool;
     mapping(bytes32 => bool) public deposits;
-    mapping(bytes32 => bool) public mintedForDepositHash;
+    mapping(bytes32 => bool) public minted;
     //DepositingChainId => {DepositingTokenAddress => ProxyTokenAddress}
     mapping(uint => mapping(address => address)) public proxyTokenMap;
     uint public depositCounter = 0;
@@ -72,7 +72,7 @@ contract Vault {
     function _validateHashAndSignature(uint256[2] memory signature, uint256[4] memory signerKey, bytes calldata depositPayload) internal returns (bytes32){
         (address depositor, address token, uint decimals, ,uint toChainId, uint amount, uint counter) = abi.decode(depositPayload, (address, address, uint, uint, uint, uint, uint));
         bytes32 depositHash = hashOf(depositor, token, decimals, toChainId, amount, counter);
-        require(mintedForDepositHash[depositHash] == false, 'Already minted for deposit hash');
+        require(minted[depositHash] == false, 'Already minted for deposit hash');
         uint256[2] memory messageToPoint = verifier.hashToPoint(bytes(cipher_suite_domain), bytes(verifier.bytes32ToHexString(depositHash)));
         bool validSignature = verifier.verifySignature(signature, signerKey, messageToPoint);
         require(validSignature == true, 'Invalid Signature');
@@ -93,6 +93,6 @@ contract Vault {
         require((publicKey[0] == signerKey[0] && publicKey[1] == signerKey[1] && publicKey[2] == signerKey[2] && publicKey[3] == signerKey[3]), 'Invalid Public Key');
         bytes32 depositHash = _validateHashAndSignature(signature, signerKey, depositPayload);
         _createProxyTokenAndMint(depositPayload);
-        mintedForDepositHash[depositHash] = true;
+        minted[depositHash] = true;
     }
 }
