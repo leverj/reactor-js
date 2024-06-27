@@ -251,18 +251,23 @@ describe('vault contract', function () {
     await contract.testEncode(solidityPack(["address", "address", "uint", "uint", "uint", "uint"], [fixture.depositor, fixture.tokenAddress, BigInt(fixture.decimals), BigInt(fixture.toChainId), BigInt(fixture.amount), BigInt(fixture.depositCounter)]));
   })
 
-  it('should desburse when withdrawn from target chain', async function() {
+  it('should disburse when withdrawn from target chain', async function() {
     const network = await provider.getNetwork()
     const L1_Chain = network.chainId
     const L2_Chain = 10101
     const amount = BigInt(1e+6)
     
     const {L1_contract, L2_Contract, nodes:[leader, node1, node2, node3, node4, node5, node6]} = await depositOnL1(L1_Chain, L2_Chain, amount)
-
+    const proxyToken = await L2_Contract.proxyTokenMap(BigInt(network.chainId).toString(), '0x0000000000000000000000000000000000000000')
+    let proxyBalanceOfDepositor = await L2_Contract.balanceOf(proxyToken, owner.address)
+    expect(amount).toEqual(proxyBalanceOfDepositor)   
     const withdrawReceipt = await L2_Contract.withdrawEth(L1_Chain, amount).then(tx => tx.wait())
+    proxyBalanceOfDepositor = await L2_Contract.balanceOf(proxyToken, owner.address)
+    expect(BigInt(0)).toEqual(proxyBalanceOfDepositor)
+    console.log("L2 Contract", L2_Contract.target)   
     const logs = await provider.getLogs(withdrawReceipt)
     for (const log of logs){
-      await leader.processWithdraw(L2_Chain, log)
+      if (log.address == L2_Contract.target) await leader.processWithdraw(L2_Chain, log)
     }
     await setTimeout(1000)
     /*

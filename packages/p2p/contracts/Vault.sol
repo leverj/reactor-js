@@ -43,6 +43,7 @@ contract Vault {
         ERC20Token proxyForEth = ERC20Token(proxyTokenMap[toChainId][address(0)]); //When ETH would have been deposited and proxied here it would have been saved with sourceChain, ETH Address (0)
         require(proxyForEth.balanceOf(msg.sender) >= amount, 'Insufficient ETH proxy token balance');
         uint counter = withdrawCounter++;
+        proxyForEth.burn(msg.sender, amount);
         //decimals may seem not-needed here, but in some use cases we may be minting also on target chain, so let it be there for now
         bytes32 hash = hashOf(msg.sender, ETH, 18, toChainId, amount, counter);
         withdrawals[hash] = true;
