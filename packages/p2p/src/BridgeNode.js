@@ -134,7 +134,8 @@ export default class BridgeNode extends NetworkNode {
 
   async handleSignatureStart(peerId, data) {
     const {txnHash, message, chainId, eventType} = data
-    const verifiedHash = await this.deposit.verifyDepositHash(chainId, data.message)
+    const verifiedHash = (eventType === 'DEPOSIT') ? await this.deposit.verifyDepositHash(chainId, data.message) :
+    await this.deposit.verifyWithdrawHash(chainId, data.message) 
     if (verifiedHash !== true) return
     if (this.leader !== peerId) return logger.log('Ignoring signature start from non-leader', peerId, this.leader)
     

@@ -33,6 +33,28 @@ const createDepositNodes = async (count) => {
   }
   return nodes
 }
+const depositOnL1 = async (L1_Chain, L2_Chain, amount) => {
+    const [leader, node1, node2, node3, node4, node5, node6] = await createDepositNodes(7)
+    await leader.bridgeNode.publishWhitelist()
+    await leader.bridgeNode.startDKG(4)
+    await setTimeout(1000)
+    const pubkeyHex = leader.bridgeNode.tssNode.groupPublicKey.serializeToHexStr()
+    const pubkey = bls.deserializeHexStrToG2(pubkeyHex)
+    let pubkey_ser = bls.g2ToBN(pubkey)
+    const L1_contract = await createVault(pubkey_ser)
+    const L2_Contract = await createVault(pubkey_ser)
+    for (const node of [leader, node1, node2, node3, node4, node5, node6]){
+      node.setContract(L1_Chain, L1_contract)
+      node.setContract(L2_Chain, L2_Contract)
+    }
+    const txnReceipt = await L1_contract.depositEth(L2_Chain, { value: amount }).then(tx => tx.wait())
+    const logs = await provider.getLogs(txnReceipt)
+    for (const log of logs) {
+      await leader.processDeposit(L1_Chain, log)
+      await setTimeout(1000)
+    }
+    return {L1_contract, L2_Contract, 'nodes': [leader, node1, node2, node3, node4, node5, node6]}  
+}
 describe('vault contract', function () {
   afterEach(async () => await stopBridgeNodes())
   //fixme this TC can be deleted in couple of weeks. this TC was to initiate the dev, and code has progressed to several levels up
@@ -96,8 +118,8 @@ describe('vault contract', function () {
     for (const node of [leader, node1, node2, node3, node4, node5, node6]){
       node.setContract(network.chainId, contract)
     }
-    const contract_L2 = await createVault(pubkey_ser)
-    leader.setContract(toChain, contract_L2)
+    const L2_Contract = await createVault(pubkey_ser)
+    leader.setContract(toChain, L2_Contract)
     const amount = BigInt(1e+6)
     
     const txnReceipt = await contract.depositEth(toChain, { value: amount }).then(tx => tx.wait())
@@ -105,11 +127,11 @@ describe('vault contract', function () {
     for (const log of logs) {
       const depositHash = await leader.processDeposit(network.chainId, log)
       await setTimeout(1000)
-      const minted = await contract_L2.minted(depositHash)
+      const minted = await L2_Contract.minted(depositHash)
       expect(minted).toEqual(true)
       //Check the balance of the minted proxy for the depositor in the target chain
-      const proxyToken = await contract_L2.proxyTokenMap(BigInt(network.chainId).toString(), '0x0000000000000000000000000000000000000000')
-      const proxyBalanceOfDepositor = await contract_L2.balanceOf(proxyToken, owner.address)
+      const proxyToken = await L2_Contract.proxyTokenMap(BigInt(network.chainId).toString(), '0x0000000000000000000000000000000000000000')
+      const proxyBalanceOfDepositor = await L2_Contract.balanceOf(proxyToken, owner.address)
       console.log('proxyToken', proxyToken, proxyBalanceOfDepositor)
       expect(amount).toEqual(proxyBalanceOfDepositor)
     }
@@ -130,8 +152,8 @@ describe('vault contract', function () {
     for (const node of [leader, node1, node2, node3, node4, node5, node6]){
       node.setContract(network.chainId, contract)
     }
-    const contract_L2 = await createVault(pubkey_ser)
-    leader.setContract(toChain, contract_L2)
+    const L2_Contract = await createVault(pubkey_ser)
+    leader.setContract(toChain, L2_Contract)
     const amount = BigInt(1e+6)
     const erc20WithAccount1 = erc20.connect(account1)
     await erc20WithAccount1.approve(contract.target, 1000000, {from: account1.address}).then(tx => tx.wait())
@@ -141,10 +163,10 @@ describe('vault contract', function () {
     //console.log(logs)
     const depositHash = await leader.processDeposit(network.chainId, logs[1])
     await setTimeout(1000)
-    const minted = await contract_L2.minted(depositHash)
+    const minted = await L2_Contract.minted(depositHash)
     expect(minted).toEqual(true)
-    const proxyToken = await contract_L2.proxyTokenMap(BigInt(network.chainId).toString(), erc20.target)
-    const proxyBalanceOfDepositor = await contract_L2.balanceOf(proxyToken, account1)
+    const proxyToken = await L2_Contract.proxyTokenMap(BigInt(network.chainId).toString(), erc20.target)
+    const proxyBalanceOfDepositor = await L2_Contract.balanceOf(proxyToken, account1)
     console.log('proxyToken', proxyToken, proxyBalanceOfDepositor)
     expect(amount).toEqual(proxyBalanceOfDepositor)  
   })
@@ -230,6 +252,19 @@ describe('vault contract', function () {
   })
 
   it('should desburse when withdrawn from target chain', async function() {
+    const network = await provider.getNetwork()
+    const L1_Chain = network.chainId
+    const L2_Chain = 10101
+    const amount = BigInt(1e+6)
+    
+    const {L1_contract, L2_Contract, nodes:[leader, node1, node2, node3, node4, node5, node6]} = await depositOnL1(L1_Chain, L2_Chain, amount)
+
+    const withdrawReceipt = await L2_Contract.withdrawEth(L1_Chain, amount).then(tx => tx.wait())
+    const logs = await provider.getLogs(withdrawReceipt)
+    for (const log of logs){
+      await leader.processWithdraw(L2_Chain, log)
+    }
+    await setTimeout(1000)
     /*
     L2: withdraw
          burn

@@ -30,8 +30,20 @@ export default class Deposit {
     const depositHash = keccak256(depositor, tokenAddress, BigInt(decimals).toString(), BigInt(toChainId).toString(), BigInt(amount).toString(), BigInt(depositCounter).toString())
     const isDeposited = await this.contracts[chainId].deposits(depositHash)
     if (isDeposited === false) return
-    await this.bridgeNode.aggregateSignature(depositHash, depositHash, chainId, 'DEPOSIT', this.signatureVerified.bind(this, depositor, tokenAddress, decimals, chainId, toChainId, amount, depositCounter))
+    await this.bridgeNode.aggregateSignature(depositHash, depositHash, chainId, 'DEPOSIT', this.signatureVerified.bind(this, true, depositor, tokenAddress, decimals, chainId, toChainId, amount, depositCounter))
     return depositHash
+
+  }
+  async processWithdraw(sourceChain, log) {
+    if (this.bridgeNode.isLeader !== true) return
+    const parsedLog = new Interface(vaultAbi.abi).parseLog(log)
+    const [depositor, tokenAddress, decimals, toChainId, amount, depositCounter] = parsedLog.args
+    const withdrawHash = keccak256(depositor, tokenAddress, BigInt(decimals).toString(), BigInt(toChainId).toString(), BigInt(amount).toString(), BigInt(depositCounter).toString())
+    const isWithdrawn = await this.contracts[sourceChain].withdrawals(withdrawHash)
+    if (isWithdrawn === false) return
+    console.log('Begin aggregate sign ', isWithdrawn, withdrawHash)
+    await this.bridgeNode.aggregateSignature(withdrawHash, withdrawHash, sourceChain, 'WITHDRAW', this.signatureVerified.bind(this, false, depositor, tokenAddress, decimals, sourceChain, toChainId, amount, depositCounter))
+    return withdrawHash
 
   }
   //fixme - how is the name derived. If address is 0x0 then Wrapper_ETH, W_ETH can be name/symbol ? For other token address get it from 
@@ -42,7 +54,7 @@ export default class Deposit {
         symbol: 'PRX'
     }
   }
-  async signatureVerified(depositor, tokenAddress, decimals, fromChainId, toChainId, amount, depositCounter, aggregateSignature) {
+  async signatureVerified(isDeposit, depositor, tokenAddress, decimals, fromChainId, toChainId, amount, depositCounter, aggregateSignature) {
     if (aggregateSignature.verified !== true) return
     const signature = bls.deserializeHexStrToG1(aggregateSignature.groupSign)
     const sig_ser = bls.g1ToBN(signature)
@@ -51,11 +63,19 @@ export default class Deposit {
     const pubkey_ser = bls.g2ToBN(pubkey)
     const targetContract = this.contracts[toChainId]
     const {name, symbol} = await this.getNameAndSymbol(tokenAddress)
+    isDeposit ?
     await targetContract.mint(sig_ser, pubkey_ser, abi.encode(['address', 'address', 'uint', 'uint', 'uint', 'uint', 'uint', 'string', 'string'], [depositor, tokenAddress, BigInt(decimals), BigInt(fromChainId), BigInt(toChainId), BigInt(amount), BigInt(depositCounter), name, symbol])).then(tx => tx.wait())
+    :
+    await targetContract.disburse(sig_ser, pubkey_ser, abi.encode(['address', 'address', 'uint', 'uint', 'uint', 'uint', 'uint', 'string', 'string'], [depositor, tokenAddress, BigInt(decimals), BigInt(fromChainId), BigInt(toChainId), BigInt(amount), BigInt(depositCounter), name, symbol])).then(tx => tx.wait())
+    
   }
 
   async verifyDepositHash(chainId, depositHash) {
     if (chainId === -1) return true //for local e2e testing, which wont have any contracts or hardhat, till we expand the scope of e2e
-    return await this.contracts[chainId].deposits(depositHash)
+    return await this.contracts[chainId].deposits(depositHash) 
+  }
+  async verifyWithdrawHash(chainId, withdrawalHash) {
+    if (chainId === -1) return true //for local e2e testing, which wont have any contracts or hardhat, till we expand the scope of e2e
+    return await this.contracts[chainId].withdrawals(withdrawalHash) 
   }
 }
