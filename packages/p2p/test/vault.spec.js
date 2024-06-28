@@ -30,7 +30,7 @@ const createDepositNodes = async (count) => {
   }
   return nodes
 }
-const depositOnL1 = async (L1_Chain, L2_Chain, amount) => {
+const depositETHOnL1 = async (L1_Chain, L2_Chain, amount) => {
     const [leader, node1, node2, node3, node4, node5, node6] = await createDepositNodes(7)
     await leader.bridgeNode.publishWhitelist()
     await leader.bridgeNode.startDKG(4)
@@ -46,45 +46,28 @@ const depositOnL1 = async (L1_Chain, L2_Chain, amount) => {
     }
     const txnReceipt = await L1_contract.depositEth(L2_Chain, { value: amount }).then(tx => tx.wait())
     const logs = await provider.getLogs(txnReceipt)
+    let depositHash
     for (const log of logs) {
-      await leader.processDeposit(L1_Chain, log)
+      depositHash = await leader.processDeposit(L1_Chain, log)
       await setTimeout(1000)
     }
-    return {L1_contract, L2_Contract, 'nodes': [leader, node1, node2, node3, node4, node5, node6]}  
+    return {L1_contract, L2_Contract, 'nodes': [leader, node1, node2, node3, node4, node5, node6], depositHash}  
 }
 describe('vault contract', function () {
   afterEach(async () => await stopBridgeNodes())
   it('should invoke Deposit workflow on receipt of message', async function(){
     const network = await provider.getNetwork()
-    const toChain = 10101
-    const [leader, node1, node2, node3, node4, node5, node6] = await createDepositNodes(7)
-    await leader.bridgeNode.publishWhitelist()
-    await leader.bridgeNode.startDKG(4)
-    await setTimeout(1000)
-    const pubkeyHex = leader.bridgeNode.tssNode.groupPublicKey.serializeToHexStr()
-    const pubkey = bls.deserializeHexStrToG2(pubkeyHex)
-    let pubkey_ser = bls.g2ToBN(pubkey)
-    const contract = await createVault(pubkey_ser)
-    for (const node of [leader, node1, node2, node3, node4, node5, node6]){
-      node.setContract(network.chainId, contract)
-    }
-    const L2_Contract = await createVault(pubkey_ser)
-    leader.setContract(toChain, L2_Contract)
-    const amount = BigInt(1e+6)
-    
-    const txnReceipt = await contract.depositEth(toChain, { value: amount }).then(tx => tx.wait())
-    const logs = await provider.getLogs(txnReceipt)
-    for (const log of logs) {
-      const depositHash = await leader.processDeposit(network.chainId, log)
-      await setTimeout(1000)
-      const minted = await L2_Contract.minted(depositHash)
-      expect(minted).toEqual(true)
-      //Check the balance of the minted proxy for the depositor in the target chain
-      const proxyToken = await L2_Contract.proxyTokenMap(BigInt(network.chainId).toString(), '0x0000000000000000000000000000000000000000')
-      const proxyBalanceOfDepositor = await L2_Contract.balanceOf(proxyToken, owner.address)
-      console.log('proxyToken', proxyToken, proxyBalanceOfDepositor)
-      expect(amount).toEqual(proxyBalanceOfDepositor)
-    }
+    const L1_Chain = network.chainId
+    const L2_Chain = 10101
+    const amount = BigInt(1e+19)
+    let ethBalanceOfDepositor = await provider.getBalance(owner)
+    console.log('b4 deposit', formatEther(ethBalanceOfDepositor.toString()))
+    const {L1_contract, L2_Contract, nodes:[leader, node1, node2, node3, node4, node5, node6], depositHash} = await depositETHOnL1(L1_Chain, L2_Chain, amount)
+    const minted = await L2_Contract.minted(depositHash)
+    expect(minted).toEqual(true)  
+    const proxyToken = await L2_Contract.proxyTokenMap(BigInt(network.chainId).toString(), '0x0000000000000000000000000000000000000000')
+    let proxyBalanceOfDepositor = await L2_Contract.balanceOf(proxyToken, owner.address)
+    expect(amount).toEqual(proxyBalanceOfDepositor)   
   })
   it('should deposit ERC20 on source chain and mint on target chain', async function(){
     const erc20 = await createERC20Token('L2Test', 'L2Test', 12, '0x0000000000000000000000000000000000000000', 1)
@@ -161,7 +144,7 @@ describe('vault contract', function () {
     const amount = BigInt(1e+19)
     let ethBalanceOfDepositor = await provider.getBalance(owner)
     console.log('b4 deposit', formatEther(ethBalanceOfDepositor.toString()))
-    const {L1_contract, L2_Contract, nodes:[leader, node1, node2, node3, node4, node5, node6]} = await depositOnL1(L1_Chain, L2_Chain, amount)
+    const {L1_contract, L2_Contract, nodes:[leader, node1, node2, node3, node4, node5, node6]} = await depositETHOnL1(L1_Chain, L2_Chain, amount)
     const proxyToken = await L2_Contract.proxyTokenMap(BigInt(network.chainId).toString(), '0x0000000000000000000000000000000000000000')
     let proxyBalanceOfDepositor = await L2_Contract.balanceOf(proxyToken, owner.address)
     expect(amount).toEqual(proxyBalanceOfDepositor)   
