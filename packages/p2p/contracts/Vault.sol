@@ -47,6 +47,7 @@ contract Vault {
         //decimals may seem not-needed here, but in some use cases we may be minting also on target chain, so let it be there for now
         bytes32 hash = hashOf(msg.sender, ETH, 18, toChainId, amount, counter);
         withdrawals[hash] = true;
+        //In Withdrawn we can emit the Original Token being withdrawn, as opposed to Proxy. Source does not know about Proxxy
         emit Withdrawn(msg.sender, ETH, 18, toChainId, amount, counter);
     }
     function depositToken(uint toChainId, address tokenAddress, uint tokenAmount) external {
@@ -88,6 +89,13 @@ contract Vault {
         proxyToken = ERC20Token(proxyTokenMap[fromChainId][token]);
         proxyToken.mint(depositor, amount);
     }
+    function _transferBack(bytes calldata withdrawPayload) internal {
+        (address depositor, address token, uint decimals, ,uint toChainId, uint amount, uint counter) = abi.decode(withdrawPayload, (address, address, uint, uint, uint, uint, uint));
+        pool[token] -= amount;
+        if (token == address(0)){ //ETH transfer
+            payable(depositor).transfer(amount);
+        }
+    }
     function mint(uint256[2] memory signature, uint256[4] memory signerKey, bytes calldata depositPayload) public {
         require(publicKey.length == signerKey.length, 'Invalid Public Key length');
         require((publicKey[0] == signerKey[0] && publicKey[1] == signerKey[1] && publicKey[2] == signerKey[2] && publicKey[3] == signerKey[3]), 'Invalid Public Key');
@@ -99,7 +107,7 @@ contract Vault {
         require(publicKey.length == signerKey.length, 'Invalid Public Key length');
         require((publicKey[0] == signerKey[0] && publicKey[1] == signerKey[1] && publicKey[2] == signerKey[2] && publicKey[3] == signerKey[3]), 'Invalid Public Key');
         bytes32 withdrawalHash = _validateHashAndSignature(signature, signerKey, withdrawPayload, false);
-        //transfer token/eth back to the user
+        _transferBack(withdrawPayload);
         disbursed[withdrawalHash] = true;
         console.logString('Vault.sol Disbursed');
     }
