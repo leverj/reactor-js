@@ -60,6 +60,16 @@ contract Vault {
         deposits[hash] = true;
         emit Deposited(msg.sender, tokenAddress, token.decimals(), toChainId, tokenAmount, counter);
     }
+    function withdrawToken(uint toChainId, address tokenAddress, uint amount) external payable {
+        ERC20Token proxyForToken = ERC20Token(proxyTokenMap[toChainId][tokenAddress]); 
+        require(proxyForToken.balanceOf(msg.sender) >= amount, 'Insufficient proxy token balance');
+        uint counter = withdrawCounter++;
+        proxyForToken.burn(msg.sender, amount);
+        bytes32 hash = hashOf(msg.sender, tokenAddress, proxyForToken.decimals(), toChainId, amount, counter);
+        withdrawals[hash] = true;
+        //In Withdrawn we can emit the Original Token being withdrawn, as opposed to Proxy. Source does not know about Proxy
+        emit Withdrawn(msg.sender, tokenAddress, proxyForToken.decimals(), toChainId, amount, counter);
+    }
     function hashOf(address depositor, address token, uint decimals, uint toChainId, uint amount, uint counter) public pure returns (bytes32){
         return keccak256(abi.encodePacked(depositor, token, decimals, toChainId, amount, counter));
     }
@@ -95,6 +105,13 @@ contract Vault {
         if (token == address(0)){ //ETH transfer
             payable(depositor).transfer(amount);
         }
+        else {
+            //fixme WHERE is the correct place for contract to approve the token ? During first time token creation ?
+            //what is better - one time blanket approve, or whatever is needed approve that amount
+            ERC20(token).approve(address(this), 1000); 
+            ERC20(token).transferFrom(address(this), depositor, amount);
+        }
+        
     }
     function mint(uint256[2] memory signature, uint256[4] memory signerKey, bytes calldata depositPayload) public {
         require(publicKey.length == signerKey.length, 'Invalid Public Key length');
