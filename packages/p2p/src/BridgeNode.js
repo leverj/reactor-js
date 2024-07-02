@@ -133,11 +133,11 @@ export default class BridgeNode extends NetworkNode {
   }
 
   async handleSignatureStart(peerId, data) {
+    if (this.leader !== peerId) return logger.log('Ignoring signature start from non-leader', peerId, this.leader)
     const {txnHash, message, chainId, eventType} = data
     const verifiedHash = (eventType === 'DEPOSIT') ? await this.deposit.verifyDepositHash(chainId, data.message) :
     await this.deposit.verifyWithdrawHash(chainId, data.message) 
     if (verifiedHash !== true) return
-    if (this.leader !== peerId) return logger.log('Ignoring signature start from non-leader', peerId, this.leader)
     
     const signature = await this.tssNode.sign(message)
     logger.log(SIGNATURE_START, txnHash, message, signature.serializeToHexStr())

@@ -121,7 +121,6 @@ contract Vault {
         minted[payloadHash] = true;
     }
     function disburse(uint256[2] memory signature, uint256[4] memory signerKey, bytes calldata withdrawPayload) public {
-        require(publicKey.length == signerKey.length, 'Invalid Public Key length');
         require((publicKey[0] == signerKey[0] && publicKey[1] == signerKey[1] && publicKey[2] == signerKey[2] && publicKey[3] == signerKey[3]), 'Invalid Public Key');
         bytes32 withdrawalHash = _validateHashAndSignature(signature, signerKey, withdrawPayload, false);
         _transferBack(withdrawPayload);
