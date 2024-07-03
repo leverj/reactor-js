@@ -99,6 +99,22 @@ contract Vault {
         proxyToken = ERC20Token(proxyTokenMap[fromChainId][token]);
         proxyToken.mint(depositor, amount);
     }
+    function _processWithdraw(bytes calldata withdrawPayload) internal {
+        (address depositor, address token, uint decimals, uint fromChainId, uint originatingChainId, uint amount, uint counter) = abi.decode(withdrawPayload, (address, address, uint, uint, uint, uint, uint));
+        if (originatingChainId == block.chainid){
+            _transferBack(withdrawPayload);
+        }
+        else {
+            ERC20Token proxyToken;
+            if (proxyTokenMap[originatingChainId][token] == address(0)){ // if proxyToken does not exist
+                //fixme -- how critical is name and symbol ? can it be a constant like PROXY ? otherwise, how to derive from originating token ?
+                proxyToken = new ERC20Token('PROXY', 'PROXY', uint8(decimals), token, originatingChainId);
+                proxyTokenMap[originatingChainId][token] = address(proxyToken);
+            }
+            proxyToken = ERC20Token(proxyTokenMap[originatingChainId][token]);
+            proxyToken.mint(depositor, amount);
+        }
+    }
     function _transferBack(bytes calldata withdrawPayload) internal {
         (address depositor, address token, uint decimals, ,uint toChainId, uint amount, uint counter) = abi.decode(withdrawPayload, (address, address, uint, uint, uint, uint, uint));
         pool[token] -= amount;
@@ -123,7 +139,7 @@ contract Vault {
     function disburse(uint256[2] memory signature, uint256[4] memory signerKey, bytes calldata withdrawPayload) public {
         require((publicKey[0] == signerKey[0] && publicKey[1] == signerKey[1] && publicKey[2] == signerKey[2] && publicKey[3] == signerKey[3]), 'Invalid Public Key');
         bytes32 withdrawalHash = _validateHashAndSignature(signature, signerKey, withdrawPayload, false);
-        _transferBack(withdrawPayload);
+        _processWithdraw(withdrawPayload);
         disbursed[withdrawalHash] = true;
         console.logString('Vault.sol Disbursed');
     }
