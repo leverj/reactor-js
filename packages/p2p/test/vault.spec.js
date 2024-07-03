@@ -102,8 +102,6 @@ describe('vault contract', function () {
     const network = await provider.getNetwork()
     const L1_Chain = network.chainId
     const L2_Chain = 10101
-    console.log("************************************L1_Chain*****************", L1_Chain)
-    console.log("************************************L2_Chain*****************", L2_Chain)
     const amount = BigInt(1e+19)
     let ethBalanceOfDepositor = await provider.getBalance(owner)
     console.log(  '******************b4 deposit*********', formatEther(ethBalanceOfDepositor.toString()))
@@ -154,7 +152,6 @@ describe('vault contract', function () {
     }
     await setTimeout(1000)
     erc20Balance = await erc20.balanceOf(account1)
-    console.log('erc20 balance', erc20Balance)
     expect(BigInt(erc20Balance)).toEqual(1000000000n)
     /*
     L2: withdraw
@@ -188,7 +185,7 @@ describe('vault contract', function () {
         '14209805107538060976447556508818330114663332071460618570948978043188559362801',
         '6106226559240500500676195643085343038285250451936828952647773685858315556632'
       ],
-      depositor: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      vaultUser: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
       tokenAddress: '0x0000000000000000000000000000000000000000',
       decimals: 18n,
       toChainId: 10101n,
@@ -198,13 +195,13 @@ describe('vault contract', function () {
     const contract = await createVault(network.chainId, fixture.pubkey_ser)
     const name = "PROXY_NAME" //fixme this can be 'constant' or derived from the original token. ultimately, it's always the address that's the unique/primary key
     const symbol = "PROXY_SYMBOL"
-    await contract.mint(fixture.sig_ser, fixture.pubkey_ser, abi.encode(["address", "address", "uint", "uint", "uint", "uint", "uint", "string", "string"], [fixture.depositor, fixture.tokenAddress, BigInt(fixture.decimals), BigInt(network.chainId), BigInt(fixture.toChainId), BigInt(fixture.amount), BigInt(fixture.depositCounter), name, symbol]))
+    await contract.mint(fixture.sig_ser, fixture.pubkey_ser, abi.encode(["address", "address", "uint", "uint", "uint", "uint", "uint", "string", "string"], [fixture.vaultUser, fixture.tokenAddress, BigInt(fixture.decimals), BigInt(network.chainId), BigInt(fixture.toChainId), BigInt(fixture.amount), BigInt(fixture.depositCounter), name, symbol]))
     await setTimeout(1000)
-    const depositHash = keccak256(fixture.depositor, fixture.tokenAddress, BigInt(fixture.decimals).toString(), BigInt(fixture.toChainId).toString(), BigInt(fixture.amount).toString(), BigInt(fixture.depositCounter).toString())
+    const depositHash = keccak256(fixture.vaultUser, fixture.tokenAddress, BigInt(fixture.decimals).toString(), BigInt(fixture.toChainId).toString(), BigInt(fixture.amount).toString(), BigInt(fixture.depositCounter).toString())
     const minted = await contract.minted(depositHash)
     expect(minted).toEqual(true)
     const proxyToken = await contract.proxyTokenMap(BigInt(network.chainId).toString(), fixture.tokenAddress)
-    const proxyBalanceOfDepositor = await contract.balanceOf(proxyToken, fixture.depositor)
+    const proxyBalanceOfDepositor = await contract.balanceOf(proxyToken, fixture.vaultUser)
     expect(fixture.amount).toEqual(proxyBalanceOfDepositor)
 
   })

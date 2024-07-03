@@ -10,8 +10,8 @@ contract Vault {
     address constant public ETH = address(0);
     string constant cipher_suite_domain = 'BN256-HASHTOPOINT';
 
-    event Deposited(address indexed depositor, uint originatingChain, address indexed originatingToken, uint decimals, uint toChainId, uint amount, uint depositCounter);
-    event Withdrawn(address indexed depositor, uint originatingChain, address indexed originatingToken, uint decimals, uint toChainId, uint amount, uint withdrawCounter);
+    event Deposited(address indexed vaultUser, uint originatingChain, address indexed originatingToken, uint decimals, uint toChainId, uint amount, uint depositCounter);
+    event Withdrawn(address indexed vaultUser, uint originatingChain, address indexed originatingToken, uint decimals, uint toChainId, uint amount, uint withdrawCounter);
     event Minted(uint amount);
     event Disbursed(uint amount);
 
@@ -46,10 +46,10 @@ contract Vault {
         uint counter = withdrawCounter++;
         proxyForEth.burn(msg.sender, amount);
         //decimals may seem not-needed here, but in some use cases we may be minting also on target chain, so let it be there for now
-        bytes32 hash = hashOf(msg.sender, proxyForEth.network(), ETH, 18, toChainId, amount, counter);
+        bytes32 hash = hashOf(msg.sender, proxyForEth.originatingChain(), ETH, 18, toChainId, amount, counter);
         withdrawals[hash] = true;
         //In Withdrawn we can emit the Original Token being withdrawn, as opposed to Proxy. Source does not know about Proxxy
-        emit Withdrawn(msg.sender, proxyForEth.network(), ETH, 18, toChainId, amount, counter);
+        emit Withdrawn(msg.sender, proxyForEth.originatingChain(), ETH, 18, toChainId, amount, counter);
     }
     function depositToken(uint toChainId, address tokenAddress, uint tokenAmount) external {
         ERC20 token = ERC20(tokenAddress);
@@ -66,21 +66,21 @@ contract Vault {
         require(proxyForToken.balanceOf(msg.sender) >= amount, 'Insufficient proxy token balance');
         uint counter = withdrawCounter++;
         proxyForToken.burn(msg.sender, amount);
-        bytes32 hash = hashOf(msg.sender, proxyForToken.network(), proxyForToken.L1Address(), proxyForToken.decimals(), toChainId, amount, counter);
+        bytes32 hash = hashOf(msg.sender, proxyForToken.originatingChain(), proxyForToken.originatingToken(), proxyForToken.decimals(), toChainId, amount, counter);
         withdrawals[hash] = true;
         //In Withdrawn we can emit the Original Token being withdrawn, as opposed to Proxy. Source does not know about Proxy
-        emit Withdrawn(msg.sender, proxyForToken.network(), proxyForToken.L1Address(), proxyForToken.decimals(), toChainId, amount, counter);
+        emit Withdrawn(msg.sender, proxyForToken.originatingChain(), proxyForToken.originatingToken(), proxyForToken.decimals(), toChainId, amount, counter);
     }
-    function hashOf(address depositor, uint originatingChain, address originatingToken, uint decimals, uint toChainId, uint amount, uint counter) public pure returns (bytes32){
-        return keccak256(abi.encodePacked(depositor, originatingChain, originatingToken, decimals, toChainId, amount, counter));
+    function hashOf(address vaultUser, uint originatingChain, address originatingToken, uint decimals, uint toChainId, uint amount, uint counter) public pure returns (bytes32){
+        return keccak256(abi.encodePacked(vaultUser, originatingChain, originatingToken, decimals, toChainId, amount, counter));
     }
-    function balanceOf(address proxyToken, address depositor) external view returns (uint) {
-        return ERC20Token(proxyToken).balanceOf(depositor);
+    function balanceOf(address proxyToken, address vaultUser) external view returns (uint) {
+        return ERC20Token(proxyToken).balanceOf(vaultUser);
     }
-    //depositor, originatingChain, originatingToken, decimals, toChainId, amount, depositCounter, name, symbol
+    //vaultUser, originatingChain, originatingToken, decimals, toChainId, amount, depositCounter, name, symbol
     function _getHash(bytes memory payload) internal returns (bytes32){
-        (address depositor, uint originatingChain, address originatingToken, uint decimals, uint toChainId, uint amount, uint counter) = abi.decode(payload, (address,uint,address,uint,uint,uint,uint));
-        return hashOf(depositor, originatingChain, originatingToken, decimals, toChainId, amount, counter);
+        (address vaultUser, uint originatingChain, address originatingToken, uint decimals, uint toChainId, uint amount, uint counter) = abi.decode(payload, (address,uint,address,uint,uint,uint,uint));
+        return hashOf(vaultUser, originatingChain, originatingToken, decimals, toChainId, amount, counter);
     }
     function _validateHashAndSignature(uint256[2] memory signature, uint256[4] memory signerKey, bytes calldata payload, bool depositOrWithdraw) internal returns (bytes32){
         bytes32 payloadHash = _getHash(payload);
@@ -93,16 +93,16 @@ contract Vault {
     }
     function _createProxyTokenAndMint(bytes calldata depositPayload) internal {
         ERC20Token proxyToken;
-        (address depositor, uint originatingChain, address originatingToken, uint decimals, ,uint amount, , string memory name, string memory symbol) = abi.decode(depositPayload, (address,uint,address,uint,uint,uint,uint,string,string));
+        (address vaultUser, uint originatingChain, address originatingToken, uint decimals, ,uint amount, , string memory name, string memory symbol) = abi.decode(depositPayload, (address,uint,address,uint,uint,uint,uint,string,string));
         if (proxyTokenMap[originatingChain][originatingToken] == address(0)){ // if proxyToken does not exist
             proxyToken = new ERC20Token(name, symbol, uint8(decimals), originatingToken, originatingChain);
             proxyTokenMap[originatingChain][originatingToken] = address(proxyToken);
         }
         proxyToken = ERC20Token(proxyTokenMap[originatingChain][originatingToken]);
-        proxyToken.mint(depositor, amount);
+        proxyToken.mint(vaultUser, amount);
     }
     function _processWithdraw(bytes calldata withdrawPayload) internal {
-        (address depositor, uint originatingChain, address originatingToken, uint decimals, uint toChainId, uint amount, uint counter) = abi.decode(withdrawPayload, (address,uint,address,uint,uint,uint,uint));
+        (address vaultUser, uint originatingChain, address originatingToken, uint decimals, uint toChainId, uint amount, uint counter) = abi.decode(withdrawPayload, (address,uint,address,uint,uint,uint,uint));
         if (originatingChain == chainId){
             _transferBack(withdrawPayload);
         }
@@ -114,20 +114,20 @@ contract Vault {
                 proxyTokenMap[originatingChain][originatingToken] = address(proxyToken);
             }
             proxyToken = ERC20Token(proxyTokenMap[originatingChain][originatingToken]);
-            proxyToken.mint(depositor, amount);
+            proxyToken.mint(vaultUser, amount);
         }
     }
     function _transferBack(bytes calldata withdrawPayload) internal {
-        (address depositor, uint originatingChain, address originatingToken, uint decimals, uint toChainId, uint amount, uint counter) = abi.decode(withdrawPayload, (address,uint,address,uint,uint,uint,uint));
+        (address vaultUser, uint originatingChain, address originatingToken, uint decimals, uint toChainId, uint amount, uint counter) = abi.decode(withdrawPayload, (address,uint,address,uint,uint,uint,uint));
         pool[originatingToken] -= amount;
         if (originatingToken == address(0)){ //ETH transfer
-            payable(depositor).transfer(amount);
+            payable(vaultUser).transfer(amount);
         }
         else {
             //fixme WHERE is the correct place for contract to approve the token ? During first time token creation ?
             //what is better - one time blanket approve, or whatever is needed approve that amount
             ERC20(originatingToken).approve(address(this), amount); 
-            ERC20(originatingToken).transferFrom(address(this), depositor, amount);
+            ERC20(originatingToken).transferFrom(address(this), vaultUser, amount);
         }
         
     }

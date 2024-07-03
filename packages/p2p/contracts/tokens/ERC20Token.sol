@@ -5,17 +5,17 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract ERC20Token is ERC20 {
 
-    address public L1Address;
+    address public originatingToken;
     address public owner;
-    uint public network;
+    uint public originatingChain;
     uint8 internal _decimals;
 
     modifier isOwner {require(msg.sender == owner, "not an owner");
         _;}
-    constructor(string memory name_, string memory symbol_, uint8 decimals_, address L1Address_, uint network_) ERC20(name_, symbol_) {
+    constructor(string memory name_, string memory symbol_, uint8 decimals_, address originatingToken_, uint originatingChain_) ERC20(name_, symbol_) {
         _decimals = decimals_;
-        L1Address = L1Address_;
-        network = network_;
+        originatingToken = originatingToken_;
+        originatingChain = originatingChain_;
         owner = msg.sender;
     }
 
@@ -46,7 +46,7 @@ contract ERC20Token is ERC20 {
     }
 
     function info() public view virtual returns (string memory, uint8, address, uint){
-        return (symbol(), decimals(), L1Address, network);
+        return (symbol(), decimals(), originatingToken, originatingChain);
     }
 
 }

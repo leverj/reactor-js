@@ -26,25 +26,21 @@ export default class Deposit {
   async processDeposit(chainId, log) {
     if (this.bridgeNode.isLeader !== true) return
     const parsedLog = new Interface(vaultAbi.abi).parseLog(log)
-    const [depositor, originatingChain, originatingToken, decimals, toChainId, amount, depositCounter] = parsedLog.args
-    const depositHash = keccak256(depositor, BigInt(originatingChain).toString(), originatingToken, BigInt(decimals).toString(), BigInt(toChainId).toString(), BigInt(amount).toString(), BigInt(depositCounter).toString())
+    const [vaultUser, originatingChain, originatingToken, decimals, toChainId, amount, depositCounter] = parsedLog.args
+    const depositHash = keccak256(vaultUser, BigInt(originatingChain).toString(), originatingToken, BigInt(decimals).toString(), BigInt(toChainId).toString(), BigInt(amount).toString(), BigInt(depositCounter).toString())
     const isDeposited = await this.contracts[chainId].deposits(depositHash)
     if (isDeposited === false) return
-    await this.bridgeNode.aggregateSignature(depositHash, depositHash, chainId, 'DEPOSIT', this.signatureVerified.bind(this, true, depositor, originatingChain, originatingToken, decimals, chainId, toChainId, amount, depositCounter))
+    await this.bridgeNode.aggregateSignature(depositHash, depositHash, chainId, 'DEPOSIT', this.signatureVerified.bind(this, true, vaultUser, originatingChain, originatingToken, decimals, chainId, toChainId, amount, depositCounter))
     return depositHash
   }
   async processWithdraw(chainId, log) {
     if (this.bridgeNode.isLeader !== true) return
     const parsedLog = new Interface(vaultAbi.abi).parseLog(log)
-    const [depositor, originatingChain, originatingToken, decimals, toChainId, amount, depositCounter] = parsedLog.args
-    console.log({
-        depositor, originatingChain, originatingToken, decimals, toChainId, amount, depositCounter
-    })
-    const withdrawHash = keccak256(depositor, BigInt(originatingChain).toString(), originatingToken, BigInt(decimals).toString(), BigInt(toChainId).toString(), BigInt(amount).toString(), BigInt(depositCounter).toString())
+    const [vaultUser, originatingChain, originatingToken, decimals, toChainId, amount, depositCounter] = parsedLog.args
+    const withdrawHash = keccak256(vaultUser, BigInt(originatingChain).toString(), originatingToken, BigInt(decimals).toString(), BigInt(toChainId).toString(), BigInt(amount).toString(), BigInt(depositCounter).toString())
     const isWithdrawn = await this.contracts[chainId].withdrawals(withdrawHash)
-    console.log("isWithdrawn", withdrawHash, isWithdrawn)
     if (isWithdrawn === false) return
-    await this.bridgeNode.aggregateSignature(withdrawHash, withdrawHash, chainId, 'WITHDRAW', this.signatureVerified.bind(this, false, depositor, originatingChain, originatingToken, decimals, chainId, toChainId, amount, depositCounter))
+    await this.bridgeNode.aggregateSignature(withdrawHash, withdrawHash, chainId, 'WITHDRAW', this.signatureVerified.bind(this, false, vaultUser, originatingChain, originatingToken, decimals, chainId, toChainId, amount, depositCounter))
     return withdrawHash
 
   }
@@ -56,27 +52,20 @@ export default class Deposit {
         symbol: 'PRX'
     }
   }
-  async signatureVerified(isDeposit, depositor, originatingChain, originatingToken, decimals, chainId, toChainId, amount, depositCounter, aggregateSignature) {
-    console.log('signatureVerified')
-    console.log({
-        isDeposit, depositor, originatingChain, originatingToken, decimals, chainId, toChainId, amount, depositCounter, aggregateSignature
-    })
+  async signatureVerified(isDeposit, vaultUser, originatingChain, originatingToken, decimals, chainId, toChainId, amount, depositCounter, aggregateSignature) {
     if (aggregateSignature.verified !== true) return
     const signature = bls.deserializeHexStrToG1(aggregateSignature.groupSign)
     const sig_ser = bls.g1ToBN(signature)
     const pubkeyHex = this.bridgeNode.tssNode.groupPublicKey.serializeToHexStr()
     const pubkey = bls.deserializeHexStrToG2(pubkeyHex)
     const pubkey_ser = bls.g2ToBN(pubkey)
-    console.log("To Chain ID", toChainId)
     const targetContract = this.contracts[toChainId]
     const targetChainId = await targetContract.chainId();
-    console.log("Chain ID inside contract", targetChainId)
-    console.log("Originating chain", originatingChain)
     const {name, symbol} = await this.getNameAndSymbol(originatingToken)
     isDeposit ?
-    await targetContract.mint(sig_ser, pubkey_ser, abi.encode(['address', 'uint', 'address', 'uint', 'uint', 'uint', 'uint', 'string', 'string'], [depositor, BigInt(originatingChain), originatingToken, BigInt(decimals), BigInt(toChainId), BigInt(amount), BigInt(depositCounter), name, symbol])).then(tx => tx.wait())
+    await targetContract.mint(sig_ser, pubkey_ser, abi.encode(['address', 'uint', 'address', 'uint', 'uint', 'uint', 'uint', 'string', 'string'], [vaultUser, BigInt(originatingChain), originatingToken, BigInt(decimals), BigInt(toChainId), BigInt(amount), BigInt(depositCounter), name, symbol])).then(tx => tx.wait())
     :
-    await targetContract.disburse(sig_ser, pubkey_ser, abi.encode(['address', 'uint', 'address', 'uint', 'uint', 'uint', 'uint', 'string', 'string'], [depositor, BigInt(originatingChain), originatingToken, BigInt(decimals), BigInt(toChainId), BigInt(amount), BigInt(depositCounter), name, symbol])).then(tx => tx.wait())
+    await targetContract.disburse(sig_ser, pubkey_ser, abi.encode(['address', 'uint', 'address', 'uint', 'uint', 'uint', 'uint', 'string', 'string'], [vaultUser, BigInt(originatingChain), originatingToken, BigInt(decimals), BigInt(toChainId), BigInt(amount), BigInt(depositCounter), name, symbol])).then(tx => tx.wait())
     
   }
 
