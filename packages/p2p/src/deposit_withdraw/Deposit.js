@@ -23,27 +23,28 @@ export default class Deposit {
   }
 
   //fixme could not find any "native" or default way to extract event log's column names and types, so lil bit of manual js work
-  async processDeposit(chainId, log) {
+  async processTokenSent(log) {
     if (this.bridgeNode.isLeader !== true) return
     const parsedLog = new Interface(vaultAbi.abi).parseLog(log)
-    const [vaultUser, originatingChain, originatingToken, decimals, toChainId, amount, depositCounter] = parsedLog.args
-    const depositHash = keccak256(vaultUser, BigInt(originatingChain).toString(), originatingToken, BigInt(decimals).toString(), BigInt(toChainId).toString(), BigInt(amount).toString(), BigInt(depositCounter).toString())
-    const isDeposited = await this.contracts[chainId].deposits(depositHash)
-    if (isDeposited === false) return
-    await this.bridgeNode.aggregateSignature(depositHash, depositHash, chainId, 'DEPOSIT', this.signatureVerified.bind(this, true, vaultUser, originatingChain, originatingToken, decimals, chainId, toChainId, amount, depositCounter))
-    return depositHash
+    const [originatingChain, originatingToken, decimals, amount, vaultUser, fromChainId, toChainId, sendCounter] = parsedLog.args
+    const sentHash = keccak256(BigInt(originatingChain).toString(), originatingToken, BigInt(decimals).toString(), BigInt(amount).toString(), vaultUser, BigInt(fromChainId).toString(), BigInt(toChainId).toString(), BigInt(sendCounter).toString())
+    const isSent = await this.contracts[fromChainId].tokenSent(sentHash)
+    console.log("ISSENT", fromChainId, sentHash, isSent)
+    if (isSent === false) return
+    await this.bridgeNode.aggregateSignature(sentHash, sentHash, fromChainId, 'DEPOSIT', this.signatureVerified.bind(this, originatingChain, originatingToken, decimals, amount, vaultUser, fromChainId, toChainId, sendCounter))
+    return sentHash
   }
-  async processWithdraw(chainId, log) {
+  /*async processWithdraw(chainId, log) {
     if (this.bridgeNode.isLeader !== true) return
     const parsedLog = new Interface(vaultAbi.abi).parseLog(log)
-    const [vaultUser, originatingChain, originatingToken, decimals, toChainId, amount, depositCounter] = parsedLog.args
-    const withdrawHash = keccak256(vaultUser, BigInt(originatingChain).toString(), originatingToken, BigInt(decimals).toString(), BigInt(toChainId).toString(), BigInt(amount).toString(), BigInt(depositCounter).toString())
+    const [vaultUser, originatingChain, originatingToken, decimals, toChainId, amount, sendCounter] = parsedLog.args
+    const withdrawHash = keccak256(vaultUser, BigInt(originatingChain).toString(), originatingToken, BigInt(decimals).toString(), BigInt(toChainId).toString(), BigInt(amount).toString(), BigInt(sendCounter).toString())
     const isWithdrawn = await this.contracts[chainId].withdrawals(withdrawHash)
     if (isWithdrawn === false) return
-    await this.bridgeNode.aggregateSignature(withdrawHash, withdrawHash, chainId, 'WITHDRAW', this.signatureVerified.bind(this, false, vaultUser, originatingChain, originatingToken, decimals, chainId, toChainId, amount, depositCounter))
+    await this.bridgeNode.aggregateSignature(withdrawHash, withdrawHash, chainId, 'WITHDRAW', this.signatureVerified.bind(this, false, vaultUser, originatingChain, originatingToken, decimals, chainId, toChainId, amount, sendCounter))
     return withdrawHash
 
-  }
+  }*/
   //fixme - how is the name derived. If address is 0x0 then Wrapper_ETH, W_ETH can be name/symbol ? For other token address get it from 
   //its ERC-20 contract and suffix with _PROXY ?
   async getNameAndSymbol(tokenAddress){
@@ -52,7 +53,9 @@ export default class Deposit {
         symbol: 'PRX'
     }
   }
-  async signatureVerified(isDeposit, vaultUser, originatingChain, originatingToken, decimals, chainId, toChainId, amount, depositCounter, aggregateSignature) {
+  async signatureVerified(originatingChain, originatingToken, decimals, amount, vaultUser, fromChainId, toChainId, sendCounter, aggregateSignature) {
+    console.log('signatureVerified', {originatingChain, originatingToken, decimals, amount, vaultUser, fromChainId, toChainId, sendCounter, aggregateSignature})
+    
     if (aggregateSignature.verified !== true) return
     const signature = bls.deserializeHexStrToG1(aggregateSignature.groupSign)
     const sig_ser = bls.g1ToBN(signature)
@@ -60,18 +63,19 @@ export default class Deposit {
     const pubkey = bls.deserializeHexStrToG2(pubkeyHex)
     const pubkey_ser = bls.g2ToBN(pubkey)
     const targetContract = this.contracts[toChainId]
-    const targetChainId = await targetContract.chainId();
     const {name, symbol} = await this.getNameAndSymbol(originatingToken)
-    isDeposit ?
-    await targetContract.mint(sig_ser, pubkey_ser, abi.encode(['address', 'uint', 'address', 'uint', 'uint', 'uint', 'uint', 'string', 'string'], [vaultUser, BigInt(originatingChain), originatingToken, BigInt(decimals), BigInt(toChainId), BigInt(amount), BigInt(depositCounter), name, symbol])).then(tx => tx.wait())
-    :
-    await targetContract.disburse(sig_ser, pubkey_ser, abi.encode(['address', 'uint', 'address', 'uint', 'uint', 'uint', 'uint', 'string', 'string'], [vaultUser, BigInt(originatingChain), originatingToken, BigInt(decimals), BigInt(toChainId), BigInt(amount), BigInt(depositCounter), name, symbol])).then(tx => tx.wait())
+    await targetContract.tokenArrival(sig_ser, pubkey_ser, abi.encode(['uint','address','uint','uint','address','uint','uint','uint'], [BigInt(originatingChain), originatingToken, BigInt(decimals),  BigInt(amount), vaultUser, BigInt(fromChainId),BigInt(toChainId),BigInt(sendCounter)])).then(tx => tx.wait())
     
+    /*isDeposit ?
+    await targetContract.mint(sig_ser, pubkey_ser, abi.encode(['address', 'uint', 'address', 'uint', 'uint', 'uint', 'uint', 'string', 'string'], [vaultUser, BigInt(originatingChain), originatingToken, BigInt(decimals), BigInt(toChainId), BigInt(amount), BigInt(sendCounter), name, symbol])).then(tx => tx.wait())
+    :
+    await targetContract.disburse(sig_ser, pubkey_ser, abi.encode(['address', 'uint', 'address', 'uint', 'uint', 'uint', 'uint', 'string', 'string'], [vaultUser, BigInt(originatingChain), originatingToken, BigInt(decimals), BigInt(toChainId), BigInt(amount), BigInt(sendCounter), name, symbol])).then(tx => tx.wait())
+    */
   }
 
-  async verifyDepositHash(chainId, depositHash) {
+  async verifySentHash(chainId, sentHash) {
     if (chainId === -1) return true //for local e2e testing, which wont have any contracts or hardhat, till we expand the scope of e2e
-    return await this.contracts[chainId].deposits(depositHash) 
+    return await this.contracts[chainId].tokenSent(sentHash) 
   }
   async verifyWithdrawHash(chainId, withdrawalHash) {
     if (chainId === -1) return true //for local e2e testing, which wont have any contracts or hardhat, till we expand the scope of e2e
