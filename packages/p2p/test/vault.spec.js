@@ -1,12 +1,10 @@
 import {expect} from 'expect'
 import {createVault, provider, owner, account1, createERC20Token} from './help/vault.js'
-import {Interface, solidityPackedKeccak256, solidityPackedSha256, formatEther, AbiCoder} from 'ethers'
-import vaultAbi from '../src/abi/Vault.json' assert {type: 'json'}
-import {keccak256} from '@leverj/gluon-plasma.common/src/utils/ethereum.js'
+import {formatEther, AbiCoder} from 'ethers'
+import {soliditySha3 as keccak256} from 'web3-utils'
 import {getContractAt, peerIdJsons} from './help/index.js'
 import {setTimeout} from 'timers/promises'
 import BridgeNode from '../src/BridgeNode.js'
-import {deployContract, getSigners, createDkgMembers, signMessage} from './help/index.js'
 import bls from '../src/utils/bls.js'
 import Deposit from '../src/deposit_withdraw/Deposit.js'
 
@@ -180,10 +178,10 @@ describe('vault contract', function () {
     const symbol = 'PROXY_SYMBOL'
     await contract.mint(fixture.sig_ser, fixture.pubkey_ser, abi.encode(['address', 'address', 'uint', 'uint', 'uint', 'uint', 'uint', 'string', 'string'], [fixture.vaultUser, fixture.tokenAddress, BigInt(fixture.decimals), BigInt(network.chainId), BigInt(fixture.toChainId), BigInt(fixture.amount), BigInt(fixture.depositCounter), name, symbol]))
     await setTimeout(1000)
-    const depositHash = keccak256(fixture.vaultUser, fixture.tokenAddress, BigInt(fixture.decimals).toString(), BigInt(fixture.toChainId).toString(), BigInt(fixture.amount).toString(), BigInt(fixture.depositCounter).toString())
+    const depositHash = keccak256(fixture.vaultUser, fixture.tokenAddress, BigInt(fixture.decimals), BigInt(fixture.toChainId), BigInt(fixture.amount), BigInt(fixture.depositCounter))
     const minted = await contract.minted(depositHash)
     expect(minted).toEqual(true)
-    const proxyToken = await contract.proxyTokenMap(BigInt(network.chainId).toString(), fixture.tokenAddress)
+    const proxyToken = await contract.proxyTokenMap(BigInt(network.chainId), fixture.tokenAddress)
     const proxyBalanceOfDepositor = await contract.balanceOf(proxyToken, fixture.vaultUser)
     expect(fixture.amount).toEqual(proxyBalanceOfDepositor)
 
