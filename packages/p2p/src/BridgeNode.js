@@ -97,12 +97,11 @@ export default class BridgeNode extends NetworkNode {
     }
   }
 
-  async aggregateSignature(txnHash, message, chainId, eventType, callback) {
-    console.log('aggregateSignature callback', callback)
+  async aggregateSignature(txnHash, message, chainId, callback) {
     const signature = await this.tssNode.sign(message)
     this.messageMap[txnHash] = {signatures: {}, verified: false, depositCallback: callback}
     this.messageMap[txnHash].signatures[this.tssNode.id.serializeToHexStr()] = {message, signature: signature.serializeToHexStr(), 'signer': this.tssNode.id.serializeToHexStr()}
-    await this.publishOrFanOut(SIGNATURE_START, JSON.stringify({txnHash, message, chainId, eventType}), this.monitor.filter(this.whitelist.get()))
+    await this.publishOrFanOut(SIGNATURE_START, JSON.stringify({txnHash, message, chainId}), this.monitor.filter(this.whitelist.get()))
   }
 
   async sendMessageToPeer(peerId, topic, message) {
@@ -134,9 +133,7 @@ export default class BridgeNode extends NetworkNode {
 
   async handleSignatureStart(peerId, data) {
     if (this.leader !== peerId) return logger.log('Ignoring signature start from non-leader', peerId, this.leader)
-    const {txnHash, message, chainId, eventType} = data
-    //const verifiedHash = (eventType === 'DEPOSIT') ? await this.deposit.verifyDepositHash(chainId, data.message) :
-    //await this.deposit.verifyWithdrawHash(chainId, data.message) 
+    const {txnHash, message, chainId} = data
     const verifiedHash = await this.deposit.verifySentHash(chainId, data.message)
     if (verifiedHash !== true) return
     

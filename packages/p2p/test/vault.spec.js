@@ -3,7 +3,7 @@ import {createVault, provider, owner, account1, createERC20Token} from './help/v
 import {Interface, solidityPackedKeccak256, solidityPackedSha256, formatEther, AbiCoder} from 'ethers'
 import vaultAbi from '../src/abi/Vault.json' assert {type: 'json'}
 import {keccak256} from '@leverj/gluon-plasma.common/src/utils/ethereum.js'
-import {peerIdJsons} from './help/index.js'
+import {getContractAt, peerIdJsons} from './help/index.js'
 import {setTimeout} from 'timers/promises'
 import BridgeNode from '../src/BridgeNode.js'
 import {deployContract, getSigners, createDkgMembers, signMessage} from './help/index.js'
@@ -67,14 +67,14 @@ const depositERC20OnL1 = async (L1_Chain, L2_Chain, amount) => {
   const erc20WithAccount1 = erc20.connect(account1)
   await erc20WithAccount1.approve(L1_Contract.target, 1000000, {from: account1.address}).then(tx => tx.wait())
   const contractWithAccount1 = L1_Contract.connect(account1)
-  const txReceipt = await contractWithAccount1.depositToken(L2_Chain, erc20.target, amount).then(tx => tx.wait())
+  const txReceipt = await contractWithAccount1.sendToken(L2_Chain, erc20.target, amount).then(tx => tx.wait())
   const logs = await provider.getLogs(txReceipt)
-  const depositHash = await leader.processDeposit(L1_Chain, logs[1])
+  const depositHash = await leader.processTokenSent(logs[1])
   return {L2_Contract, leader, depositHash, erc20}
 }
 describe('vault contract', function () {
   afterEach(async () => await stopBridgeNodes())
-  it.only('should invoke Deposit workflow on receipt of message', async function () {
+  it('should invoke Deposit workflow on receipt of message', async function () {
     const network = await provider.getNetwork()
     const L1_Chain = network.chainId
     const L2_Chain = 10101
@@ -95,7 +95,7 @@ describe('vault contract', function () {
     const amount = BigInt(1e+3)
     const {L2_Contract, depositHash, erc20} = await depositERC20OnL1(L1_Chain, L2_Chain, amount)
     await setTimeout(1000)
-    const minted = await L2_Contract.minted(depositHash)
+    const minted = await L2_Contract.arrivalProcessed(depositHash)
     expect(minted).toEqual(true)
     const proxyToken = await L2_Contract.proxyTokenMap(BigInt(network.chainId).toString(), erc20.target)
     const proxyBalanceOfDepositor = await L2_Contract.balanceOf(proxyToken, account1)
@@ -109,18 +109,18 @@ describe('vault contract', function () {
     const amount = BigInt(1e+19)
     let ethBalanceOfDepositor = await provider.getBalance(owner)
     console.log('******************b4 deposit*********', formatEther(ethBalanceOfDepositor.toString()))
-    const {L2_Contract, leader} = await depositETHOnL1(L1_Chain, L2_Chain, amount)
+    const {L2_Contract, leader} = await sendETHOnL1(L1_Chain, L2_Chain, amount)
     const proxyToken = await L2_Contract.proxyTokenMap(BigInt(network.chainId).toString(), '0x0000000000000000000000000000000000000000')
     let proxyBalanceOfDepositor = await L2_Contract.balanceOf(proxyToken, owner.address)
     expect(amount).toEqual(proxyBalanceOfDepositor)
-    const withdrawReceipt = await L2_Contract.withdrawEth(L1_Chain, amount).then(tx => tx.wait())
+    const withdrawReceipt = await L2_Contract.sendToken(L1_Chain, proxyToken, amount).then(tx => tx.wait())
     proxyBalanceOfDepositor = await L2_Contract.balanceOf(proxyToken, owner.address)
     expect(BigInt(0)).toEqual(proxyBalanceOfDepositor)
     ethBalanceOfDepositor = await provider.getBalance(owner)
     console.log('after deposit', formatEther(ethBalanceOfDepositor.toString()))
     const logs = await provider.getLogs(withdrawReceipt)
     for (const log of logs) {
-      if (log.address == L2_Contract.target) await leader.processWithdraw(L2_Chain, log)
+      if (log.address == L2_Contract.target) await leader.processTokenSent(log)
     }
     await setTimeout(1000)
     ethBalanceOfDepositor = await provider.getBalance(owner)
@@ -141,7 +141,7 @@ describe('vault contract', function () {
     const amount = BigInt(1e+3)
     const {L2_Contract, leader, depositHash, erc20} = await depositERC20OnL1(L1_Chain, L2_Chain, amount)
     await setTimeout(1000)
-    const minted = await L2_Contract.minted(depositHash)
+    const minted = await L2_Contract.arrivalProcessed(depositHash)
     expect(minted).toEqual(true)
     const proxyToken = await L2_Contract.proxyTokenMap(BigInt(L1_Chain).toString(), erc20.target)
     const proxyBalanceOfDepositor = await L2_Contract.balanceOf(proxyToken, account1)
@@ -149,10 +149,15 @@ describe('vault contract', function () {
     const contractWithAccount1 = L2_Contract.connect(account1)
     let erc20Balance = await erc20.balanceOf(account1)
     expect(BigInt(erc20Balance)).toEqual(999999000n)
-    const withdrawReceipt = await contractWithAccount1.withdrawToken(L1_Chain, erc20, amount).then(tx => tx.wait())
+    console.log("Get Contract for", proxyToken)
+    const erc20Token = await getContractAt('ERC20Token', proxyToken)
+    console.log('Instantiated token', erc20Token);
+    console.log('Approve for', L2_Contract.target)
+    await erc20Token.approve(L2_Contract.target, amount)
+    const withdrawReceipt = await contractWithAccount1.sendToken(L1_Chain, proxyToken, amount).then(tx => tx.wait())
     const logs = await provider.getLogs(withdrawReceipt)
     for (const log of logs) {
-      if (log.address == L2_Contract.target) await leader.processWithdraw(L2_Chain, log)
+      if (log.address == L2_Contract.target) await leader.processTokenSent(log)
     }
     await setTimeout(1000)
     erc20Balance = await erc20.balanceOf(account1)
