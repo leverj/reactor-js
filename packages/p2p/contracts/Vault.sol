@@ -79,6 +79,7 @@ contract Vault {
         require(validSignature == true, 'Invalid Signature');
         return tokenSendHash;
     }
+    //fixme remove this and use erc20 call in TC
     function balanceOf(address proxyToken, address vaultUser) external view returns (uint) {
         return ERC20Token(proxyToken).balanceOf(vaultUser);
     }
