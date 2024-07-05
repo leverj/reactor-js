@@ -46,7 +46,7 @@ const _setContractsOnNodes = async (L1_Chain, L2_Chain, [leader, node1, node2, n
   }
   return {L1_Contract, L2_Contract}
 }
-const sendETHOnL1 = async (L1_Chain, L2_Chain, amount) => {
+const sendoutETHFromL1 = async (L1_Chain, L2_Chain, amount) => {
   const [leader, node1, node2, node3, node4, node5, node6] = await createDepositNodes(7)
   const { L1_Contract, L2_Contract } = await _setContractsOnNodes(L1_Chain, L2_Chain, [leader, node1, node2, node3, node4, node5, node6])
   const txnReceipt = await L1_Contract.sendEth(L2_Chain, { value: amount }).then(tx => tx.wait())
@@ -59,7 +59,7 @@ const sendETHOnL1 = async (L1_Chain, L2_Chain, amount) => {
   }
   return { L2_Contract, leader, depositHash }
 }
-const depositERC20OnL1 = async (L1_Chain, L2_Chain, amount) => {
+const sendoutERC20FromL1 = async (L1_Chain, L2_Chain, amount) => {
   const [leader, node1, node2, node3, node4, node5, node6] = await createDepositNodes(7)
   const {L1_Contract, L2_Contract} = await _setContractsOnNodes(L1_Chain, L2_Chain, [leader, node1, node2, node3, node4, node5, node6])
   const erc20 = await createERC20Token('L2Test', 'L2Test', 12, '0x0000000000000000000000000000000000000000', 1)
@@ -79,7 +79,7 @@ describe('vault contract', function () {
     const L1_Chain = network.chainId
     const L2_Chain = 10101
     const amount = BigInt(1e+19)
-    const { L1_Contract, L2_Contract, depositHash } = await sendETHOnL1(L1_Chain, L2_Chain, amount)
+    const { L1_Contract, L2_Contract, depositHash } = await sendoutETHFromL1(L1_Chain, L2_Chain, amount)
     const minted = await L2_Contract.arrivalProcessed(depositHash)
     expect(minted).toEqual(true)
     const proxyToken = await L2_Contract.proxyTokenMap(BigInt(network.chainId).toString(), '0x0000000000000000000000000000000000000000')
@@ -93,7 +93,7 @@ describe('vault contract', function () {
     const L1_Chain = network.chainId
     const L2_Chain = 10101
     const amount = BigInt(1e+3)
-    const {L2_Contract, depositHash, erc20} = await depositERC20OnL1(L1_Chain, L2_Chain, amount)
+    const {L2_Contract, depositHash, erc20} = await sendoutERC20FromL1(L1_Chain, L2_Chain, amount)
     await setTimeout(1000)
     const minted = await L2_Contract.arrivalProcessed(depositHash)
     expect(minted).toEqual(true)
@@ -109,7 +109,7 @@ describe('vault contract', function () {
     const amount = BigInt(1e+19)
     let ethBalanceOfDepositor = await provider.getBalance(owner)
     console.log('******************b4 deposit*********', formatEther(ethBalanceOfDepositor.toString()))
-    const {L2_Contract, leader} = await sendETHOnL1(L1_Chain, L2_Chain, amount)
+    const {L2_Contract, leader} = await sendoutETHFromL1(L1_Chain, L2_Chain, amount)
     const proxyToken = await L2_Contract.proxyTokenMap(BigInt(network.chainId).toString(), '0x0000000000000000000000000000000000000000')
     let proxyBalanceOfDepositor = await L2_Contract.balanceOf(proxyToken, owner.address)
     expect(amount).toEqual(proxyBalanceOfDepositor)
@@ -125,21 +125,13 @@ describe('vault contract', function () {
     await setTimeout(1000)
     ethBalanceOfDepositor = await provider.getBalance(owner)
     console.log('after withdraw', formatEther(ethBalanceOfDepositor.toString()))
-    /*
-    L2: withdraw
-         burn
-         withdrawn(withdrawHash(account, token originating address, token originating chain, amount, withdrawCounter), true)
-    L1: disburse
-        check disbursed(withdrawHash) !== true
-        transfer original token and amount to account
-     */
   })
   it('should disburse ERC20 when proxy withdrawn from target chain', async function () {
     const network = await provider.getNetwork()
     const L1_Chain = network.chainId
     const L2_Chain = 10101
     const amount = BigInt(1e+3)
-    const {L2_Contract, leader, depositHash, erc20} = await depositERC20OnL1(L1_Chain, L2_Chain, amount)
+    const {L2_Contract, leader, depositHash, erc20} = await sendoutERC20FromL1(L1_Chain, L2_Chain, amount)
     await setTimeout(1000)
     const minted = await L2_Contract.arrivalProcessed(depositHash)
     expect(minted).toEqual(true)
@@ -162,24 +154,6 @@ describe('vault contract', function () {
     await setTimeout(1000)
     erc20Balance = await erc20.balanceOf(account1)
     expect(BigInt(erc20Balance)).toEqual(1000000000n)
-    /*
-    L2: withdraw
-         burn
-         withdrawn(withdrawHash(account, token originating address, token originating chain, amount, withdrawCounter), true)
-    L1: disburse
-        check disbursed(withdrawHash) !== true
-        transfer original token and amount to account
-     */
-  })
-  it('should mint when withdrawn from target chain to not an originating chain', async function () {
-    /*
-    L2: withdraw
-         burn
-         withdrawn(withdrawHash(account, token originating address, token originating chain, amount, withdrawCounter), true)
-    L3: mint
-        check minted(withdrawHash) !== true
-        mint token to account
-     */
   })
   it.skip('should mint token using fixture data', async function () {
     const network = await provider.getNetwork()
