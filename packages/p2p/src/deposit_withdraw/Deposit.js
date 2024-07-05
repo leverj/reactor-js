@@ -7,7 +7,7 @@ import vaultAbi from '../abi/Vault.json' assert {type: 'json'}
 import {Interface} from 'ethers'
 
 const abi = AbiCoder.defaultAbiCoder()
-
+//fixme this class can be renamed to something more appropriate ? like SendToken ?
 export default class Deposit {
   constructor(bridgeNode) {
     this.bridgeNode = bridgeNode
