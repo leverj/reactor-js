@@ -1,5 +1,4 @@
-import {AbiCoder } from 'ethers'
-import {soliditySha3 as keccak256} from 'web3-utils'
+import {AbiCoder, keccak256 } from 'ethers'
 import bls from '../utils/bls.js'
 import vaultAbi from '../abi/Vault.json' assert {type: 'json'}
 import {Interface} from 'ethers'
@@ -25,7 +24,7 @@ export default class Deposit {
     if (this.bridgeNode.isLeader !== true) return
     const parsedLog = new Interface(vaultAbi.abi).parseLog(log)
     const [originatingChain, originatingToken, decimals, amount, vaultUser, fromChainId, toChainId, sendCounter] = parsedLog.args
-    const sentHash = keccak256(originatingChain, originatingToken, decimals, amount, vaultUser, fromChainId, toChainId, sendCounter)
+    const sentHash = keccak256(abi.encode(['uint','address','uint','uint','address','uint','uint','uint'],[originatingChain, originatingToken, decimals, amount, vaultUser, fromChainId, toChainId, sendCounter]))
     const isSent = await this.contracts[fromChainId].tokenSent(sentHash)
     if (isSent === false) return
     await this.bridgeNode.aggregateSignature(sentHash, sentHash, fromChainId, this.sentPayloadVerified.bind(this, originatingChain, originatingToken, decimals, amount, vaultUser, fromChainId, toChainId, sendCounter))

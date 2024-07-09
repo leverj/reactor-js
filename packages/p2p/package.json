@@ -42,8 +42,7 @@
     "lodash": "^4.17.21",
     "mcl-wasm": "^1.4.0",
     "multiaddr": "^10.0.1",
-    "uint8arrays": "^5.0.3",
-    "web3-utils": "^4.3.0"
+    "uint8arrays": "^5.0.3"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^3.0.0-beta.0",

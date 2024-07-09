@@ -1,7 +1,6 @@
 import {expect} from 'expect'
 import {createVault, provider, owner, account1, createERC20Token} from './help/vault.js'
-import {formatEther, AbiCoder} from 'ethers'
-import {soliditySha3 as keccak256} from 'web3-utils'
+import {formatEther, AbiCoder, keccak256} from 'ethers'
 import {getContractAt, peerIdJsons} from './help/index.js'
 import {setTimeout} from 'timers/promises'
 import BridgeNode from '../src/BridgeNode.js'

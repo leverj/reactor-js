@@ -65,14 +65,10 @@ contract Vault {
         emit TokenSent(originatingChain, originatingToken, decimals, tokenAmount, msg.sender, chainId, toChainId, counter);
     }
     function payloadHash(uint originatingChain, address originatingToken, uint decimals, uint amount, address vaultUser, uint fromChain, uint toChain, uint counter) public pure returns(bytes32){
-        return keccak256(abi.encodePacked(originatingChain, originatingToken, decimals, amount, vaultUser, fromChain, toChain, counter));
-    }
-    function _getPayloadHash(bytes memory tokenSendPayload) internal pure returns (bytes32){
-        (uint originatingChain, address originatingToken, uint decimals, uint amount, address vaultUser, uint fromChain, uint toChain, uint counter) = abi.decode(tokenSendPayload, (uint,address,uint,uint,address,uint,uint,uint));
-        return payloadHash(originatingChain, originatingToken, decimals, amount, vaultUser, fromChain, toChain, counter);
+        return keccak256(abi.encode(originatingChain, originatingToken, decimals, amount, vaultUser, fromChain, toChain, counter));
     }
     function _validatePayloadAndSignature(uint256[2] memory signature, uint256[4] memory signerKey, bytes calldata tokenSendPayload) internal view returns (bytes32){
-        bytes32 tokenSendHash = _getPayloadHash(tokenSendPayload);
+        bytes32 tokenSendHash = keccak256(tokenSendPayload);
         require(tokenArrived[tokenSendHash] == false, 'Token Arrival already processed');
         uint256[2] memory messageToPoint = verifier.hashToPoint(bytes(cipher_suite_domain), bytes(verifier.bytes32ToHexString(tokenSendHash)));
         bool validSignature = verifier.verifySignature(signature, signerKey, messageToPoint);
