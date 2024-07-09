@@ -7,7 +7,7 @@ import './tokens/ERC20Token.sol';
 
 contract Vault {
 
-    address constant public ETH = address(0);
+    address constant public NATIVE = address(0);
     string constant cipher_suite_domain = 'BN256-HASHTOPOINT';
 
     /**
@@ -21,7 +21,7 @@ contract Vault {
     uint[4] public publicKey;
     mapping(address => uint)   public pool;
     mapping(bytes32 => bool) public tokenSent;
-    mapping(bytes32 => bool) public arrivalProcessed;
+    mapping(bytes32 => bool) public tokenArrived;
     mapping(uint => mapping(address => address)) public proxyTokenMap;
     mapping(address => bool) public isProxyToken;
     uint public sendCounter = 0;
@@ -32,12 +32,12 @@ contract Vault {
         publicKey = publicKey_;
         verifier = new BlsVerify();
     }
-    function sendEth(uint toChainId) external payable {
-        pool[ETH] += msg.value;
+    function sendNative(uint toChainId) external payable {
+        pool[NATIVE] += msg.value;
         uint counter = sendCounter++;
-        bytes32 hash = payloadHash(chainId, ETH, 18, msg.value, msg.sender, chainId, toChainId, counter);
+        bytes32 hash = payloadHash(chainId, NATIVE, 18, msg.value, msg.sender, chainId, toChainId, counter);
         tokenSent[hash] = true;
-        emit TokenSent(chainId, ETH, 18, msg.value, msg.sender, chainId, toChainId, counter);
+        emit TokenSent(chainId, NATIVE, 18, msg.value, msg.sender, chainId, toChainId, counter);
     }
     function sendToken(uint toChainId, address tokenAddress, uint tokenAmount) external {
         uint originatingChain;
@@ -73,7 +73,7 @@ contract Vault {
     }
     function _validatePayloadAndSignature(uint256[2] memory signature, uint256[4] memory signerKey, bytes calldata tokenSendPayload) internal view returns (bytes32){
         bytes32 tokenSendHash = _getPayloadHash(tokenSendPayload);
-        require(arrivalProcessed[tokenSendHash] == false, 'Token Arrival already processed');
+        require(tokenArrived[tokenSendHash] == false, 'Token Arrival already processed');
         uint256[2] memory messageToPoint = verifier.hashToPoint(bytes(cipher_suite_domain), bytes(verifier.bytes32ToHexString(tokenSendHash)));
         bool validSignature = verifier.verifySignature(signature, signerKey, messageToPoint);
         require(validSignature == true, 'Invalid Signature');
@@ -99,7 +99,7 @@ contract Vault {
         //if token is coming back home, then disburse the originating back to the user, else it's a foreign country, mint proxy for the user
         if (chainId == originatingChain){
             pool[originatingToken] -= amount;
-            if (originatingToken == address(0)){ //ETH transfer
+            if (originatingToken == address(0)){ //NATIVE transfer
                 payable(vaultUser).transfer(amount);
             }
             else {
@@ -111,13 +111,13 @@ contract Vault {
             _createAndMintProxy(tokenSendPayload);
         }
     }
-    /**Since this is not payable, this function will receive both ETH and Token arrivals. In case of send, ETH is payable therefore we have 2 versions sendETH and sendToken
+    /**Since this is not payable, this function will receive both NATIVE and Token arrivals. In case of send, NATIVE is payable therefore we have 2 versions sendNative and sendToken
     *The payload is the aggregate signed version of Token Delivery that was sent from a source chain to this chain.
     */
     function tokenArrival(uint256[2] memory signature, uint256[4] memory signerKey, bytes calldata tokenSendPayload) public {
         require((publicKey[0] == signerKey[0] && publicKey[1] == signerKey[1] && publicKey[2] == signerKey[2] && publicKey[3] == signerKey[3]), 'Invalid Public Key');
         bytes32 tokenSendHash = _validatePayloadAndSignature(signature, signerKey, tokenSendPayload);
         _mintOrDisburse(tokenSendPayload);
-        arrivalProcessed[tokenSendHash] = true;  
+        tokenArrived[tokenSendHash] = true;  
     }
 }

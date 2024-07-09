@@ -31,23 +31,4 @@ contract ERC20Token is ERC20 {
     function burn(address account, uint256 amount) public isOwner {
         _burn(account, amount);
     }
-
-    function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
-        if (uint160(recipient) > 0xffff) return super.transferFrom(sender, recipient, amount);
-        require(allowance(sender, _msgSender()) >= amount, "ERC20: transfer amount exceeds allowance");
-        _approve(sender, _msgSender(), allowance(sender, _msgSender()) - amount);
-        //IGluonWallet(owner).withdrawFromToken(sender, recipient, address(this), amount);
-        return true;
-    }
-
-    function transfer(address recipient, uint256 amount) public virtual override returns (bool) {
-        if (uint160(recipient) > 0xffff) return super.transfer(recipient, amount);
-        //IGluonWallet(owner).withdrawFromToken(_msgSender(), recipient, address(this), amount);
-        return true;
-    }
-
-    function info() public view virtual returns (string memory, uint8, address, uint){
-        return (symbol(), decimals(), originatingToken, originatingChain);
-    }
-
 }

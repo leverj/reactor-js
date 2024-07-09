@@ -55,7 +55,7 @@ const _setContractsOnNodes = async (chains, [leader, node1, node2, node3, node4,
 const sendoutETHFromL1 = async (chains, amount) => {
   const [leader, node1, node2, node3, node4, node5, node6] = await createDepositNodes(7)
   const [L1_Contract, L2_Contract] = await _setContractsOnNodes(chains, [leader, node1, node2, node3, node4, node5, node6])
-  const txnReceipt = await L1_Contract.sendEth(chains[1], { value: amount }).then(tx => tx.wait())
+  const txnReceipt = await L1_Contract.sendNative(chains[1], { value: amount }).then(tx => tx.wait())
   const logs = await provider.getLogs(txnReceipt)
   let depositHash
   for (const log of logs) {
@@ -86,7 +86,7 @@ describe('vault contract', function () {
     const L2_Chain = 10101
     const amount = BigInt(1e+19)
     const { L1_Contract, L2_Contract, depositHash } = await sendoutETHFromL1([L1_Chain, L2_Chain], amount)
-    const minted = await L2_Contract.arrivalProcessed(depositHash)
+    const minted = await L2_Contract.tokenArrived(depositHash)
     expect(minted).toEqual(true)
     const proxyToken = await L2_Contract.proxyTokenMap(BigInt(network.chainId).toString(), '0x0000000000000000000000000000000000000000')
     let proxyBalanceOfDepositor = await L2_Contract.balanceOf(proxyToken, owner.address)
@@ -101,7 +101,7 @@ describe('vault contract', function () {
     const amount = BigInt(1e+3)
     const { L2_Contract, depositHash, erc20 } = await sendoutERC20FromL1([L1_Chain, L2_Chain], amount)
     await setTimeout(1000)
-    const minted = await L2_Contract.arrivalProcessed(depositHash)
+    const minted = await L2_Contract.tokenArrived(depositHash)
     expect(minted).toEqual(true)
     const proxyToken = await L2_Contract.proxyTokenMap(BigInt(network.chainId).toString(), erc20.target)
     const proxyBalanceOfDepositor = await L2_Contract.balanceOf(proxyToken, account1)
@@ -140,7 +140,7 @@ describe('vault contract', function () {
     const amount = BigInt(1e+3)
     const { L2_Contract, leader, depositHash, erc20 } = await sendoutERC20FromL1([L1_Chain, L2_Chain], amount)
     await setTimeout(1000)
-    const minted = await L2_Contract.arrivalProcessed(depositHash)
+    const minted = await L2_Contract.tokenArrived(depositHash)
     expect(minted).toEqual(true)
     const proxyToken = await L2_Contract.proxyTokenMap(BigInt(L1_Chain).toString(), erc20.target)
     const proxyBalanceOfDepositor = await L2_Contract.balanceOf(proxyToken, account1)
@@ -171,7 +171,7 @@ describe('vault contract', function () {
     let ethBalanceOfDepositor = await provider.getBalance(owner)
     console.log('b4 deposit', formatEther(ethBalanceOfDepositor.toString()))
     const balanceBeforeDeposit = ethBalanceOfDepositor
-    const txnReceipt = await contracts[0].sendEth(chains[1], { value: amount }).then(tx => tx.wait())
+    const txnReceipt = await contracts[0].sendNative(chains[1], { value: amount }).then(tx => tx.wait())
 
     let logs = await provider.getLogs(txnReceipt)
     let tokenSentHash

@@ -28,7 +28,7 @@ export default class Deposit {
     const sentHash = keccak256(originatingChain, originatingToken, decimals, amount, vaultUser, fromChainId, toChainId, sendCounter)
     const isSent = await this.contracts[fromChainId].tokenSent(sentHash)
     if (isSent === false) return
-    await this.bridgeNode.aggregateSignature(sentHash, sentHash, fromChainId, this.signatureVerified.bind(this, originatingChain, originatingToken, decimals, amount, vaultUser, fromChainId, toChainId, sendCounter))
+    await this.bridgeNode.aggregateSignature(sentHash, sentHash, fromChainId, this.sentPayloadVerified.bind(this, originatingChain, originatingToken, decimals, amount, vaultUser, fromChainId, toChainId, sendCounter))
     return sentHash
   }
   
@@ -40,7 +40,7 @@ export default class Deposit {
         symbol: 'PRX'
     }
   }
-  async signatureVerified(originatingChain, originatingToken, decimals, amount, vaultUser, fromChainId, toChainId, sendCounter, aggregateSignature) {
+  async sentPayloadVerified(originatingChain, originatingToken, decimals, amount, vaultUser, fromChainId, toChainId, sendCounter, aggregateSignature) {
     if (aggregateSignature.verified !== true) return
     const signature = bls.deserializeHexStrToG1(aggregateSignature.groupSign)
     const sig_ser = bls.g1ToBN(signature)
