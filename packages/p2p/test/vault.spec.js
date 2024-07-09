@@ -44,12 +44,6 @@ const _setContractsOnNodes = async (chains, [leader, node1, node2, node3, node4,
       node.setContract(chain, contract)
     }
   }
-  /*const L1_Contract = await createVault(L1_Chain, pubkey_ser)
-  const L2_Contract = await createVault(L2_Chain, pubkey_ser)
-  for (const node of [leader, node1, node2, node3, node4, node5, node6]) {
-    node.setContract(L1_Chain, L1_Contract)
-    node.setContract(L2_Chain, L2_Contract)
-  }*/
   return contracts
 }
 const sendoutETHFromL1 = async (chains, amount) => {
@@ -59,7 +53,6 @@ const sendoutETHFromL1 = async (chains, amount) => {
   const logs = await provider.getLogs(txnReceipt)
   let depositHash
   for (const log of logs) {
-    console.log('Sent Log', log)
     depositHash = await leader.processTokenSent(log)
     await setTimeout(1000)
   }
