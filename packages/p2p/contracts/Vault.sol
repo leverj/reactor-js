@@ -6,14 +6,15 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import './tokens/ERC20Token.sol';
 
 contract Vault {
-
+    
     address constant public NATIVE = address(0);
     string constant cipher_suite_domain = 'BN256-HASHTOPOINT';
-
     /**
     * Token Sent out to another chain. The payload has structure
     * <OriginatingToken>, TokenAmount, VaultUser Address, fromChain, toChain, sendCounter
     * <OriginatingToken> is a tuple represented by originatingChain, originatingTokenAddress, decimals
+    * fromChain may seem redundant at first glance. however, consider the case where L1 sends Token to L5 and L6. 
+    * and both L5 and L6 send it back to L1, and both L5 and L6 could have the same counter, so another key in the form of fromChain is needed
     * The payload status will be Sent, InFlight, Received
     */
     event TokenSent(uint indexed originatingChain, address indexed originatingToken, uint decimals, uint amount, address indexed vaultUser, uint fromChain, uint toChain, uint sendCounter);
@@ -92,8 +93,7 @@ contract Vault {
     }
     function _mintOrDisburse(bytes calldata tokenSendPayload) internal{
         (uint originatingChain, address originatingToken, , uint amount, address vaultUser, , , ) = abi.decode(tokenSendPayload, (uint,address,uint,uint,address,uint,uint,uint));
-        //if token is coming back home, then disburse the originating back to the user, else it's a foreign country, mint proxy for the user
-        if (chainId == originatingChain){
+        if (chainId == originatingChain){//if token is coming back home, then disburse the originating back to the user, else it's a foreign country, mint proxy for the user
             pool[originatingToken] -= amount;
             if (originatingToken == address(0)){ //NATIVE transfer
                 payable(vaultUser).transfer(amount);
