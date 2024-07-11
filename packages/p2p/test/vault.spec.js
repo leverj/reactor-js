@@ -8,7 +8,7 @@ import bls from '../src/utils/bls.js'
 import Deposit from '../src/deposit_withdraw/Deposit.js'
 
 const abi = AbiCoder.defaultAbiCoder()
-const cipher_suite_domain = 'BN256-HASHTOPOINT'
+const cipher_suite_domain = 'BNS_SIG_BNS256_XMD:SHA-256_SSWU'
 bls.setDomain(cipher_suite_domain)
 
 const nodes = []
@@ -81,7 +81,8 @@ describe('vault contract', function () {
     const minted = await L2_Contract.tokenArrived(depositHash)
     expect(minted).toEqual(true)
     const proxyToken = await L2_Contract.proxyTokenMap(BigInt(network.chainId).toString(), '0x0000000000000000000000000000000000000000')
-    let proxyBalanceOfDepositor = await L2_Contract.balanceOf(proxyToken, owner.address)
+    const erc20Token = await getContractAt('ERC20Token', proxyToken)
+    let proxyBalanceOfDepositor = await erc20Token.balanceOf(owner.address)
     expect(amount).toEqual(proxyBalanceOfDepositor)
     const isProxy = await L2_Contract.isProxyToken(proxyToken)
     expect(isProxy).toEqual(true)
@@ -96,7 +97,9 @@ describe('vault contract', function () {
     const minted = await L2_Contract.tokenArrived(depositHash)
     expect(minted).toEqual(true)
     const proxyToken = await L2_Contract.proxyTokenMap(BigInt(network.chainId).toString(), erc20.target)
-    const proxyBalanceOfDepositor = await L2_Contract.balanceOf(proxyToken, account1)
+    const erc20Token = await getContractAt('ERC20Token', proxyToken)
+    let proxyBalanceOfDepositor = await erc20Token.balanceOf(account1)
+    
     expect(amount).toEqual(proxyBalanceOfDepositor)
   })
 
@@ -109,10 +112,12 @@ describe('vault contract', function () {
     console.log('******************b4 deposit*********', formatEther(ethBalanceOfDepositor.toString()))
     const { L2_Contract, leader } = await sendoutETHFromL1([L1_Chain, L2_Chain], amount)
     const proxyToken = await L2_Contract.proxyTokenMap(BigInt(network.chainId).toString(), '0x0000000000000000000000000000000000000000')
-    let proxyBalanceOfDepositor = await L2_Contract.balanceOf(proxyToken, owner.address)
+    const erc20Token = await getContractAt('ERC20Token', proxyToken)
+    let proxyBalanceOfDepositor = await erc20Token.balanceOf(owner.address)
+    
     expect(amount).toEqual(proxyBalanceOfDepositor)
     const withdrawReceipt = await L2_Contract.sendToken(L1_Chain, proxyToken, amount).then(tx => tx.wait())
-    proxyBalanceOfDepositor = await L2_Contract.balanceOf(proxyToken, owner.address)
+    proxyBalanceOfDepositor = await erc20Token.balanceOf(owner.address)
     expect(BigInt(0)).toEqual(proxyBalanceOfDepositor)
     ethBalanceOfDepositor = await provider.getBalance(owner)
     console.log('after deposit', formatEther(ethBalanceOfDepositor.toString()))
@@ -135,13 +140,13 @@ describe('vault contract', function () {
     const minted = await L2_Contract.tokenArrived(depositHash)
     expect(minted).toEqual(true)
     const proxyToken = await L2_Contract.proxyTokenMap(BigInt(L1_Chain).toString(), erc20.target)
-    const proxyBalanceOfDepositor = await L2_Contract.balanceOf(proxyToken, account1)
+    const erc20Token = await getContractAt('ERC20Token', proxyToken)
+    let proxyBalanceOfDepositor = await erc20Token.balanceOf(account1)
     expect(amount).toEqual(proxyBalanceOfDepositor)
     const contractWithAccount1 = L2_Contract.connect(account1)
     let erc20Balance = await erc20.balanceOf(account1)
     expect(BigInt(erc20Balance)).toEqual(999999000n)
     console.log("Get Contract for", proxyToken)
-    const erc20Token = await getContractAt('ERC20Token', proxyToken)
     console.log('Instantiated token', erc20Token);
     console.log('Approve for', L2_Contract.target)
     await erc20Token.approve(L2_Contract.target, amount)

@@ -9,7 +9,7 @@ import './tokens/ERC20Token.sol';
 contract Vault {
 
     address constant public NATIVE = address(0);
-    string constant cipher_suite_domain = 'BN256-HASHTOPOINT';
+    bytes constant cipher_suite_domain = bytes('BNS_SIG_BNS256_XMD:SHA-256_SSWU');
     /**
     * Token Sent out to another chain. The payload has structure
     * <OriginatingToken>, TokenAmount, VaultUser Address, fromChain, toChain, sendCounter
@@ -28,7 +28,7 @@ contract Vault {
     mapping(uint => mapping(address => address)) public proxyTokenMap;
     mapping(address => bool) public isProxyToken;
     uint public sendCounter = 0;
-    BlsVerify verifier;
+    BlsVerify public verifier;
 
     constructor(uint chainId_, uint[4] memory publicKey_) {
         chainId = chainId_;
@@ -69,20 +69,23 @@ contract Vault {
         emit TokenSent(originatingChain, originatingToken, decimals, tokenAmount, msg.sender, chainId, toChainId, counter);
     }
 
+    function tokenArrival(uint256[2] memory signature, uint256[4] memory signerKey, bytes calldata tokenSendPayload) public {
+        bytes32 tokenSendHash = keccak256(tokenSendPayload);
+        require(tokenArrived[tokenSendHash] == false, 'Token Arrival already processed');
+        _validatePayloadAndSignature(signature, signerKey, tokenSendHash);
+        _mintOrDisburse(tokenSendPayload);
+        tokenArrived[tokenSendHash] = true;
+    }
+
     function payloadHash(uint originatingChain, address originatingToken, uint decimals, uint amount, address vaultUser, uint fromChain, uint toChain, uint counter) public pure returns (bytes32){
         return keccak256(abi.encode(originatingChain, originatingToken, decimals, amount, vaultUser, fromChain, toChain, counter));
     }
 
     function _validatePayloadAndSignature(uint256[2] memory signature, uint256[4] memory signerKey, bytes32 tokenSendHash) internal view {
         require((publicKey[0] == signerKey[0] && publicKey[1] == signerKey[1] && publicKey[2] == signerKey[2] && publicKey[3] == signerKey[3]), 'Invalid Public Key');
-        uint256[2] memory messageToPoint = verifier.hashToPoint(bytes(cipher_suite_domain), bytes(verifier.bytes32ToHexString(tokenSendHash)));
+        uint256[2] memory messageToPoint = verifier.hashToPoint((cipher_suite_domain), bytes(verifier.bytes32ToHexString(tokenSendHash)));
         bool validSignature = verifier.verifySignature(signature, signerKey, messageToPoint);
         require(validSignature == true, 'Invalid Signature');
-    }
-
-    //fixme remove this and use erc20 call in TC
-    function balanceOf(address proxyToken, address vaultUser) external view returns (uint) {
-        return ERC20Token(proxyToken).balanceOf(vaultUser);
     }
 
     function _createAndMintProxy(bytes memory tokenSendPayload) internal {
@@ -109,15 +112,5 @@ contract Vault {
         } else {
             _createAndMintProxy(tokenSendPayload);
         }
-    }
-    /**Since this is not payable, this function will receive both NATIVE and Token arrivals. In case of send, NATIVE is payable therefore we have 2 versions sendNative and sendToken
-    *The payload is the aggregate signed version of Token Delivery that was sent from a source chain to this chain.
-    */
-    function tokenArrival(uint256[2] memory signature, uint256[4] memory signerKey, bytes calldata tokenSendPayload) public {
-        bytes32 tokenSendHash = keccak256(tokenSendPayload);
-        require(tokenArrived[tokenSendHash] == false, 'Token Arrival already processed');
-        _validatePayloadAndSignature(signature, signerKey, tokenSendHash);
-        _mintOrDisburse(tokenSendPayload);
-        tokenArrived[tokenSendHash] = true;
     }
 }
