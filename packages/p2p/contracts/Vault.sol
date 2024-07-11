@@ -58,15 +58,8 @@ contract Vault {
             originatingChain = chainId;
             originatingToken = tokenAddress;
             ERC20 token = ERC20(tokenAddress);
-            //require(token.balanceOf(msg.sender) >= tokenAmount, 'Insufficient balance');
             decimals = token.decimals();
-            uint userBalanceBefore = token.balanceOf(msg.sender);
-            uint contractBalanceBefore = token.balanceOf(address(this));
-            token.transferFrom(msg.sender, address(this), tokenAmount);
-            uint userBalanceAfter = token.balanceOf(msg.sender);
-            uint contractBalanceAfter = token.balanceOf(address(this));
-            require(userBalanceAfter == (userBalanceBefore - tokenAmount), 'Invalid transfer');
-            require(contractBalanceAfter == (contractBalanceBefore + tokenAmount), 'Invalid transfer');
+            safeTransfer(tokenAddress, msg.sender, address(this), tokenAmount);
             pool[tokenAddress] += tokenAmount;
         }
         uint counter = sendCounter++;
@@ -108,27 +101,21 @@ contract Vault {
 
     function _mintOrDisburse(bytes calldata tokenSendPayload) internal {
         (uint originatingChain, address originatingToken, , uint amount, address vaultUser, , ,) = abi.decode(tokenSendPayload, (uint, address, uint, uint, address, uint, uint, uint));
-        uint userBalanceBefore; uint userBalanceAfter; uint contractBalanceBefore; uint contractBalanceAfter;
-        
         if (chainId == originatingChain) {//if token is coming back home, then disburse the originating back to the user, else it's a foreign country, mint proxy for the user
             pool[originatingToken] -= amount;
-            if (originatingToken == address(0)) { //NATIVE transfer, fixme : review - do we need "safe transfer" check for native also ?
-                userBalanceBefore = vaultUser.balance;
-                contractBalanceBefore = address(this).balance;
-                payable(vaultUser).transfer(amount);
-                userBalanceAfter = vaultUser.balance;
-                contractBalanceAfter = address(this).balance;
-            } else {
-                userBalanceBefore = ERC20(originatingToken).balanceOf(vaultUser);
-                contractBalanceBefore = ERC20(originatingToken).balanceOf(address(this));
-                ERC20(originatingToken).transfer(vaultUser, amount);
-                userBalanceAfter = ERC20(originatingToken).balanceOf(vaultUser);
-                contractBalanceAfter = ERC20(originatingToken).balanceOf(address(this));
-            }
-            require(userBalanceAfter == (userBalanceBefore + amount), 'Invalid transfer');
-            require(contractBalanceAfter == (contractBalanceBefore - amount), 'Invalid transfer');
+            safeTransfer(originatingToken, address(this), vaultUser, amount);
         } else {
             _createAndMintProxy(tokenSendPayload);
+        }
+    }
+
+    function safeTransfer(address token, address from, address to, uint amount) internal {
+        if (token == address(0)) {
+            payable(to).transfer(amount);
+        } else {
+            uint balance = ERC20(token).balanceOf(to);
+            from == address(this) ? ERC20(token).transfer(to, amount) : ERC20(token).transferFrom(from, to, amount);
+            require(ERC20(token).balanceOf(to) == (balance + amount), 'Invalid transfer');
         }
     }
 }

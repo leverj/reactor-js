@@ -8,8 +8,6 @@ import bls from '../src/utils/bls.js'
 import Deposit from '../src/deposit_withdraw/Deposit.js'
 
 const abi = AbiCoder.defaultAbiCoder()
-const cipher_suite_domain = 'BNS_SIG_BNS256_XMD:SHA-256_SSWU'
-bls.setDomain(cipher_suite_domain)
 
 const nodes = []
 const stopBridgeNodes = async () => {

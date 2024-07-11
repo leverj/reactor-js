@@ -7,7 +7,7 @@ export {stringToHex} from './utils.js'
 export * from 'mcl-wasm'
 export const MAPPING_MODE_TI = 'TI'
 export const MAPPING_MODE_FT = 'FT'
-const cipher_suite_domain = 'BNS_SIG_BNS256_XMD:SHA-256_SSWU';
+export const cipher_suite_domain = 'BNS_SIG_BNS256_XMD:SHA-256_SSWU';
 export const DOMAIN_STRING = cipher_suite_domain
 let DOMAIN
 
