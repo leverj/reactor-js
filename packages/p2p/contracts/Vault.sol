@@ -9,7 +9,6 @@ import './tokens/ERC20Token.sol';
 contract Vault {
 
     address constant public NATIVE = address(0);
-    bytes constant cipher_suite_domain = bytes('BNS_SIG_BNS256_XMD:SHA-256_SSWU');
     /**
     * Token Sent out to another chain. The payload has structure
     * <OriginatingToken>, TokenAmount, VaultUser Address, fromChain, toChain, sendCounter
@@ -82,7 +81,7 @@ contract Vault {
 
     function _validatePayloadAndSignature(uint256[2] memory signature, uint256[4] memory signerKey, bytes32 tokenSendHash) internal view {
         require((publicKey[0] == signerKey[0] && publicKey[1] == signerKey[1] && publicKey[2] == signerKey[2] && publicKey[3] == signerKey[3]), 'Invalid Public Key');
-        uint256[2] memory messageToPoint = verifier.hashToPoint((cipher_suite_domain), bytes(verifier.bytes32ToHexString(tokenSendHash)));
+        uint256[2] memory messageToPoint = verifier.hashToPoint(bytes(verifier.bytes32ToHexString(tokenSendHash)));
         bool validSignature = verifier.verifySignature(signature, signerKey, messageToPoint);
         require(validSignature == true, 'Invalid Signature');
     }

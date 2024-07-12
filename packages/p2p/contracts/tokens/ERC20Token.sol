@@ -10,6 +10,8 @@ contract ERC20Token is ERC20 {
     address public owner;
     uint public originatingChain;
     uint8 internal _decimals;
+    string public originatingName;
+    string public originatingSymbol;
 
     modifier isOwner {require(msg.sender == owner, "not an owner");
         _;}
@@ -18,6 +20,8 @@ contract ERC20Token is ERC20 {
         originatingToken = originatingToken_;
         originatingChain = originatingChain_;
         owner = msg.sender;
+        originatingName = name_;
+        originatingSymbol = symbol_;
     }
 
     function decimals() public view virtual override returns (uint8) {
@@ -30,5 +34,13 @@ contract ERC20Token is ERC20 {
 
     function burn(address account, uint256 amount) public isOwner {
         _burn(account, amount);
+    }
+    
+    function name() public view override returns (string memory) {
+        return string.concat('REACTOR_', originatingName);
+    }
+
+    function symbol() public view override returns (string memory) {
+        return string.concat('R_', originatingSymbol);
     }
 }

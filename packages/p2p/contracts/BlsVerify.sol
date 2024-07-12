@@ -25,6 +25,8 @@ contract BlsVerify {
     uint256 constant T24 = 0x1000000000000000000000000000000000000000000000000;
     uint256 constant MASK24 = 0xffffffffffffffffffffffffffffffffffffffffffffffff;
 
+    bytes constant cipher_suite_domain = bytes('BNS_SIG_BNS256_XMD:SHA-256_SSWU');
+    
     constructor () {
     }
 
@@ -49,8 +51,8 @@ contract BlsVerify {
         return out[0] != 0;
     }
 
-    function hashToPoint(bytes memory domain, bytes memory message) public view returns (uint256[2] memory) {
-        uint256[2] memory u = hashToField(domain, message);
+    function hashToPoint(bytes memory message) public view returns (uint256[2] memory) {
+        uint256[2] memory u = hashToField(cipher_suite_domain, message);
         uint256[2] memory p0 = mapToPointFT(u[0]);
         uint256[2] memory p1 = mapToPointFT(u[1]);
         uint256[4] memory bnAddInput;

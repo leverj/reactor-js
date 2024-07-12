@@ -1,5 +1,5 @@
 import {expect} from 'expect'
-import {createVault, provider, owner, account1, createERC20Token} from './help/vault.js'
+import {createVault, provider, owner, account1, createERC20Token, createRegularERC20} from './help/vault.js'
 import {formatEther, AbiCoder, keccak256} from 'ethers'
 import {getContractAt, peerIdJsons} from './help/index.js'
 import {setTimeout} from 'timers/promises'
@@ -58,7 +58,7 @@ const sendoutETHFromL1 = async (chains, amount) => {
 const sendoutERC20FromL1 = async (chains, amount) => {
   const [leader, node1, node2, node3, node4, node5, node6] = await createDepositNodes(7)
   const [L1_Contract, L2_Contract] = await _setContractsOnNodes(chains, [leader, node1, node2, node3, node4, node5, node6])
-  const erc20 = await createERC20Token('L2Test', 'L2Test', 12, '0x0000000000000000000000000000000000000000', 1)
+  const erc20 = await createRegularERC20('USDTETHER', 'USDT')
   await erc20.mint(account1, 1e9)
   const erc20WithAccount1 = erc20.connect(account1)
   await erc20WithAccount1.approve(L1_Contract.target, 1000000, { from: account1.address }).then(tx => tx.wait())

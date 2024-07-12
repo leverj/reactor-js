@@ -45,7 +45,7 @@ describe('blsVerify', () => {
   })
 
   it('should be able to convert message to point', async function () {
-    let res = await contract.hashToPoint(bls.stringToHex(DOMAIN_STRING), bls.stringToHex(messageString))
+    let res = await contract.hashToPoint(bls.stringToHex(messageString))
     let fromJs = bls.g1ToBN(bls.hashToPoint(messageString))
     // console.log('from js', fromJs)
     // console.log('from contract', res)
