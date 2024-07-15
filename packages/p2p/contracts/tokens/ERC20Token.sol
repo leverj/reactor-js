@@ -37,10 +37,10 @@ contract ERC20Token is ERC20 {
     }
     
     function name() public view override returns (string memory) {
-        return string.concat('REACTOR_', originatingName);
+        return string.concat(originatingName, '_REACTOR');
     }
 
     function symbol() public view override returns (string memory) {
-        return string.concat('R_', originatingSymbol);
+        return string.concat(originatingSymbol, '_R');
     }
 }

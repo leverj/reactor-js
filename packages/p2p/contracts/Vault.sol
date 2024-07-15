@@ -15,9 +15,8 @@ contract Vault {
     * <OriginatingToken> is a tuple represented by originatingChain, originatingTokenAddress, decimals
     * fromChain may seem redundant at first glance. however, consider the case where L1 sends Token to L5 and L6. 
     * and both L5 and L6 send it back to L1, and both L5 and L6 could have the same counter, so another key in the form of fromChain is needed
-    * The payload status will be Sent, InFlight, Received
     */
-    event TokenSent(uint indexed originatingChain, address indexed originatingToken, uint decimals, uint amount, address indexed vaultUser, uint fromChain, uint toChain, uint sendCounter);
+    event TokenSent(uint indexed originatingChain, address indexed originatingToken, string originatingName, string originatingSymbol, uint decimals, uint amount, address indexed vaultUser, uint fromChain, uint toChain, uint sendCounter);
 
     uint public chainId;
     uint[4] public publicKey;
@@ -39,7 +38,8 @@ contract Vault {
         uint counter = sendCounter++;
         bytes32 hash = payloadHash(chainId, NATIVE, 18, msg.value, msg.sender, chainId, toChainId, counter);
         tokenSent[hash] = true;
-        emit TokenSent(chainId, NATIVE, 18, msg.value, msg.sender, chainId, toChainId, counter);
+        //fixme native name/symbol for each chain will be different, e.g. BSC, Fantom/FTM. Along with constructor like we set chainId ?
+        emit TokenSent(chainId, NATIVE, 'ETHER', 'ETH', 18, msg.value, msg.sender, chainId, toChainId, counter);
     }
 
     function sendToken(uint toChainId, address tokenAddress, uint tokenAmount) external {
@@ -64,14 +64,14 @@ contract Vault {
         uint counter = sendCounter++;
         bytes32 hash = payloadHash(originatingChain, originatingToken, decimals, tokenAmount, msg.sender, chainId, toChainId, counter);
         tokenSent[hash] = true;
-        emit TokenSent(originatingChain, originatingToken, decimals, tokenAmount, msg.sender, chainId, toChainId, counter);
+        emitSendEvent(tokenAddress, originatingChain, originatingToken, decimals, tokenAmount, msg.sender, chainId, toChainId, counter);
     }
 
-    function tokenArrival(uint256[2] memory signature, uint256[4] memory signerKey, bytes calldata tokenSendPayload) public {
+    function tokenArrival(uint256[2] calldata signature, uint256[4] calldata signerKey, bytes calldata tokenSendPayload, string calldata name, string calldata symbol) public {
         bytes32 tokenSendHash = keccak256(tokenSendPayload);
         require(tokenArrived[tokenSendHash] == false, 'Token Arrival already processed');
         _validatePayloadAndSignature(signature, signerKey, tokenSendHash);
-        _mintOrDisburse(tokenSendPayload);
+        _mintOrDisburse(tokenSendPayload, name, symbol);
         tokenArrived[tokenSendHash] = true;
     }
 
@@ -86,11 +86,11 @@ contract Vault {
         require(validSignature == true, 'Invalid Signature');
     }
 
-    function _createAndMintProxy(bytes memory tokenSendPayload) internal {
+    function _createAndMintProxy(bytes memory tokenSendPayload, string calldata name, string calldata symbol) internal {
         ERC20Token proxyToken;
         (uint originatingChain, address originatingToken, uint decimals, uint amount, address vaultUser, , ,) = abi.decode(tokenSendPayload, (uint, address, uint, uint, address, uint, uint, uint));
         if (proxyTokenMap[originatingChain][originatingToken] == address(0)) { // if proxyToken does not exist
-            proxyToken = new ERC20Token('PROXY', 'PROXY', uint8(decimals), originatingToken, originatingChain);
+            proxyToken = new ERC20Token(name, symbol, uint8(decimals), originatingToken, originatingChain);
             proxyTokenMap[originatingChain][originatingToken] = address(proxyToken);
             isProxyToken[address(proxyToken)] = true;
         }
@@ -98,13 +98,13 @@ contract Vault {
         proxyToken.mint(vaultUser, amount);
     }
 
-    function _mintOrDisburse(bytes calldata tokenSendPayload) internal {
+    function _mintOrDisburse(bytes calldata tokenSendPayload, string calldata name, string calldata symbol) internal {
         (uint originatingChain, address originatingToken, , uint amount, address vaultUser, , ,) = abi.decode(tokenSendPayload, (uint, address, uint, uint, address, uint, uint, uint));
         if (chainId == originatingChain) {//if token is coming back home, then disburse the originating back to the user, else it's a foreign country, mint proxy for the user
             pool[originatingToken] -= amount;
             safeTransfer(originatingToken, address(this), vaultUser, amount);
         } else {
-            _createAndMintProxy(tokenSendPayload);
+            _createAndMintProxy(tokenSendPayload, name, symbol);
         }
     }
 
@@ -116,5 +116,22 @@ contract Vault {
             from == address(this) ? ERC20(token).transfer(to, amount) : ERC20(token).transferFrom(from, to, amount);
             require(ERC20(token).balanceOf(to) == (balance + amount), 'Invalid transfer');
         }
+    }
+
+    function emitSendEvent(address tokenAddress, uint originatingChain, address originatingToken, uint decimals, uint amount, address vaultUser, uint fromChain, uint toChain, uint counter) internal {
+        string memory originatingName;
+        string memory originatingSymbol;
+        if (isProxyToken[tokenAddress]) {
+            ERC20Token proxy = ERC20Token(tokenAddress);
+            originatingName = proxy.originatingName();
+            originatingSymbol = proxy.originatingSymbol();
+        }
+        else {
+            ERC20 token = ERC20(tokenAddress);
+            originatingName = token.name();
+            originatingSymbol = token.symbol();
+        
+        }
+        emit TokenSent(originatingChain, originatingToken, originatingName, originatingSymbol, decimals, amount, vaultUser, fromChain, toChain, counter);
     }
 }

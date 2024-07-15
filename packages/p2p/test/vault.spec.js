@@ -58,7 +58,7 @@ const sendoutETHFromL1 = async (chains, amount) => {
 const sendoutERC20FromL1 = async (chains, amount) => {
   const [leader, node1, node2, node3, node4, node5, node6] = await createDepositNodes(7)
   const [L1_Contract, L2_Contract] = await _setContractsOnNodes(chains, [leader, node1, node2, node3, node4, node5, node6])
-  const erc20 = await createRegularERC20('USDTETHER', 'USDT')
+  const erc20 = await createRegularERC20('USD_TETHER', 'USDT')
   await erc20.mint(account1, 1e9)
   const erc20WithAccount1 = erc20.connect(account1)
   await erc20WithAccount1.approve(L1_Contract.target, 1000000, { from: account1.address }).then(tx => tx.wait())
@@ -84,6 +84,11 @@ describe('vault contract', function () {
     expect(amount).toEqual(proxyBalanceOfDepositor)
     const isProxy = await L2_Contract.isProxyToken(proxyToken)
     expect(isProxy).toEqual(true)
+    const proxyName = await erc20Token.name();
+    const proxySymbol = await erc20Token.symbol();
+    //fixme for each chain the native symbol/name will be different. it may get passed in constructor, in which case these hard coded values will become variables to contract and here
+    expect(proxyName).toEqual('ETHER_REACTOR');
+    expect(proxySymbol).toEqual('ETH_R');
   })
   it('should deposit ERC20 on source chain and mint on target chain', async function () {
     const network = await provider.getNetwork()
@@ -99,6 +104,10 @@ describe('vault contract', function () {
     let proxyBalanceOfDepositor = await erc20Token.balanceOf(account1)
     
     expect(amount).toEqual(proxyBalanceOfDepositor)
+    const proxyName = await erc20Token.name();
+    const proxySymbol = await erc20Token.symbol();
+    expect(proxyName).toEqual('USD_TETHER_REACTOR');
+    expect(proxySymbol).toEqual('USDT_R');
   })
 
   it('should disburse when withdrawn from target chain', async function () {
@@ -184,9 +193,13 @@ describe('vault contract', function () {
     
       let proxyToken = await contracts[c].proxyTokenMap(BigInt(chains[0]).toString(), '0x0000000000000000000000000000000000000000')
       let proxyTokenContract = await getContractAt('ERC20Token', proxyToken)
+      const proxyName = await proxyTokenContract.name();
+      const proxySymbol = await proxyTokenContract.symbol();
+      expect(proxyName).toEqual('ETHER_REACTOR');
+      expect(proxySymbol).toEqual('ETH_R');
       proxyTokenMap[chains[c]] = proxyTokenContract
-          let proxyBalance = await proxyTokenMap[chains[c]].balanceOf(owner)
-          expect(proxyBalance).toEqual(BigInt(amount))
+      let proxyBalance = await proxyTokenMap[chains[c]].balanceOf(owner)
+      expect(proxyBalance).toEqual(BigInt(amount))
       let targetChainIdx = (c == chains.length - 1) ? 0 : (c + 1)
       let targetChain = chains[targetChainIdx]
       let withdrawReceipt = await contracts[c].sendToken(targetChain, proxyToken, amount).then(tx => tx.wait())
