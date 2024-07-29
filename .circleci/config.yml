@@ -6,7 +6,7 @@ version: 2.1
 
 # anchors
 docker-image: &docker-image
-  docker: [ image: cimg/node:lts ]
+  docker: [ image: cimg/node:20.15.1 ]
 install-dev-tools: &install-dev-tools
   - run:
       name: install dev tools
