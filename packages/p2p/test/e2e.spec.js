@@ -1,5 +1,6 @@
 import axios from 'axios'
 import {expect} from 'expect'
+import fs from 'fs'
 import {setTimeout} from 'timers/promises'
 import {waitToSync} from '../src/utils/utils.js'
 import {getBridgeInfos} from './help/index.js'
@@ -8,6 +9,7 @@ import {
   createFrom,
   createInfo_json,
   deleteInfoDir,
+  e2ePath,
   getInfo,
   getPublicKey,
   getWhitelists,
@@ -19,9 +21,11 @@ import {
 } from './help/e2e.js'
 
 const message = 'hello world'
+
 describe('e2e', function () {
   beforeEach(deleteInfoDir)
   afterEach(killChildProcesses)
+  after(() => fs.rmdirSync(e2ePath, {recursive: true, force: true}))
 
   it('should create new nodes, connect and init DKG', async function () {
     const allNodes = await createApiNodes(2)

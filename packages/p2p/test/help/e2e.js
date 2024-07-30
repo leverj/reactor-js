@@ -2,23 +2,23 @@ import {logger} from '@leverj/common/utils'
 import axios from 'axios'
 import {fork} from 'child_process'
 import config from 'config'
-import {mkdir, readFile, rm, writeFile} from 'node:fs/promises'
+import {mkdirSync, readFileSync, rmSync, writeFileSync} from 'node:fs'
 import {setTimeout} from 'node:timers/promises'
 import path from 'path'
 import {tryAgainIfError, waitToSync} from '../../src/utils/utils.js'
 import {getBridgeInfos} from './fixtures.js'
 
-const __dirname = process.cwd()
-
 const childProcesses = {}
 
-const filePath = (i) => path.join(__dirname, '.e2e', i.toString(), 'info.json')
-const dirPath = (i) => path.join(__dirname, '.e2e', i.toString())
+const __dirname = process.cwd()
+export const e2ePath = path.join(__dirname, '.e2e')
+const filePath = (i) => path.join(e2ePath, i.toString(), 'info.json')
+const dirPath = (i) => path.join(e2ePath, i.toString())
 
-export const deleteInfoDir = async () => await rm('.e2e', {recursive: true, force: true})
-export const killChildProcesses = async () => {
-  await stop(...Object.keys(childProcesses))
-}
+export const deleteInfoDir = () => rmSync('.e2e', {recursive: true, force: true})
+
+export const killChildProcesses = async () => stop(...Object.keys(childProcesses))
+
 export const stop = async (...ports) => {
   for (const port of ports) {
     await childProcesses[port].kill()
@@ -70,7 +70,7 @@ export async function createApiNode({index, isLeader = false, bootstrapNodes}) {
     // TRY_COUNT: -1,
     // TIMEOUT: 1000
   })
-  await mkdir(env.BRIDGE_CONF_DIR, {recursive: true})
+  mkdirSync(env.BRIDGE_CONF_DIR, {recursive: true})
   return fork(`app.js`, [], {cwd: __dirname, env})
 }
 
@@ -78,18 +78,18 @@ export async function createInfo_json(count) {
   const bridgeInfos = getBridgeInfos(count)
   for (let i = 0; i < count; i++) {
     const info = bridgeInfos[i]
-    await mkdir(dirPath(i), {recursive: true})
-    await writeFile(filePath(i), JSON.stringify(info, null, 2))
+    mkdirSync(dirPath(i), {recursive: true})
+    writeFileSync(filePath(i), JSON.stringify(info, null, 2))
   }
 }
 
 async function getPeerId(i) {
-  const file = await readFile(filePath(i))
+  const file = readFileSync(filePath(i))
   return JSON.parse(file.toString()).p2p.id
 }
 
 export async function getWhitelists(port) {
-  const file = await readFile(filePath(port - 9000))
+  const file = readFileSync(filePath(port - 9000))
   return JSON.parse(file.toString()).whitelist
 }
 
@@ -121,10 +121,10 @@ export async function waitForWhitelistSync(ports, total = ports.length, availabl
 
 export const startDkg = async () => await axios.post(`http://127.0.0.1:9000/api/dkg/start`)
 export const getPublicKey = async (port) => {
-  const file = await readFile(filePath(port - 9000))
+  const file = readFileSync(filePath(port - 9000))
   return JSON.parse(file.toString()).tssNode.groupPublicKey
 }
 export const getInfo = async (port) => {
-  const file = await readFile(filePath(port - 9000))
+  const file = readFileSync(filePath(port - 9000))
   return JSON.parse(file.toString())
 }
