@@ -13,16 +13,17 @@ import {createFromJSON} from '@libp2p/peer-id-factory'
 import {bootstrap} from '@libp2p/bootstrap'
 import {identify} from '@libp2p/identify'
 import {kadDHT, passthroughMapper} from '@libp2p/kad-dht'
-import {tryAgainIfError} from './utils.js'
+import {tryAgainIfError} from './utils/utils.js'
 import config from 'config'
-import events, {PEER_CONNECT, PEER_DISCOVERY} from './events.js'
+import events, {PEER_CONNECT, PEER_DISCOVERY} from './utils/events.js'
 import {logger} from '@leverj/common/utils'
 
 export default class NetworkNode {
-  constructor({ip = '0.0.0.0', port = 0, peerIdJson}) {
+  constructor({ip = '0.0.0.0', port = 0, peerIdJson, bootstrapNodes = []}) {
     this.peerIdJson = peerIdJson
     this.ip = ip
     this.port = port
+    this.bootstrapNodes = bootstrapNodes
   }
 
   get multiaddrs() { return this.p2p.getMultiaddrs().map((addr) => addr.toString()) }
@@ -33,7 +34,9 @@ export default class NetworkNode {
 
   exportJson() {
     return {
-      privKey: uint8ArrayToString(this.p2p.peerId.privateKey, 'base64'), pubKey: uint8ArrayToString(this.p2p.peerId.publicKey, 'base64'), id: this.peerId
+      privKey: uint8ArrayToString(this.p2p.peerId.privateKey, 'base64'),
+      pubKey: uint8ArrayToString(this.p2p.peerId.publicKey, 'base64'),
+      id: this.peerId
     }
   }
 
@@ -42,7 +45,7 @@ export default class NetworkNode {
   async gater(addr) {
     const ipsToBlock = [] //The blocklist can come from config
     const idx = ipsToBlock.findIndex(_ => addr.indexOf(_) > -1)
-    console.log('ConnectonGater', addr, idx)
+    // console.log('ConnectonGater', addr, idx)
     return idx > -1
   }
 
@@ -67,11 +70,11 @@ export default class NetworkNode {
         //   maxOutboundStreams: 1 // how many concurrent outbound AutoNAT protocols streams to allow on each connection
         // })
       },
-      peerDiscovery: config.bridgeNode.bootstrapNodes.length ? [bootstrap({
+      peerDiscovery: this.bootstrapNodes.length ? [bootstrap({
         autoDial: true,
         interval: 60e3, //fixme: what is this?
         enabled: true,
-        list: config.bridgeNode.bootstrapNodes
+        list: this.bootstrapNodes
       }),] : undefined
     })
 

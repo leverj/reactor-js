@@ -1,4 +1,5 @@
 const path = require('path')
+
 module.exports = {
   externalIp: '127.0.0.1',
   port: 9000,
@@ -11,6 +12,21 @@ module.exports = {
     isLeader: false,
     threshold: 4,
     isPublic: true,
-    bootstrapNodes: []
-  }
+    bootstrapNodes: [],
+    contractAddress: '',
+    providerUrl: ''
+  },
+
+  depositWithdraw:{
+    contractAddress1: {
+      chainId: 1,
+      providerUrl: '',
+    },
+    contractAddress2:{
+      chainId: 2,
+      providerUrl: '',
+    }
+  },
+  components: ['DEPOSIT_WITHDRAW']
+
 }

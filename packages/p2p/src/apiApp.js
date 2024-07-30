@@ -2,7 +2,7 @@ import {createServer} from 'http'
 import config from 'config'
 import {logger} from '@leverj/common/utils'
 import app from './rest/app.js'
-import {bridgeNode} from './rest/manager.js'
+import bridgeNode from './rest/manager.js'
 
 const {port, ip} = config
 

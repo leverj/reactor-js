@@ -1,6 +1,6 @@
 import {Router} from 'express'
 import config from 'config'
-import {bridgeNode} from './manager.js'
+import bridgeNode from './manager.js'
 import {peerIdFromString} from '@libp2p/peer-id'
 
 const multiaddr = `/ip4/${config.externalIp}/tcp/${config.bridgeNode.port}/p2p/${bridgeNode.peerId}`
@@ -24,7 +24,7 @@ async function startDkg(req, res) {
 async function aggregateSignature(req, res) {
   if (!bridgeNode.isLeader) return
   const msg = req.body
-  await bridgeNode.aggregateSignature(msg.txnHash, msg.msg)
+  await bridgeNode.aggregateSignature(msg.txnHash, msg.msg, -1, ()=>{})
   res.send('ok')
 }
 

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.26;
 import "hardhat/console.sol";
 import { modexp_3064_fd54, modexp_c191_3f52 } from "./modexp.sol";
 
@@ -25,6 +25,8 @@ contract BlsVerify {
     uint256 constant T24 = 0x1000000000000000000000000000000000000000000000000;
     uint256 constant MASK24 = 0xffffffffffffffffffffffffffffffffffffffffffffffff;
 
+    bytes constant cipher_suite_domain = bytes('BNS_SIG_BNS256_XMD:SHA-256_SSWU');
+    
     constructor () {
     }
 
@@ -49,8 +51,8 @@ contract BlsVerify {
         return out[0] != 0;
     }
 
-    function hashToPoint(bytes memory domain, bytes memory message) public view returns (uint256[2] memory) {
-        uint256[2] memory u = hashToField(domain, message);
+    function hashToPoint(bytes memory message) public view returns (uint256[2] memory) {
+        uint256[2] memory u = hashToField(cipher_suite_domain, message);
         uint256[2] memory p0 = mapToPointFT(u[0]);
         uint256[2] memory p1 = mapToPointFT(u[1]);
         uint256[4] memory bnAddInput;
@@ -70,7 +72,21 @@ contract BlsVerify {
         require(success, "");
         return p0;
     }
+    function bytes32ToHexString(bytes32 _bytes32) public pure returns (string memory) {
+        bytes memory hexString = new bytes(64 + 2); // 64 characters for the hash + 2 for "0x"
+        bytes memory hexAlphabet = "0123456789abcdef";
 
+        hexString[0] = '0';
+        hexString[1] = 'x';
+
+        for (uint i = 0; i < 32; i++) {
+            uint8 byteValue = uint8(_bytes32[i]);
+            hexString[2 * i + 2] = hexAlphabet[byteValue >> 4];
+            hexString[2 * i + 3] = hexAlphabet[byteValue & 0x0f];
+        }
+        
+        return string(hexString);
+    }
     function hashToField(bytes memory domain, bytes memory messages) internal pure returns (uint256[2] memory) {
         bytes memory _msg = expandMsgTo96(domain, messages);
         uint256 z0;

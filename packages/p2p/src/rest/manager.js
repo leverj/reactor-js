@@ -1,9 +1,14 @@
 import config from 'config'
 import BridgeNode from '../BridgeNode.js'
 import {Info} from './Info.js'
-
-const {bridgeNode: {port, isLeader}} = config
+import Deposit from '../deposit_withdraw/Deposit.js'
+const {bridgeNode: {port, isLeader, contractAddress, providerUrl}} = config
 const info = new Info()
-export const bridgeNode = new BridgeNode({port, isLeader, json: info.get()})
+const bootstrapNodes = config.bridgeNode.bootstrapNodes
+const bridgeNode = new BridgeNode({port, isLeader, json: info.get(), bootstrapNodes})
+const deposit = new Deposit(bridgeNode)
+bridgeNode.setDeposit(deposit)
 info.setBridgeNode(bridgeNode)
 await bridgeNode.create()
+
+export default bridgeNode

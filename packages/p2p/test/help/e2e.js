@@ -4,11 +4,10 @@ import {fork} from 'child_process'
 import {getBridgeInfos} from './fixtures.js'
 import path from 'path'
 import axios from 'axios'
-import {tryAgainIfConnectionError, tryAgainIfError, waitToSync} from '../../src/utils.js'
+import {tryAgainIfConnectionError, tryAgainIfError, waitToSync} from '../../src/utils/utils.js'
 import {setTimeout} from 'node:timers/promises'
 
 const __dirname = process.cwd()
-console.log('dirname', __dirname)
 
 const childProcesses = {}
 
@@ -62,6 +61,7 @@ export async function createApiNode({index, isLeader = false, bootstrapNodes}) {
     BRIDGE_PORT: config.bridgeNode.port + index,
     BRIDGE_IS_LEADER: isLeader,
     BRIDGE_BOOTSTRAP_NODES: bootstrapNodes,
+    CONTRACT_TESTING: false,
     // TRY_COUNT: -1,
     // TIMEOUT: 1000
   })
@@ -96,7 +96,7 @@ export async function getMonitorStatus(port) {
 
 async function waitForBootstrapSync(ports, count = ports.length - 1) {
   const fn = (port) => async () => {
-    const {data: peers} = await axios.get(`http://localhost:${port}/api/peer`)
+    const {data: peers} = await axios.get(`http://127.0.0.1:${port}/api/peer`)
     return peers.length === count
   }
   await waitToSync(ports.map(fn))

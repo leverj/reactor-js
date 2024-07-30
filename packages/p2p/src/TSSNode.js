@@ -1,8 +1,8 @@
-import bls from './bls.js'
+import bls from './utils/bls.js'
 import {affirm, logger} from '@leverj/common/utils'
-import {addContributionShares, addVerificationVectors, generateContributionForId, verifyContributionShare} from './dkg-bls.js'
-import * as mcl from '../src/mcl/mcl.js'
-import events, {INFO_CHANGED} from './events.js'
+import {addContributionShares, addVerificationVectors, generateContributionForId, verifyContributionShare} from './utils/dkg-bls.js'
+import * as mcl from '@leverj/layer2-mcl/mcl'
+import events, {INFO_CHANGED} from './utils/events.js'
 
 function getMemberContributions(recievedShares, vvecs) {
   const ids = Object.keys(recievedShares).sort()

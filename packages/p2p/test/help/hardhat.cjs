@@ -1,10 +1,8 @@
-const {ethers: {deployContract, getContractFactory, getSigners}} = require('hardhat')
-
-async function deploy(name, args) {
-  return await deployContract(name, args)
-}
+const {ethers: {deployContract, getContractFactory, getSigners, provider, getContractAt}} = require('hardhat')
 module.exports = {
   deployContract,
   getContractFactory,
   getSigners,
+  provider,
+  getContractAt
 }

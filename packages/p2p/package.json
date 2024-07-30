@@ -8,10 +8,11 @@
   "scripts": {
     "start": "node app.js",
     "test": "yarn compile; yarn test:js",
-    "compile": "npx hardhat compile",
+    "compile": "npx hardhat compile && yarn abi:copy",
+    "abi:copy": "cp artifacts/contracts/*.sol/{Vault,BLSVerify}.json src/abi/ && cp artifacts/contracts/*/*.sol/ERC20Token.json src/abi/",
     "test:js": "mocha test/**/*.spec.js",
     "coverage": "NODE_OPTIONS='--experimental-loader @istanbuljs/esm-loader-hook' npx nyc mocha",
-    "docker:build": "mkdir -p dist && cp -r src config package.json app.js ../../yarn.lock dist/ && docker build -t leverj/p2p:$(git branch | grep \\* | cut -d ' ' -f2) ."
+    "docker:build": "./scripts/docker-build.sh"
   },
   "dependencies": {
     "@chainsafe/libp2p-gossipsub": "13.0.0",
@@ -25,13 +26,16 @@
     "@libp2p/ping": "^1.0.13",
     "@libp2p/tcp": "^9.0.16",
     "@noble/curves": "^1.4.0",
+    "@openzeppelin/contracts": "^5.0.2",
     "aes-encryption": "^1.0.4",
+    "async-exit-hook": "^2.0.1",
     "bls-wasm": "^1.1.1",
     "body-parser": "^1.20.2",
     "config": "^3.3.11",
     "dkg": "^0.0.3",
-    "ethers": "^5.7.2",
+    "ethers": "^6.13.0",
     "express": "^4.19.2",
+    "immutable": "^5.0.0-beta.5",
     "it-map": "^3.0.5",
     "it-pipe": "^3.0.1",
     "libp2p": "^1.3.0",
@@ -41,7 +45,7 @@
     "uint8arrays": "^5.0.3"
   },
   "devDependencies": {
-    "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "@nomiclabs/hardhat-ethers": "^3.0.0-beta.0",
     "@nomiclabs/hardhat-etherscan": "^3.1.8",
     "axios": "^1.6.8"
   }

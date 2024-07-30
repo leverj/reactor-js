@@ -1,4 +1,3 @@
-import {ethers} from 'ethers'
 import {bigToHex, FIELD_ORDER, randHex, stringToHex, toBig} from './utils.js'
 import {hashToField} from './hash_to_field.js'
 import mcl from 'mcl-wasm'
@@ -7,13 +6,14 @@ export {stringToHex} from './utils.js'
 export * from 'mcl-wasm'
 export const MAPPING_MODE_TI = 'TI'
 export const MAPPING_MODE_FT = 'FT'
-
+export const cipher_suite_domain = 'BNS_SIG_BNS256_XMD:SHA-256_SSWU';
+export const DOMAIN_STRING = cipher_suite_domain
 let DOMAIN
 
 export async function init() {
   await mcl.init(mcl.BN_SNARK1)
   setMappingMode(MAPPING_MODE_FT)
-  setDomain('testing evmbls')
+  setDomain(DOMAIN_STRING)
 }
 
 export function setDomain(domain) {
@@ -124,7 +124,7 @@ export function g1ToBN(p) {
   p.normalize()
   const x = toBig(mclToHex(p.getX()))
   const y = toBig(mclToHex(p.getY()))
-  return [x, y]
+  return [x, y].map(_=>_.toString())
 }
 
 export function g1ToHex(p) {
@@ -154,7 +154,7 @@ export function g2ToBN(p) {
     toBig('0x' + x.slice(0, 64)),
     toBig('0x' + y.slice(64)),
     toBig('0x' + y.slice(0, 64)),
-  ]
+  ].map(_=>_.toString())
 }
 
 export function g2ToHex(p) {

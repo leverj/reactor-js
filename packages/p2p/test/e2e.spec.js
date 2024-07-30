@@ -2,7 +2,7 @@ import {setTimeout} from 'timers/promises'
 import axios from 'axios'
 import {expect} from 'expect'
 import {getBridgeInfos} from './help/index.js'
-import {tryAgainIfConnectionError, waitToSync} from '../src/utils.js'
+import {tryAgainIfConnectionError, waitToSync} from '../src/utils/utils.js'
 import {createApiNodes, createFrom, createInfo_json, deleteInfoDir, getInfo, getPublicKey, getWhitelists, killChildProcesses, publishWhitelist, startDkg, stop, waitForWhitelistSync} from './help/e2e.js'
 
 const message = 'hello world'
@@ -41,13 +41,13 @@ describe('e2e', function () {
     await createApiNodes(allNodes.length)
     // await setTimeout(2000)
     const txnHash = 'hash123456'
-    await axios.post('http://localhost:9000/api/tss/aggregateSign', {txnHash, 'msg': message})
+    await axios.post('http://127.0.0.1:9000/api/tss/aggregateSign', {txnHash, 'msg': message})
     const fn = async () => {
-      const {data: {verified}} = await axios.get('http://localhost:9000/api/tss/aggregateSign?txnHash=' + txnHash)
+      const {data: {verified}} = await axios.get('http://127.0.0.1:9000/api/tss/aggregateSign?txnHash=' + txnHash)
       return verified
     }
     await waitToSync([fn], 200)
-    const {data: {verified}} = await axios.get('http://localhost:9000/api/tss/aggregateSign?txnHash=' + txnHash)
+    const {data: {verified}} = await axios.get('http://127.0.0.1:9000/api/tss/aggregateSign?txnHash=' + txnHash)
     expect(verified).toEqual(true)
   })
 
