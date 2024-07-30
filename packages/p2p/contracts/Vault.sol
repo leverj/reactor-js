@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.20;
 
 import "hardhat/console.sol";
 import './BlsVerify.sol';
@@ -13,7 +13,7 @@ contract Vault {
     * Token Sent out to another chain. The payload has structure
     * <OriginatingToken>, TokenAmount, VaultUser Address, fromChain, toChain, sendCounter
     * <OriginatingToken> is a tuple represented by originatingChain, originatingTokenAddress, decimals
-    * fromChain may seem redundant at first glance. however, consider the case where L1 sends Token to L5 and L6. 
+    * fromChain may seem redundant at first glance. however, consider the case where L1 sends Token to L5 and L6.
     * and both L5 and L6 send it back to L1, and both L5 and L6 could have the same counter, so another key in the form of fromChain is needed
     */
     event TokenSent(uint indexed originatingChain, address indexed originatingToken, string originatingName, string originatingSymbol, uint decimals, uint amount, address indexed vaultUser, uint fromChain, uint toChain, uint sendCounter);
@@ -130,7 +130,7 @@ contract Vault {
             ERC20 token = ERC20(tokenAddress);
             originatingName = token.name();
             originatingSymbol = token.symbol();
-        
+
         }
         emit TokenSent(originatingChain, originatingToken, originatingName, originatingSymbol, decimals, amount, vaultUser, fromChain, toChain, counter);
     }

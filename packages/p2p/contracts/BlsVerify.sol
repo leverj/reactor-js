@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.20;
 import "hardhat/console.sol";
 import { modexp_3064_fd54, modexp_c191_3f52 } from "./modexp.sol";
 
@@ -26,7 +26,7 @@ contract BlsVerify {
     uint256 constant MASK24 = 0xffffffffffffffffffffffffffffffffffffffffffffffff;
 
     bytes constant cipher_suite_domain = bytes('BNS_SIG_BNS256_XMD:SHA-256_SSWU');
-    
+
     constructor () {
     }
 
@@ -84,7 +84,7 @@ contract BlsVerify {
             hexString[2 * i + 2] = hexAlphabet[byteValue >> 4];
             hexString[2 * i + 3] = hexAlphabet[byteValue & 0x0f];
         }
-        
+
         return string(hexString);
     }
     function hashToField(bytes memory domain, bytes memory messages) internal pure returns (uint256[2] memory) {

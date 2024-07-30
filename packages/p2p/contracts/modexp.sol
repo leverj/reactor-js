@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.20;
 
 library modexp_3064_fd54 {
   function run(uint256 t2) internal pure returns (uint256 t0) {

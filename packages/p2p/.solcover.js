@@ -1,5 +1,4 @@
 module.exports = {
-  skipFiles: [
-  ],
+  skipFiles: [],
   istanbulReporter:	['html', 'text', 'json']
 }

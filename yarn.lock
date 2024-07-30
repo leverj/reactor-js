@@ -6470,7 +6470,7 @@ __metadata:
     raw-body: "npm:^2.4.1"
     resolve: "npm:1.17.0"
     semver: "npm:^6.3.0"
-    solc: "npm:0.8.26"
+    solc: "npm:0.8.20"
     source-map-support: "npm:^0.5.13"
     stacktrace-parser: "npm:^0.1.10"
     tsort: "npm:0.0.1"
@@ -10738,9 +10738,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"solc@npm:0.8.26":
-  version: 0.8.26
-  resolution: "solc@npm:0.8.26"
+"solc@npm:0.8.20":
+  version: 0.8.20
+  resolution: "solc@npm:0.8.20"
   dependencies:
     command-exists: "npm:^1.2.8"
     commander: "npm:^8.1.0"
