@@ -2,15 +2,8 @@ import {logger} from '@leverj/common/utils'
 import {expect} from 'expect'
 import {TSSNode} from '../src/TSSNode.js'
 import {bls} from '../src/utils/index.js'
-import {
-  addMember,
-  createDkgMembers,
-  deployContract,
-  getSigners,
-  setupMembers,
-  signAndVerify,
-  signMessage,
-} from './help/index.js'
+import {deployContract, getSigners} from './help/hardhat.js'
+import {addMember, createDkgMembers, setupMembers, signAndVerify, signMessage} from './help/index.js'
 
 describe('dkg', function () {
   const message = 'hello world'

@@ -1,6 +1,7 @@
 import {expect} from 'expect'
 import {bls} from '../src/utils/index.js'
-import {createDkgMembers, deployContract, getSigners, signMessage} from './help/index.js'
+import {deployContract, getSigners} from './help/hardhat.js'
+import {createDkgMembers, signMessage} from './help/index.js'
 
 describe('blsVerify', () => {
   const messageString = 'hello world'

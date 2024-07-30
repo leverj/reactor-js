@@ -1,5 +1,5 @@
 import {logger} from '@leverj/common/utils'
-import * as mcl from '@leverj/layer2-mcl/mcl'
+import * as mcl from '@leverj/reactor.mcl/mcl'
 import bls from 'bls-wasm'
 import {expect} from 'expect'
 

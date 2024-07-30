@@ -3,7 +3,7 @@ import {setTimeout} from 'timers/promises'
 import BridgeNode from '../src/BridgeNode.js'
 import {peerIdJsons} from './help/index.js'
 
-describe('Bridge node', function () {
+describe('BridgeNode', function () {
   const nodes = []
 
   const stopBridgeNodes = async () => {

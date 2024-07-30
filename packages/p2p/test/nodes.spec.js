@@ -9,7 +9,7 @@ import {setTimeout} from 'node:timers/promises'
 import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
 import {peerIdJsons, startNetworkNodes, stopNetworkNodes} from './help/index.js'
 
-describe('p2p', function () {
+describe('p2p nodes', function () {
   const meshProtocol = '/mesh/1.0.0'
 
   afterEach(stopNetworkNodes)

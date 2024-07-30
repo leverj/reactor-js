@@ -5,81 +5,84 @@ import {setTimeout} from 'timers/promises'
 import BridgeNode from '../src/BridgeNode.js'
 import Deposit from '../src/deposit_withdraw/Deposit.js'
 import {bls} from '../src/utils/index.js'
-import {getContractAt, peerIdJsons} from './help/index.js'
-import {account1, createERC20Token, createRegularERC20, createVault, owner, provider} from './help/vault.js'
+import {deployContract, getContractAt, getSigners, provider} from './help/hardhat.js'
+import {peerIdJsons} from './help/index.js'
 
-const nodes = []
+describe('Vault', function () {
+  const nodes = []
+  let owner, account1
 
-const stopBridgeNodes = async () => {
-  for (const deposit of nodes) await deposit.bridgeNode.stop()
-  nodes.length = 0
-}
-
-const createDepositNodes = async (count) => {
-  const bootstraps = []
-  for (let i = 0; i < count; i++) {
-    const node = new BridgeNode({
-      port: 9000 + i,
-      isLeader: i === 0,
-      json: {p2p: peerIdJsons[i]},
-      bootstrapNodes: bootstraps,
-    })
-    await node.create()
-    const deposit = new Deposit(node)
-    node.setDeposit(deposit)
-    nodes.push(deposit)
-    if (i === 0) bootstraps.push(node.multiaddrs[0])
+  const stopBridgeNodes = async () => {
+    for (const deposit of nodes) await deposit.bridgeNode.stop()
+    nodes.length = 0
   }
-  return nodes
-}
 
-const _setContractsOnNodes = async (chains, [leader, node1, node2, node3, node4, node5, node6]) => {
-  await leader.bridgeNode.publishWhitelist()
-  await leader.bridgeNode.startDKG(4)
-  await setTimeout(1000)
-  const pubkeyHex = leader.bridgeNode.tssNode.groupPublicKey.serializeToHexStr()
-  const pubkey = bls.deserializeHexStrToG2(pubkeyHex)
-  const pubkey_ser = bls.g2ToBN(pubkey)
-  const contracts = []
-  for (const chain of chains) {
-    const contract = await createVault(chain, pubkey_ser)
-    contracts.push(contract)
-    for (const node of [leader, node1, node2, node3, node4, node5, node6]) {
-      node.setContract(chain, contract)
+  const createDepositNodes = async (count) => {
+    const bootstraps = []
+    for (let i = 0; i < count; i++) {
+      const node = new BridgeNode({
+        port: 9000 + i,
+        isLeader: i === 0,
+        json: {p2p: peerIdJsons[i]},
+        bootstrapNodes: bootstraps,
+      })
+      await node.create()
+      const deposit = new Deposit(node)
+      node.setDeposit(deposit)
+      nodes.push(deposit)
+      if (i === 0) bootstraps.push(node.multiaddrs[0])
     }
+    return nodes
   }
-  return contracts
-}
 
-const sendoutETHFromL1 = async (chains, amount) => {
-  const [leader, node1, node2, node3, node4, node5, node6] = await createDepositNodes(7)
-  const [L1_Contract, L2_Contract] = await _setContractsOnNodes(chains, [leader, node1, node2, node3, node4, node5, node6])
-  const txnReceipt = await L1_Contract.sendNative(chains[1], {value: amount}).then(tx => tx.wait())
-  const logs = await provider.getLogs(txnReceipt)
-  let depositHash
-  for (const log of logs) {
-    depositHash = await leader.processTokenSent(log)
+  const _setContractsOnNodes = async (chains, [leader, node1, node2, node3, node4, node5, node6]) => {
+    await leader.bridgeNode.publishWhitelist()
+    await leader.bridgeNode.startDKG(4)
     await setTimeout(1000)
+    const pubkeyHex = leader.bridgeNode.tssNode.groupPublicKey.serializeToHexStr()
+    const pubkey = bls.deserializeHexStrToG2(pubkeyHex)
+    const pubkey_ser = bls.g2ToBN(pubkey)
+    const contracts = []
+    for (const chain of chains) {
+      const contract = await createVault(chain, pubkey_ser)
+      contracts.push(contract)
+      for (const node of [leader, node1, node2, node3, node4, node5, node6]) {
+        node.setContract(chain, contract)
+      }
+    }
+    return contracts
   }
-  return {L2_Contract, leader, depositHash}
-}
 
-const sendoutERC20FromL1 = async (chains, amount) => {
-  const [leader, node1, node2, node3, node4, node5, node6] = await createDepositNodes(7)
-  const [L1_Contract, L2_Contract] = await _setContractsOnNodes(chains, [leader, node1, node2, node3, node4, node5, node6])
-  const erc20 = await createRegularERC20('USD_TETHER', 'USDT')
-  await erc20.mint(account1, 1e9)
-  const erc20WithAccount1 = erc20.connect(account1)
-  await erc20WithAccount1.approve(L1_Contract.target, 1000000, {from: account1.address}).then(tx => tx.wait())
-  const contractWithAccount1 = L1_Contract.connect(account1)
-  const txReceipt = await contractWithAccount1.sendToken(chains[1], erc20.target, amount).then(tx => tx.wait())
-  const logs = await provider.getLogs(txReceipt)
-  const depositHash = await leader.processTokenSent(logs[1])
-  return {L2_Contract, leader, depositHash, erc20}
-}
+  const sendoutETHFromL1 = async (chains, amount) => {
+    const [leader, node1, node2, node3, node4, node5, node6] = await createDepositNodes(7)
+    const [L1_Contract, L2_Contract] = await _setContractsOnNodes(chains, [leader, node1, node2, node3, node4, node5, node6])
+    const txnReceipt = await L1_Contract.sendNative(chains[1], {value: amount}).then(tx => tx.wait())
+    const logs = await provider.getLogs(txnReceipt)
+    let depositHash
+    for (const log of logs) {
+      depositHash = await leader.processTokenSent(log)
+      await setTimeout(1000)
+    }
+    return {L2_Contract, leader, depositHash}
+  }
 
-describe('vault contract', function () {
+  const sendoutERC20FromL1 = async (chains, amount) => {
+    const [leader, node1, node2, node3, node4, node5, node6] = await createDepositNodes(7)
+    const [L1_Contract, L2_Contract] = await _setContractsOnNodes(chains, [leader, node1, node2, node3, node4, node5, node6])
+    const erc20 = await deployContract('RegularERC20', ['USD_TETHER', 'USDT'])
+    await erc20.mint(account1, 1e9)
+    const erc20WithAccount1 = erc20.connect(account1)
+    await erc20WithAccount1.approve(L1_Contract.target, 1000000, {from: account1.address}).then(tx => tx.wait())
+    const contractWithAccount1 = L1_Contract.connect(account1)
+    const txReceipt = await contractWithAccount1.sendToken(chains[1], erc20.target, amount).then(tx => tx.wait())
+    const logs = await provider.getLogs(txReceipt)
+    const depositHash = await leader.processTokenSent(logs[1])
+    return {L2_Contract, leader, depositHash, erc20}
+  }
 
+  const createVault = async (chainId, pubkey_ser) => await deployContract('Vault', [chainId, pubkey_ser])
+
+  beforeEach(async () => [owner, account1] = await getSigners())
   afterEach(async () => await stopBridgeNodes())
 
   it('should invoke Deposit workflow on receipt of message', async function () {
@@ -243,7 +246,7 @@ describe('vault contract', function () {
     const amount = BigInt(1e+3)
     const [leader, node1, node2, node3, node4, node5, node6] = await createDepositNodes(7)
     const contracts = await _setContractsOnNodes(chains, [leader, node1, node2, node3, node4, node5, node6])
-    const erc20 = await createERC20Token('L2Test', 'L2Test', 12, '0x0000000000000000000000000000000000000000', 1)
+    const erc20 = await deployContract('ERC20Token', ['L2Test', 'L2Test', 12, '0x0000000000000000000000000000000000000000', 1])
     await erc20.mint(owner, 1e3)
     let erc20Balance = await erc20.balanceOf(owner)
     logger.log('erc20Balance init', erc20Balance)

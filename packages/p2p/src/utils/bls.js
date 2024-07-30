@@ -1,4 +1,4 @@
-import * as mcl from '@leverj/layer2-mcl/mcl'
+import * as mcl from '@leverj/reactor.mcl/mcl'
 
 await mcl.init()
 
