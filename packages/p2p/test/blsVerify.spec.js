@@ -1,10 +1,11 @@
 import {expect} from 'expect'
-import bls from '../src/utils/bls.js'
+import {bls} from '../src/utils/index.js'
 import {createDkgMembers, deployContract, getSigners, signMessage} from './help/index.js'
 
-const messageString = 'hello world'
 describe('blsVerify', () => {
+  const messageString = 'hello world'
   let contract, owner, anyone
+
   beforeEach(async () => {
     [owner, anyone] = await getSigners()
     contract = await deployContract('BlsVerify', [])
@@ -14,11 +15,10 @@ describe('blsVerify', () => {
     const message = bls.stringToHex(messageString)
     const {pubkey, secret} = bls.newKeyPair()
     const {signature, M} = bls.sign(message, secret)
-    let sig_ser = bls.g1ToBN(signature)
-    let pubkey_ser = bls.g2ToBN(pubkey)
-    let message_ser = bls.g1ToBN(M)
-
-    let res = await contract.verifySignature(sig_ser, pubkey_ser, message_ser)
+    const sig_ser = bls.g1ToBN(signature)
+    const pubkey_ser = bls.g2ToBN(pubkey)
+    const message_ser = bls.g1ToBN(M)
+    const res = await contract.verifySignature(sig_ser, pubkey_ser, message_ser)
     expect(res).toEqual(true)
   })
 
@@ -28,24 +28,21 @@ describe('blsVerify', () => {
     const {signs, signers} = signMessage(messageString, members)
     const groupsSign = new bls.Signature()
     groupsSign.recover(signs, signers)
-
-
     const signatureHex = groupsSign.serializeToHexStr()
     const pubkeyHex = members[0].groupPublicKey.serializeToHexStr()
     const M = bls.hashToPoint(messageString)
-
     const signature = bls.deserializeHexStrToG1(signatureHex)
     const pubkey = bls.deserializeHexStrToG2(pubkeyHex)
-    let message_ser = bls.g1ToBN(M)
-    let pubkey_ser = bls.g2ToBN(pubkey)
-    let sig_ser = bls.g1ToBN(signature)
-    let res = await contract.verifySignature(sig_ser, pubkey_ser, message_ser)
+    const message_ser = bls.g1ToBN(M)
+    const pubkey_ser = bls.g2ToBN(pubkey)
+    const sig_ser = bls.g1ToBN(signature)
+    const res = await contract.verifySignature(sig_ser, pubkey_ser, message_ser)
     expect(res).toEqual(true)
   })
 
   it('should be able to convert message to point', async function () {
-    let res = await contract.hashToPoint(bls.stringToHex(messageString))
-    let fromJs = bls.g1ToBN(bls.hashToPoint(messageString))
+    const res = await contract.hashToPoint(bls.stringToHex(messageString))
+    const fromJs = bls.g1ToBN(bls.hashToPoint(messageString))
     expect(res.map(_ => _.toString())).toEqual(fromJs)
   })
 })

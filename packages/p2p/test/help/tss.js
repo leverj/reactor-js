@@ -1,6 +1,6 @@
 import {expect} from 'expect'
 import {TSSNode} from '../../src/TSSNode.js'
-import bls from '../../src/utils/bls.js'
+import {bls} from '../../src/utils/index.js'
 
 export async function signAndVerify(contract, message, members) {
   const {signs, signers} = signMessage(message, members)
@@ -17,9 +17,9 @@ async function verifyInContract(signatureHex, pubkeyHex, message, contract) {
   const M = bls.hashToPoint(message)
   const signature = bls.deserializeHexStrToG1(signatureHex)
   const pubkey = bls.deserializeHexStrToG2(pubkeyHex)
-  let message_ser = bls.g1ToBN(M)
-  let pubkey_ser = bls.g2ToBN(pubkey)
-  let sig_ser = bls.g1ToBN(signature)
+  const message_ser = bls.g1ToBN(M)
+  const pubkey_ser = bls.g2ToBN(pubkey)
+  const sig_ser = bls.g1ToBN(signature)
   return await contract.verifySignature(sig_ser, pubkey_ser, message_ser)
 }
 

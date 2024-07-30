@@ -1,13 +1,13 @@
 import {affirm, logger} from '@leverj/common/utils'
-import * as mcl from '@leverj/layer2-mcl/mcl'
-import bls from './utils/bls.js'
 import {
   addContributionShares,
   addVerificationVectors,
+  bls,
+  events,
   generateContributionForId,
+  INFO_CHANGED,
   verifyContributionShare,
-} from './utils/dkg-bls.js'
-import events, {INFO_CHANGED} from './utils/events.js'
+} from './utils/index.js'
 
 function getMemberContributions(recievedShares, vvecs) {
   const ids = Object.keys(recievedShares).sort()
@@ -17,13 +17,13 @@ function getMemberContributions(recievedShares, vvecs) {
 }
 
 function toPrivateKey(str) {
-  let secretKey = new bls.SecretKey()
+  const secretKey = new bls.SecretKey()
   secretKey.deserializeHexStr(str)
   return secretKey
 }
 
 function toPublicKey(str) {
-  let publicKey = new bls.PublicKey()
+  const publicKey = new bls.PublicKey()
   publicKey.deserializeHexStr(str)
   return publicKey
 }
@@ -58,12 +58,12 @@ export class TSSNode {
 
   deserializeShares(json) {
     if (!json) return
-    let secretKey = new bls.SecretKey()
+    const secretKey = new bls.SecretKey()
     secretKey.deserializeHexStr(json.secretKeyShare)
     this.secretKeyShare = secretKey
     this.vvec = []
     for (const vv of json.vvec) {
-      this.vvec.push(mcl.deserializeHexStrToPublicKey(vv))
+      this.vvec.push(bls.deserializeHexStrToPublicKey(vv))
     }
     this.verificationVector = json.verificationVector.map(_ => toPublicKey(_))
     this.previouslyShared = true
@@ -90,7 +90,7 @@ export class TSSNode {
 
   generateVectors(threshold) {
     for (let i = 0; i < threshold; i++) {
-      let sk = new bls.SecretKey()
+      const sk = new bls.SecretKey()
       this.previouslyShared && i === 0 ? sk.deserialize(Buffer.alloc(32)) : sk.setByCSPRNG()
       this.secretVector.push(sk)
       const pk = sk.getPublicKey()
@@ -113,8 +113,8 @@ export class TSSNode {
   }
 
   async generateContributionForId(id, dkgHandler) {
-    let secretKeyContribution = await generateContributionForId(bls, toPrivateKey(id), this.secretVector)
-    let dkgSharePayload = {
+    const secretKeyContribution = await generateContributionForId(bls, toPrivateKey(id), this.secretVector)
+    const dkgSharePayload = {
       id: this.id.serializeToHexStr(),
       secretKeyContribution: secretKeyContribution.serializeToHexStr(),
       verificationVector: this.verificationVector.map(_ => _.serializeToHexStr()),
@@ -150,15 +150,15 @@ export class TSSNode {
   }
 
   groupSign(signatures) {
-    const signers = signatures.map(m => mcl.deserializeHexStrToSecretKey(m.signer))
-    const signs = signatures.map(m => mcl.deserializeHexStrToSignature(m.signature))
+    const signers = signatures.map(m => bls.deserializeHexStrToSecretKey(m.signer))
+    const signs = signatures.map(m => bls.deserializeHexStrToSignature(m.signature))
     const groupsSign = new bls.Signature()
     groupsSign.recover(signs, signers)
     return groupsSign.serializeToHexStr()
   }
 
   verify(signature, message) {
-    return this.groupPublicKey.verify(mcl.deserializeHexStrToSignature(signature), message)
+    return this.groupPublicKey.verify(bls.deserializeHexStrToSignature(signature), message)
   }
 
   print() {

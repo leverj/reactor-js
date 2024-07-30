@@ -6,7 +6,7 @@ import {expect} from 'expect'
 import {mkdirSync, readFileSync, rmdirSync, writeFileSync} from 'node:fs'
 import {setTimeout} from 'node:timers/promises'
 import path from 'path'
-import {tryAgainIfError, waitToSync} from '../src/utils/utils.js'
+import {tryAgainIfError, waitToSync} from '../src/utils/index.js'
 import {getBridgeInfos} from './help/index.js'
 
 const childProcesses = {}
@@ -133,7 +133,6 @@ describe('e2e', function () {
       const node = nodes[i]
       const info = getInfo(node)
       expect(info).toEqual(bridgeInfos[i])
-      // await axios.get(`http://127.0.0.1:${node}/api/peer/bootstrapped`)
     }
   })
 

@@ -1,0 +1,15 @@
+import config from 'config'
+import {setTimeout} from 'timers/promises'
+import {tryAgainIfConnectionError} from './try.js'
+
+export async function waitToSync(fns, tryCount = config.tryCount) {
+  if (tryCount === 0) throw Error('Sync failed')
+  for (const fn of fns) {
+    const result = await tryAgainIfConnectionError(fn)
+    if (result) continue
+    else {
+      await setTimeout(config.timeout)
+      return waitToSync(fns, tryCount - 1)
+    }
+  }
+}

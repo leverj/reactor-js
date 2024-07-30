@@ -12,7 +12,7 @@ process.on('SIGTERM', () => {
 // fixme: only for testing purpose...
 if (process.env.FAIL) {
   const minute = 60000
-  let timeout = Math.round(minute + Math.random() * minute)
+  const timeout = Math.round(minute + Math.random() * minute)
   setTimeout(() => {
     logger.log(`Exiting after ${timeout / 1000} seconds`)
     api.stop()

@@ -1,6 +1,6 @@
 import {logger} from '@leverj/common/utils'
 
-export default class Monitor {
+export class Monitor {
   constructor() { this.peers = {} }
 
   updateLatency(peerId, latency) {

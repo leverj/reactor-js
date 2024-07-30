@@ -15,8 +15,7 @@ import {pipe} from 'it-pipe'
 import {createLibp2p} from 'libp2p'
 import {fromString as uint8ArrayFromString} from 'uint8arrays/from-string'
 import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
-import events, {PEER_CONNECT, PEER_DISCOVERY} from './utils/events.js'
-import {tryAgainIfError} from './utils/utils.js'
+import {events, PEER_CONNECT, PEER_DISCOVERY, tryAgainIfError} from './utils/index.js'
 
 export default class NetworkNode {
   constructor({ip = '0.0.0.0', port = 0, peerIdJson, bootstrapNodes = []}) {
@@ -145,7 +144,7 @@ export default class NetworkNode {
   async createAndSendMessage(peerId, protocol, message, responseHandler) {
     logger.log('Sending', peerId, message)
     try {
-      let stream = await this.createStream(peerId, protocol)
+      const stream = await this.createStream(peerId, protocol)
       await this.sendMessageOnStream(stream, message)
       await this.readStream(stream, responseHandler)
       return stream

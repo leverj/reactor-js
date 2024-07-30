@@ -1,12 +1,14 @@
 import NetworkNode from '../../src/NetworkNode.js'
-import {waitToSync} from '../../src/utils/utils.js'
+import {waitToSync} from '../../src/utils/index.js'
 import {peerIdJsons} from './fixtures.js'
 
 let networkNodes = []
+
 export const stopNetworkNodes = async () => {
   for (const node of networkNodes) await node.stop()
   networkNodes = []
 }
+
 export const startNetworkNodes = async (count) => {
   let bootstrapNodes = []
   for (let i = 0; i < count; i++) {

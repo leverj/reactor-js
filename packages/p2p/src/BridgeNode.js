@@ -1,10 +1,8 @@
 import {affirm, logger} from '@leverj/common/utils'
 import {setTimeout} from 'node:timers/promises'
-import events, {INFO_CHANGED, PEER_DISCOVERY} from './utils/events.js'
-import Monitor from './utils/Monitor.js'
-import {waitToSync} from './utils/utils.js'
 import NetworkNode from './NetworkNode.js'
 import {TSSNode} from './TSSNode.js'
+import {events, INFO_CHANGED, Monitor, PEER_DISCOVERY, waitToSync} from './utils/index.js'
 import Whitelist from './Whitelist.js'
 
 const TSS_RECEIVE_SIGNATURE_SHARE = 'TSS_RECEIVE_SIGNATURE_SHARE'
@@ -87,7 +85,7 @@ export default class BridgeNode extends NetworkNode {
   async publishWhitelist() {
     if (!this.isLeader) return
     this.whitelist.canPublish = true
-    let message = JSON.stringify(this.whitelist.exportJson())
+    const message = JSON.stringify(this.whitelist.exportJson())
     await this.publishOrFanOut(WHITELIST_TOPIC, message, this.monitor.filter(this.whitelist.get()))
   }
 
@@ -210,7 +208,7 @@ export default class BridgeNode extends NetworkNode {
     const responseHandler = (msg) => logger.log('dkg received', msg)
     for (const peerId of this.whitelist.get()) {
       if (this.peerId === peerId) continue
-      let message = JSON.stringify({topic: DKG_INIT_THRESHOLD_VECTORS, threshold})
+      const message = JSON.stringify({topic: DKG_INIT_THRESHOLD_VECTORS, threshold})
       await this.createAndSendMessage(peerId, meshProtocol, message, responseHandler)
     }
     await this.tssNode.generateVectors(threshold)
@@ -218,7 +216,7 @@ export default class BridgeNode extends NetworkNode {
   }
 
   async ping() {
-    let peerIds = this.whitelist.get()
+    const peerIds = this.whitelist.get()
     for (const peerId of peerIds) {
       if (peerId === this.peerId) continue
       this.monitor.updateLatency(peerId, await super.ping(peerId))
