@@ -3,6 +3,7 @@ export const generateContributionForId = function (bls, id, svec) {
   sk.share(svec, id)
   return sk
 }
+
 /**
  * Adds secret key contribution together to produce a single secret key
  * @param {Array<Number>} secretKeyShares - an array of pointer to secret keys to add
@@ -29,14 +30,10 @@ export const addContributionShares = function (secretKeyShares) {
 export const verifyContributionShare = function (bls, id, contribution, vvec) {
   const pk1 = new bls.PublicKey()
   pk1.share(vvec, id)
-
   const pk2 = contribution.getPublicKey()
-
   const isEqual = pk1.isEqual(pk2)
-
   pk1.clear()
   pk2.clear()
-
   return Boolean(isEqual)
 }
 
@@ -48,7 +45,7 @@ export const addVerificationVectors = function (vvecs) {
   const groupsVvec = []
   vvecs.forEach(vvec => {
     vvec.forEach((pk2, i) => {
-      let pk1 = groupsVvec[i]
+      const pk1 = groupsVvec[i]
       if (!pk1) {
         groupsVvec[i] = pk2
       } else {

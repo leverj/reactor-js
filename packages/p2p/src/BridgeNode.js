@@ -2,7 +2,7 @@ import {affirm, logger} from '@leverj/common/utils'
 import {setTimeout} from 'node:timers/promises'
 import events, {INFO_CHANGED, PEER_DISCOVERY} from './utils/events.js'
 import Monitor from './utils/Monitor.js'
-import {shortHash, waitToSync} from './utils/utils.js'
+import {waitToSync} from './utils/utils.js'
 import NetworkNode from './NetworkNode.js'
 import {TSSNode} from './TSSNode.js'
 import Whitelist from './Whitelist.js'
@@ -14,6 +14,8 @@ const WHITELIST_REQUEST = 'WHITELIST_REQUEST'
 const DKG_INIT_THRESHOLD_VECTORS = 'DKG_INIT_THRESHOLD_VECTORS'
 const DKG_RECEIVE_KEY_SHARE = 'DKG_RECEIVE_KEY_SHARE'
 const meshProtocol = '/bridgeNode/0.0.1'
+
+const shortHash = (hash) => hash.slice(0, 4) + '..' + hash.slice(-3)
 
 export default class BridgeNode extends NetworkNode {
   constructor({ip = '0.0.0.0', port = 0, isLeader = false, json, bootstrapNodes}) {
