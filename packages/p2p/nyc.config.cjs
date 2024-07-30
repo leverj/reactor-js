@@ -7,5 +7,5 @@ module.exports = {
     // 'src/contracts/abi',
     // 'src/contracts/events',
   ],
-  reporter: ['text', 'html', 'json']
+  reporter: ['text', 'html', 'json'],
 }

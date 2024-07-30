@@ -5,7 +5,7 @@ const timeout_ = config.timeout
 const tryCount_ = config.tryCount
 
 export async function tryFor(fn, errorCode, tryCount = tryCount_) {
-  if (tryCount === 0) throw new Error(`Try for failed... ${errorCode}, ${tryCount_}, ${config.port}`)
+  if (tryCount === 0) throw Error(`Try for failed... ${errorCode}, ${tryCount_}, ${config.port}`)
   try {
     return await fn()
   } catch (e) {
@@ -24,7 +24,7 @@ export const tryAgainIfEncryptionFailed = async (fn, tryCount) => await tryFor(f
 
 
 export async function waitToSync(fns, tryCount = tryCount_) {
-  if (tryCount === 0) throw new Error('Sync failed')
+  if (tryCount === 0) throw Error('Sync failed')
   for (const fn of fns) {
     const result = await tryAgainIfConnectionError(fn)
     if (result) continue

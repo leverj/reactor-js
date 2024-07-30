@@ -1,3 +1,5 @@
+import {logger} from '@leverj/common/utils'
+
 export default class Monitor {
   constructor() { this.peers = {} }
 

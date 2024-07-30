@@ -69,7 +69,7 @@ describe('e2e', function () {
       const ports = await createApiNodes(4, false)
       await axios.get(`http://127.0.0.1:9001/api/peer/bootstrapped`)
       await stop(...ports.slice(2))
-      await publishWhitelist(ports.slice(0, 2), 4,2)
+      await publishWhitelist(ports.slice(0, 2), 4, 2)
       expect((await getWhitelists(ports[0])).length).toEqual(4)
       expect((await getWhitelists(ports[1])).length).toEqual(4)
       expect((await getWhitelists(ports[2])).length).toEqual(1)

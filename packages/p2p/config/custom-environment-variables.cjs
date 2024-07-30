@@ -12,7 +12,7 @@ module.exports = {
     isLeader: {__name: 'BRIDGE_IS_LEADER', __format: 'boolean'},
     threshold: {__name: 'BRIDGE_THRESHOLD', __format: 'number'},
     bootstrapNode: 'BRIDGE_BOOTSTRAP_NODE',
-    bootstrapNodes: {__name: 'BRIDGE_BOOTSTRAP_NODES', __format: 'json'}
+    bootstrapNodes: {__name: 'BRIDGE_BOOTSTRAP_NODES', __format: 'json'},
   },
   depositWithdraw: {
     l1: {

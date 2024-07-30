@@ -13,14 +13,14 @@ export async function signAndVerify(contract, message, members) {
   return verified
 }
 
-async function verifyInContract(signatureHex, pubkeyHex, message, contract){
+async function verifyInContract(signatureHex, pubkeyHex, message, contract) {
   const M = bls.hashToPoint(message)
   const signature = bls.deserializeHexStrToG1(signatureHex)
   const pubkey = bls.deserializeHexStrToG2(pubkeyHex)
   let message_ser = bls.g1ToBN(M)
   let pubkey_ser = bls.g2ToBN(pubkey)
   let sig_ser = bls.g1ToBN(signature)
-  return  await contract.verifySignature(sig_ser, pubkey_ser, message_ser)
+  return await contract.verifySignature(sig_ser, pubkey_ser, message_ser)
 }
 
 export const signMessage = (message, members) => {

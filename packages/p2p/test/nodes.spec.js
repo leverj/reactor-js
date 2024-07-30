@@ -28,7 +28,9 @@ describe('p2p', function () {
       nodes[0].sendMessageOnStream(stream, `responding ${msg}`)
     })
 
-    const sendMsg = async (node, message) => await node.createAndSendMessage(nodes[0].peerId, meshProtocol, message, (msg) => { responses[node.peerId] = msg })
+    const sendMsg = async (node, message) => await node.createAndSendMessage(nodes[0].peerId, meshProtocol, message, (msg) => {
+      responses[node.peerId] = msg
+    })
 
     for (const node of nodes.slice(1)) await sendMsg(node, `Verified Deposit Hash ${node.port}`)
 
@@ -52,7 +54,9 @@ describe('p2p', function () {
     for (const node of [node2, node3, node4]) {
       await node.connectPubSub(
         leader.peerId,
-        ({peerId, topic, data}) => {(topic === 'DepositHash') && (depositReceipts[node.peerId] = data)}
+        ({peerId, topic, data}) => {
+          (topic === 'DepositHash') && (depositReceipts[node.peerId] = data)
+        },
       )
       await node.subscribe('DepositHash')
     }
@@ -97,7 +101,9 @@ describe('p2p', function () {
       logger.log('Peers of Node', node.peers.length)
     }
     for (const node of nodes) {
-      await node.registerStreamHandler(meshProtocol, function (stream, peerId, msgStr) {logger.log(node.peerId, 'Recd stream msg from', peerId, msgStr)})
+      await node.registerStreamHandler(meshProtocol, function (stream, peerId, msgStr) {
+        logger.log(node.peerId, 'Recd stream msg from', peerId, msgStr)
+      })
     }
     const sender = nodes[0]
     for (const peerId of sender.peers) {
@@ -135,19 +141,21 @@ describe('p2p', function () {
 
   })
 
-  async function createSharedSecret(privateKey, publicKey){
+  async function createSharedSecret(privateKey, publicKey) {
     let unmarshelledPriv = await unmarshalPrivateKey(privateKey)
     const ms = edwardsToMontgomeryPriv(unmarshelledPriv._key)
     let edwardsPub = await unmarshalPublicKey(publicKey)
     const mp = edwardsToMontgomeryPub(edwardsPub._key)
     return x25519.getSharedSecret(ms, mp)
   }
-  function encrypt(message, secretKey){
+
+  function encrypt(message, secretKey) {
     const aes = new AESEncryption()
     aes.setSecretKey(secretKey)
     return aes.encrypt(message)
   }
-  function decrypt(encrypted, secretKey){
+
+  function decrypt(encrypted, secretKey) {
     const aes = new AESEncryption()
     aes.setSecretKey(secretKey)
     return aes.decrypt(encrypted)

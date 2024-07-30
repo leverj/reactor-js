@@ -12,8 +12,8 @@ describe('blsVerify', () => {
 
   it('verify single signature', async function () {
     const message = bls.stringToHex(messageString)
-    const { pubkey, secret } = bls.newKeyPair()
-    const { signature, M } = bls.sign(message, secret)
+    const {pubkey, secret} = bls.newKeyPair()
+    const {signature, M} = bls.sign(message, secret)
     let sig_ser = bls.g1ToBN(signature)
     let pubkey_ser = bls.g2ToBN(pubkey)
     let message_ser = bls.g1ToBN(M)
@@ -25,7 +25,7 @@ describe('blsVerify', () => {
   it('should verify signature from dkgnodes', async function () {
     const threshold = 4
     const members = await createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399], threshold)
-    const { signs, signers } = signMessage(messageString, members)
+    const {signs, signers} = signMessage(messageString, members)
     const groupsSign = new bls.Signature()
     groupsSign.recover(signs, signers)
 
@@ -46,6 +46,6 @@ describe('blsVerify', () => {
   it('should be able to convert message to point', async function () {
     let res = await contract.hashToPoint(bls.stringToHex(messageString))
     let fromJs = bls.g1ToBN(bls.hashToPoint(messageString))
-    expect(res.map(_=>_.toString())).toEqual(fromJs)
+    expect(res.map(_ => _.toString())).toEqual(fromJs)
   })
 })

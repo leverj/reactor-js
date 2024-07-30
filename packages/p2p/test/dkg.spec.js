@@ -52,7 +52,7 @@ describe('dkg', function () {
     expect(members.length).toBe(8)
     for (const member of members) expect(member.groupPublicKey.serializeToHexStr()).toEqual(groupPublicKey.serializeToHexStr())
     const fixtures = [[0, 3, false], [0, 4, true], [0, 5, true], [0, 6, true], [0, 7, true], [0, 8, true],
-      [2, 8, true], [3, 8, true], [4, 4, true], [5, 3, false]
+      [2, 8, true], [3, 8, true], [4, 4, true], [5, 3, false],
     ]
     for (const [start, total, expected] of fixtures) {
       expect(await signAndVerify(contract, message, members.slice(start, start + total))).toBe(expected)
@@ -154,12 +154,12 @@ describe('dkg', function () {
       const threshold = Math.floor(length / 2) + 1
       const time = {length, threshold, dkg: Date.now()}
       const members = await createDkgMembers(Array(length).fill(0).map((_, i) => 10000 + i), threshold)
-      time.dkg = (Date.now() - time.dkg)/1000 + 's'
+      time.dkg = (Date.now() - time.dkg) / 1000 + 's'
       time.sign = Date.now()
       const {signs, signers} = signMessage('hello world', members.slice(0, threshold))
       const groupsSign = new bls.Signature()
       groupsSign.recover(signs, signers)
-      time.sign = (Date.now() - time.sign)/1000 + 's'
+      time.sign = (Date.now() - time.sign) / 1000 + 's'
       logger.log('length', length, 'threshold', threshold, 'dkg', time.dkg, 'sign', time.sign)
       times.push(time)
     }

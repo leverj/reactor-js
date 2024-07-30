@@ -26,17 +26,23 @@ export default class NetworkNode {
     this.bootstrapNodes = bootstrapNodes
   }
 
-  get multiaddrs() { return this.p2p.getMultiaddrs().map((addr) => addr.toString()) }
+  get multiaddrs() {
+    return this.p2p.getMultiaddrs().map((addr) => addr.toString())
+  }
 
-  get peerId() { return this.p2p.peerId.toString() }
+  get peerId() {
+    return this.p2p.peerId.toString()
+  }
 
-  get peers() { return this.p2p.getPeers().map((peer) => peer.toString()) }
+  get peers() {
+    return this.p2p.getPeers().map((peer) => peer.toString())
+  }
 
   exportJson() {
     return {
       privKey: uint8ArrayToString(this.p2p.peerId.privateKey, 'base64'),
       pubKey: uint8ArrayToString(this.p2p.peerId.publicKey, 'base64'),
-      id: this.peerId
+      id: this.peerId,
     }
   }
 
@@ -51,14 +57,17 @@ export default class NetworkNode {
   async create() {
     this.p2p = await createLibp2p({
       peerId: this.peerIdJson ? await createFromJSON(this.peerIdJson) : undefined,
-      addresses: {listen: [`/ip4/${this.ip}/tcp/${this.port}`], announce: [`/ip4/${config.externalIp}/tcp/${this.port}`]},
+      addresses: {
+        listen: [`/ip4/${this.ip}/tcp/${this.port}`],
+        announce: [`/ip4/${config.externalIp}/tcp/${this.port}`],
+      },
       connectionGater: {
-        denyInboundConnection: (maConn => this.gater(maConn.remoteAddr.toString()))
+        denyInboundConnection: (maConn => this.gater(maConn.remoteAddr.toString())),
       },
       transports: [tcp()],
       connectionEncryption: [noise()],
       streamMuxers: [yamux()],
-      connectionManager: {inboundConnectionThreshold: 100, /*Default is 5*/},
+      connectionManager: {inboundConnectionThreshold: 100 /*Default is 5*/},
       services: {
         ping: ping({protocolPrefix: 'autonat'}), pubsub: gossipsub(), identify: identify(),
         dht: kadDHT({protocol: '/libp2p/autonat/1.0.0', peerInfoMapper: passthroughMapper, clientMode: false}),
@@ -73,8 +82,8 @@ export default class NetworkNode {
         autoDial: true,
         interval: 60e3, //fixme: what is this?
         enabled: true,
-        list: this.bootstrapNodes
-      }),] : undefined
+        list: this.bootstrapNodes,
+      })] : undefined,
     })
 
     this.p2p.addEventListener(PEER_CONNECT, this.peerConnected.bind(this))
@@ -97,7 +106,9 @@ export default class NetworkNode {
     return this
   }
 
-  findPeer(peerId) { return this.p2p.peerRouting.findPeer(peerIdFromString(peerId)) }
+  findPeer(peerId) {
+    return this.p2p.peerRouting.findPeer(peerIdFromString(peerId))
+  }
 
   peerDiscovered(evt) {
     const {detail: peer} = evt
@@ -122,9 +133,13 @@ export default class NetworkNode {
     await this.p2p.services.pubsub.connect(peerId)
   }
 
-  async subscribe(topic) { await this.p2p.services.pubsub.subscribe(topic)}
+  async subscribe(topic) {
+    await this.p2p.services.pubsub.subscribe(topic)
+  }
 
-  async publish(topic, data) { await this.p2p.services.pubsub.publish(topic, new TextEncoder().encode(data)) }
+  async publish(topic, data) {
+    await this.p2p.services.pubsub.publish(topic, new TextEncoder().encode(data))
+  }
 
   // p2p connection
   async createAndSendMessage(peerId, protocol, message, responseHandler) {

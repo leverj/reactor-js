@@ -11,7 +11,9 @@ export class Info {
     events.on(INFO_CHANGED, () => this.set())
   }
 
-  setBridgeNode(bridgeNode) { this.bridgeNode = bridgeNode }
+  setBridgeNode(bridgeNode) {
+    this.bridgeNode = bridgeNode
+  }
 
   get() {
     if (this.info) return this.info

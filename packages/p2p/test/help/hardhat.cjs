@@ -5,5 +5,5 @@ module.exports = {
   getContractFactory,
   getSigners,
   provider,
-  getContractAt
+  getContractAt,
 }

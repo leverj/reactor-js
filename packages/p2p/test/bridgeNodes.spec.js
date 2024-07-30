@@ -12,10 +12,15 @@ const createBridgeNodes = async (count) => {
   const bootstraps = []
   for (let i = 0; i < count; i++) {
     // fixme: get peerid from config eventually some file
-    const node = new BridgeNode({port: 9000 + i, isLeader: i === 0, json: {p2p: peerIdJsons[i]}, bootstrapNodes: bootstraps})
+    const node = new BridgeNode({
+      port: 9000 + i,
+      isLeader: i === 0,
+      json: {p2p: peerIdJsons[i]},
+      bootstrapNodes: bootstraps,
+    })
     await node.create()
     nodes.push(node)
-    if(i === 0) bootstraps.push(node.multiaddrs[0])
+    if (i === 0) bootstraps.push(node.multiaddrs[0])
   }
   return nodes
 }
@@ -26,9 +31,9 @@ describe('Bridge node', function () {
   it('should race connect multiple nodes with each other', async function () {
     //Starts breaking beyond 6 nodes. works fine till 6
     let nodes = await createBridgeNodes(6)
-    for (const node of nodes){
-      for (const peer of nodes){
-        if (node.multiaddrs[0] === peer.multiaddrs[0]) continue;
+    for (const node of nodes) {
+      for (const peer of nodes) {
+        if (node.multiaddrs[0] === peer.multiaddrs[0]) continue
         await node.connect(peer.peerId)
       }
     }
@@ -50,7 +55,7 @@ describe('Bridge node', function () {
       node.tssNode.print()
       expect(leader.tssNode.groupPublicKey.serializeToHexStr()).toEqual(node.tssNode.groupPublicKey.serializeToHexStr())
       let leaderSecret = leader.tssNode.secretKeyShare.serializeToHexStr()
-      if(leader.peerId === node.peerId) continue
+      if (leader.peerId === node.peerId) continue
       let nodeSecret = node.tssNode.secretKeyShare.serializeToHexStr()
       expect(leaderSecret).not.toBe(nodeSecret)
     }

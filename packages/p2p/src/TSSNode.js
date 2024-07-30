@@ -107,7 +107,7 @@ export class TSSNode {
   verifyAndAddShare(id, receivedShare, verificationVector) {
     const verified = verifyContributionShare(bls, this.id, receivedShare, verificationVector)
     if (!verified) {
-      throw new Error('invalid share!')
+      throw Error('invalid share!')
     }
     this.recievedShares[id] = receivedShare
   }
@@ -117,7 +117,7 @@ export class TSSNode {
     let dkgSharePayload = {
       id: this.id.serializeToHexStr(),
       secretKeyContribution: secretKeyContribution.serializeToHexStr(),
-      verificationVector: this.verificationVector.map(_ => _.serializeToHexStr())
+      verificationVector: this.verificationVector.map(_ => _.serializeToHexStr()),
     }
     await dkgHandler(JSON.stringify(dkgSharePayload))
     return secretKeyContribution
@@ -131,9 +131,13 @@ export class TSSNode {
     events.emit(INFO_CHANGED)
   }
 
-  get threshold() { return this.vvec?.length }
+  get threshold() {
+    return this.vvec?.length
+  }
 
-  get groupPublicKey() { return this.vvec ? this.vvec[0] : null }
+  get groupPublicKey() {
+    return this.vvec ? this.vvec[0] : null
+  }
 
   get publicKey() {
     const pk1 = new bls.PublicKey()
@@ -141,7 +145,9 @@ export class TSSNode {
     return pk1
   }
 
-  sign(message) { return this.secretKeyShare.sign(message) }
+  sign(message) {
+    return this.secretKeyShare.sign(message)
+  }
 
   groupSign(signatures) {
     const signers = signatures.map(m => mcl.deserializeHexStrToSecretKey(m.signer))
@@ -166,7 +172,7 @@ export class TSSNode {
       secretKeyShare: this.secretKeyShare?.serializeToHexStr(),
       groupPublicKey: this.groupPublicKey?.serializeToHexStr(),
       verificationVector: this.verificationVector?.map(_ => _.serializeToHexStr()),
-      vvec: this.vvec?.map(_ => _.serializeToHexStr())
+      vvec: this.vvec?.map(_ => _.serializeToHexStr()),
     }
   }
 }

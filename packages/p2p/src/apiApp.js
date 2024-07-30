@@ -13,7 +13,7 @@ export class ApiApp {
 
   start() {
     this.server.listen(port, ip, () =>
-      logger.log(`Bridge api server  is running at port ${port}`)
+      logger.log(`Bridge api server  is running at port ${port}`),
     )
   }
 

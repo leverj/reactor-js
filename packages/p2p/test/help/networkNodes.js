@@ -10,12 +10,16 @@ export const stopNetworkNodes = async () => {
 export const startNetworkNodes = async (count) => {
   let bootstrapNodes = []
   for (let i = 0; i < count; i++) {
-    const node = await new NetworkNode({port: 9000 + i, peerIdJson: peerIdJsons[i], bootstrapNodes}).create().then(_ => _.start()).then(_ => {
+    const node = await new NetworkNode({
+      port: 9000 + i,
+      peerIdJson: peerIdJsons[i],
+      bootstrapNodes,
+    }).create().then(_ => _.start()).then(_ => {
       networkNodes.push(_)
       return _
     })
-    if(i === 0) bootstrapNodes = node.multiaddrs
+    if (i === 0) bootstrapNodes = node.multiaddrs
   }
-  await waitToSync([ _ => networkNodes[count-1].peers.length === networkNodes.length - 1])
+  await waitToSync([_ => networkNodes[count - 1].peers.length === networkNodes.length - 1])
   return networkNodes
 }

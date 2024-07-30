@@ -22,14 +22,15 @@ export default class Deposit {
   async processTokenSent(log) {
     if (this.bridgeNode.isLeader !== true) return
     const parsedLog = new Interface(vaultAbi.abi).parseLog(log)
-    const [originatingChain, originatingToken,  originatingName, originatingSymbol,decimals, amount, vaultUser, fromChainId, toChainId, sendCounter] = parsedLog.args
-    const sentHash = keccak256(abi.encode(['uint','address','uint','uint','address','uint','uint','uint'],[originatingChain, originatingToken, decimals, amount, vaultUser, fromChainId, toChainId, sendCounter]))
+    const [originatingChain, originatingToken, originatingName, originatingSymbol, decimals, amount, vaultUser, fromChainId, toChainId, sendCounter] = parsedLog.args
+    const sentHash = keccak256(abi.encode(['uint', 'address', 'uint', 'uint', 'address', 'uint', 'uint', 'uint'], [originatingChain, originatingToken, decimals, amount, vaultUser, fromChainId, toChainId, sendCounter]))
     const isSent = await this.contracts[fromChainId].tokenSent(sentHash)
     if (isSent === false) return
-    await this.bridgeNode.aggregateSignature(sentHash, sentHash, fromChainId, this.sentPayloadVerified.bind(this, originatingChain, originatingToken,  originatingName, originatingSymbol, decimals, amount, vaultUser, fromChainId, toChainId, sendCounter))
+    await this.bridgeNode.aggregateSignature(sentHash, sentHash, fromChainId, this.sentPayloadVerified.bind(this, originatingChain, originatingToken, originatingName, originatingSymbol, decimals, amount, vaultUser, fromChainId, toChainId, sendCounter))
     return sentHash
   }
-  async sentPayloadVerified(originatingChain, originatingToken, originatingName, originatingSymbol,decimals, amount, vaultUser, fromChainId, toChainId, sendCounter, aggregateSignature) {
+
+  async sentPayloadVerified(originatingChain, originatingToken, originatingName, originatingSymbol, decimals, amount, vaultUser, fromChainId, toChainId, sendCounter, aggregateSignature) {
     if (aggregateSignature.verified !== true) return
     const signature = bls.deserializeHexStrToG1(aggregateSignature.groupSign)
     const sig_ser = bls.g1ToBN(signature)
@@ -37,13 +38,14 @@ export default class Deposit {
     const pubkey = bls.deserializeHexStrToG2(pubkeyHex)
     const pubkey_ser = bls.g2ToBN(pubkey)
     const targetContract = this.contracts[toChainId]
-    await targetContract.tokenArrival(sig_ser, pubkey_ser, abi.encode(['uint','address','uint','uint','address','uint','uint','uint'], [BigInt(originatingChain), originatingToken, BigInt(decimals),  BigInt(amount), vaultUser, BigInt(fromChainId),BigInt(toChainId),BigInt(sendCounter)]),  originatingName, originatingSymbol).then(tx => tx.wait())
+    await targetContract.tokenArrival(sig_ser, pubkey_ser, abi.encode(['uint', 'address', 'uint', 'uint', 'address', 'uint', 'uint', 'uint'], [BigInt(originatingChain), originatingToken, BigInt(decimals), BigInt(amount), vaultUser, BigInt(fromChainId), BigInt(toChainId), BigInt(sendCounter)]), originatingName, originatingSymbol).then(tx => tx.wait())
   }
 
   async verifySentHash(chainId, sentHash) {
     if (chainId === -1) return true //for local e2e testing, which wont have any contracts or hardhat, till we expand the scope of e2e
     return await this.contracts[chainId].tokenSent(sentHash)
   }
+
   async verifyWithdrawHash(chainId, withdrawalHash) {
     if (chainId === -1) return true //for local e2e testing, which wont have any contracts or hardhat, till we expand the scope of e2e
     return await this.contracts[chainId].withdrawals(withdrawalHash)

@@ -41,7 +41,11 @@ export async function createFrom(ports, count) {
   for (const port of ports) {
     const index = port - 9000
     const bootstrapNodes = index === 0 ? [] : await getBootstrapNodes()
-    childProcesses[port] = await createApiNode({index, isLeader: index === 0, bootstrapNodes: JSON.stringify(bootstrapNodes)})
+    childProcesses[port] = await createApiNode({
+      index,
+      isLeader: index === 0,
+      bootstrapNodes: JSON.stringify(bootstrapNodes),
+    })
     await setTimeout(200)
   }
   await waitForBootstrapSync(ports, count)

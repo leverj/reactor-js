@@ -9,13 +9,18 @@ async function getMultiaddrs(req, res) {
   res.send({multiaddr})
 }
 
-async function getAllMultiaddrs(req, res) { res.send(bridgeNode.multiaddrs)}
+async function getAllMultiaddrs(req, res) {
+  res.send(bridgeNode.multiaddrs)
+}
 
-async function getPeers(req, res) { res.send(bridgeNode.peers)}
+async function getPeers(req, res) {
+  res.send(bridgeNode.peers)
+}
 
 function getPeersStatus(req, res) {
   res.send(bridgeNode.monitor.getPeersStatus())
 }
+
 async function startDkg(req, res) {
   await bridgeNode.startDKG(config.bridgeNode.threshold)
   res.send('ok')
@@ -24,7 +29,8 @@ async function startDkg(req, res) {
 async function aggregateSignature(req, res) {
   if (!bridgeNode.isLeader) return
   const msg = req.body
-  await bridgeNode.aggregateSignature(msg.txnHash, msg.msg, -1, ()=>{})
+  await bridgeNode.aggregateSignature(msg.txnHash, msg.msg, -1, () => {
+  })
   res.send('ok')
 }
 

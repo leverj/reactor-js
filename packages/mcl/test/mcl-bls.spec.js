@@ -14,6 +14,7 @@ describe('mcl-bls', () => {
     P2.setStr('1 10857046999023057135944570762232829481370756359578518086990519993285655852781 11559732032986387107991004021392285783925812861821192530917403151452391805634 8495653923123431417604973247489272438418190587263600148770280649306958101930 4082367875863433681332203403145435568316851327593401208105741076214120093531')
     bls.setGeneratorOfPublicKey(P2)
   })
+
   it('should match the public key between bls and mcl', async function () {
     const pvtKey = new bls.SecretKey()
     pvtKey.setByCSPRNG()
@@ -25,7 +26,7 @@ describe('mcl-bls', () => {
   //fixme: this test is failing when import for bls is actually from bls-wasm
   it.skip('bls should verify mcl signature', async function () {
     const secretHex = 'a3e9769b84c095eca6b98449ac86b6e2c589834fe24cb8fbb7b36f814fd06113'
-    const map = new Keymap(messageString).replenish(secretHex);//.print()
+    const map = new Keymap(messageString).replenish(secretHex)//.print()
     expect(map.bls.pubkey.serializeToHexStr()).toEqual(map.mcl.pubkey.serializeToHexStr())
     expect(map.bls.signature.serializeToHexStr()).toEqual(map.mcl.signature.serializeToHexStr())
   })
@@ -34,25 +35,25 @@ describe('mcl-bls', () => {
     const secretHex = 'a3e9769b84c095eca6b98449ac86b6e2c589834fe24cb8fbb7b36f814fd06113'
     new Keymap(messageString).replenish(secretHex).printSignatures()
   })
+
   it('should verify mcl signature via pairings', async function () {
     const secretHex = 'a3e9769b84c095eca6b98449ac86b6e2c589834fe24cb8fbb7b36f814fd06113'
-    const map = new Keymap(messageString).replenish(secretHex);//.print()
+    const map = new Keymap(messageString).replenish(secretHex)//.print()
     const secretHex1 = 'b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcd29'
-    const map1 = new Keymap(messageString).replenish(secretHex1);//.print()
+    const map1 = new Keymap(messageString).replenish(secretHex1)//.print()
 
     //key1-signature1 : pass
-    let verification = map.mcl.pubkey.verify(map.mcl.signature, messageString);
+    let verification = map.mcl.pubkey.verify(map.mcl.signature, messageString)
     expect(verification).toEqual(true)
     //key1-signature2: fail
-    verification = map.mcl.pubkey.verify(map1.mcl.signature, messageString);
+    verification = map.mcl.pubkey.verify(map1.mcl.signature, messageString)
     expect(verification).toEqual(false)
     //key2-signature1: fail
-    verification = map1.mcl.pubkey.verify(map.mcl.signature, messageString);
+    verification = map1.mcl.pubkey.verify(map.mcl.signature, messageString)
     expect(verification).toEqual(false)
     //key2-signature2: pass
-    verification = map1.mcl.pubkey.verify(map1.mcl.signature, messageString);
+    verification = map1.mcl.pubkey.verify(map1.mcl.signature, messageString)
     expect(verification).toEqual(true)
-
   })
 })
 
@@ -63,12 +64,14 @@ class Keymap {
     this.bls = {secret: null, pubkey: null, signature: null}
     this.serialized = {secret: null, pubkey: null, signature: null}
   }
+
   replenish(secretHex) {
     this.replenishMcl(secretHex)
     this.serializeBls()
     this.setBls()
     return this
   }
+
   replenishMcl(secretHex) {
     this.mcl.secret = mcl.secretFromHex(secretHex)
     this.mcl.pubkey = mcl.getPublicKey(secretHex)

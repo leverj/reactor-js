@@ -6,7 +6,7 @@ export {stringToHex} from './utils.js'
 export * from 'mcl-wasm'
 export const MAPPING_MODE_TI = 'TI'
 export const MAPPING_MODE_FT = 'FT'
-export const cipher_suite_domain = 'BNS_SIG_BNS256_XMD:SHA-256_SSWU';
+export const cipher_suite_domain = 'BNS_SIG_BNS256_XMD:SHA-256_SSWU'
 export const DOMAIN_STRING = cipher_suite_domain
 
 let DOMAIN
@@ -31,7 +31,7 @@ export function setMappingMode(mode) {
   } else if (mode === MAPPING_MODE_TI) {
     mcl.setMapToMode(1)
   } else {
-    throw new Error('unknown mapping mode')
+    throw Error('unknown mapping mode')
   }
 }
 
@@ -39,7 +39,7 @@ export function hashToPoint(msg) {
   // return mcl.hashAndMapToG1(msg)
 
   // if (!ethers.utils.isHexString(msg)) {
-  //   throw new Error('message is expected to be hex string')
+  //   throw Error('message is expected to be hex string')
   // }
 
   const _msg = Uint8Array.from(Buffer.from(stringToHex(msg).slice(2), 'hex'))
@@ -78,7 +78,7 @@ export function g1() {
 export function g2() {
   const g2 = new mcl.G2()
   g2.setStr(
-    '1 0x1800deef121f1e76426a00665e5c4479674322d4f75edadd46debd5cd992f6ed 0x198e9393920d483a7260bfb731fb5d25f1aa493335a9e71297e485b7aef312c2 0x12c85ea5db8c6deb4aab71808dcb408fe3d1e7690c43d37b4ce6cc0166fa7daa 0x090689d0585ff075ec9e99ad690c3395bc4b313370b38ef355acdadcd122975b'
+    '1 0x1800deef121f1e76426a00665e5c4479674322d4f75edadd46debd5cd992f6ed 0x198e9393920d483a7260bfb731fb5d25f1aa493335a9e71297e485b7aef312c2 0x12c85ea5db8c6deb4aab71808dcb408fe3d1e7690c43d37b4ce6cc0166fa7daa 0x090689d0585ff075ec9e99ad690c3395bc4b313370b38ef355acdadcd122975b',
   )
   return g2
 }
@@ -125,7 +125,7 @@ export function g1ToBN(p) {
   p.normalize()
   const x = toBig(mclToHex(p.getX()))
   const y = toBig(mclToHex(p.getY()))
-  return [x, y].map(_=>_.toString())
+  return [x, y].map(_ => _.toString())
 }
 
 export function g1ToHex(p) {
@@ -155,7 +155,7 @@ export function g2ToBN(p) {
     toBig('0x' + x.slice(0, 64)),
     toBig('0x' + y.slice(64)),
     toBig('0x' + y.slice(0, 64)),
-  ].map(_=>_.toString())
+  ].map(_ => _.toString())
 }
 
 export function g2ToHex(p) {
