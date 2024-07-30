@@ -1,12 +1,12 @@
+import {logger} from '@leverj/common/utils'
+import axios from 'axios'
+import {fork} from 'child_process'
 import config from 'config'
 import {mkdir, readFile, rm, writeFile} from 'node:fs/promises'
-import {fork} from 'child_process'
-import {getBridgeInfos} from './fixtures.js'
-import path from 'path'
-import axios from 'axios'
-import {tryAgainIfError, waitToSync} from '../../src/utils/utils.js'
 import {setTimeout} from 'node:timers/promises'
-import {logger} from '@leverj/common/utils'
+import path from 'path'
+import {tryAgainIfError, waitToSync} from '../../src/utils/utils.js'
+import {getBridgeInfos} from './fixtures.js'
 
 const __dirname = process.cwd()
 

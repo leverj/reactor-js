@@ -1,7 +1,7 @@
-import {Router} from 'express'
-import config from 'config'
-import bridgeNode from './manager.js'
 import {peerIdFromString} from '@libp2p/peer-id'
+import config from 'config'
+import {Router} from 'express'
+import bridgeNode from './manager.js'
 
 const multiaddr = `/ip4/${config.externalIp}/tcp/${config.bridgeNode.port}/p2p/${bridgeNode.peerId}`
 

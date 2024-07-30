@@ -1,6 +1,6 @@
 import NetworkNode from '../../src/NetworkNode.js'
-import {peerIdJsons} from './fixtures.js'
 import {waitToSync} from '../../src/utils/utils.js'
+import {peerIdJsons} from './fixtures.js'
 
 let networkNodes = []
 export const stopNetworkNodes = async () => {

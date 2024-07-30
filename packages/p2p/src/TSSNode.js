@@ -1,12 +1,12 @@
-import bls from './utils/bls.js'
 import {affirm, logger} from '@leverj/common/utils'
+import * as mcl from '@leverj/layer2-mcl/mcl'
+import bls from './utils/bls.js'
 import {
   addContributionShares,
   addVerificationVectors,
   generateContributionForId,
   verifyContributionShare,
 } from './utils/dkg-bls.js'
-import * as mcl from '@leverj/layer2-mcl/mcl'
 import events, {INFO_CHANGED} from './utils/events.js'
 
 function getMemberContributions(recievedShares, vvecs) {

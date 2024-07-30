@@ -1,6 +1,6 @@
 import {AbiCoder, Interface, keccak256} from 'ethers'
-import bls from '../utils/bls.js'
 import vaultAbi from '../abi/Vault.json' assert {type: 'json'}
+import bls from '../utils/bls.js'
 
 const abi = AbiCoder.defaultAbiCoder()
 //fixme this class can be renamed to something more appropriate ? like SendToken ?

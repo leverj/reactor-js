@@ -1,12 +1,12 @@
-import {expect} from 'expect'
-import {account1, createERC20Token, createRegularERC20, createVault, owner, provider} from './help/vault.js'
+import {logger} from '@leverj/common/utils'
 import {AbiCoder, formatEther, keccak256} from 'ethers'
-import {getContractAt, peerIdJsons} from './help/index.js'
+import {expect} from 'expect'
 import {setTimeout} from 'timers/promises'
 import BridgeNode from '../src/BridgeNode.js'
-import bls from '../src/utils/bls.js'
 import Deposit from '../src/deposit_withdraw/Deposit.js'
-import {logger} from '@leverj/common/utils'
+import bls from '../src/utils/bls.js'
+import {getContractAt, peerIdJsons} from './help/index.js'
+import {account1, createERC20Token, createRegularERC20, createVault, owner, provider} from './help/vault.js'
 
 const abi = AbiCoder.defaultAbiCoder()
 

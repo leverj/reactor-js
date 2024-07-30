@@ -1,3 +1,6 @@
+import {logger} from '@leverj/common/utils'
+import {expect} from 'expect'
+import {TSSNode} from '../src/TSSNode.js'
 import bls from '../src/utils/bls.js'
 import {
   addMember,
@@ -8,9 +11,6 @@ import {
   signAndVerify,
   signMessage,
 } from './help/index.js'
-import {expect} from 'expect'
-import {TSSNode} from '../src/TSSNode.js'
-import {logger} from '@leverj/common/utils'
 
 const message = 'hello world'
 let contract, owner, anyone

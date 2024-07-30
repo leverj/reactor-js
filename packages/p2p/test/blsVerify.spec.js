@@ -1,6 +1,6 @@
 import {expect} from 'expect'
-import {createDkgMembers, deployContract, getSigners, signMessage} from './help/index.js'
 import bls from '../src/utils/bls.js'
+import {createDkgMembers, deployContract, getSigners, signMessage} from './help/index.js'
 
 const messageString = 'hello world'
 describe('blsVerify', () => {

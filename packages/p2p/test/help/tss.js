@@ -1,6 +1,6 @@
+import {expect} from 'expect'
 import {TSSNode} from '../../src/TSSNode.js'
 import bls from '../../src/utils/bls.js'
-import {expect} from 'expect'
 
 export async function signAndVerify(contract, message, members) {
   const {signs, signers} = signMessage(message, members)

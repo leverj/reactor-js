@@ -1,7 +1,7 @@
 import {expect} from 'expect'
-import {peerIdJsons} from './help/index.js'
 import {setTimeout} from 'timers/promises'
 import BridgeNode from '../src/BridgeNode.js'
+import {peerIdJsons} from './help/index.js'
 
 const nodes = []
 const stopBridgeNodes = async () => {

@@ -1,8 +1,8 @@
-import {setTimeout} from 'timers/promises'
 import axios from 'axios'
 import {expect} from 'expect'
-import {getBridgeInfos} from './help/index.js'
+import {setTimeout} from 'timers/promises'
 import {waitToSync} from '../src/utils/utils.js'
+import {getBridgeInfos} from './help/index.js'
 import {
   createApiNodes,
   createFrom,

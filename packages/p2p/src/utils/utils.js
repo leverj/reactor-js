@@ -1,5 +1,5 @@
-import {setTimeout} from 'timers/promises'
 import config from 'config'
+import {setTimeout} from 'timers/promises'
 
 const timeout_ = config.timeout
 const tryCount_ = config.tryCount

@@ -1,4 +1,4 @@
-import _ from 'lodash'
+import {cloneDeep} from 'lodash-es'
 
 export const peerIdJsons = [
   {privKey: 'CAESQK0/fGhAG26fRXLTxDyV7LpSreIfOXSJ+krI+BdTbeJq5/UphgwH8/mDsTa9HebrBuDJ6EtxNwnEAjEVyA/OQjU', pubKey: 'CAESIOf1KYYMB/P5g7E2vR3m6wbgyehLcTcJxAIxFcgPzkI1', id: '12D3KooWRRqAo5f41sQmc9BpsfqarZgd7PWUiX14Mz1htXDEc7Gp'},
@@ -196,7 +196,7 @@ export const bridgeInfos = [
 ]
 
 export function getBridgeInfos(count) {
-  const infos = _.cloneDeep(bridgeInfos).splice(0, count)
+  const infos = cloneDeep(bridgeInfos).splice(0, count)
   const peers = infos.map(info => info.p2p.id)
   infos.forEach(info => info.whitelist = peers)
   return infos
