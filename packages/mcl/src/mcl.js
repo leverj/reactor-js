@@ -1,6 +1,6 @@
-import {bigToHex, FIELD_ORDER, randHex, stringToHex, toBig} from './utils.js'
-import {hashToField} from './hash_to_field.js'
 import mcl from 'mcl-wasm'
+import {hashToField} from './hash_to_field.js'
+import {bigToHex, FIELD_ORDER, randHex, stringToHex, toBig} from './utils.js'
 
 export {stringToHex} from './utils.js'
 export * from 'mcl-wasm'
@@ -8,6 +8,7 @@ export const MAPPING_MODE_TI = 'TI'
 export const MAPPING_MODE_FT = 'FT'
 export const cipher_suite_domain = 'BNS_SIG_BNS256_XMD:SHA-256_SSWU';
 export const DOMAIN_STRING = cipher_suite_domain
+
 let DOMAIN
 
 export async function init() {

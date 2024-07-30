@@ -1,6 +1,6 @@
 import bls from 'bls-wasm'
-import mcl from 'mcl-wasm'
 import {expect} from 'expect'
+import mcl from 'mcl-wasm'
 
 describe('mcl-bls-herumi', () => {
   it('should match the signature between bls-wasm and mcl-wasm', async function () {

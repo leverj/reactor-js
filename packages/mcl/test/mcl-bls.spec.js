@@ -1,5 +1,6 @@
-import {expect} from 'expect'
+import {logger} from '@leverj/common/utils'
 import bls from 'bls-wasm'
+import {expect} from 'expect'
 import * as mcl from '../src/mcl.js'
 
 const messageString = 'hello world'
@@ -38,7 +39,7 @@ describe('mcl-bls', () => {
     const map = new Keymap(messageString).replenish(secretHex);//.print()
     const secretHex1 = 'b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcd29'
     const map1 = new Keymap(messageString).replenish(secretHex1);//.print()
-  
+
     //key1-signature1 : pass
     let verification = map.mcl.pubkey.verify(map.mcl.signature, messageString);
     expect(verification).toEqual(true)
@@ -51,7 +52,7 @@ describe('mcl-bls', () => {
     //key2-signature2: pass
     verification = map1.mcl.pubkey.verify(map1.mcl.signature, messageString);
     expect(verification).toEqual(true)
-    
+
   })
 })
 
@@ -97,26 +98,26 @@ class Keymap {
   }
 
   printSignatures() {
-    console.log('signature')
-    console.log('mcl', this.mcl.signature.serializeToHexStr())
-    console.log('ser', this.serialized.signature.serializeToHexStr())
-    console.log('bls', this.bls.signature.serializeToHexStr())
+    logger.log('signature')
+    logger.log('mcl', this.mcl.signature.serializeToHexStr())
+    logger.log('ser', this.serialized.signature.serializeToHexStr())
+    logger.log('bls', this.bls.signature.serializeToHexStr())
     return this
   }
 
   printPublicKeys() {
-    console.log('public key')
-    console.log('mcl', this.mcl.pubkey.serializeToHexStr())
-    console.log('ser', this.serialized.pubkey.serializeToHexStr())
-    console.log('bls', this.bls.pubkey.serializeToHexStr())
+    logger.log('public key')
+    logger.log('mcl', this.mcl.pubkey.serializeToHexStr())
+    logger.log('ser', this.serialized.pubkey.serializeToHexStr())
+    logger.log('bls', this.bls.pubkey.serializeToHexStr())
     return this
   }
 
   printSecrets() {
-    console.log('secret')
-    console.log('mcl', this.mcl.secret.serializeToHexStr())
-    console.log('ser', this.serialized.secret.serializeToHexStr())
-    console.log('bls', this.bls.secret.serializeToHexStr())
+    logger.log('secret')
+    logger.log('mcl', this.mcl.secret.serializeToHexStr())
+    logger.log('ser', this.serialized.secret.serializeToHexStr())
+    logger.log('bls', this.bls.secret.serializeToHexStr())
     return this
   }
 }
