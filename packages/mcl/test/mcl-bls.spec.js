@@ -1,7 +1,7 @@
 import {logger} from '@leverj/common/utils'
+import * as mcl from '@leverj/layer2-mcl/mcl'
 import bls from 'bls-wasm'
 import {expect} from 'expect'
-import * as mcl from '../src/mcl.js'
 
 const messageString = 'hello world'
 describe('mcl-bls', () => {
