@@ -6,12 +6,12 @@
   "license": "UNLICENSED",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
-    "test": "yarn compile; yarn test:js",
-    "compile": "npx hardhat compile && yarn abi:copy",
-    "abi:copy": "cp artifacts/contracts/*.sol/{Vault,BLSVerify}.json src/abi/ && cp artifacts/contracts/*/*.sol/ERC20Token.json src/abi/",
-    "test:js": "mocha test/**/*.spec.js",
+    "test": "yarn contracts:compile; yarn test:js",
+    "contracts:compile": "npx hardhat compile && yarn contracts:abi:copy",
+    "contracts:abi:copy": "cp artifacts/contracts/*.sol/{Vault,BLSVerify}.json src/abi/ && cp artifacts/contracts/*/*.sol/ERC20Token.json src/abi/",
+    "test:js": "npx mocha",
     "coverage": "NODE_OPTIONS='--experimental-loader @istanbuljs/esm-loader-hook' npx nyc mocha",
+    "start": "node app.js",
     "docker:build": "./scripts/docker-build.sh"
   },
   "dependencies": {
@@ -33,7 +33,7 @@
     "body-parser": "^1.20.2",
     "config": "^3.3.11",
     "dkg": "^0.0.3",
-    "ethers": "^6.13.0",
+    "ethers": "^6.13.1",
     "express": "^4.19.2",
     "immutable": "^5.0.0-beta.5",
     "it-map": "^3.0.5",
@@ -48,6 +48,8 @@
     "@nomiclabs/hardhat-ethers": "^3.0.0-beta.0",
     "@nomiclabs/hardhat-etherscan": "^3.1.8",
     "axios": "^1.6.8",
-    "hardhat": "^2.22.2"
+    "hardhat": "^2.22.6",
+    "hardhat-gas-reporter": "^2.2.0",
+    "solidity-coverage": "^0.8.12"
   }
 }

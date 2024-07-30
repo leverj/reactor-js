@@ -1,7 +1,10 @@
 // require('solidity-coverage')
+//
+// module.exports = require('@leverj/chain-deployment/hardhat.config.cjs')
 
 require('@nomiclabs/hardhat-ethers')
 require('@nomiclabs/hardhat-etherscan')
+require('hardhat-gas-reporter')
 
 
 module.exports = {
@@ -22,4 +25,3 @@ module.exports = {
     },
   },
 }
-
