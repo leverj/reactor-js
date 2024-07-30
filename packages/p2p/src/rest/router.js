@@ -45,7 +45,6 @@ async function getBootstrapPeers(req, res) {
     const info = await bridgeNode.p2p.peerRouting.findPeer(peerIdFromString(peer))
     all.push(info)
   }
-  // console.log('#'.repeat(50), 'peerinfo', all)
   res.send(all)
 }
 

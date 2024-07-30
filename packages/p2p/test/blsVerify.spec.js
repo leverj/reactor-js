@@ -1,7 +1,6 @@
-import { expect } from 'expect'
-import { deployContract, getSigners, createDkgMembers, signMessage } from './help/index.js'
+import {expect} from 'expect'
+import {createDkgMembers, deployContract, getSigners, signMessage} from './help/index.js'
 import bls from '../src/utils/bls.js'
-import {DOMAIN_STRING} from '@leverj/layer2-mcl/mcl'
 
 const messageString = 'hello world'
 describe('blsVerify', () => {
@@ -47,8 +46,6 @@ describe('blsVerify', () => {
   it('should be able to convert message to point', async function () {
     let res = await contract.hashToPoint(bls.stringToHex(messageString))
     let fromJs = bls.g1ToBN(bls.hashToPoint(messageString))
-    // console.log('from js', fromJs)
-    // console.log('from contract', res)
     expect(res.map(_=>_.toString())).toEqual(fromJs)
   })
 })

@@ -1,7 +1,7 @@
 import NetworkNode from './NetworkNode.js'
-import {generateDkgId, TSSNode} from './TSSNode.js'
+import {TSSNode} from './TSSNode.js'
 import {affirm, logger} from '@leverj/common/utils'
-import {shortHash, tryAgainIfEncryptionFailed, waitToSync} from './utils/utils.js'
+import {shortHash, waitToSync} from './utils/utils.js'
 import events, {INFO_CHANGED, PEER_DISCOVERY} from './utils/events.js'
 import {setTimeout} from 'node:timers/promises'
 import Monitor from './utils/Monitor.js'
@@ -122,7 +122,7 @@ export default class BridgeNode extends NetworkNode {
         await this.handleSignatureStart(peerId, JSON.parse(data))
         break
       default:
-        console.log('Unknown topic', topic)
+        logger.log('Unknown topic', topic)
     }
   }
 
@@ -136,11 +136,11 @@ export default class BridgeNode extends NetworkNode {
     const {txnHash, message, chainId} = data
     const verifiedHash = await this.deposit.verifySentHash(chainId, data.message)
     if (verifiedHash !== true) return
-    
+
     const signature = await this.tssNode.sign(message)
     logger.log(SIGNATURE_START, txnHash, message, signature.serializeToHexStr())
     const signaturePayloadToLeader = {topic: TSS_RECEIVE_SIGNATURE_SHARE, signature: signature.serializeToHexStr(), signer: this.tssNode.id.serializeToHexStr(), txnHash}
-    await this.createAndSendMessage(peerId, meshProtocol, JSON.stringify(signaturePayloadToLeader), (msg) => { console.log('SignaruePayload Ack', msg) })
+    await this.createAndSendMessage(peerId, meshProtocol, JSON.stringify(signaturePayloadToLeader), (msg) => { logger.log('SignaruePayload Ack', msg) })
   }
 
   async onStreamMessage(stream, peerId, msgStr) {
@@ -176,7 +176,7 @@ export default class BridgeNode extends NetworkNode {
         await this.handleSignatureStart(peerId, JSON.parse(msg.message))
         break
       default:
-        console.log('Unknown message', msg)
+        logger.log('Unknown message', msg)
     }
   }
 

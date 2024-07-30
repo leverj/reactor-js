@@ -4,8 +4,9 @@ import {fork} from 'child_process'
 import {getBridgeInfos} from './fixtures.js'
 import path from 'path'
 import axios from 'axios'
-import {tryAgainIfConnectionError, tryAgainIfError, waitToSync} from '../../src/utils/utils.js'
+import {tryAgainIfError, waitToSync} from '../../src/utils/utils.js'
 import {setTimeout} from 'node:timers/promises'
+import {logger} from '@leverj/common/utils'
 
 const __dirname = process.cwd()
 
@@ -100,18 +101,18 @@ async function waitForBootstrapSync(ports, count = ports.length - 1) {
     return peers.length === count
   }
   await waitToSync(ports.map(fn))
-  console.log('bootstrap synced...')
+  logger.log('bootstrap synced...')
 }
 
 
 export async function waitForWhitelistSync(ports, total = ports.length, available = ports.length) {
-  console.log('#'.repeat(50), 'waitForWhitelistSync', ports, total)
+  logger.log('#'.repeat(50), 'waitForWhitelistSync', ports, total)
   const fn = (port) => async () => {
     const whitelists = await getMonitorStatus(port)
     return whitelists.length === total - 1 && whitelists.filter(_ => _.latency !== -1).length === available - 1
   }
   await waitToSync(ports.map(fn))
-  console.log('whitelisted synced...')
+  logger.log('whitelisted synced...')
 }
 
 export const startDkg = async () => await axios.post(`http://127.0.0.1:9000/api/dkg/start`)

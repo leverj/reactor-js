@@ -10,5 +10,5 @@ export default class Monitor {
 
   filter(peerIds) { return peerIds.filter(peerId => this.peers[peerId]?.latency !== -1)}
 
-  print() { console.table(this.peers) }
+  print() { logger.table(this.peers) }
 }

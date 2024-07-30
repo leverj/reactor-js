@@ -9,8 +9,6 @@ export async function signAndVerify(contract, message, members) {
   const verified = members[0].groupPublicKey.verify(groupsSign, message)
   const contractVerified = await verifyInContract(groupsSign.serializeToHexStr(), members[0].groupPublicKey.serializeToHexStr(), message, contract)
   expect(contractVerified).toBe(verified)
-  // console.log('pub key hex', members[0].groupPublicKey.serializeToHexStr())
-  // console.log('signatureHex', groupsSign.serializeToHexStr())
   groupsSign.clear()
   return verified
 }

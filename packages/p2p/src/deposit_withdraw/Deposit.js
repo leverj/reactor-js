@@ -1,7 +1,6 @@
-import {AbiCoder, keccak256 } from 'ethers'
+import {AbiCoder, Interface, keccak256} from 'ethers'
 import bls from '../utils/bls.js'
 import vaultAbi from '../abi/Vault.json' assert {type: 'json'}
-import {Interface} from 'ethers'
 
 const abi = AbiCoder.defaultAbiCoder()
 //fixme this class can be renamed to something more appropriate ? like SendToken ?
@@ -43,10 +42,10 @@ export default class Deposit {
 
   async verifySentHash(chainId, sentHash) {
     if (chainId === -1) return true //for local e2e testing, which wont have any contracts or hardhat, till we expand the scope of e2e
-    return await this.contracts[chainId].tokenSent(sentHash) 
+    return await this.contracts[chainId].tokenSent(sentHash)
   }
   async verifyWithdrawHash(chainId, withdrawalHash) {
     if (chainId === -1) return true //for local e2e testing, which wont have any contracts or hardhat, till we expand the scope of e2e
-    return await this.contracts[chainId].withdrawals(withdrawalHash) 
+    return await this.contracts[chainId].withdrawals(withdrawalHash)
   }
 }

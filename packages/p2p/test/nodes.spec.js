@@ -3,10 +3,11 @@ import {setTimeout} from 'node:timers/promises'
 import {peerIdJsons, startNetworkNodes, stopNetworkNodes} from './help/index.js'
 import {peerIdFromString} from '@libp2p/peer-id'
 import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
-import { unmarshalPrivateKey, unmarshalPublicKey } from '@libp2p/crypto/keys'
-import {x25519, edwardsToMontgomeryPub, edwardsToMontgomeryPriv} from '@noble/curves/ed25519'
+import {unmarshalPrivateKey, unmarshalPublicKey} from '@libp2p/crypto/keys'
+import {edwardsToMontgomeryPriv, edwardsToMontgomeryPub, x25519} from '@noble/curves/ed25519'
 import {createFromJSON} from '@libp2p/peer-id-factory'
 import AESEncryption from 'aes-encryption'
+import {logger} from '@leverj/common/utils'
 
 describe('p2p', function () {
   const meshProtocol = '/mesh/1.0.0'
@@ -77,7 +78,6 @@ describe('p2p', function () {
     let nodes = await startNetworkNodes(numNodes)
     await setTimeout(3000)
     for (const node of nodes) {
-      // console.log("Peers of Node", node.p2p.getPeers())
       expect(node.peers.length).toEqual(numNodes - 1)
       for (const peerId of node.peers) {
         const peerInfo = await node.findPeer(peerId)
@@ -88,16 +88,16 @@ describe('p2p', function () {
     }
   })
   //FIXME If this test case approach is ok, then p2p occurences can move to NetworkNode
-  //basically createAndSendMessage function can be changed to take PeerId as opposed to address (current impl) 
+  //basically createAndSendMessage function can be changed to take PeerId as opposed to address (current impl)
   it('should create p2p nodes and send stream message to peers without using their address', async function () {
     const numNodes = 6
     let mesgPrefix = 'Hello from sender '
     let nodes = await startNetworkNodes(numNodes)
     for (const node of nodes) {
-      console.log('Peers of Node', node.peers.length)
+      logger.log('Peers of Node', node.peers.length)
     }
     for (const node of nodes) {
-      await node.registerStreamHandler(meshProtocol, function (stream, peerId, msgStr) {console.log(node.peerId, 'Recd stream msg from', peerId, msgStr)})
+      await node.registerStreamHandler(meshProtocol, function (stream, peerId, msgStr) {logger.log(node.peerId, 'Recd stream msg from', peerId, msgStr)})
     }
     const sender = nodes[0]
     for (const peerId of sender.peers) {
@@ -109,7 +109,7 @@ describe('p2p', function () {
     const peerInfo = await nodes[0].findPeer(peerId)
     const peerAddress = peerInfo.multiaddrs[0]
     const addressToSend = peerAddress + '/p2p/' + peerId
-    await nodes[0].createAndSendMessage(addressToSend, meshProtocol, "HI", (msg) => {console.log("ACK RESP", msg)})*/
+    await nodes[0].createAndSendMessage(addressToSend, meshProtocol, "HI", (msg) => {logger.log("ACK RESP", msg)})*/
     // await setTimeout(1000)
 
   })

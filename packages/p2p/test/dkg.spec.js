@@ -1,7 +1,16 @@
 import bls from '../src/utils/bls.js'
-import {createDkgMembers, setupMembers, signMessage, signAndVerify, addMember, deployContract, getSigners} from './help/index.js'
+import {
+  addMember,
+  createDkgMembers,
+  deployContract,
+  getSigners,
+  setupMembers,
+  signAndVerify,
+  signMessage,
+} from './help/index.js'
 import {expect} from 'expect'
 import {TSSNode} from '../src/TSSNode.js'
+import {logger} from '@leverj/common/utils'
 
 const message = 'hello world'
 let contract, owner, anyone
@@ -151,9 +160,9 @@ describe('dkg', function () {
       const groupsSign = new bls.Signature()
       groupsSign.recover(signs, signers)
       time.sign = (Date.now() - time.sign)/1000 + 's'
-      console.log('length', length, 'threshold', threshold, 'dkg', time.dkg, 'sign', time.sign)
+      logger.log('length', length, 'threshold', threshold, 'dkg', time.dkg, 'sign', time.sign)
       times.push(time)
     }
-    console.table(times)
+    logger.table(times)
   })
 })

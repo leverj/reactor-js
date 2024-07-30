@@ -1,5 +1,5 @@
-import {createServer} from 'http'
 import config from 'config'
+import {createServer} from 'http'
 import {logger} from '@leverj/common/utils'
 import app from './rest/app.js'
 import bridgeNode from './rest/manager.js'

@@ -1,6 +1,5 @@
 import {setTimeout} from 'timers/promises'
 import config from 'config'
-import {logger} from '@leverj/common/utils'
 
 const timeout_ = config.timeout
 const tryCount_ = config.tryCount
