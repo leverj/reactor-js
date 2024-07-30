@@ -1,7 +1,6 @@
 import {bigToHex, FIELD_ORDER, randHex, stringToHex, toBig} from './utils.js'
 import {hashToField} from './hash_to_field.js'
 import mcl from 'mcl-wasm'
-import bls from '@leverj/layer2-p2p/src/utils/bls.js'
 
 export {stringToHex} from './utils.js'
 export * from 'mcl-wasm'
