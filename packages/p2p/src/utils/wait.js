@@ -1,5 +1,5 @@
 import config from 'config'
-import {setTimeout} from 'timers/promises'
+import {setTimeout} from 'node:timers/promises'
 import {tryAgainIfConnectionError} from './try.js'
 
 export async function waitToSync(fns, tryCount = config.tryCount) {

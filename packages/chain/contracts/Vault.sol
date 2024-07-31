@@ -67,7 +67,7 @@ contract Vault {
         emitSendEvent(tokenAddress, originatingChain, originatingToken, decimals, tokenAmount, msg.sender, chainId, toChainId, counter);
     }
 
-    function tokenArrival(uint256[2] calldata signature, uint256[4] calldata signerKey, bytes calldata tokenSendPayload, string calldata name, string calldata symbol) public {
+    function tokenArrival(uint[2] calldata signature, uint[4] calldata signerKey, bytes calldata tokenSendPayload, string calldata name, string calldata symbol) public {
         bytes32 tokenSendHash = keccak256(tokenSendPayload);
         require(tokenArrived[tokenSendHash] == false, 'Token Arrival already processed');
         _validatePayloadAndSignature(signature, signerKey, tokenSendHash);
@@ -79,9 +79,9 @@ contract Vault {
         return keccak256(abi.encode(originatingChain, originatingToken, decimals, amount, vaultUser, fromChain, toChain, counter));
     }
 
-    function _validatePayloadAndSignature(uint256[2] memory signature, uint256[4] memory signerKey, bytes32 tokenSendHash) internal view {
+    function _validatePayloadAndSignature(uint[2] memory signature, uint[4] memory signerKey, bytes32 tokenSendHash) internal view {
         require((publicKey[0] == signerKey[0] && publicKey[1] == signerKey[1] && publicKey[2] == signerKey[2] && publicKey[3] == signerKey[3]), 'Invalid Public Key');
-        uint256[2] memory messageToPoint = verifier.hashToPoint(bytes(verifier.bytes32ToHexString(tokenSendHash)));
+        uint[2] memory messageToPoint = verifier.hashToPoint(bytes(verifier.bytes32ToHexString(tokenSendHash)));
         bool validSignature = verifier.verifySignature(signature, signerKey, messageToPoint);
         require(validSignature == true, 'Invalid Signature');
     }

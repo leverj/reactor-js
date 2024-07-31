@@ -3,7 +3,7 @@ import {expect} from 'expect'
 import mcl from 'mcl-wasm'
 
 describe('mcl-bls-herumi', () => {
-  it('should match the signature between bls-wasm and mcl-wasm', async function () {
+  it('should match the signature between bls-wasm and mcl-wasm', async () => {
     await bls.init(4)
     bls.setMapToMode(0)
     await mcl.init(mcl.BN_SNARK1)

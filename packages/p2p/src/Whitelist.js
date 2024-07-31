@@ -1,4 +1,10 @@
-import {generateDkgId} from './TSSNode.js'
+import {SecretKey} from '@leverj/reactor.mcl/mcl'
+
+function generateDkgId(id) {
+  const dkgId = new SecretKey()
+  dkgId.setHashOf(Buffer.from(id))
+  return dkgId.serializeToHexStr()
+}
 
 export default class Whitelist {
   constructor(json) {

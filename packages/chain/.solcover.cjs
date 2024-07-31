@@ -1,12 +1,4 @@
 module.exports = {
-  mocha: {
-    sort: true, //fixme
-  },
- // fixme:coverage: skipFiles are not skipped ...
-  skipFiles: [
-    'mocks/ERC1155Mock.sol',
-    'mocks/ERC20Mock.sol',
-    'mocks/ERC721Mock.sol',
-  ],
+  skipFiles: [],
   istanbulReporter:	['html', 'text', 'json']
 }

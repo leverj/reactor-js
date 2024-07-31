@@ -1,9 +1,9 @@
 import {expect} from 'expect'
-import {setTimeout} from 'timers/promises'
-import BridgeNode from '../src/BridgeNode.js'
+import {setTimeout} from 'node:timers/promises'
+import {BridgeNode} from '../src/BridgeNode.js'
 import {peerIdJsons} from './help/index.js'
 
-describe('BridgeNode', function () {
+describe('BridgeNode', () => {
   const nodes = []
 
   const stopBridgeNodes = async () => {
@@ -30,7 +30,7 @@ describe('BridgeNode', function () {
 
   afterEach(async () => await stopBridgeNodes())
 
-  it('should race connect multiple nodes with each other', async function () {
+  it('should race connect multiple nodes with each other', async () => {
     //Starts breaking beyond 6 nodes. works fine till 6
     const nodes = await createBridgeNodes(6)
     for (const node of nodes) {
@@ -41,7 +41,7 @@ describe('BridgeNode', function () {
     }
   })
 
-  it('it should be able to connect with other nodes', async function () {
+  it('it should be able to connect with other nodes', async () => {
     const [leader, node1, node2, node3, node4, node5, node6] = await createBridgeNodes(7)
     const nodes = [leader, node1, node2, node3, node4, node5, node6]
     // whitelisted nodes

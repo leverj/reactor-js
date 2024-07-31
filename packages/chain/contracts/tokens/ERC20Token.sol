@@ -28,11 +28,11 @@ contract ERC20Token is ERC20 {
         return _decimals;
     }
 
-    function mint(address account, uint256 amount) public isOwner {
+    function mint(address account, uint amount) public isOwner {
         _mint(account, amount);
     }
 
-    function burn(address account, uint256 amount) public isOwner {
+    function burn(address account, uint amount) public isOwner {
         _burn(account, amount);
     }
 

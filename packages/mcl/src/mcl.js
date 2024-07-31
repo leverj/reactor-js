@@ -18,6 +18,7 @@ export async function init() {
   setMappingMode(MAPPING_MODE_FT)
   setDomain(DOMAIN_STRING)
 }
+await init()
 
 export function setMappingMode(mode) {
   if (mode === MAPPING_MODE_FT) {

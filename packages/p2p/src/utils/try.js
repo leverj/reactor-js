@@ -1,5 +1,5 @@
 import config from 'config'
-import {setTimeout} from 'timers/promises'
+import {setTimeout} from 'node:timers/promises'
 
 async function tryFor(fn, errorCode, tryCount = config.tryCount) {
   if (tryCount === 0) throw Error(`Try for failed... ${errorCode}, ${tryCount}, ${config.port}`)

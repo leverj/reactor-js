@@ -1,12 +1,11 @@
-import {AbiCoder, Interface, keccak256} from 'ethers'
 import * as chain from '@leverj/reactor.chain/contracts'
-import {bls} from '../utils/index.js'
+import {deserializeHexStrToG1, deserializeHexStrToG2, g1ToBN, g2ToBN} from '@leverj/reactor.mcl/mcl'
+import {AbiCoder, Interface, keccak256} from 'ethers'
 
 const abi = AbiCoder.defaultAbiCoder()
 const iface = new Interface(chain.abi.Vault.abi)
 
-//fixme this class can be renamed to something more appropriate ? like SendToken ?
-export default class Deposit {
+export class SendToken {
   constructor(bridgeNode) {
     this.bridgeNode = bridgeNode
     this.contracts = {}
@@ -31,11 +30,11 @@ export default class Deposit {
 
   async sentPayloadVerified(originatingChain, originatingToken, originatingName, originatingSymbol, decimals, amount, vaultUser, fromChainId, toChainId, sendCounter, aggregateSignature) {
     if (aggregateSignature.verified !== true) return
-    const signature = bls.deserializeHexStrToG1(aggregateSignature.groupSign)
-    const sig_ser = bls.g1ToBN(signature)
+    const signature = deserializeHexStrToG1(aggregateSignature.groupSign)
+    const sig_ser = g1ToBN(signature)
     const pubkeyHex = this.bridgeNode.tssNode.groupPublicKey.serializeToHexStr()
-    const pubkey = bls.deserializeHexStrToG2(pubkeyHex)
-    const pubkey_ser = bls.g2ToBN(pubkey)
+    const pubkey = deserializeHexStrToG2(pubkeyHex)
+    const pubkey_ser = g2ToBN(pubkey)
     const targetContract = this.contracts[toChainId]
     await targetContract.tokenArrival(sig_ser, pubkey_ser, abi.encode(
       ['uint', 'address', 'uint', 'uint', 'address', 'uint', 'uint', 'uint'],

@@ -102,13 +102,13 @@ async function waitForWhitelistSync(ports, total = ports.length, available = por
   logger.log('whitelisted synced...')
 }
 
-describe('e2e', function () {
+describe('e2e', () => {
   afterEach(async () => {
     await stop(...Object.keys(childProcesses))
     rmdirSync(e2ePath, {recursive: true, force: true})
   })
 
-  it('should create new nodes, connect and init DKG', async function () {
+  it('should create new nodes, connect and init DKG', async () => {
     const startDkg = async () => axios.post(`http://127.0.0.1:9000/api/dkg/start`)
     const getPublicKey = (port) => JSON.parse(readFileSync(filePath(port - 9000)).toString()).tssNode.groupPublicKey
 
@@ -122,7 +122,7 @@ describe('e2e', function () {
     }
   })
 
-  it('should be able to create node with already existing info.json', async function () {
+  it('should be able to create node with already existing info.json', async () => {
     const getInfo = (port) => JSON.parse(readFileSync(filePath(port - 9000)).toString())
 
     const nodes = [9000, 9001, 9002]
@@ -136,7 +136,7 @@ describe('e2e', function () {
     }
   })
 
-  it('aggregate signatures over pubsub topic', async function () {
+  it('aggregate signatures over pubsub topic', async () => {
     const message = 'hello world'
     const allNodes = [9000, 9001, 9002, 9003]
     await createInfo_json(allNodes.length)
@@ -154,8 +154,8 @@ describe('e2e', function () {
     expect(verified).toEqual(true)
   })
 
-  describe('stability', function () {
-    it('whitelist', async function () {
+  describe('stability', () => {
+    it('whitelist', async () => {
       const getWhitelists = (port) => JSON.parse(readFileSync(filePath(port - 9000)).toString()).whitelist
 
       const ports = await createApiNodes(4, false)

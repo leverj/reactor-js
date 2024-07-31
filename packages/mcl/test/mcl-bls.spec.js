@@ -1,12 +1,11 @@
 import {logger} from '@leverj/common/utils'
-import * as mcl from '@leverj/reactor.mcl/mcl'
+import {getPublicKey, secretFromHex, sign} from '@leverj/reactor.mcl/mcl'
 import bls from 'bls-wasm'
 import {expect} from 'expect'
 
 const messageString = 'hello world'
 describe('mcl-bls', () => {
   before(async () => {
-    await mcl.init()
     await bls.init(4)
     const P2 = new bls.PublicKey()
     //https://eips.ethereum.org/EIPS/eip-197
@@ -15,28 +14,28 @@ describe('mcl-bls', () => {
     bls.setGeneratorOfPublicKey(P2)
   })
 
-  it('should match the public key between bls and mcl', async function () {
+  it('should match the public key between bls and mcl', async () => {
     const pvtKey = new bls.SecretKey()
     pvtKey.setByCSPRNG()
     const pubKey1 = pvtKey.getPublicKey()
-    const mclPubKey = mcl.getPublicKey(pvtKey.serializeToHexStr())
+    const mclPubKey = getPublicKey(pvtKey.serializeToHexStr())
     expect(mclPubKey.serializeToHexStr()).toEqual(pubKey1.serializeToHexStr())
   })
 
   //fixme: this test is failing when import for bls is actually from bls-wasm
-  it.skip('bls should verify mcl signature', async function () {
+  it.skip('bls should verify mcl signature', async () => {
     const secretHex = 'a3e9769b84c095eca6b98449ac86b6e2c589834fe24cb8fbb7b36f814fd06113'
     const map = new Keymap(messageString).replenish(secretHex)//.print()
     expect(map.bls.pubkey.serializeToHexStr()).toEqual(map.mcl.pubkey.serializeToHexStr())
     expect(map.bls.signature.serializeToHexStr()).toEqual(map.mcl.signature.serializeToHexStr())
   })
 
-  it('different secrets for different domains', async function () {
+  it('different secrets for different domains', async () => {
     const secretHex = 'a3e9769b84c095eca6b98449ac86b6e2c589834fe24cb8fbb7b36f814fd06113'
     new Keymap(messageString).replenish(secretHex).printSignatures()
   })
 
-  it('should verify mcl signature via pairings', async function () {
+  it('should verify mcl signature via pairings', async () => {
     const secretHex = 'a3e9769b84c095eca6b98449ac86b6e2c589834fe24cb8fbb7b36f814fd06113'
     const map = new Keymap(messageString).replenish(secretHex)//.print()
     const secretHex1 = 'b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcd29'
@@ -73,9 +72,9 @@ class Keymap {
   }
 
   replenishMcl(secretHex) {
-    this.mcl.secret = mcl.secretFromHex(secretHex)
-    this.mcl.pubkey = mcl.getPublicKey(secretHex)
-    this.mcl.signature = mcl.sign(this.messageString, this.mcl.secret).signature
+    this.mcl.secret =secretFromHex(secretHex)
+    this.mcl.pubkey = getPublicKey(secretHex)
+    this.mcl.signature = sign(this.messageString, this.mcl.secret).signature
     return this
   }
 

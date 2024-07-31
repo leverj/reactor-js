@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 library modexp_3064_fd54 {
-  function run(uint256 t2) internal pure returns (uint256 t0) {
+  function run(uint t2) internal pure returns (uint t0) {
     // solium-disable-next-line security/no-inline-assembly
     assembly {
       let n := 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47
@@ -319,7 +319,7 @@ library modexp_3064_fd54 {
 }
 
 library modexp_c191_3f52 {
-  function run(uint256 t6) internal pure returns (uint256 t0) {
+  function run(uint t6) internal pure returns (uint t0) {
     // solium-disable-next-line security/no-inline-assembly
     assembly {
       let n := 0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47

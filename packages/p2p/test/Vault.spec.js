@@ -1,16 +1,17 @@
 import {logger} from '@leverj/common/utils'
+import {deserializeHexStrToG2, g2ToBN} from '@leverj/reactor.mcl/mcl'
 import {AbiCoder, formatEther, keccak256} from 'ethers'
 import {expect} from 'expect'
-import {setTimeout} from 'timers/promises'
-import BridgeNode from '../src/BridgeNode.js'
-import Deposit from '../src/deposit_withdraw/Deposit.js'
-import {bls} from '../src/utils/index.js'
+import {setTimeout} from 'node:timers/promises'
+import {BridgeNode} from '../src/BridgeNode.js'
+import {SendToken} from '../src/SendToken.js'
 import {deployContract, getContractAt, getSigners, provider} from './help/hardhat.js'
 import {peerIdJsons} from './help/index.js'
 
-describe('Vault', function () {
+const [owner, account1] = await getSigners()
+
+describe('Vault', () => {
   const nodes = []
-  let owner, account1
 
   const stopBridgeNodes = async () => {
     for (const deposit of nodes) await deposit.bridgeNode.stop()
@@ -27,7 +28,7 @@ describe('Vault', function () {
         bootstrapNodes: bootstraps,
       })
       await node.create()
-      const deposit = new Deposit(node)
+      const deposit = new SendToken(node)
       node.setDeposit(deposit)
       nodes.push(deposit)
       if (i === 0) bootstraps.push(node.multiaddrs[0])
@@ -40,8 +41,8 @@ describe('Vault', function () {
     await leader.bridgeNode.startDKG(4)
     await setTimeout(1000)
     const pubkeyHex = leader.bridgeNode.tssNode.groupPublicKey.serializeToHexStr()
-    const pubkey = bls.deserializeHexStrToG2(pubkeyHex)
-    const pubkey_ser = bls.g2ToBN(pubkey)
+    const pubkey = deserializeHexStrToG2(pubkeyHex)
+    const pubkey_ser = g2ToBN(pubkey)
     const contracts = []
     for (const chain of chains) {
       const contract = await createVault(chain, pubkey_ser)
@@ -82,10 +83,9 @@ describe('Vault', function () {
 
   const createVault = async (chainId, pubkey_ser) => await deployContract('Vault', [chainId, pubkey_ser])
 
-  beforeEach(async () => [owner, account1] = await getSigners())
   afterEach(async () => await stopBridgeNodes())
 
-  it('should invoke Deposit workflow on receipt of message', async function () {
+  it('should invoke Deposit workflow on receipt of message', async () => {
     const network = await provider.getNetwork()
     const L1_Chain = network.chainId
     const L2_Chain = 10101
@@ -109,7 +109,7 @@ describe('Vault', function () {
     expect(proxySymbol).toEqual('ETH_R')
   })
 
-  it('should deposit ERC20 on source chain and mint on target chain', async function () {
+  it('should deposit ERC20 on source chain and mint on target chain', async () => {
     const network = await provider.getNetwork()
     const L1_Chain = network.chainId
     const L2_Chain = 10101
@@ -130,7 +130,7 @@ describe('Vault', function () {
     expect(proxySymbol).toEqual('USDT_R')
   })
 
-  it('should disburse when withdrawn from target chain', async function () {
+  it('should disburse when withdrawn from target chain', async () => {
     const network = await provider.getNetwork()
     const L1_Chain = network.chainId
     const L2_Chain = 10101
@@ -157,7 +157,7 @@ describe('Vault', function () {
     logger.log('after withdraw', formatEther(ethBalanceOfDepositor.toString()))
   })
 
-  it('should disburse ERC20 when proxy withdrawn from target chain', async function () {
+  it('should disburse ERC20 when proxy withdrawn from target chain', async () => {
     const network = await provider.getNetwork()
     const L1_Chain = network.chainId
     const L2_Chain = 10101
@@ -186,7 +186,7 @@ describe('Vault', function () {
     expect(BigInt(await erc20.balanceOf(account1))).toEqual(1000000000n)
   })
 
-  it('multi-chain scenarios with ETH deposit on first chain', async function () {
+  it('multi-chain scenarios with ETH deposit on first chain', async () => {
     const chains = [33333, 10101, 10102, 10103, 10104, 10105]
     const amount = BigInt(1e+19)
     const [leader, node1, node2, node3, node4, node5, node6] = await createDepositNodes(7)
@@ -241,7 +241,7 @@ describe('Vault', function () {
     expect(isEthCloseToOriginalAmount).toEqual(true)
   })
 
-  it('multi-chain scenarios with ERC20 deposit on first chain', async function () {
+  it('multi-chain scenarios with ERC20 deposit on first chain', async () => {
     const chains = [33333, 10101, 10102, 10103, 10104]
     const amount = BigInt(1e+3)
     const [leader, node1, node2, node3, node4, node5, node6] = await createDepositNodes(7)
@@ -291,7 +291,7 @@ describe('Vault', function () {
     expect(erc20Balance).toEqual(BigInt(amount))
   })
 
-  it.skip('should mint token using fixture data', async function () {
+  it.skip('should mint token using fixture data', async () => {
     const network = await provider.getNetwork()
     const fixture = {
       sig_ser: [
