@@ -7,17 +7,17 @@ contract ERC20Proxy is ERC20 {
 
     struct OriginatingToken {
         uint chainId;
-        address tokenAddress;
+        address token;
         uint8 decimals;
     }
 
     address public owner;
-    OriginatingToken public underlying;
+    OriginatingToken public origin;
 
     modifier isOwner { require(msg.sender == owner, "not an owner");  _; }
 
-    constructor(string memory name_, string memory symbol_, uint8 decimals_, address tokenAddress_, uint chainId_) ERC20(name_, symbol_) {
-        underlying = OriginatingToken(chainId_, tokenAddress_, decimals_);
+    constructor(string memory name_, string memory symbol_, uint8 decimals_, address token_, uint chainId_) ERC20(name_, symbol_) {
+        origin = OriginatingToken(chainId_, token_, decimals_);
         owner = msg.sender;
     }
 
@@ -30,15 +30,15 @@ contract ERC20Proxy is ERC20 {
     }
 
     function chainId() public view virtual returns (uint) {
-        return underlying.chainId;
+        return origin.chainId;
     }
 
-    function tokenAddress() public view virtual returns (address) {
-        return underlying.tokenAddress;
+    function token() public view virtual returns (address) {
+        return origin.token;
     }
 
     function decimals() public view virtual override returns (uint8) {
-        return underlying.decimals;
+        return origin.decimals;
     }
 
     function originatingName() public view returns (string memory) {

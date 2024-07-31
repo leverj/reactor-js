@@ -118,7 +118,7 @@
           "type": "address"
         }
       ],
-      "name": "isProxyToken",
+      "name": "isProxyMapping",
       "outputs": [
         {
           "internalType": "bool",
@@ -215,7 +215,7 @@
           "type": "address"
         }
       ],
-      "name": "proxyTokenMap",
+      "name": "proxyMapping",
       "outputs": [
         {
           "internalType": "address",
@@ -280,12 +280,12 @@
         },
         {
           "internalType": "address",
-          "name": "tokenAddress",
+          "name": "token",
           "type": "address"
         },
         {
           "internalType": "uint256",
-          "name": "tokenAmount",
+          "name": "amount",
           "type": "uint256"
         }
       ],
