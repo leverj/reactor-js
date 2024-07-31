@@ -88,22 +88,22 @@ contract BlsVerify {
 
     function hashToField(bytes memory domain, bytes memory messages) internal pure returns (uint[2] memory) {
         bytes memory _msg = expandMsgTo96(domain, messages);
-        uint z0;
-        uint z1;
+        uint z0_;
+        uint z1_;
         uint a0;
         uint a1;
         // solium-disable-next-line security/no-inline-assembly
         assembly {
             let p := add(_msg, 24)
-            z1 := and(mload(p), MASK24)
+            z1_ := and(mload(p), MASK24)
             p := add(_msg, 48)
-            z0 := and(mload(p), MASK24)
-            a0 := addmod(mulmod(z1, T24, N), z0, N)
+            z0_ := and(mload(p), MASK24)
+            a0 := addmod(mulmod(z1_, T24, N), z0_, N)
             p := add(_msg, 72)
-            z1 := and(mload(p), MASK24)
+            z1_ := and(mload(p), MASK24)
             p := add(_msg, 96)
-            z0 := and(mload(p), MASK24)
-            a1 := addmod(mulmod(z1, T24, N), z0, N)
+            z0_ := and(mload(p), MASK24)
+            a1 := addmod(mulmod(z1_, T24, N), z0_, N)
         }
         return [a0, a1];
     }

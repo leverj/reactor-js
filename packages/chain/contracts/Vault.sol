@@ -50,8 +50,8 @@ contract Vault {
         uint decimals;
         if (isProxyToken[tokenAddress]) {
             ERC20Proxy proxy = ERC20Proxy(tokenAddress);
-            originatingChain = proxy.originatingChain();
-            originatingToken = proxy.originatingToken();
+            originatingChain = proxy.chainId();
+            originatingToken = proxy.tokenAddress();
             decimals = proxy.decimals();
             proxy.burn(msg.sender, tokenAmount);
         }
