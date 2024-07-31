@@ -90,7 +90,7 @@ describe('Vault', function () {
     const L1_Chain = network.chainId
     const L2_Chain = 10101
     const amount = BigInt(1e+19)
-    const {L1_Contract, L2_Contract, depositHash} = await sendoutETHFromL1([L1_Chain, L2_Chain], amount)
+    const {L2_Contract, depositHash} = await sendoutETHFromL1([L1_Chain, L2_Chain], amount)
     const minted = await L2_Contract.tokenArrived(depositHash)
     expect(minted).toEqual(true)
 

@@ -3,7 +3,7 @@ import {bls} from '../src/utils/index.js'
 import {deployContract, getSigners} from './help/hardhat.js'
 import {createDkgMembers, signMessage} from './help/index.js'
 
-describe('blsVerify', () => {
+describe('BlsVerify', () => {
   const messageString = 'hello world'
   let contract, owner, anyone
 

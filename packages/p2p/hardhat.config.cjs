@@ -1,5 +1,3 @@
-require('solidity-coverage')
-
 module.exports = Object.assign(require('@leverj/chain-deployment/hardhat.config.cjs'), {
   networks: {
     test: {

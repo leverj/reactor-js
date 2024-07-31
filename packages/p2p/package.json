@@ -1,16 +1,17 @@
 {
-  "name": "@leverj/reator.p2p",
+  "name": "@leverj/reactor.p2p",
   "version": "0.0.1",
   "type": "module",
   "private": true,
   "license": "UNLICENSED",
   "main": "app.js",
   "scripts": {
-    "test": "yarn contracts:compile; yarn test:js",
-    "contracts:compile": "npx hardhat compile && yarn contracts:abi:copy",
-    "contracts:abi:copy": "cp artifacts/contracts/*.sol/{Vault,BLSVerify}.json src/abi/ && cp artifacts/contracts/*/*.sol/ERC20Token.json src/abi/",
-    "test:js": "npx mocha",
-    "coverage": "NODE_OPTIONS='--experimental-loader @istanbuljs/esm-loader-hook' npx nyc mocha",
+    "test": "yarn contracts:copy && yarn contracts:compile && npx mocha && yarn contracts:delete",
+    "coverage": "yarn contracts:copy && yarn contracts:compile && NODE_OPTIONS='--experimental-loader @istanbuljs/esm-loader-hook' npx nyc mocha",
+    "dependency:check": "npx depcheck",
+    "contracts:copy": "cp -R ../chain/contracts .",
+    "contracts:compile": "npx hardhat compile",
+    "contracts:delete": "rm -rf artifacts cache contracts",
     "start": "node app.js",
     "docker:build": "./scripts/docker-build.sh"
   },
@@ -18,7 +19,8 @@
     "@chainsafe/libp2p-gossipsub": "13.0.0",
     "@chainsafe/libp2p-noise": "^15.0.0",
     "@chainsafe/libp2p-yamux": "^6.0.2",
-    "@leverj/common": "^1.0.4",
+    "@leverj/common": "^1.0.18",
+    "@leverj/reactor.chain": "0.0.1",
     "@libp2p/bootstrap": "10.0.23",
     "@libp2p/identify": "2.0.1",
     "@libp2p/kad-dht": "12.0.15",
@@ -26,16 +28,12 @@
     "@libp2p/ping": "^1.0.13",
     "@libp2p/tcp": "^9.0.16",
     "@noble/curves": "^1.4.0",
-    "@openzeppelin/contracts": "^5.0.2",
     "aes-encryption": "^1.0.4",
-    "async-exit-hook": "^2.0.1",
     "bls-wasm": "^1.1.1",
     "body-parser": "^1.20.2",
     "config": "^3.3.11",
     "dkg": "^0.0.3",
-    "ethers": "^6.13.1",
     "express": "^4.19.2",
-    "immutable": "^5.0.0-beta.5",
     "it-map": "^3.0.5",
     "it-pipe": "^3.0.1",
     "libp2p": "^1.3.0",
@@ -45,8 +43,6 @@
     "uint8arrays": "^5.0.3"
   },
   "devDependencies": {
-    "@leverj/chain-deployment": "1.0.18",
-    "@openzeppelin/contracts": "^5.0.2",
     "axios": "^1.6.8"
   }
 }
