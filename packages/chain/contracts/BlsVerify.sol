@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
+
 import "hardhat/console.sol";
-import { modexp_3064_fd54, modexp_c191_3f52 } from "./modexp.sol";
+import {modexp_3064_fd54, modexp_c191_3f52} from "./modexp.sol";
 
 contract BlsVerify {
     // Field order
@@ -27,8 +28,7 @@ contract BlsVerify {
 
     bytes constant cipher_suite_domain = bytes('BNS_SIG_BNS256_XMD:SHA-256_SSWU');
 
-    constructor () {
-    }
+    constructor() {}
 
     function works(string memory first, string memory second) public pure returns (bool) {
         console.log("%s %s", first, second);
@@ -72,21 +72,20 @@ contract BlsVerify {
         require(success, "");
         return p0;
     }
+
     function bytes32ToHexString(bytes32 _bytes32) public pure returns (string memory) {
         bytes memory hexString = new bytes(64 + 2); // 64 characters for the hash + 2 for "0x"
         bytes memory hexAlphabet = "0123456789abcdef";
-
         hexString[0] = '0';
         hexString[1] = 'x';
-
         for (uint i = 0; i < 32; i++) {
             uint8 byteValue = uint8(_bytes32[i]);
             hexString[2 * i + 2] = hexAlphabet[byteValue >> 4];
             hexString[2 * i + 3] = hexAlphabet[byteValue & 0x0f];
         }
-
         return string(hexString);
     }
+
     function hashToField(bytes memory domain, bytes memory messages) internal pure returns (uint[2] memory) {
         bytes memory _msg = expandMsgTo96(domain, messages);
         uint z0;
@@ -267,6 +266,7 @@ contract BlsVerify {
 
         return out;
     }
+
     function isNonResidueFP(uint e) internal view returns (bool isNonResidue) {
         bool callSuccess;
         // solium-disable-next-line security/no-inline-assembly
@@ -286,14 +286,13 @@ contract BlsVerify {
         require(callSuccess, "BLS: isNonResidueFP modexp call failed");
         return !isNonResidue;
     }
+
     function inverseFaster(uint a) internal pure returns (uint) {
         return modexp_3064_fd54.run(a);
     }
+
     function sqrtFaster(uint xx) internal pure returns (uint x, bool hasRoot) {
         x = modexp_c191_3f52.run(xx);
         hasRoot = mulmod(x, x, N) == xx;
     }
-
-
-
 }

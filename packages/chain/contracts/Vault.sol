@@ -4,11 +4,12 @@ pragma solidity ^0.8.20;
 import "hardhat/console.sol";
 import './BlsVerify.sol';
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import './tokens/ERC20Token.sol';
+import "./token/ERC20/ERC20Proxy.sol";
 
 contract Vault {
 
     address constant public NATIVE = address(0);
+
     /**
     * Token Sent out to another chain. The payload has structure
     * <OriginatingToken>, TokenAmount, VaultUser Address, fromChain, toChain, sendCounter
@@ -33,6 +34,7 @@ contract Vault {
         publicKey = publicKey_;
         verifier = new BlsVerify();
     }
+
     function sendNative(uint toChainId) external payable {
         pool[NATIVE] += msg.value;
         uint counter = sendCounter++;
@@ -47,7 +49,7 @@ contract Vault {
         address originatingToken;
         uint decimals;
         if (isProxyToken[tokenAddress]) {
-            ERC20Token proxy = ERC20Token(tokenAddress);
+            ERC20Proxy proxy = ERC20Proxy(tokenAddress);
             originatingChain = proxy.originatingChain();
             originatingToken = proxy.originatingToken();
             decimals = proxy.decimals();
@@ -87,14 +89,14 @@ contract Vault {
     }
 
     function _createAndMintProxy(bytes memory tokenSendPayload, string calldata name, string calldata symbol) internal {
-        ERC20Token proxyToken;
+        ERC20Proxy proxyToken;
         (uint originatingChain, address originatingToken, uint decimals, uint amount, address vaultUser, , ,) = abi.decode(tokenSendPayload, (uint, address, uint, uint, address, uint, uint, uint));
         if (proxyTokenMap[originatingChain][originatingToken] == address(0)) { // if proxyToken does not exist
-            proxyToken = new ERC20Token(name, symbol, uint8(decimals), originatingToken, originatingChain);
+            proxyToken = new ERC20Proxy(name, symbol, uint8(decimals), originatingToken, originatingChain);
             proxyTokenMap[originatingChain][originatingToken] = address(proxyToken);
             isProxyToken[address(proxyToken)] = true;
         }
-        proxyToken = ERC20Token(proxyTokenMap[originatingChain][originatingToken]);
+        proxyToken = ERC20Proxy(proxyTokenMap[originatingChain][originatingToken]);
         proxyToken.mint(vaultUser, amount);
     }
 
@@ -122,7 +124,7 @@ contract Vault {
         string memory originatingName;
         string memory originatingSymbol;
         if (isProxyToken[tokenAddress]) {
-            ERC20Token proxy = ERC20Token(tokenAddress);
+            ERC20Proxy proxy = ERC20Proxy(tokenAddress);
             originatingName = proxy.originatingName();
             originatingSymbol = proxy.originatingSymbol();
         }
