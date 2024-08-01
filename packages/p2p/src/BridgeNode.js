@@ -1,10 +1,8 @@
-import NetworkNode from './NetworkNode.js'
-import {generateDkgId, TSSNode} from './TSSNode.js'
 import {affirm, logger} from '@leverj/common/utils'
-import {shortHash, tryAgainIfEncryptionFailed, waitToSync} from './utils/utils.js'
-import events, {INFO_CHANGED, PEER_DISCOVERY} from './utils/events.js'
 import {setTimeout} from 'node:timers/promises'
-import Monitor from './utils/Monitor.js'
+import NetworkNode from './NetworkNode.js'
+import {TssNode} from './TssNode.js'
+import {events, INFO_CHANGED, PEER_DISCOVERY, waitToSync} from './utils/index.js'
 import Whitelist from './Whitelist.js'
 
 const TSS_RECEIVE_SIGNATURE_SHARE = 'TSS_RECEIVE_SIGNATURE_SHARE'
@@ -15,7 +13,24 @@ const DKG_INIT_THRESHOLD_VECTORS = 'DKG_INIT_THRESHOLD_VECTORS'
 const DKG_RECEIVE_KEY_SHARE = 'DKG_RECEIVE_KEY_SHARE'
 const meshProtocol = '/bridgeNode/0.0.1'
 
-export default class BridgeNode extends NetworkNode {
+class Monitor {
+  constructor() { this.peers = {} }
+
+  updateLatency(peerId, latency) {
+    if (!this.peers[peerId]) this.peers[peerId] = {}
+    this.peers[peerId].latency = latency
+  }
+
+  getPeersStatus() { return Object.entries(this.peers).map(([peerId, {latency}]) => ({peerId, latency})) }
+
+  filter(peerIds) { return peerIds.filter(peerId => this.peers[peerId]?.latency !== -1)}
+
+  print() { logger.table(this.peers) }
+}
+
+const shortHash = (hash) => hash.slice(0, 4) + '..' + hash.slice(-3)
+
+export class BridgeNode extends NetworkNode {
   constructor({ip = '0.0.0.0', port = 0, isLeader = false, json, bootstrapNodes}) {
     super({ip, port, peerIdJson: json?.p2p})
     this.bootstrapNodes = bootstrapNodes
@@ -28,9 +43,7 @@ export default class BridgeNode extends NetworkNode {
     this.monitor = new Monitor()
     this.components = {}
     //fixme: changes when real whitelisting done
-    if (this.isLeader) {
-      events.on(PEER_DISCOVERY, (peerId) => this.addPeersToWhiteList(peerId))
-    }
+    if (this.isLeader) events.on(PEER_DISCOVERY, (_) => this.addPeersToWhiteList(_))
   }
 
   exportJson() {
@@ -38,17 +51,13 @@ export default class BridgeNode extends NetworkNode {
       p2p: super.exportJson(),
       tssNode: this.tssNode.exportJson(),
       whitelist: this.whitelist.exportJson(),
-      leader: this.leader
+      leader: this.leader,
     }
-  }
-
-  addComponent(component) {
-    this.components[component.id] = component
   }
 
   async create() {
     await super.create()
-    this.tssNode = new TSSNode(this.peerId, this.tssNodeJson)
+    this.tssNode = new TssNode(this.peerId, this.tssNodeJson)
     const dkgId = this.tssNode.id.serializeToHexStr()
     this.tssNode.addMember(dkgId, this.tssNode.onDkgShare.bind(this.tssNode)) // making self dkg share
     this.registerStreamHandler(meshProtocol, this.onStreamMessage.bind(this))
@@ -85,7 +94,7 @@ export default class BridgeNode extends NetworkNode {
   async publishWhitelist() {
     if (!this.isLeader) return
     this.whitelist.canPublish = true
-    let message = JSON.stringify(this.whitelist.exportJson())
+    const message = JSON.stringify(this.whitelist.exportJson())
     await this.publishOrFanOut(WHITELIST_TOPIC, message, this.monitor.filter(this.whitelist.get()))
   }
 
@@ -100,8 +109,16 @@ export default class BridgeNode extends NetworkNode {
   async aggregateSignature(txnHash, message, chainId, callback) {
     const signature = await this.tssNode.sign(message)
     this.messageMap[txnHash] = {signatures: {}, verified: false, depositCallback: callback}
-    this.messageMap[txnHash].signatures[this.tssNode.id.serializeToHexStr()] = {message, signature: signature.serializeToHexStr(), 'signer': this.tssNode.id.serializeToHexStr()}
-    await this.publishOrFanOut(SIGNATURE_START, JSON.stringify({txnHash, message, chainId}), this.monitor.filter(this.whitelist.get()))
+    this.messageMap[txnHash].signatures[this.tssNode.id.serializeToHexStr()] = {
+      message,
+      signature: signature.serializeToHexStr(),
+      'signer': this.tssNode.id.serializeToHexStr(),
+    }
+    await this.publishOrFanOut(SIGNATURE_START, JSON.stringify({
+      txnHash,
+      message,
+      chainId,
+    }), this.monitor.filter(this.whitelist.get()))
   }
 
   async sendMessageToPeer(peerId, topic, message) {
@@ -122,7 +139,7 @@ export default class BridgeNode extends NetworkNode {
         await this.handleSignatureStart(peerId, JSON.parse(data))
         break
       default:
-        console.log('Unknown topic', topic)
+        logger.log('Unknown topic', topic)
     }
   }
 
@@ -136,11 +153,18 @@ export default class BridgeNode extends NetworkNode {
     const {txnHash, message, chainId} = data
     const verifiedHash = await this.deposit.verifySentHash(chainId, data.message)
     if (verifiedHash !== true) return
-    
+
     const signature = await this.tssNode.sign(message)
     logger.log(SIGNATURE_START, txnHash, message, signature.serializeToHexStr())
-    const signaturePayloadToLeader = {topic: TSS_RECEIVE_SIGNATURE_SHARE, signature: signature.serializeToHexStr(), signer: this.tssNode.id.serializeToHexStr(), txnHash}
-    await this.createAndSendMessage(peerId, meshProtocol, JSON.stringify(signaturePayloadToLeader), (msg) => { console.log('SignaruePayload Ack', msg) })
+    const signaturePayloadToLeader = {
+      topic: TSS_RECEIVE_SIGNATURE_SHARE,
+      signature: signature.serializeToHexStr(),
+      signer: this.tssNode.id.serializeToHexStr(),
+      txnHash,
+    }
+    await this.createAndSendMessage(peerId, meshProtocol, JSON.stringify(signaturePayloadToLeader), (msg) => {
+      logger.log('SignaruePayload Ack', msg)
+    })
   }
 
   async onStreamMessage(stream, peerId, msgStr) {
@@ -163,7 +187,7 @@ export default class BridgeNode extends NetworkNode {
       case TSS_RECEIVE_SIGNATURE_SHARE:
         const {txnHash, signature, signer} = msg
         this.messageMap[txnHash].signatures[signer] = ({signature: signature, signer: signer})
-        logger.log('Received signature', txnHash, signature,)
+        logger.log('Received signature', txnHash, signature)
         if (Object.keys(this.messageMap[txnHash].signatures).length === this.tssNode.threshold) {
           const groupSign = this.tssNode.groupSign(Object.values(this.messageMap[txnHash].signatures))
           this.messageMap[txnHash].groupSign = groupSign
@@ -176,22 +200,20 @@ export default class BridgeNode extends NetworkNode {
         await this.handleSignatureStart(peerId, JSON.parse(msg.message))
         break
       default:
-        console.log('Unknown message', msg)
+        logger.log('Unknown message', msg)
     }
   }
 
-  getAggregateSignature(txnHash) {
-    return this.messageMap[txnHash]
-  }
-  setDeposit(deposit){
-    this.deposit = deposit
-  }
+  getAggregateSignature(txnHash) { return this.messageMap[txnHash] }
+
+  setDeposit(deposit) { this.deposit = deposit }
+
   async startDKG(threshold) {
     if (!this.isLeader) return
     const responseHandler = (msg) => logger.log('dkg received', msg)
     for (const peerId of this.whitelist.get()) {
       if (this.peerId === peerId) continue
-      let message = JSON.stringify({topic: DKG_INIT_THRESHOLD_VECTORS, threshold})
+      const message = JSON.stringify({topic: DKG_INIT_THRESHOLD_VECTORS, threshold})
       await this.createAndSendMessage(peerId, meshProtocol, message, responseHandler)
     }
     await this.tssNode.generateVectors(threshold)
@@ -199,7 +221,7 @@ export default class BridgeNode extends NetworkNode {
   }
 
   async ping() {
-    let peerIds = this.whitelist.get()
+    const peerIds = this.whitelist.get()
     for (const peerId of peerIds) {
       if (peerId === this.peerId) continue
       this.monitor.updateLatency(peerId, await super.ping(peerId))
@@ -207,6 +229,5 @@ export default class BridgeNode extends NetworkNode {
     }
     setTimeout(1000).then(this.ping.bind(this))
   }
-
 }
 

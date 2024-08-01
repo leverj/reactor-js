@@ -1,22 +1,21 @@
-import {createLibp2p} from 'libp2p'
-import {peerIdFromString} from '@libp2p/peer-id'
-import {tcp} from '@libp2p/tcp'
+import config from 'config'
+import map from 'it-map'
+import {gossipsub} from '@chainsafe/libp2p-gossipsub'
 import {noise} from '@chainsafe/libp2p-noise'
 import {yamux} from '@chainsafe/libp2p-yamux'
-import {ping} from '@libp2p/ping'
-import {gossipsub} from '@chainsafe/libp2p-gossipsub'
-import {fromString as uint8ArrayFromString} from 'uint8arrays/from-string'
-import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
-import map from 'it-map'
-import {pipe} from 'it-pipe'
-import {createFromJSON} from '@libp2p/peer-id-factory'
 import {bootstrap} from '@libp2p/bootstrap'
 import {identify} from '@libp2p/identify'
 import {kadDHT, passthroughMapper} from '@libp2p/kad-dht'
-import {tryAgainIfError} from './utils/utils.js'
-import config from 'config'
-import events, {PEER_CONNECT, PEER_DISCOVERY} from './utils/events.js'
-import {logger} from '@leverj/common/utils'
+import {peerIdFromString} from '@libp2p/peer-id'
+import {createFromJSON} from '@libp2p/peer-id-factory'
+import {ping} from '@libp2p/ping'
+import {tcp} from '@libp2p/tcp'
+import {logger, seconds} from '@leverj/common/utils'
+import {pipe} from 'it-pipe'
+import {createLibp2p} from 'libp2p'
+import {fromString as uint8ArrayFromString} from 'uint8arrays/from-string'
+import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
+import {events, PEER_CONNECT, PEER_DISCOVERY, tryAgainIfError} from './utils/index.js'
 
 export default class NetworkNode {
   constructor({ip = '0.0.0.0', port = 0, peerIdJson, bootstrapNodes = []}) {
@@ -26,17 +25,23 @@ export default class NetworkNode {
     this.bootstrapNodes = bootstrapNodes
   }
 
-  get multiaddrs() { return this.p2p.getMultiaddrs().map((addr) => addr.toString()) }
+  get multiaddrs() {
+    return this.p2p.getMultiaddrs().map((addr) => addr.toString())
+  }
 
-  get peerId() { return this.p2p.peerId.toString() }
+  get peerId() {
+    return this.p2p.peerId.toString()
+  }
 
-  get peers() { return this.p2p.getPeers().map((peer) => peer.toString()) }
+  get peers() {
+    return this.p2p.getPeers().map((peer) => peer.toString())
+  }
 
   exportJson() {
     return {
       privKey: uint8ArrayToString(this.p2p.peerId.privateKey, 'base64'),
       pubKey: uint8ArrayToString(this.p2p.peerId.publicKey, 'base64'),
-      id: this.peerId
+      id: this.peerId,
     }
   }
 
@@ -45,21 +50,23 @@ export default class NetworkNode {
   async gater(addr) {
     const ipsToBlock = [] //The blocklist can come from config
     const idx = ipsToBlock.findIndex(_ => addr.indexOf(_) > -1)
-    // console.log('ConnectonGater', addr, idx)
     return idx > -1
   }
 
   async create() {
     this.p2p = await createLibp2p({
       peerId: this.peerIdJson ? await createFromJSON(this.peerIdJson) : undefined,
-      addresses: {listen: [`/ip4/${this.ip}/tcp/${this.port}`], announce: [`/ip4/${config.externalIp}/tcp/${this.port}`]},
+      addresses: {
+        listen: [`/ip4/${this.ip}/tcp/${this.port}`],
+        announce: [`/ip4/${config.externalIp}/tcp/${this.port}`],
+      },
       connectionGater: {
-        denyInboundConnection: (maConn => this.gater(maConn.remoteAddr.toString()))
+        denyInboundConnection: (maConn => this.gater(maConn.remoteAddr.toString())),
       },
       transports: [tcp()],
       connectionEncryption: [noise()],
       streamMuxers: [yamux()],
-      connectionManager: {inboundConnectionThreshold: 100, /*Default is 5*/},
+      connectionManager: {inboundConnectionThreshold: 100 /*Default is 5*/},
       services: {
         ping: ping({protocolPrefix: 'autonat'}), pubsub: gossipsub(), identify: identify(),
         dht: kadDHT({protocol: '/libp2p/autonat/1.0.0', peerInfoMapper: passthroughMapper, clientMode: false}),
@@ -72,10 +79,10 @@ export default class NetworkNode {
       },
       peerDiscovery: this.bootstrapNodes.length ? [bootstrap({
         autoDial: true,
-        interval: 60e3, //fixme: what is this?
+        interval: 60 * seconds,
         enabled: true,
-        list: this.bootstrapNodes
-      }),] : undefined
+        list: this.bootstrapNodes,
+      })] : undefined,
     })
 
     this.p2p.addEventListener(PEER_CONNECT, this.peerConnected.bind(this))
@@ -98,20 +105,19 @@ export default class NetworkNode {
     return this
   }
 
-  findPeer(peerId) { return this.p2p.peerRouting.findPeer(peerIdFromString(peerId)) }
+  findPeer(peerId) {
+    return this.p2p.peerRouting.findPeer(peerIdFromString(peerId))
+  }
 
-  peerDiscovered(evt) {
-    const {detail: peer} = evt
+  peerDiscovered(event) {
+    const {detail: peer} = event
     events.emit(PEER_DISCOVERY, peer.id.toString())
-    // console.log('Peer', peer, ' Discovered By', this.p2p.peerId)
   }
 
   //fixme: remove this peer from the network
-  peerConnected(evt) {
-    const peerId = evt.detail.toString()
-    // console.log(peerId, 'connected with', this.p2p.peerId)
+  peerConnected(event) {
+    const peerId = event.detail.toString()
     // if (!this.knownPeers[peerId]) {
-    //   console.log('remove this peer from the network')
     //   // this.p2p.hangUp(peerId)
     // }
   }
@@ -126,15 +132,19 @@ export default class NetworkNode {
     await this.p2p.services.pubsub.connect(peerId)
   }
 
-  async subscribe(topic) { await this.p2p.services.pubsub.subscribe(topic)}
+  async subscribe(topic) {
+    await this.p2p.services.pubsub.subscribe(topic)
+  }
 
-  async publish(topic, data) { await this.p2p.services.pubsub.publish(topic, new TextEncoder().encode(data)) }
+  async publish(topic, data) {
+    await this.p2p.services.pubsub.publish(topic, new TextEncoder().encode(data))
+  }
 
   // p2p connection
   async createAndSendMessage(peerId, protocol, message, responseHandler) {
-    console.log('Sending', peerId, message)
+    logger.log('Sending', peerId, message)
     try {
-      let stream = await this.createStream(peerId, protocol)
+      const stream = await this.createStream(peerId, protocol)
       await this.sendMessageOnStream(stream, message)
       await this.readStream(stream, responseHandler)
       return stream

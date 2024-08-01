@@ -1,7 +1,7 @@
-import path from 'path'
 import config from 'config'
-import events, {INFO_CHANGED} from '../utils/events.js'
+import path from 'path'
 import {existsSync, readFileSync, writeFileSync} from 'node:fs'
+import {events, INFO_CHANGED} from '../utils/index.js'
 
 export class Info {
   constructor() {
@@ -11,7 +11,9 @@ export class Info {
     events.on(INFO_CHANGED, () => this.set())
   }
 
-  setBridgeNode(bridgeNode) { this.bridgeNode = bridgeNode }
+  setBridgeNode(bridgeNode) {
+    this.bridgeNode = bridgeNode
+  }
 
   get() {
     if (this.info) return this.info

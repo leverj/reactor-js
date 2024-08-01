@@ -1,16 +1,21 @@
 {
-  "name": "@leverj/layer2-mcl",
+  "name": "@leverj/reactor.mcl",
   "version": "0.0.1",
   "type": "module",
   "license": "UNLICENSED",
   "exports": {
-    "./mcl": "./src/mcl.js",
-    "./utils": "./src/utils.js"
+    ".": "./src/mcl.js"
   },
   "scripts": {
-    "test": "mocha test/**/*.spec.js"
+    "test": "npx mocha",
+    "dependency:check": "npx depcheck"
   },
   "dependencies": {
-    "ethers": "^5.7.2"
+    "ethers": "^5.7.2",
+    "mcl-wasm": "^1.5.0"
+  },
+  "devDependencies": {
+    "@leverj/common": "^1.1.0",
+    "bls-wasm": "^1.1.1"
   }
 }

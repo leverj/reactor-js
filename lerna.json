@@ -11,7 +11,9 @@
   ],
   "command": {
     "publish": {
-      "allowBranch": ["dev"]
+      "allowBranch": [
+        "dev"
+      ]
     }
   }
 }

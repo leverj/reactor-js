@@ -3,21 +3,28 @@
   "type": "module",
   "private": true,
   "engines": {
-    "node": ">= 18.18.0",
-    "yarn": ">= 1.0.2"
+    "node": ">= 20.15.1",
+    "yarn": ">= 4.0.2"
   },
+  "packageManager": "yarn@4.0.2",
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
-    "test": "yarn workspaces run test --stream"
+    "test": "yarn workspaces foreach --since -pR run test",
+    "dependency:check": "yarn workspaces foreach --since -pR run dependency:check",
+    "publish:prerelease": "up=prerelease yarn publish:up",
+    "publish:patch": "up=patch yarn publish:up",
+    "publish:minor": "up=minor yarn publish:up",
+    "publish:major": "up=major yarn publish:up",
+    "publish:up": "lerna version $up --force-publish --exact --git-tag-version --push --yes && lerna publish from-git --yes"
   },
   "devDependencies": {
     "@istanbuljs/esm-loader-hook": "^0.2.0",
-    "hardhat": "^2.22.2",
+    "depcheck": "^1.4.7",
     "expect": "^29.7.0",
-    "lerna": "^8.1.2",
-    "mocha": "^10.3.0",
-    "nyc": "^15.1.0"
+    "lerna": "^8.1.7",
+    "mocha": "^10.7.0",
+    "yargs": "^17.7.2"
   }
 }

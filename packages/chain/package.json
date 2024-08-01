@@ -1,0 +1,23 @@
+{
+  "name": "@leverj/reactor.chain",
+  "version": "0.0.1",
+  "license": "UNLICENSED",
+  "type": "module",
+  "exports": {
+    "./contracts": "./src/contracts/index.js",
+    "./test": "./test/help/index.js"
+  },
+  "scripts": {
+    "test": "yarn contracts:compile && npx mocha",
+    "dependency:check": "npx depcheck",
+    "contracts:compile": "npx hardhat compile",
+    "contracts:generate:exports": "rm -rf src/contracts/abi && mkdir -p src/contracts/abi && npx hardhat compile && node scripts/generate-contract-exports"
+  },
+  "dependencies": {
+    "ethers": "^6.13.2"
+  },
+  "devDependencies": {
+    "@leverj/chain-deployment": "1.1.0",
+    "@openzeppelin/contracts": "^5.0.2"
+  }
+}

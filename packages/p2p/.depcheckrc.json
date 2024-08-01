@@ -1,0 +1,15 @@
+{
+  "ignore-patterns": [
+    "hardhat.config.cjs",
+    "config",
+    "test"
+  ],
+  "ignores": [
+    "@noble/curves",
+    "aes-encryption",
+    "axios",
+    "dkg",
+    "lodash-es",
+    "multiaddr"
+  ]
+}

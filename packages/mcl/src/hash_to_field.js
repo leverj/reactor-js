@@ -1,8 +1,7 @@
 import {BigNumber, utils} from 'ethers'
+import {FIELD_ORDER} from './utils.js'
 
-const {sha256, arrayify, hexlify, zeroPad} = utils
-
-const FIELD_ORDER = BigNumber.from('0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47')
+const {sha256, arrayify, zeroPad} = utils
 
 export function hashToField(domain, msg, count) {
   const u = 48
@@ -16,9 +15,7 @@ export function hashToField(domain, msg, count) {
 }
 
 function expandMsg(domain, msg, outLen) {
-  if (domain.length > 255) {
-    throw new Error('bad domain size')
-  }
+  if (domain.length > 255) throw Error('bad domain size')
 
   const out = new Uint8Array(outLen)
 

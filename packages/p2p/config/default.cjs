@@ -14,19 +14,19 @@ module.exports = {
     isPublic: true,
     bootstrapNodes: [],
     contractAddress: '',
-    providerUrl: ''
+    providerUrl: '',
   },
 
-  depositWithdraw:{
+  depositWithdraw: {
     contractAddress1: {
       chainId: 1,
       providerUrl: '',
     },
-    contractAddress2:{
+    contractAddress2: {
       chainId: 2,
       providerUrl: '',
-    }
+    },
   },
-  components: ['DEPOSIT_WITHDRAW']
+  components: ['DEPOSIT_WITHDRAW'],
 
 }
