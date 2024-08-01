@@ -1041,7 +1041,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@leverj/reactor.mcl@workspace:packages/mcl":
+"@leverj/reactor.mcl@npm:0.0.1, @leverj/reactor.mcl@workspace:packages/mcl":
   version: 0.0.0-use.local
   resolution: "@leverj/reactor.mcl@workspace:packages/mcl"
   dependencies:
@@ -1061,10 +1061,12 @@ __metadata:
     "@chainsafe/libp2p-yamux": "npm:^6.0.2"
     "@leverj/common": "npm:^1.0.18"
     "@leverj/reactor.chain": "npm:0.0.1"
+    "@leverj/reactor.mcl": "npm:0.0.1"
     "@libp2p/bootstrap": "npm:10.0.23"
     "@libp2p/identify": "npm:2.0.1"
     "@libp2p/kad-dht": "npm:12.0.15"
     "@libp2p/peer-id": "npm:^4.1.2"
+    "@libp2p/peer-id-factory": "npm:^4.1.2"
     "@libp2p/ping": "npm:^1.0.13"
     "@libp2p/tcp": "npm:^9.0.16"
     "@noble/curves": "npm:^1.4.0"
@@ -1073,6 +1075,7 @@ __metadata:
     body-parser: "npm:^1.20.2"
     config: "npm:^3.3.11"
     dkg: "npm:^0.0.3"
+    ethers: "npm:^6.13.2"
     express: "npm:^4.19.2"
     it-map: "npm:^3.0.5"
     it-pipe: "npm:^3.0.1"
@@ -1239,7 +1242,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@libp2p/peer-id-factory@npm:^4.2.2":
+"@libp2p/peer-id-factory@npm:^4.1.2, @libp2p/peer-id-factory@npm:^4.2.2":
   version: 4.2.2
   resolution: "@libp2p/peer-id-factory@npm:4.2.2"
   dependencies:
@@ -4812,7 +4815,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ethers@npm:^6.12.1, ethers@npm:^6.13.1":
+"ethers@npm:^6.12.1, ethers@npm:^6.13.1, ethers@npm:^6.13.2":
   version: 6.13.2
   resolution: "ethers@npm:6.13.2"
   dependencies:

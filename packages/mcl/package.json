@@ -7,7 +7,8 @@
     ".": "./src/mcl.js"
   },
   "scripts": {
-    "test": "npx mocha"
+    "test": "npx mocha",
+    "dependency:check": "npx depcheck"
   },
   "dependencies": {
     "ethers": "^5.7.2",

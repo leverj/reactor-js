@@ -1,0 +1,9 @@
+{
+  "ignore-patterns": [
+    "test"
+  ],
+  "ignores": [
+    "@leverj/common",
+    "bls-wasm"
+  ]
+}
