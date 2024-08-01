@@ -37,11 +37,11 @@ contract Vault {
 
     function sendNative(uint toChainId) external payable {
         pool[NATIVE] += msg.value;
-        uint counter = sendCounter++;
-        bytes32 hash = payloadHash(chainId, NATIVE, 18, msg.value, msg.sender, chainId, toChainId, counter);
+        sendCounter++;
+        bytes32 hash = payloadHash(chainId, NATIVE, 18, msg.value, msg.sender, chainId, toChainId, sendCounter);
         tokenSent[hash] = true;
-        //fixme native name/symbol for each chain will be different, e.g. BSC, Fantom/FTM. Along with constructor like we set chainId ?
-        emit TokenSent(chainId, NATIVE, 'ETHER', 'ETH', 18, msg.value, msg.sender, chainId, toChainId, counter);
+        //fixme: native name/symbol for each chain will be different, e.g. BSC, Fantom/FTM. Along with constructor like we set chainId ?
+        emit TokenSent(chainId, NATIVE, 'ETHER', 'ETH', 18, msg.value, msg.sender, chainId, toChainId, sendCounter);
     }
 
     function sendToken(uint toChainId, address token, uint amount) external {
@@ -62,10 +62,10 @@ contract Vault {
             safeTransfer(token, msg.sender, address(this), amount);
             pool[token] += amount;
         }
-        uint counter = sendCounter++;
-        bytes32 hash = payloadHash(originatingChain, originatingToken, decimals, amount, msg.sender, chainId, toChainId, counter);
+        sendCounter++;
+        bytes32 hash = payloadHash(originatingChain, originatingToken, decimals, amount, msg.sender, chainId, toChainId, sendCounter);
         tokenSent[hash] = true;
-        emitSendEvent(token, originatingChain, originatingToken, decimals, amount, msg.sender, chainId, toChainId, counter);
+        emitSendEvent(token, originatingChain, originatingToken, decimals, amount, msg.sender, toChainId, sendCounter);
     }
 
     function tokenArrival(uint[2] calldata signature, uint[4] calldata signerKey, bytes calldata tokenSendPayload, string calldata name, string calldata symbol) public {
@@ -121,9 +121,9 @@ contract Vault {
         }
     }
 
-    function emitSendEvent(address token, uint originatingChain, address originatingToken, uint decimals, uint amount, address owner, uint fromChain, uint toChain, uint counter) private {
+    function emitSendEvent(address token, uint originatingChain, address originatingToken, uint decimals, uint amount, address owner, uint toChain, uint counter) private {
         string memory name = isProxyMapping[token] ? ERC20Proxy(token).originatingName() : ERC20(token).name();
         string memory symbol = isProxyMapping[token] ? ERC20Proxy(token).originatingSymbol() : ERC20(token).symbol();
-        emit TokenSent(originatingChain, originatingToken, name, symbol, decimals, amount, owner, fromChain, toChain, counter);
+        emit TokenSent(originatingChain, originatingToken, name, symbol, decimals, amount, owner, chainId, toChain, counter);
     }
 }
