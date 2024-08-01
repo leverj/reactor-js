@@ -10,7 +10,7 @@ import {peerIdFromString} from '@libp2p/peer-id'
 import {createFromJSON} from '@libp2p/peer-id-factory'
 import {ping} from '@libp2p/ping'
 import {tcp} from '@libp2p/tcp'
-import {logger} from '@leverj/common/utils'
+import {logger, seconds} from '@leverj/common/utils'
 import {pipe} from 'it-pipe'
 import {createLibp2p} from 'libp2p'
 import {fromString as uint8ArrayFromString} from 'uint8arrays/from-string'
@@ -79,7 +79,7 @@ export default class NetworkNode {
       },
       peerDiscovery: this.bootstrapNodes.length ? [bootstrap({
         autoDial: true,
-        interval: 60e3, //fixme: what is this?
+        interval: 60 * seconds,
         enabled: true,
         list: this.bootstrapNodes,
       })] : undefined,
@@ -109,14 +109,14 @@ export default class NetworkNode {
     return this.p2p.peerRouting.findPeer(peerIdFromString(peerId))
   }
 
-  peerDiscovered(evt) {
-    const {detail: peer} = evt
+  peerDiscovered(event) {
+    const {detail: peer} = event
     events.emit(PEER_DISCOVERY, peer.id.toString())
   }
 
   //fixme: remove this peer from the network
-  peerConnected(evt) {
-    const peerId = evt.detail.toString()
+  peerConnected(event) {
+    const peerId = event.detail.toString()
     // if (!this.knownPeers[peerId]) {
     //   // this.p2p.hangUp(peerId)
     // }

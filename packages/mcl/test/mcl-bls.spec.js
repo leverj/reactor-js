@@ -1,10 +1,12 @@
 import {logger} from '@leverj/common/utils'
-import {getPublicKey, secretFromHex, sign} from '@leverj/reactor.mcl/mcl'
+import {getPublicKey, secretFromHex, sign} from '@leverj/reactor.mcl'
 import bls from 'bls-wasm'
 import {expect} from 'expect'
 
-const messageString = 'hello world'
+//note: this test is for reference only: we don't use bls-wasm any longer, but we might ...
 describe('mcl-bls', () => {
+  const messageString = 'hello world'
+
   before(async () => {
     await bls.init(4)
     const P2 = new bls.PublicKey()

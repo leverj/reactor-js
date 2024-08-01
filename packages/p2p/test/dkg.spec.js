@@ -1,5 +1,5 @@
 import {logger} from '@leverj/common/utils'
-import {PublicKey, Signature} from '@leverj/reactor.mcl/mcl'
+import {PublicKey, Signature} from '@leverj/reactor.mcl'
 import {expect} from 'expect'
 import {TssNode} from '../src/TssNode.js'
 import {deployContract} from './help/hardhat.js'

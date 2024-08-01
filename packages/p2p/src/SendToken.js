@@ -1,5 +1,5 @@
 import * as chain from '@leverj/reactor.chain/contracts'
-import {deserializeHexStrToG1, deserializeHexStrToG2, g1ToBN, g2ToBN} from '@leverj/reactor.mcl/mcl'
+import {deserializeHexStrToG1, deserializeHexStrToG2, g1ToBN, g2ToBN} from '@leverj/reactor.mcl'
 import {AbiCoder, Interface, keccak256} from 'ethers'
 
 const abi = AbiCoder.defaultAbiCoder()
@@ -13,7 +13,7 @@ export class SendToken {
 
   setContract(chainId, contract) { this.contracts[chainId] = contract }
 
-  //fixme could not find any "native" or default way to extract event log's column names and types, so lil bit of manual js work
+  //fixme: could not find any "native" or default way to extract event log's column names and types, so lil bit of manual js work
   async processTokenSent(log) {
     if (this.bridgeNode.isLeader !== true) return
     const parsedLog = iface.parseLog(log)

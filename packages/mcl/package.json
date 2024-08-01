@@ -4,8 +4,7 @@
   "type": "module",
   "license": "UNLICENSED",
   "exports": {
-    "./mcl": "./src/mcl.js",
-    "./utils": "./src/utils.js"
+    ".": "./src/mcl.js"
   },
   "scripts": {
     "test": "npx mocha"

@@ -6,7 +6,7 @@ import {
   PublicKey,
   SecretKey,
   Signature,
-} from '@leverj/reactor.mcl/mcl'
+} from '@leverj/reactor.mcl'
 import {events, INFO_CHANGED} from './utils/index.js'
 
 const generateContributionForId = function (id, svec) {

@@ -5,7 +5,7 @@ import {
   g2ToBN,
   hashToPoint,
   Signature,
-} from '@leverj/reactor.mcl/mcl'
+} from '@leverj/reactor.mcl'
 import {expect} from 'expect'
 import {TssNode} from '../../src/TssNode.js'
 

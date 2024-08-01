@@ -8,7 +8,7 @@ import {
   sign,
   Signature,
   stringToHex,
-} from '@leverj/reactor.mcl/mcl'
+} from '@leverj/reactor.mcl'
 import {expect} from 'expect'
 import {deployContract} from './help/hardhat.js'
 import {createDkgMembers, signMessage} from './help/index.js'

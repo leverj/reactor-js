@@ -1,5 +1,5 @@
 import {logger} from '@leverj/common/utils'
-import {deserializeHexStrToG2, g2ToBN} from '@leverj/reactor.mcl/mcl'
+import {deserializeHexStrToG2, g2ToBN} from '@leverj/reactor.mcl'
 import {AbiCoder, formatEther, keccak256} from 'ethers'
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
@@ -94,16 +94,15 @@ describe('Vault', () => {
     const minted = await L2_Contract.tokenArrived(depositHash)
     expect(minted).toEqual(true)
 
-    const proxyToken = await L2_Contract.proxyMapping(BigInt(network.chainId).toString(), '0x0000000000000000000000000000000000000000')
-    const erc20Proxy = await getContractAt('ERC20Proxy', proxyToken)
-    const proxyBalanceOfDepositor = await erc20Proxy.balanceOf(owner.address)
+    const proxyAddress = await L2_Contract.proxyMapping(BigInt(network.chainId).toString(), '0x0000000000000000000000000000000000000000')
+    const proxy = await getContractAt('ERC20Proxy', proxyAddress)
+    const proxyBalanceOfDepositor = await proxy.balanceOf(owner.address)
     expect(amount).toEqual(proxyBalanceOfDepositor)
 
-    const isProxy = await L2_Contract.isProxyMapping(proxyToken)
+    const isProxy = await L2_Contract.isProxyMapping(proxyAddress)
     expect(isProxy).toEqual(true)
-    //fixme for each chain the native symbol/name will be different. it may get passed in constructor, in which case these hard coded values will become variables to contract and here
-    expect(await erc20Proxy.name()).toEqual('ETHER_REACTOR')
-    expect(await erc20Proxy.symbol()).toEqual('ETH_R')
+    expect(await proxy.name()).toEqual('ETHER_REACTOR')
+    expect(await proxy.symbol()).toEqual('ETH_R')
   })
 
   it('should deposit ERC20 on source chain and mint on target chain', async () => {
@@ -117,12 +116,12 @@ describe('Vault', () => {
     expect(minted).toEqual(true)
 
     const proxyToken = await L2_Contract.proxyMapping(BigInt(network.chainId).toString(), erc20.target)
-    const erc20Token = await getContractAt('ERC20Proxy', proxyToken)
-    const proxyBalanceOfDepositor = await erc20Token.balanceOf(account1)
+    const proxy = await getContractAt('ERC20Proxy', proxyToken)
+    const proxyBalanceOfDepositor = await proxy.balanceOf(account1)
     expect(amount).toEqual(proxyBalanceOfDepositor)
 
-    const proxyName = await erc20Token.name()
-    const proxySymbol = await erc20Token.symbol()
+    const proxyName = await proxy.name()
+    const proxySymbol = await proxy.symbol()
     expect(proxyName).toEqual('USD_TETHER_REACTOR')
     expect(proxySymbol).toEqual('USDT_R')
   })
@@ -136,21 +135,21 @@ describe('Vault', () => {
     logger.log('******************b4 deposit*********', formatEther(ethBalanceOfDepositor.toString()))
     const {L2_Contract, leader} = await sendoutETHFromL1([L1_Chain, L2_Chain], amount)
     const proxyToken = await L2_Contract.proxyMapping(BigInt(network.chainId).toString(), '0x0000000000000000000000000000000000000000')
-    const erc20Token = await getContractAt('ERC20Proxy', proxyToken)
-    let proxyBalanceOfDepositor = await erc20Token.balanceOf(owner.address)
+    const proxy = await getContractAt('ERC20Proxy', proxyToken)
+    let proxyBalanceOfDepositor = await proxy.balanceOf(owner.address)
     expect(amount).toEqual(proxyBalanceOfDepositor)
 
     const withdrawReceipt = await L2_Contract.sendToken(L1_Chain, proxyToken, amount).then(tx => tx.wait())
-    proxyBalanceOfDepositor = await erc20Token.balanceOf(owner.address)
+    proxyBalanceOfDepositor = await proxy.balanceOf(owner.address)
     expect(BigInt(0)).toEqual(proxyBalanceOfDepositor)
 
     ethBalanceOfDepositor = await provider.getBalance(owner)
     logger.log('after deposit', formatEther(ethBalanceOfDepositor.toString()))
     const logs = await provider.getLogs(withdrawReceipt)
-    for (const log of logs) if (log.address == L2_Contract.target) await leader.processTokenSent(log)
+    for (const log of logs) if (log.address === L2_Contract.target) await leader.processTokenSent(log)
     await setTimeout(1000)
     ethBalanceOfDepositor = await provider.getBalance(owner)
-    //fixme need approximate ETH check here also.
+    //fixme: need to test ETH balance
     logger.log('after withdraw', formatEther(ethBalanceOfDepositor.toString()))
   })
 
@@ -165,17 +164,17 @@ describe('Vault', () => {
     expect(minted).toEqual(true)
 
     const proxyToken = await L2_Contract.proxyMapping(BigInt(L1_Chain).toString(), erc20.target)
-    const erc20Token = await getContractAt('ERC20Proxy', proxyToken)
-    const proxyBalanceOfDepositor = await erc20Token.balanceOf(account1)
+    const proxy = await getContractAt('ERC20Proxy', proxyToken)
+    const proxyBalanceOfDepositor = await proxy.balanceOf(account1)
     expect(amount).toEqual(proxyBalanceOfDepositor)
 
     const contractWithAccount1 = L2_Contract.connect(account1)
     expect(BigInt(await erc20.balanceOf(account1))).toEqual(999999000n)
 
     logger.log('Get Contract for', proxyToken)
-    logger.log('Instantiated token', erc20Token)
+    logger.log('Instantiated token', proxy)
     logger.log('Approve for', L2_Contract.target)
-    await erc20Token.approve(L2_Contract.target, amount)
+    await proxy.approve(L2_Contract.target, amount)
     const withdrawReceipt = await contractWithAccount1.sendToken(L1_Chain, proxyToken, amount).then(tx => tx.wait())
     const logs = await provider.getLogs(withdrawReceipt)
     for (const log of logs) if (log.address == L2_Contract.target) await leader.processTokenSent(log)
@@ -207,13 +206,13 @@ describe('Vault', () => {
       expect(isEthCloseToOriginalAmount).toEqual(false)
 
       const proxyToken = await contracts[c].proxyMapping(BigInt(chains[0]).toString(), '0x0000000000000000000000000000000000000000')
-      const proxyTokenContract = await getContractAt('ERC20Proxy', proxyToken)
-      const proxyName = await proxyTokenContract.name()
-      const proxySymbol = await proxyTokenContract.symbol()
+      const proxy = await getContractAt('ERC20Proxy', proxyToken)
+      const proxyName = await proxy.name()
+      const proxySymbol = await proxy.symbol()
       expect(proxyName).toEqual('ETHER_REACTOR')
       expect(proxySymbol).toEqual('ETH_R')
 
-      proxyMapping[chains[c]] = proxyTokenContract
+      proxyMapping[chains[c]] = proxy
       let proxyBalance = await proxyMapping[chains[c]].balanceOf(owner)
       expect(proxyBalance).toEqual(BigInt(amount))
 
@@ -230,8 +229,8 @@ describe('Vault', () => {
 
     ethBalanceOfDepositor = await provider.getBalance(owner)
     logger.log('after withdraw', formatEther(ethBalanceOfDepositor.toString()))
-    //fixme because of Gas consumption and due to all chains being simulated in one place, final ETH will be
-    //different. This is approximation test for now, but can be made precise by having exact gas calculation. Ok for time being
+    //fixme: because of Gas consumption and due to all chains being simulated in one place, final ETH will be different.
+    // This is approximation test for now, but can be made precise by having exact gas calculation. Ok for time being
     const delta = BigInt(balanceBeforeDeposit) - BigInt(ethBalanceOfDepositor)
     logger.log('DELTA', delta, formatEther(delta).toString())
     const isEthCloseToOriginalAmount = formatEther(delta).toString().startsWith('0.00')
@@ -259,8 +258,8 @@ describe('Vault', () => {
     const proxyMapping = {}
     for (let c = 1; c < chains.length; c++) {
       const proxyToken = await contracts[c].proxyMapping(BigInt(chains[0]).toString(), erc20.target)
-      const proxyTokenContract = await getContractAt('ERC20Proxy', proxyToken)
-      proxyMapping[chains[c]] = proxyTokenContract
+      const proxy = await getContractAt('ERC20Proxy', proxyToken)
+      proxyMapping[chains[c]] = proxy
       let proxyBalance = await proxyMapping[chains[c]].balanceOf(owner)
       logger.log('Proxy Balance b4 transfer', chains[c], proxyBalance)
       expect(proxyBalance).toEqual(BigInt(amount))
@@ -309,11 +308,9 @@ describe('Vault', () => {
       depositCounter: 0n,
     }
     const contract = await createVault(network.chainId, fixture.pubkey_ser)
-    const name = 'PROXY_NAME' //fixme this can be 'constant' or derived from the original token. ultimately, it's always the address that's the unique/primary key
-    const symbol = 'PROXY_SYMBOL'
     await contract.mint(fixture.sig_ser, fixture.pubkey_ser, AbiCoder.defaultAbiCoder().encode(
       ['address', 'address', 'uint', 'uint', 'uint', 'uint', 'uint', 'string', 'string'],
-      [fixture.vaultUser, fixture.token, BigInt(fixture.decimals), BigInt(network.chainId), BigInt(fixture.toChainId), BigInt(fixture.amount), BigInt(fixture.depositCounter), name, symbol]
+      [fixture.vaultUser, fixture.token, BigInt(fixture.decimals), BigInt(network.chainId), BigInt(fixture.toChainId), BigInt(fixture.amount), BigInt(fixture.depositCounter), 'PROXY_NAME', 'PROXY_SYMBOL']
     ))
     await setTimeout(1000)
     const depositHash = keccak256(fixture.vaultUser, fixture.token, BigInt(fixture.decimals), BigInt(fixture.toChainId), BigInt(fixture.amount), BigInt(fixture.depositCounter))

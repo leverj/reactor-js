@@ -1,4 +1,4 @@
-import {SecretKey} from '@leverj/reactor.mcl/mcl'
+import {SecretKey} from '@leverj/reactor.mcl'
 
 function generateDkgId(id) {
   const dkgId = new SecretKey()

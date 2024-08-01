@@ -9,7 +9,7 @@ process.on('SIGTERM', () => {
   process.exit()
 })
 
-// fixme: only for testing purpose...
+// note: used when stress testing ...
 if (process.env.FAIL) {
   const minute = 60000
   const timeout = Math.round(minute + Math.random() * minute)
