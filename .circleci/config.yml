@@ -49,6 +49,7 @@ jobs:
             cd packages/<< parameters.package >>
             mkdir -p dist
             cd ../mcl && npm pack && mv leverj-reactor.mcl-*.tgz ../p2p/dist/leverj-reactor.mcl.tgz && cd ../p2p 
+            cd ../chain && npm pack && mv leverj-reactor.chain-*.tgz ../p2p/dist/leverj-reactor.chain.tgz && cd ../p2p 
             cp -r << parameters.copy >> dist/
       - setup_remote_docker: { docker_layer_caching: true}
       - run:
