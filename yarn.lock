@@ -1001,19 +1001,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@leverj/chain-deployment@npm:1.0.18, @leverj/chain-deployment@workspace:packages/chain-deployment":
-  version: 0.0.0-use.local
-  resolution: "@leverj/chain-deployment@workspace:packages/chain-deployment"
+"@leverj/chain-deployment@npm:1.1.0":
+  version: 1.1.0
+  resolution: "@leverj/chain-deployment@npm:1.1.0"
   dependencies:
     "@nomiclabs/hardhat-ethers": "npm:^3.0.0-beta.0"
     "@nomiclabs/hardhat-etherscan": "npm:^3.1.8"
-    ethers: "npm:^6.13.1"
+    ethers: "npm:^6.12.1"
     glob: "npm:^11.0.0"
-    hardhat: "npm:^2.22.6"
-    hardhat-gas-reporter: "npm:^2.2.0"
+    hardhat: "npm:^2.22.4"
+    hardhat-gas-reporter: "npm:^2.1.1"
     solidity-coverage: "npm:^0.8.12"
-  languageName: unknown
-  linkType: soft
+  checksum: 3b74447a848fd8255307abc013aeb9e358981047378633ba04e3af36120d4d413bc4ce8d1b11b41d4b5d5c49d42f3f4c5ba552fb59004cba5607017cbf060433
+  languageName: node
+  linkType: hard
 
 "@leverj/common@npm:^1.0.18":
   version: 1.0.18
@@ -1034,7 +1035,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@leverj/reactor.chain@workspace:packages/chain"
   dependencies:
-    "@leverj/chain-deployment": "npm:1.0.18"
+    "@leverj/chain-deployment": "npm:1.1.0"
     "@openzeppelin/contracts": "npm:^5.0.2"
     ethers: "npm:^6.13.1"
   languageName: unknown
@@ -5753,7 +5754,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hardhat-gas-reporter@npm:^2.2.0":
+"hardhat-gas-reporter@npm:^2.1.1":
   version: 2.2.0
   resolution: "hardhat-gas-reporter@npm:2.2.0"
   dependencies:
@@ -5778,7 +5779,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hardhat@npm:^2.22.6":
+"hardhat@npm:^2.22.4":
   version: 2.22.7
   resolution: "hardhat@npm:2.22.7"
   dependencies:

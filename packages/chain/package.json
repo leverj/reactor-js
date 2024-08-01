@@ -20,7 +20,7 @@
     "ethers": "^6.13.1"
   },
   "devDependencies": {
-    "@leverj/chain-deployment": "1.0.18",
+    "@leverj/chain-deployment": "1.1.0",
     "@openzeppelin/contracts": "^5.0.2"
   }
 }
