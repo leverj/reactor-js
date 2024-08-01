@@ -12,10 +12,10 @@
   },
   "dependencies": {
     "ethers": "^5.7.2",
-    "mcl-wasm": "^1.4.0"
+    "mcl-wasm": "^1.5.0"
   },
   "devDependencies": {
-    "@leverj/common": "^1.0.18",
+    "@leverj/common": "^1.1.0",
     "bls-wasm": "^1.1.1"
   }
 }

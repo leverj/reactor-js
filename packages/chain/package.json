@@ -14,7 +14,7 @@
     "contracts:generate:exports": "rm -rf src/contracts/abi && mkdir -p src/contracts/abi && npx hardhat compile && node scripts/generate-contract-exports"
   },
   "dependencies": {
-    "ethers": "^6.13.1"
+    "ethers": "^6.13.2"
   },
   "devDependencies": {
     "@leverj/chain-deployment": "1.1.0",
