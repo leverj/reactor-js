@@ -11,6 +11,11 @@
     "test": "npx mocha"
   },
   "dependencies": {
-    "ethers": "^5.7.2"
+    "ethers": "^5.7.2",
+    "mcl-wasm": "^1.4.0"
+  },
+  "devDependencies": {
+    "@leverj/common": "^1.0.18",
+    "bls-wasm": "^1.1.1"
   }
 }
