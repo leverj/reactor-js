@@ -46,20 +46,22 @@ export const setupMembers = async (members, threshold) => {
   return members
 }
 
-export async function addMember(members, newMember) {
-  for (const existing of members) {
-    await existing.generateContributionForId(newMember.id.serializeToHexStr(), newMember.onDkgShare.bind(newMember))
-    existing.addMember(newMember.id.serializeToHexStr(), newMember.onDkgShare.bind(newMember))
-    newMember.addMember(existing.id.serializeToHexStr(), existing.onDkgShare.bind(existing))
+export async function addMember(members, joiner) {
+  for (const each of members) {
+    await each.generateContributionForId(joiner.id.serializeToHexStr(), joiner.onDkgShare.bind(joiner))
+    each.addMember(joiner.id.serializeToHexStr(), joiner.onDkgShare.bind(joiner))
+    joiner.addMember(each.id.serializeToHexStr(), each.onDkgShare.bind(each))
   }
-  newMember.addMember(newMember.id.serializeToHexStr(), newMember.onDkgShare.bind(newMember))
-  newMember.dkgDone()
-  members.push(newMember)
+  joiner.addMember(joiner.id.serializeToHexStr(), joiner.onDkgShare.bind(joiner))
+  joiner.dkgDone()
+  members.push(joiner)
 }
 
-export const createDkgMembers = async (memberIds, threshold) => {
+export const createDkgMembers = async (memberIds, threshold = 4) => {
   const members = memberIds.map(id => new TssNode(id.toString()))
-  for (const member of members) for (const member1 of members) member.addMember(member1.id.serializeToHexStr(), member1.onDkgShare.bind(member1))
-  return await setupMembers(members, threshold)
+  for (const member1 of members)
+    for (const member2 of members)
+      member1.addMember(member2.id.serializeToHexStr(), member2.onDkgShare.bind(member2))
+  return setupMembers(members, threshold)
 }
 

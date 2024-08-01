@@ -1,11 +1,11 @@
 import {logger} from '@leverj/common/utils'
+import {ERC20, ERC20Proxy, getContractAt, getSigners, provider, Vault} from '@leverj/reactor.chain/test'
 import {deserializeHexStrToG2, g2ToBN} from '@leverj/reactor.mcl'
 import {AbiCoder, formatEther, keccak256} from 'ethers'
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
 import {BridgeNode} from '../src/BridgeNode.js'
 import {SendToken} from '../src/SendToken.js'
-import {deployContract, getContractAt, getSigners, provider} from './help/hardhat.js'
 import {peerIdJsons} from './help/index.js'
 
 const [owner, account1] = await getSigners()
@@ -36,7 +36,7 @@ describe('Vault', () => {
     return nodes
   }
 
-  const _setContractsOnNodes = async (chains, [leader, node1, node2, node3, node4, node5, node6]) => {
+  const setContractsOnNodes = async (chains, [leader, node1, node2, node3, node4, node5, node6]) => {
     await leader.bridgeNode.publishWhitelist()
     await leader.bridgeNode.startDKG(4)
     await setTimeout(1000)
@@ -45,7 +45,7 @@ describe('Vault', () => {
     const pubkey_ser = g2ToBN(pubkey)
     const contracts = []
     for (const chain of chains) {
-      const contract = await createVault(chain, pubkey_ser)
+      const contract = await Vault(chain, pubkey_ser)
       contracts.push(contract)
       for (const node of [leader, node1, node2, node3, node4, node5, node6]) {
         node.setContract(chain, contract)
@@ -56,7 +56,7 @@ describe('Vault', () => {
 
   const sendoutETHFromL1 = async (chains, amount) => {
     const [leader, node1, node2, node3, node4, node5, node6] = await createDepositNodes(7)
-    const [L1_Contract, L2_Contract] = await _setContractsOnNodes(chains, [leader, node1, node2, node3, node4, node5, node6])
+    const [L1_Contract, L2_Contract] = await setContractsOnNodes(chains, [leader, node1, node2, node3, node4, node5, node6])
     const txnReceipt = await L1_Contract.sendNative(chains[1], {value: amount}).then(tx => tx.wait())
     const logs = await provider.getLogs(txnReceipt)
     let depositHash
@@ -69,8 +69,8 @@ describe('Vault', () => {
 
   const sendoutERC20FromL1 = async (chains, amount) => {
     const [leader, node1, node2, node3, node4, node5, node6] = await createDepositNodes(7)
-    const [L1_Contract, L2_Contract] = await _setContractsOnNodes(chains, [leader, node1, node2, node3, node4, node5, node6])
-    const erc20 = await deployContract('ERC20Mock', ['USD_TETHER', 'USDT'])
+    const [L1_Contract, L2_Contract] = await setContractsOnNodes(chains, [leader, node1, node2, node3, node4, node5, node6])
+    const erc20 = await ERC20('USD_TETHER', 'USDT')
     await erc20.mint(account1, 1e9)
     const erc20WithAccount1 = erc20.connect(account1)
     await erc20WithAccount1.approve(L1_Contract.target, 1000000, {from: account1.address}).then(tx => tx.wait())
@@ -80,8 +80,6 @@ describe('Vault', () => {
     const depositHash = await leader.processTokenSent(logs[1])
     return {L2_Contract, leader, depositHash, erc20}
   }
-
-  const createVault = async (chainId, pubkey_ser) => await deployContract('Vault', [chainId, pubkey_ser])
 
   afterEach(async () => await stopBridgeNodes())
 
@@ -177,7 +175,7 @@ describe('Vault', () => {
     await proxy.approve(L2_Contract.target, amount)
     const withdrawReceipt = await contractWithAccount1.sendToken(L1_Chain, proxyToken, amount).then(tx => tx.wait())
     const logs = await provider.getLogs(withdrawReceipt)
-    for (const log of logs) if (log.address == L2_Contract.target) await leader.processTokenSent(log)
+    for (const log of logs) if (log.address === L2_Contract.target) await leader.processTokenSent(log)
     await setTimeout(1000)
     expect(BigInt(await erc20.balanceOf(account1))).toEqual(1000000000n)
   })
@@ -186,7 +184,7 @@ describe('Vault', () => {
     const chains = [33333, 10101, 10102, 10103, 10104, 10105]
     const amount = BigInt(1e+19)
     const [leader, node1, node2, node3, node4, node5, node6] = await createDepositNodes(7)
-    const contracts = await _setContractsOnNodes(chains, [leader, node1, node2, node3, node4, node5, node6])
+    const contracts = await setContractsOnNodes(chains, [leader, node1, node2, node3, node4, node5, node6])
 
     let ethBalanceOfDepositor = await provider.getBalance(owner)
     logger.log('b4 deposit', formatEther(ethBalanceOfDepositor.toString()))
@@ -199,31 +197,31 @@ describe('Vault', () => {
       await setTimeout(1000)
     }
     let proxyMapping = {}
-    for (let c = 1; c < chains.length; c++) {
+    for (let i = 1; i < chains.length; i++) {
       ethBalanceOfDepositor = await provider.getBalance(owner)
       const isEthCloseToOriginalAmount = formatEther(ethBalanceOfDepositor.toString()).startsWith('9999.9')
       logger.log('isEthCloseToOriginalAmount', isEthCloseToOriginalAmount)
       expect(isEthCloseToOriginalAmount).toEqual(false)
 
-      const proxyToken = await contracts[c].proxyMapping(BigInt(chains[0]).toString(), '0x0000000000000000000000000000000000000000')
+      const proxyToken = await contracts[i].proxyMapping(BigInt(chains[0]), '0x0000000000000000000000000000000000000000')
       const proxy = await getContractAt('ERC20Proxy', proxyToken)
       const proxyName = await proxy.name()
       const proxySymbol = await proxy.symbol()
       expect(proxyName).toEqual('ETHER_REACTOR')
       expect(proxySymbol).toEqual('ETH_R')
 
-      proxyMapping[chains[c]] = proxy
-      let proxyBalance = await proxyMapping[chains[c]].balanceOf(owner)
+      proxyMapping[chains[i]] = proxy
+      let proxyBalance = await proxyMapping[chains[i]].balanceOf(owner)
       expect(proxyBalance).toEqual(BigInt(amount))
 
-      const targetChainIdx = (c == chains.length - 1) ? 0 : (c + 1)
+      const targetChainIdx = (i === chains.length - 1) ? 0 : (i + 1)
       const targetChain = chains[targetChainIdx]
-      const withdrawReceipt = await contracts[c].sendToken(targetChain, proxyToken, amount).then(tx => tx.wait())
+      const withdrawReceipt = await contracts[i].sendToken(targetChain, proxyToken, amount).then(tx => tx.wait())
       logs = await provider.getLogs(withdrawReceipt)
-      for (const log of logs) if (log.address == contracts[c].target) await leader.processTokenSent(log)
+      for (const log of logs) if (log.address === contracts[i].target) await leader.processTokenSent(log)
       await setTimeout(1000)
-      proxyBalance = await proxyMapping[chains[c]].balanceOf(owner)
-      logger.log('Proxy Balance after transfer', chains[c], proxyBalance)
+      proxyBalance = await proxyMapping[chains[i]].balanceOf(owner)
+      logger.log('Proxy Balance after transfer', chains[i], proxyBalance)
       expect(proxyBalance).toEqual(BigInt(0))
     }
 
@@ -241,14 +239,14 @@ describe('Vault', () => {
     const chains = [33333, 10101, 10102, 10103, 10104]
     const amount = BigInt(1e+3)
     const [leader, node1, node2, node3, node4, node5, node6] = await createDepositNodes(7)
-    const contracts = await _setContractsOnNodes(chains, [leader, node1, node2, node3, node4, node5, node6])
-    const erc20 = await deployContract('ERC20Proxy', ['L2Test', 'L2Test', 12, '0x0000000000000000000000000000000000000000', 1])
-    await erc20.mint(owner, 1e3)
-    let erc20Balance = await erc20.balanceOf(owner)
+    const contracts = await setContractsOnNodes(chains, [leader, node1, node2, node3, node4, node5, node6])
+    const proxy = await ERC20Proxy('L2Test', 'L2Test', 12, '0x0000000000000000000000000000000000000000', 1)
+    await proxy.mint(owner, 1e3)
+    let erc20Balance = await proxy.balanceOf(owner)
     logger.log('erc20Balance init', erc20Balance)
-    await erc20.approve(contracts[0].target, 1000000).then(tx => tx.wait())
-    const txnReceipt = await contracts[0].sendToken(chains[1], erc20.target, amount).then(tx => tx.wait())
-    erc20Balance = await erc20.balanceOf(owner)
+    await proxy.approve(contracts[0].target, 1000000).then(tx => tx.wait())
+    const txnReceipt = await contracts[0].sendToken(chains[1], proxy.target, amount).then(tx => tx.wait())
+    erc20Balance = await proxy.balanceOf(owner)
     logger.log('erc20Balance after deposit', erc20Balance)
     expect(erc20Balance).toEqual(BigInt(0))
 
@@ -256,23 +254,22 @@ describe('Vault', () => {
     await leader.processTokenSent(logs[1])
     await setTimeout(1000)
     const proxyMapping = {}
-    for (let c = 1; c < chains.length; c++) {
-      const proxyToken = await contracts[c].proxyMapping(BigInt(chains[0]).toString(), erc20.target)
-      const proxy = await getContractAt('ERC20Proxy', proxyToken)
-      proxyMapping[chains[c]] = proxy
-      let proxyBalance = await proxyMapping[chains[c]].balanceOf(owner)
-      logger.log('Proxy Balance b4 transfer', chains[c], proxyBalance)
+    for (let i = 1; i < chains.length; i++) {
+      const proxyToken = await contracts[i].proxyMapping(BigInt(chains[0]), proxy.target)
+      proxyMapping[chains[i]] = await getContractAt('ERC20Proxy', proxyToken)
+      let proxyBalance = await proxyMapping[chains[i]].balanceOf(owner)
+      logger.log('Proxy Balance b4 transfer', chains[i], proxyBalance)
       expect(proxyBalance).toEqual(BigInt(amount))
 
-      const targetChainIdx = (c == chains.length - 1) ? 0 : (c + 1)
+      const targetChainIdx = (i === chains.length - 1) ? 0 : (i + 1)
       const targetChain = chains[targetChainIdx]
-      logger.log('Send Token from ', c, targetChainIdx, targetChain)
-      const withdrawReceipt = await contracts[c].sendToken(targetChain, proxyToken, amount).then(tx => tx.wait())
+      logger.log('Send Token from ', i, targetChainIdx, targetChain)
+      const withdrawReceipt = await contracts[i].sendToken(targetChain, proxyToken, amount).then(tx => tx.wait())
       logs = await provider.getLogs(withdrawReceipt)
-      for (const log of logs) if (log.address == contracts[c].target) await leader.processTokenSent(log)
+      for (const log of logs) if (log.address === contracts[i].target) await leader.processTokenSent(log)
       await setTimeout(1000)
-      proxyBalance = await proxyMapping[chains[c]].balanceOf(owner)
-      logger.log('Proxy Balance after transfer', chains[c], proxyBalance)
+      proxyBalance = await proxyMapping[chains[i]].balanceOf(owner)
+      logger.log('Proxy Balance after transfer', chains[i], proxyBalance)
       expect(proxyBalance).toEqual(BigInt(0))
 
     }
@@ -282,7 +279,7 @@ describe('Vault', () => {
         expect(proxyBalance).toEqual(BigInt(0))
       }
     }
-    erc20Balance = await erc20.balanceOf(owner)
+    erc20Balance = await proxy.balanceOf(owner)
     logger.log('erc20Balance', erc20Balance)
     expect(erc20Balance).toEqual(BigInt(amount))
   })
@@ -307,7 +304,7 @@ describe('Vault', () => {
       amount: 1000000n,
       depositCounter: 0n,
     }
-    const contract = await createVault(network.chainId, fixture.pubkey_ser)
+    const contract = await Vault(network.chainId, fixture.pubkey_ser)
     await contract.mint(fixture.sig_ser, fixture.pubkey_ser, AbiCoder.defaultAbiCoder().encode(
       ['address', 'address', 'uint', 'uint', 'uint', 'uint', 'uint', 'string', 'string'],
       [fixture.vaultUser, fixture.token, BigInt(fixture.decimals), BigInt(network.chainId), BigInt(fixture.toChainId), BigInt(fixture.amount), BigInt(fixture.depositCounter), 'PROXY_NAME', 'PROXY_SYMBOL']

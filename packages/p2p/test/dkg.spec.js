@@ -1,27 +1,25 @@
 import {logger} from '@leverj/common/utils'
+import {BlsVerify} from '@leverj/reactor.chain/test'
 import {PublicKey, Signature} from '@leverj/reactor.mcl'
 import {expect} from 'expect'
 import {TssNode} from '../src/TssNode.js'
-import {deployContract} from './help/hardhat.js'
 import {addMember, createDkgMembers, setupMembers, signAndVerify, signMessage} from './help/index.js'
 
 describe('dkg', () => {
   const message = 'hello world'
   let contract
 
-  before(async () => contract = await deployContract('BlsVerify', []))
+  before(async () => contract = await BlsVerify())
 
   it('should be able to match member pub key derived from member pvt key', async () => {
-    const threshold = 4
-    const members = await createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399], threshold)
+    const members = await createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399])
     for (const member of members) {
       expect(member.publicKey.serializeToHexStr()).toEqual(member.secretKeyShare.getPublicKey().serializeToHexStr())
     }
   })
 
   it('should be able to create distributed keys and sign message', async () => {
-    const threshold = 4
-    const members = await createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399], threshold)
+    const members = await createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399])
     expect(members.length).toBe(7)
     for (const member of members) {
       expect(member.groupPublicKey.serializeToHexStr()).toEqual(members[0].groupPublicKey.serializeToHexStr())
@@ -34,8 +32,7 @@ describe('dkg', () => {
   })
 
   it('should be able to add new member retaining old public key and sign messages', async () => {
-    const threshold = 4
-    const members = await createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399], threshold)
+    const members = await createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399])
     expect(members.length).toBe(7)
     const groupPublicKey = members[0].vvec[0]
     await addMember(members, new TssNode('100'))
