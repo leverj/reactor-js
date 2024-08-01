@@ -1,5 +1,5 @@
 import {logger} from '@leverj/common/utils'
-import {ApiApp} from './src/apiApp.js'
+import {ApiApp} from './src/ApiApp.js'
 
 const api = new ApiApp()
 api.start()
