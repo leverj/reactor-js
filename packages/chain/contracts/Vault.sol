@@ -12,8 +12,8 @@ contract Vault {
 
     /**
     * Token Sent out to another chain. The payload has structure
-    * <OriginatingToken>, TokenAmount, VaultUser Address, fromChain, toChain, sendCounter
-    * <OriginatingToken> is a tuple represented by originatingChain, originatingTokenAddress, decimals
+    * <Origin>, TokenAmount, VaultUser Address, fromChain, toChain, sendCounter
+    * <Origin> is a tuple represented by chainId, token, decimals
     * fromChain may seem redundant at first glance. however, consider the case where L1 sends Token to L5 and L6.
     * and both L5 and L6 send it back to L1, and both L5 and L6 could have the same counter, so another key in the form of fromChain is needed
     */

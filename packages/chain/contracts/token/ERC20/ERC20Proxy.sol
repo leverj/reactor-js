@@ -5,19 +5,19 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract ERC20Proxy is ERC20 {
 
-    struct OriginatingToken {
+    struct Origin {
         uint chainId;
         address token;
         uint8 decimals;
     }
 
     address public owner;
-    OriginatingToken public origin;
+    Origin public origin;
 
     modifier isOwner { require(msg.sender == owner, "not an owner");  _; }
 
     constructor(string memory name_, string memory symbol_, uint8 decimals_, address token_, uint chainId_) ERC20(name_, symbol_) {
-        origin = OriginatingToken(chainId_, token_, decimals_);
+        origin = Origin(chainId_, token_, decimals_);
         owner = msg.sender;
     }
 
