@@ -9,9 +9,6 @@
   },
   "scripts": {
     "test": "yarn contracts:compile && npx mocha",
-    "coverage": "yarn coverage:hardhat",
-    "coverage:mocha": "npx hardhat clean && npx hardhat compile && NODE_OPTIONS='--experimental-loader @istanbuljs/esm-loader-hook' npx nyc mocha",
-    "coverage:hardhat": "NODE_ENV=test npx hardhat coverage && rm coverage.json",
     "dependency:check": "npx depcheck",
     "contracts:compile": "npx hardhat compile",
     "contracts:generate:exports": "rm -rf src/contracts/abi && mkdir -p src/contracts/abi && npx hardhat compile && node scripts/generate-contract-exports"

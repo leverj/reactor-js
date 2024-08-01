@@ -16,7 +16,6 @@ packages/chain/.env
 .test-*
 .vscode/
 .run
-coverage.json
 local-*
 *.log*
 .ignore
@@ -29,7 +28,6 @@ local-*
 artifacts/
 build/
 cache/
-coverage/
 data/
 deploy/
 dist/
