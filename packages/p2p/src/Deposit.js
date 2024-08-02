@@ -5,7 +5,7 @@ import {AbiCoder, Interface, keccak256} from 'ethers'
 const abi = AbiCoder.defaultAbiCoder()
 const iface = new Interface(chain.abi.Vault.abi)
 
-export class SendToken {
+export class Deposit {
   constructor(bridgeNode) {
     this.bridgeNode = bridgeNode
     this.contracts = {}

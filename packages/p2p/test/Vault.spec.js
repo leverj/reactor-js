@@ -1,11 +1,11 @@
 import {logger} from '@leverj/common/utils'
 import {ERC20, ERC20Proxy, getContractAt, getSigners, provider, Vault} from '@leverj/reactor.chain/test'
 import {deserializeHexStrToG2, g2ToBN} from '@leverj/reactor.mcl'
-import {AbiCoder, formatEther, keccak256} from 'ethers'
+import {formatEther} from 'ethers'
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
 import {BridgeNode} from '../src/BridgeNode.js'
-import {SendToken} from '../src/SendToken.js'
+import {Deposit} from '../src/Deposit.js'
 import {peerIdJsons} from './help/index.js'
 
 const [owner, account1] = await getSigners()
@@ -13,14 +13,9 @@ const [owner, account1] = await getSigners()
 describe('Vault', () => {
   const nodes = []
 
-  const stopBridgeNodes = async () => {
-    for (const deposit of nodes) await deposit.bridgeNode.stop()
-    nodes.length = 0
-  }
-
-  const createDepositNodes = async (count) => {
+  const createBridgeNodes = async (howMany) => {
     const bootstraps = []
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < howMany; i++) {
       const node = new BridgeNode({
         port: 9000 + i,
         isLeader: i === 0,
@@ -28,7 +23,7 @@ describe('Vault', () => {
         bootstrapNodes: bootstraps,
       })
       await node.create()
-      const deposit = new SendToken(node)
+      const deposit = new Deposit(node)
       node.setDeposit(deposit)
       nodes.push(deposit)
       if (i === 0) bootstraps.push(node.multiaddrs[0])
@@ -36,27 +31,24 @@ describe('Vault', () => {
     return nodes
   }
 
-  const setContractsOnNodes = async (chains, [leader, node1, node2, node3, node4, node5, node6]) => {
+  const deployVaultContractPerChainsOnNodes = async (chains, nodes) => {
+    const leader = nodes[0]
     await leader.bridgeNode.publishWhitelist()
     await leader.bridgeNode.startDKG(4)
     await setTimeout(1000)
-    const pubkeyHex = leader.bridgeNode.tssNode.groupPublicKey.serializeToHexStr()
-    const pubkey = deserializeHexStrToG2(pubkeyHex)
-    const pubkey_ser = g2ToBN(pubkey)
+    const pubkey_ser = g2ToBN(deserializeHexStrToG2(leader.bridgeNode.tssNode.groupPublicKey.serializeToHexStr()))
     const contracts = []
     for (const chain of chains) {
       const contract = await Vault(chain, pubkey_ser)
       contracts.push(contract)
-      for (const node of [leader, node1, node2, node3, node4, node5, node6]) {
-        node.setContract(chain, contract)
-      }
+      for (const node of nodes) node.setContract(chain, contract)
     }
     return contracts
   }
 
-  const sendoutETHFromL1 = async (chains, amount) => {
-    const [leader, node1, node2, node3, node4, node5, node6] = await createDepositNodes(7)
-    const [L1_Contract, L2_Contract] = await setContractsOnNodes(chains, [leader, node1, node2, node3, node4, node5, node6])
+  const sendNativeFromL1 = async (chains, amount) => {
+    const [leader, node1, node2, node3, node4, node5, node6] = await createBridgeNodes(7)
+    const [L1_Contract, L2_Contract] = await deployVaultContractPerChainsOnNodes(chains, [leader, node1, node2, node3, node4, node5, node6])
     const txnReceipt = await L1_Contract.sendNative(chains[1], {value: amount}).then(tx => tx.wait())
     const logs = await provider.getLogs(txnReceipt)
     let depositHash
@@ -68,8 +60,8 @@ describe('Vault', () => {
   }
 
   const sendoutERC20FromL1 = async (chains, amount) => {
-    const [leader, node1, node2, node3, node4, node5, node6] = await createDepositNodes(7)
-    const [L1_Contract, L2_Contract] = await setContractsOnNodes(chains, [leader, node1, node2, node3, node4, node5, node6])
+    const [leader, node1, node2, node3, node4, node5, node6] = await createBridgeNodes(7)
+    const [L1_Contract, L2_Contract] = await deployVaultContractPerChainsOnNodes(chains, [leader, node1, node2, node3, node4, node5, node6])
     const erc20 = await ERC20('USD_TETHER', 'USDT')
     await erc20.mint(account1, 1e9)
     const erc20WithAccount1 = erc20.connect(account1)
@@ -81,14 +73,17 @@ describe('Vault', () => {
     return {L2_Contract, leader, depositHash, erc20}
   }
 
-  afterEach(async () => await stopBridgeNodes())
+  afterEach(async () => {
+    for (const each of nodes) await each.bridgeNode.stop()
+    nodes.length = 0
+  })
 
   it('should invoke Deposit workflow on receipt of message', async () => {
     const network = await provider.getNetwork()
     const L1_Chain = network.chainId
     const L2_Chain = 10101
     const amount = BigInt(1e+19)
-    const {L2_Contract, depositHash} = await sendoutETHFromL1([L1_Chain, L2_Chain], amount)
+    const {L2_Contract, depositHash} = await sendNativeFromL1([L1_Chain, L2_Chain], amount)
     const minted = await L2_Contract.tokenArrived(depositHash)
     expect(minted).toEqual(true)
 
@@ -131,7 +126,7 @@ describe('Vault', () => {
     const amount = BigInt(1e+19)
     let ethBalanceOfDepositor = await provider.getBalance(owner)
     logger.log('******************b4 deposit*********', formatEther(ethBalanceOfDepositor.toString()))
-    const {L2_Contract, leader} = await sendoutETHFromL1([L1_Chain, L2_Chain], amount)
+    const {L2_Contract, leader} = await sendNativeFromL1([L1_Chain, L2_Chain], amount)
     const proxyToken = await L2_Contract.proxyMapping(BigInt(network.chainId).toString(), '0x0000000000000000000000000000000000000000')
     const proxy = await getContractAt('ERC20Proxy', proxyToken)
     let proxyBalanceOfDepositor = await proxy.balanceOf(owner.address)
@@ -183,8 +178,8 @@ describe('Vault', () => {
   it('multi-chain scenarios with ETH deposit on first chain', async () => {
     const chains = [33333, 10101, 10102, 10103, 10104, 10105]
     const amount = BigInt(1e+19)
-    const [leader, node1, node2, node3, node4, node5, node6] = await createDepositNodes(7)
-    const contracts = await setContractsOnNodes(chains, [leader, node1, node2, node3, node4, node5, node6])
+    const [leader, node1, node2, node3, node4, node5, node6] = await createBridgeNodes(7)
+    const contracts = await deployVaultContractPerChainsOnNodes(chains, [leader, node1, node2, node3, node4, node5, node6])
 
     let ethBalanceOfDepositor = await provider.getBalance(owner)
     logger.log('b4 deposit', formatEther(ethBalanceOfDepositor.toString()))
@@ -238,8 +233,8 @@ describe('Vault', () => {
   it('multi-chain scenarios with ERC20 deposit on first chain', async () => {
     const chains = [33333, 10101, 10102, 10103, 10104]
     const amount = BigInt(1e+3)
-    const [leader, node1, node2, node3, node4, node5, node6] = await createDepositNodes(7)
-    const contracts = await setContractsOnNodes(chains, [leader, node1, node2, node3, node4, node5, node6])
+    const [leader, node1, node2, node3, node4, node5, node6] = await createBridgeNodes(7)
+    const contracts = await deployVaultContractPerChainsOnNodes(chains, [leader, node1, node2, node3, node4, node5, node6])
     const proxy = await ERC20Proxy('L2Test', 'L2Test', 12, '0x0000000000000000000000000000000000000000', 1)
     await proxy.mint(owner, 1e3)
     let erc20Balance = await proxy.balanceOf(owner)
@@ -282,40 +277,5 @@ describe('Vault', () => {
     erc20Balance = await proxy.balanceOf(owner)
     logger.log('erc20Balance', erc20Balance)
     expect(erc20Balance).toEqual(BigInt(amount))
-  })
-
-  it.skip('should mint token using fixture data', async () => {
-    const network = await provider.getNetwork()
-    const fixture = {
-      sig_ser: [
-        '17501379548414473118975493418296770409004790518587989275104077991423278766345',
-        '10573459840926036933226410278548182531900093958496894445083855256191507622572',
-      ],
-      pubkey_ser: [
-        '17952266123624120693867949189877327115939693121746953888788663343366186261263',
-        '3625386958213971493190482798835911536597490696820041295198885612842303573644',
-        '14209805107538060976447556508818330114663332071460618570948978043188559362801',
-        '6106226559240500500676195643085343038285250451936828952647773685858315556632',
-      ],
-      vaultUser: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-      token: '0x0000000000000000000000000000000000000000',
-      decimals: 18n,
-      toChainId: 10101n,
-      amount: 1000000n,
-      depositCounter: 0n,
-    }
-    const contract = await Vault(network.chainId, fixture.pubkey_ser)
-    await contract.mint(fixture.sig_ser, fixture.pubkey_ser, AbiCoder.defaultAbiCoder().encode(
-      ['address', 'address', 'uint', 'uint', 'uint', 'uint', 'uint', 'string', 'string'],
-      [fixture.vaultUser, fixture.token, BigInt(fixture.decimals), BigInt(network.chainId), BigInt(fixture.toChainId), BigInt(fixture.amount), BigInt(fixture.depositCounter), 'PROXY_NAME', 'PROXY_SYMBOL']
-    ))
-    await setTimeout(1000)
-    const depositHash = keccak256(fixture.vaultUser, fixture.token, BigInt(fixture.decimals), BigInt(fixture.toChainId), BigInt(fixture.amount), BigInt(fixture.depositCounter))
-    const minted = await contract.minted(depositHash)
-    expect(minted).toEqual(true)
-
-    const proxyToken = await contract.proxyMapping(BigInt(network.chainId), fixture.token)
-    const proxyBalanceOfDepositor = await contract.balanceOf(proxyToken, fixture.vaultUser)
-    expect(fixture.amount).toEqual(proxyBalanceOfDepositor)
   })
 })

@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 contract ERC20Proxy is ERC20 {
 
     struct Origin {
-        uint chainId;
+        uint chain;
         address token;
         uint8 decimals;
     }
@@ -30,7 +30,7 @@ contract ERC20Proxy is ERC20 {
     }
 
     function chainId() public view virtual returns (uint) {
-        return origin.chainId;
+        return origin.chain;
     }
 
     function token() public view virtual returns (address) {
