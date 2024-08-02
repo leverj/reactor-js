@@ -1,11 +1,11 @@
 import {BigNumber} from '@ethersproject/bignumber'
 import {zeroPad} from '@ethersproject/bytes'
 import {sha256} from '@ethersproject/sha2'
-import mcl from 'mcl-wasm'
-import {zeroPadValue} from 'ethers'
 import {getBytes, toBeHex, randomBytes} from 'ethers'
+// import {getBytes, toBeHex, randomBytes, zeroPadValue} from 'ethers'
+import mcl from 'mcl-wasm'
 
-const zeroPadValue = zeroPad
+const zeroPadValue = zeroPad //fixme
 
 async function init() {
   await mcl.init(mcl.BN_SNARK1)
