@@ -117,6 +117,7 @@ contract Vault {
     function emitSendEvent(address token, uint originatingChain, address originatingToken, uint decimals, uint amount, address owner, uint toChain, uint counter) private {
         string memory name = isProxyMapping[token] ? ERC20Proxy(token).originatingName() : ERC20(token).name();
         string memory symbol = isProxyMapping[token] ? ERC20Proxy(token).originatingSymbol() : ERC20(token).symbol();
+        //fixme: maybe ad an indication whether it is a proxy or not?
         emit TokenSent(originatingChain, originatingToken, name, symbol, decimals, amount, owner, homeChain, toChain, counter);
     }
 }

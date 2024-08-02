@@ -21,39 +21,19 @@ contract ERC20Proxy is ERC20 {
         owner = msg.sender;
     }
 
-    function mint(address account, uint amount) public isOwner {
-        _mint(account, amount);
-    }
+    function mint(address account, uint amount) public isOwner { _mint(account, amount); }
 
-    function burn(address account, uint amount) public isOwner {
-        _burn(account, amount);
-    }
+    function burn(address account, uint amount) public isOwner { _burn(account, amount); }
 
-    function chain() public view virtual returns (uint) {
-        return origin.chain;
-    }
+    function chain() public view virtual returns (uint) { return origin.chain;  }
 
-    function token() public view virtual returns (address) {
-        return origin.token;
-    }
+    function token() public view virtual returns (address) { return origin.token; }
 
-    function decimals() public view virtual override returns (uint8) {
-        return origin.decimals;
-    }
+    function decimals() public view virtual override returns (uint8) { return origin.decimals; }
 
-    function originatingName() public view returns (string memory) {
-        return super.name();
-    }
-
-    function name() public view override returns (string memory) {
-        return string.concat(super.name(), '_REACTOR');
-    }
-
-    function originatingSymbol() public view returns (string memory) {
-        return super.symbol();
-    }
-
-    function symbol() public view override returns (string memory) {
-        return string.concat(originatingSymbol(), '_R');
-    }
+    //fixme: why do we care about the name & symbol being different?
+    function originatingName() public view returns (string memory) { return super.name(); }
+    function originatingSymbol() public view returns (string memory) { return super.symbol(); }
+    function name() public view override returns (string memory) { return string.concat(super.name(), '_REACTOR'); }
+    function symbol() public view override returns (string memory) { return string.concat(originatingSymbol(), '_R'); }
 }
