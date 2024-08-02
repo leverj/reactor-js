@@ -17,18 +17,18 @@ export class Deposit {
   async processTokenSent(log) {
     if (this.bridgeNode.isLeader !== true) return
     const parsedLog = iface.parseLog(log)
-    const [chain, token, name, symbol, decimals, amount, vaultUser, fromChain, toChain, sendCounter] = parsedLog.args
+    const [chain, token, name, symbol, decimals, amount, owner, fromChain, toChain, sendCounter] = parsedLog.args
     const sentHash = keccak256(AbiCoder.defaultAbiCoder().encode(
       ['uint', 'address', 'uint', 'uint', 'address', 'uint', 'uint', 'uint'],
-      [chain, token, decimals, amount, vaultUser, fromChain, toChain, sendCounter]
+      [chain, token, decimals, amount, owner, fromChain, toChain, sendCounter]
     ))
     const isSent = await this.contracts[fromChain].tokenSent(sentHash)
     if (isSent === false) return
-    await this.bridgeNode.aggregateSignature(sentHash, sentHash, fromChain, this.sentPayloadVerified.bind(this, chain, token, name, symbol, decimals, amount, vaultUser, fromChain, toChain, sendCounter))
+    await this.bridgeNode.aggregateSignature(sentHash, sentHash, fromChain, this.sentPayloadVerified.bind(this, chain, token, name, symbol, decimals, amount, owner, fromChain, toChain, sendCounter))
     return sentHash
   }
 
-  async sentPayloadVerified(chain, token, name, symbol, decimals, amount, vaultUser, fromChain, toChain, sendCounter, aggregateSignature) {
+  async sentPayloadVerified(chain, token, name, symbol, decimals, amount, owner, fromChain, toChain, sendCounter, aggregateSignature) {
     if (aggregateSignature.verified !== true) return
     const signature = deserializeHexStrToSignature(aggregateSignature.groupSign)
     const sig_ser = G1ToNumbers(signature)
@@ -38,7 +38,7 @@ export class Deposit {
     const targetContract = this.contracts[toChain]
     await targetContract.tokenArrival(sig_ser, pubkey_ser, abi.encode(
       ['uint', 'address', 'uint', 'uint', 'address', 'uint', 'uint', 'uint'],
-      [BigInt(chain), token, BigInt(decimals), BigInt(amount), vaultUser, BigInt(fromChain), BigInt(toChain), BigInt(sendCounter)]
+      [BigInt(chain), token, BigInt(decimals), BigInt(amount), owner, BigInt(fromChain), BigInt(toChain), BigInt(sendCounter)]
     ), name, symbol).then(tx => tx.wait())
   }
 

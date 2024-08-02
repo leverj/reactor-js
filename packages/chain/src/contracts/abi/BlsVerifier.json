@@ -1,5 +1,5 @@
 {
-  "contractName": "BlsVerify",
+  "contractName": "BlsVerifier",
   "abi": [
     {
       "inputs": [],
@@ -10,7 +10,7 @@
       "inputs": [
         {
           "internalType": "bytes32",
-          "name": "_bytes32",
+          "name": "value",
           "type": "bytes32"
         }
       ],
@@ -53,6 +53,29 @@
         },
         {
           "internalType": "uint256[4]",
+          "name": "signerKey",
+          "type": "uint256[4]"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "hash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "validate",
+      "outputs": [],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256[2]",
+          "name": "signature",
+          "type": "uint256[2]"
+        },
+        {
+          "internalType": "uint256[4]",
           "name": "pubkey",
           "type": "uint256[4]"
         },
@@ -62,7 +85,7 @@
           "type": "uint256[2]"
         }
       ],
-      "name": "verifySignature",
+      "name": "verify",
       "outputs": [
         {
           "internalType": "bool",
@@ -71,30 +94,6 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "string",
-          "name": "first",
-          "type": "string"
-        },
-        {
-          "internalType": "string",
-          "name": "second",
-          "type": "string"
-        }
-      ],
-      "name": "works",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "pure",
       "type": "function"
     }
   ]

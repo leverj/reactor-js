@@ -1,4 +1,4 @@
-import {BlsVerify} from '@leverj/reactor.chain/test'
+import {BlsVerifier} from '@leverj/reactor.chain/test'
 import {
   deserializeHexStrToSignature,
   deserializeHexStrToPublicKey,
@@ -10,7 +10,7 @@ import {
 import {expect} from 'expect'
 import {createDkgMembers, signMessage} from './help/index.js'
 
-describe('BlsVerify', () => {
+describe('BlsVerifier', () => {
   it('should verify signature from dkgnodes', async () => {
     const message = 'hello world'
     const members = await createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399])
@@ -22,7 +22,7 @@ describe('BlsVerify', () => {
     const message_ser = G1ToNumbers(hashToPoint(message))
     const pubkey_ser = G2ToNumbers(pubkey)
     const sig_ser = G1ToNumbers(signature)
-    const contract = await BlsVerify()
-    expect(await contract.verifySignature(sig_ser, pubkey_ser, message_ser)).toEqual(true)
+    const contract = await BlsVerifier()
+    expect(await contract.verify(sig_ser, pubkey_ser, message_ser)).toEqual(true)
   })
 })

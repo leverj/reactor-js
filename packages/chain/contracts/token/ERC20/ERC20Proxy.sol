@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {IERC165, ERC165} from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
+import {ITokenProxy} from "../ITokenProxy.sol";
 
-contract ERC20Proxy is ERC20 {
+contract ERC20Proxy is ERC20, ERC165, ITokenProxy {
 
     struct Origin {
         uint chain;
@@ -20,6 +22,12 @@ contract ERC20Proxy is ERC20 {
         origin = Origin(chainId_, token_, decimals_);
         owner = msg.sender;
     }
+
+    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+        return interfaceId == type(ITokenProxy).interfaceId || super.supportsInterface(interfaceId);
+    }
+
+    function isProxy() external pure returns (bool) { return true; }
 
     function mint(address account, uint amount) public isOwner { _mint(account, amount); }
 

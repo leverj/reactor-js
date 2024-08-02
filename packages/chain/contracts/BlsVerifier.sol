@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "hardhat/console.sol";
 import {modexp_3064_fd54, modexp_c191_3f52} from "./modexp.sol";
 
-contract BlsVerify {
+contract BlsVerifier {
     // Field order
     uint constant N = 21888242871839275222246405745257275088696311157297823662689037894645226208583;
 
@@ -19,10 +18,6 @@ contract BlsVerify {
     // (sqrt(-3) - 1)  / 2
     uint constant z1 = 0x000000000000000059e26bcea0d48bacd4f263f1acdb5c4f5763473177fffffe;
 
-    uint constant FIELD_MASK = 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
-    uint constant SIGN_MASK = 0x8000000000000000000000000000000000000000000000000000000000000000;
-    uint constant ODD_NUM = 0x8000000000000000000000000000000000000000000000000000000000000000;
-
     uint constant T24 = 0x1000000000000000000000000000000000000000000000000;
     uint constant MASK24 = 0xffffffffffffffffffffffffffffffffffffffffffffffff;
 
@@ -30,16 +25,15 @@ contract BlsVerify {
 
     constructor() {}
 
-    function works(string memory first, string memory second) public pure returns (bool) {
-        console.log("%s %s", first, second);
-        return true;
+    function validate(uint[2] memory signature, uint[4] memory signerKey, bytes32 hash) external view {
+        uint[2] memory messageToPoint = hashToPoint(bytes(bytes32ToHexString(hash)));
+        require(verify(signature, signerKey, messageToPoint), 'Invalid Signature');
     }
 
-    function verifySignature(uint[2] memory signature, uint[4] memory pubkey, uint[2] memory message) public view returns (bool) {
+    function verify(uint[2] memory signature, uint[4] memory pubkey, uint[2] memory message) public view returns (bool) {
         uint[12] memory input = [signature[0], signature[1], nG2x1, nG2x0, nG2y1, nG2y0, message[0], message[1], pubkey[1], pubkey[0], pubkey[3], pubkey[2]];
         uint[1] memory out;
         bool success;
-        // solium-disable-next-line security/no-inline-assembly
         assembly {
             success := staticcall(sub(gas(), 2000), 8, input, 384, out, 32)
             switch success
@@ -61,7 +55,6 @@ contract BlsVerify {
         bnAddInput[2] = p1[0];
         bnAddInput[3] = p1[1];
         bool success;
-        // solium-disable-next-line security/no-inline-assembly
         assembly {
             success := staticcall(sub(gas(), 2000), 6, bnAddInput, 128, p0, 64)
             switch success
@@ -73,26 +66,25 @@ contract BlsVerify {
         return p0;
     }
 
-    function bytes32ToHexString(bytes32 _bytes32) public pure returns (string memory) {
-        bytes memory hexString = new bytes(64 + 2); // 64 characters for the hash + 2 for "0x"
+    function bytes32ToHexString(bytes32 value) public pure returns (string memory) {
+        bytes memory hexString = new bytes(64 + 2); // 64 characters for the hash + 2 for "0x" prefix
         bytes memory hexAlphabet = "0123456789abcdef";
         hexString[0] = '0';
         hexString[1] = 'x';
         for (uint i = 0; i < 32; i++) {
-            uint8 byteValue = uint8(_bytes32[i]);
+            uint8 byteValue = uint8(value[i]);
             hexString[2 * i + 2] = hexAlphabet[byteValue >> 4];
             hexString[2 * i + 3] = hexAlphabet[byteValue & 0x0f];
         }
         return string(hexString);
     }
 
-    function hashToField(bytes memory domain, bytes memory messages) internal pure returns (uint[2] memory) {
+    function hashToField(bytes memory domain, bytes memory messages) private pure returns (uint[2] memory) {
         bytes memory _msg = expandMsgTo96(domain, messages);
         uint z0_;
         uint z1_;
         uint a0;
         uint a1;
-        // solium-disable-next-line security/no-inline-assembly
         assembly {
             let p := add(_msg, 24)
             z1_ := and(mload(p), MASK24)
@@ -108,7 +100,7 @@ contract BlsVerify {
         return [a0, a1];
     }
 
-    function mapToPointFT(uint _x) internal view returns (uint[2] memory p) {
+    function mapToPointFT(uint _x) private view returns (uint[2] memory p) {
         require(_x < N, "mapToPointFT: invalid field element");
         uint x = _x;
         bool decision = isNonResidueFP(x);
@@ -130,9 +122,7 @@ contract BlsVerify {
         bool found;
         (a1, found) = sqrtFaster(a1);
         if (found) {
-            if (decision) {
-                a1 = N - a1;
-            }
+            if (decision) a1 = N - a1;
             return [x, a1];
         }
 
@@ -144,9 +134,7 @@ contract BlsVerify {
         a1 = addmod(a1, 3, N);
         (a1, found) = sqrtFaster(a1);
         if (found) {
-            if (decision) {
-                a1 = N - a1;
-            }
+            if (decision) a1 = N - a1;
             return [x, a1];
         }
 
@@ -162,13 +150,11 @@ contract BlsVerify {
         a1 = addmod(a1, 3, N);
         (a1, found) = sqrtFaster(a1);
         require(found, "BLS: bad ft mapping implementation");
-        if (decision) {
-            a1 = N - a1;
-        }
+        if (decision) a1 = N - a1;
         return [x, a1];
     }
 
-    function expandMsgTo96(bytes memory domain, bytes memory message) internal pure returns (bytes memory) {
+    function expandMsgTo96(bytes memory domain, bytes memory message) private pure returns (bytes memory) {
         uint t1 = domain.length;
         require(t1 < 256, "BLS: invalid domain length");
         // zero<64>|msg<var>|lib_str<2>|I2OSP(0, 1)<1>|dst<var>|dst_len<1>
@@ -176,10 +162,8 @@ contract BlsVerify {
         bytes memory msg0 = new bytes(t1 + t0 + 64 + 4);
         bytes memory out = new bytes(96);
         // b0
-        // solium-disable-next-line security/no-inline-assembly
         assembly {
             let p := add(msg0, 96)
-
             let z := 0
             for {
 
@@ -206,14 +190,12 @@ contract BlsVerify {
         t0 = t1 + 34;
 
         // resize intermediate message
-        // solium-disable-next-line security/no-inline-assembly
         assembly {
             mstore(msg0, t0)
         }
 
         // b1
 
-        // solium-disable-next-line security/no-inline-assembly
         assembly {
             mstore(add(msg0, 32), b0)
             mstore8(add(msg0, 64), 1)
@@ -223,14 +205,12 @@ contract BlsVerify {
 
         bi = sha256(msg0);
 
-        // solium-disable-next-line security/no-inline-assembly
         assembly {
             mstore(add(out, 32), bi)
         }
 
         // b2
 
-        // solium-disable-next-line security/no-inline-assembly
         assembly {
             let t := xor(b0, bi)
             mstore(add(msg0, 32), t)
@@ -241,14 +221,12 @@ contract BlsVerify {
 
         bi = sha256(msg0);
 
-        // solium-disable-next-line security/no-inline-assembly
         assembly {
             mstore(add(out, 64), bi)
         }
 
-        // // b3
+         // b3
 
-        // solium-disable-next-line security/no-inline-assembly
         assembly {
             let t := xor(b0, bi)
             mstore(add(msg0, 32), t)
@@ -259,7 +237,6 @@ contract BlsVerify {
 
         bi = sha256(msg0);
 
-        // solium-disable-next-line security/no-inline-assembly
         assembly {
             mstore(add(out, 96), bi)
         }
@@ -267,9 +244,8 @@ contract BlsVerify {
         return out;
     }
 
-    function isNonResidueFP(uint e) internal view returns (bool isNonResidue) {
+    function isNonResidueFP(uint e) private view returns (bool isNonResidue) {
         bool callSuccess;
-        // solium-disable-next-line security/no-inline-assembly
         assembly {
             let freemem := mload(0x40)
             mstore(freemem, 0x20)
@@ -287,11 +263,11 @@ contract BlsVerify {
         return !isNonResidue;
     }
 
-    function inverseFaster(uint a) internal pure returns (uint) {
+    function inverseFaster(uint a) private pure returns (uint) {
         return modexp_3064_fd54.run(a);
     }
 
-    function sqrtFaster(uint xx) internal pure returns (uint x, bool hasRoot) {
+    function sqrtFaster(uint xx) private pure returns (uint x, bool hasRoot) {
         x = modexp_c191_3f52.run(xx);
         hasRoot = mulmod(x, x, N) == xx;
     }

@@ -1,17 +1,17 @@
-import {BlsVerify} from '@leverj/reactor.chain/test'
+import {BlsVerifier} from '@leverj/reactor.chain/test'
 import {G1ToNumbers, G2ToNumbers, hashToPoint, newKeyPair, sign, stringToHex} from '@leverj/reactor.mcl'
 import {expect} from 'expect'
 
-describe('BlsVerify', () => {
+describe('BlsVerifier', () => {
   const message = 'hello world'
   let contract
 
-  before(async () => contract = await BlsVerify())
+  before(async () => contract = await BlsVerifier())
 
-  it('verifySignature', async () => {
+  it('verify', async () => {
     const {pubkey, secret} = newKeyPair()
     const {signature, M} = sign(stringToHex(message), secret)
-    const res = await contract.verifySignature(G1ToNumbers(signature), G2ToNumbers(pubkey), G1ToNumbers(M))
+    const res = await contract.verify(G1ToNumbers(signature), G2ToNumbers(pubkey), G1ToNumbers(M))
     expect(res).toEqual(true)
   })
 

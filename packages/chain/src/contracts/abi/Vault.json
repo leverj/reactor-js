@@ -59,7 +59,7 @@
         {
           "indexed": true,
           "internalType": "address",
-          "name": "vaultUser",
+          "name": "owner",
           "type": "address"
         },
         {
@@ -138,7 +138,7 @@
         },
         {
           "internalType": "address",
-          "name": "originatingToken",
+          "name": "token",
           "type": "address"
         },
         {
@@ -153,7 +153,7 @@
         },
         {
           "internalType": "address",
-          "name": "vaultUser",
+          "name": "owner",
           "type": "address"
         },
         {
@@ -360,19 +360,6 @@
           "internalType": "bool",
           "name": "",
           "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "verifier",
-      "outputs": [
-        {
-          "internalType": "contract BlsVerify",
-          "name": "",
-          "type": "address"
         }
       ],
       "stateMutability": "view",

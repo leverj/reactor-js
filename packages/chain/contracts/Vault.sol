@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "hardhat/console.sol";
-import './BlsVerify.sol';
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "./token/ERC20/ERC20Proxy.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {ERC20Proxy} from "./token/ERC20/ERC20Proxy.sol";
+import {BlsVerifier} from "./BlsVerifier.sol";
 
 contract Vault {
 
@@ -12,10 +11,9 @@ contract Vault {
 
     /**
     * Token Sent out to another chain. The payload has structure
-    * <Origin>, TokenAmount, VaultUser Address, fromChain, toChain, sendCounter
-    * <Origin> is a tuple represented by chain, token, decimals
-    * fromChain may seem redundant at first glance. however, consider the case where L1 sends Token to L5 and L6.
-    * and both L5 and L6 send it back to L1, and both L5 and L6 could have the same counter, so another key in the form of fromChain is needed
+    * <Origin: {chain, token, decimals}>, token-amount, owner-address, fromChain, toChain, send-counter
+    * fromChain may seem redundant at first glance. however, consider the case where L[1] sends Token to L[n] and L[m].
+    * and both L[n] and L[m] send it back to L[1], and both L[n] and L[m] could have the same counter, so another key in the form of fromChain is needed
     */
     event TokenSent(uint indexed originatingChain, address indexed originatingToken, string originatingName, string originatingSymbol, uint decimals, uint amount, address indexed owner, uint fromChain, uint toChain, uint sendCounter);
 
@@ -27,12 +25,12 @@ contract Vault {
     mapping(uint => mapping(address => address)) public proxyMapping;
     mapping(address => bool) public isProxyMapping;
     uint public sendCounter = 0;
-    BlsVerify public verifier;
+    BlsVerifier private verifier;
 
     constructor(uint chain_, uint[4] memory publicKey_) {
         homeChain = chain_;
         publicKey = publicKey_;
-        verifier = new BlsVerify();
+        verifier = new BlsVerifier();
     }
 
     function sendNative(uint toChain) external payable {
@@ -80,11 +78,13 @@ contract Vault {
         return keccak256(abi.encode(originatingChain, token, decimals, amount, owner, fromChain, toChain, counter));
     }
 
-    function validatePayloadAndSignature(uint[2] memory signature, uint[4] memory signerKey, bytes32 tokenSendHash) private view {
-        require((publicKey[0] == signerKey[0] && publicKey[1] == signerKey[1] && publicKey[2] == signerKey[2] && publicKey[3] == signerKey[3]), 'Invalid Public Key');
-        uint[2] memory messageToPoint = verifier.hashToPoint(bytes(verifier.bytes32ToHexString(tokenSendHash)));
-        bool validSignature = verifier.verifySignature(signature, signerKey, messageToPoint);
-        require(validSignature == true, 'Invalid Signature');
+    function validatePayloadAndSignature(uint[2] memory signature, uint[4] memory signerKey, bytes32 hash) private view {
+        validateSignerKey(signerKey);
+        verifier.validate(signature, signerKey, hash);
+    }
+
+    function validateSignerKey(uint[4] memory signerKey) private view {
+        for (uint i = 0; i < 4; i++) require(publicKey[i] == signerKey[i], 'Invalid Public Key');
     }
 
     function mintOrDisburse(bytes calldata payload, string calldata name, string calldata symbol) private {

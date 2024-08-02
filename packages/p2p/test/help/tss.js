@@ -27,7 +27,7 @@ async function verifyInContract(signatureHex, pubkeyHex, message, contract) {
   const message_ser = G1ToNumbers(M)
   const pubkey_ser = G2ToNumbers(pubkey)
   const sig_ser = G1ToNumbers(signature)
-  return await contract.verifySignature(sig_ser, pubkey_ser, message_ser)
+  return await contract.verify(sig_ser, pubkey_ser, message_ser)
 }
 
 export const signMessage = (message, members) => {

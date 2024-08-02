@@ -1,3 +1,4 @@
 - set gas price to 0 in hardhat config
 - is l2.sh used?
+- make proxy token use origin name & symbol
 - use ethers 6 in mcl
