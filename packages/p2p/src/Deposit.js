@@ -11,39 +11,39 @@ export class Deposit {
     this.contracts = {}
   }
 
-  setContract(chainId, contract) { this.contracts[chainId] = contract }
+  setContract(chain, contract) { this.contracts[chain] = contract }
 
   //fixme: could not find any "native" or default way to extract event log's column names and types, so lil bit of manual js work
   async processTokenSent(log) {
     if (this.bridgeNode.isLeader !== true) return
     const parsedLog = iface.parseLog(log)
-    const [chain, token, originatingName, originatingSymbol, decimals, amount, vaultUser, fromChainId, toChainId, sendCounter] = parsedLog.args
+    const [chain, token, name, symbol, decimals, amount, vaultUser, fromChain, toChain, sendCounter] = parsedLog.args
     const sentHash = keccak256(AbiCoder.defaultAbiCoder().encode(
       ['uint', 'address', 'uint', 'uint', 'address', 'uint', 'uint', 'uint'],
-      [chain, token, decimals, amount, vaultUser, fromChainId, toChainId, sendCounter]
+      [chain, token, decimals, amount, vaultUser, fromChain, toChain, sendCounter]
     ))
-    const isSent = await this.contracts[fromChainId].tokenSent(sentHash)
+    const isSent = await this.contracts[fromChain].tokenSent(sentHash)
     if (isSent === false) return
-    await this.bridgeNode.aggregateSignature(sentHash, sentHash, fromChainId, this.sentPayloadVerified.bind(this, chain, token, originatingName, originatingSymbol, decimals, amount, vaultUser, fromChainId, toChainId, sendCounter))
+    await this.bridgeNode.aggregateSignature(sentHash, sentHash, fromChain, this.sentPayloadVerified.bind(this, chain, token, name, symbol, decimals, amount, vaultUser, fromChain, toChain, sendCounter))
     return sentHash
   }
 
-  async sentPayloadVerified(chain, token, originatingName, originatingSymbol, decimals, amount, vaultUser, fromChainId, toChainId, sendCounter, aggregateSignature) {
+  async sentPayloadVerified(chain, token, name, symbol, decimals, amount, vaultUser, fromChain, toChain, sendCounter, aggregateSignature) {
     if (aggregateSignature.verified !== true) return
     const signature = deserializeHexStrToG1(aggregateSignature.groupSign)
     const sig_ser = g1ToBN(signature)
     const pubkeyHex = this.bridgeNode.tssNode.groupPublicKey.serializeToHexStr()
     const pubkey = deserializeHexStrToG2(pubkeyHex)
     const pubkey_ser = g2ToBN(pubkey)
-    const targetContract = this.contracts[toChainId]
+    const targetContract = this.contracts[toChain]
     await targetContract.tokenArrival(sig_ser, pubkey_ser, abi.encode(
       ['uint', 'address', 'uint', 'uint', 'address', 'uint', 'uint', 'uint'],
-      [BigInt(chain), token, BigInt(decimals), BigInt(amount), vaultUser, BigInt(fromChainId), BigInt(toChainId), BigInt(sendCounter)]
-    ), originatingName, originatingSymbol).then(tx => tx.wait())
+      [BigInt(chain), token, BigInt(decimals), BigInt(amount), vaultUser, BigInt(fromChain), BigInt(toChain), BigInt(sendCounter)]
+    ), name, symbol).then(tx => tx.wait())
   }
 
-  async verifySentHash(chainId, sentHash) {
-    if (chainId === -1) return true //for local e2e testing, which wont have any contracts or hardhat, till we expand the scope of e2e
-    return await this.contracts[chainId].tokenSent(sentHash)
+  async verifySentHash(chain, sentHash) {
+    if (chain === -1) return true //for local e2e testing, which wont have any contracts or hardhat, till we expand the scope of e2e
+    return await this.contracts[chain].tokenSent(sentHash)
   }
 }

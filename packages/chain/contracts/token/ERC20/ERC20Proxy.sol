@@ -29,7 +29,7 @@ contract ERC20Proxy is ERC20 {
         _burn(account, amount);
     }
 
-    function chainId() public view virtual returns (uint) {
+    function chain() public view virtual returns (uint) {
         return origin.chain;
     }
 
