@@ -1,8 +1,8 @@
 import {
-  deserializeHexStrToG1,
-  deserializeHexStrToG2,
-  g1ToBN,
-  g2ToBN,
+  deserializeHexStrToSignature,
+  deserializeHexStrToPublicKey,
+  G1ToNumbers,
+  G2ToNumbers,
   hashToPoint,
   Signature,
 } from '@leverj/reactor.mcl'
@@ -22,11 +22,11 @@ export async function signAndVerify(contract, message, members) {
 
 async function verifyInContract(signatureHex, pubkeyHex, message, contract) {
   const M = hashToPoint(message)
-  const signature = deserializeHexStrToG1(signatureHex)
-  const pubkey = deserializeHexStrToG2(pubkeyHex)
-  const message_ser = g1ToBN(M)
-  const pubkey_ser = g2ToBN(pubkey)
-  const sig_ser = g1ToBN(signature)
+  const signature = deserializeHexStrToSignature(signatureHex)
+  const pubkey = deserializeHexStrToPublicKey(pubkeyHex)
+  const message_ser = G1ToNumbers(M)
+  const pubkey_ser = G2ToNumbers(pubkey)
+  const sig_ser = G1ToNumbers(signature)
   return await contract.verifySignature(sig_ser, pubkey_ser, message_ser)
 }
 

@@ -1,9 +1,9 @@
 import {BlsVerify} from '@leverj/reactor.chain/test'
 import {
-  deserializeHexStrToG1,
-  deserializeHexStrToG2,
-  g1ToBN,
-  g2ToBN,
+  deserializeHexStrToSignature,
+  deserializeHexStrToPublicKey,
+  G1ToNumbers,
+  G2ToNumbers,
   hashToPoint,
   Signature,
 } from '@leverj/reactor.mcl'
@@ -17,11 +17,11 @@ describe('BlsVerify', () => {
     const {signs, signers} = signMessage(message, members)
     const groupsSign = new Signature()
     groupsSign.recover(signs, signers)
-    const signature = deserializeHexStrToG1(groupsSign.serializeToHexStr())
-    const pubkey = deserializeHexStrToG2(members[0].groupPublicKey.serializeToHexStr())
-    const message_ser = g1ToBN(hashToPoint(message))
-    const pubkey_ser = g2ToBN(pubkey)
-    const sig_ser = g1ToBN(signature)
+    const signature = deserializeHexStrToSignature(groupsSign.serializeToHexStr())
+    const pubkey = deserializeHexStrToPublicKey(members[0].groupPublicKey.serializeToHexStr())
+    const message_ser = G1ToNumbers(hashToPoint(message))
+    const pubkey_ser = G2ToNumbers(pubkey)
+    const sig_ser = G1ToNumbers(signature)
     const contract = await BlsVerify()
     expect(await contract.verifySignature(sig_ser, pubkey_ser, message_ser)).toEqual(true)
   })

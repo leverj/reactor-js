@@ -11,7 +11,10 @@
     "dependency:check": "npx depcheck"
   },
   "dependencies": {
-    "ethers": "^5.7.2",
+    "@ethersproject/bignumber": "^5.7.0",
+    "@ethersproject/bytes": "^5.7.0",
+    "@ethersproject/sha2": "^5.7.0",
+    "ethers": "^6.13.2",
     "mcl-wasm": "^1.5.0"
   },
   "devDependencies": {

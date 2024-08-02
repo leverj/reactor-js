@@ -1,5 +1,5 @@
 import {logger} from '@leverj/common/utils'
-import {getPublicKey, secretFromHex, sign} from '@leverj/reactor.mcl'
+import {getPublicKey, deserializeHexStrToSecretKey, sign} from '@leverj/reactor.mcl'
 import bls from 'bls-wasm'
 import {expect} from 'expect'
 
@@ -74,7 +74,7 @@ class Keymap {
   }
 
   replenishMcl(secretHex) {
-    this.mcl.secret =secretFromHex(secretHex)
+    this.mcl.secret =deserializeHexStrToSecretKey(secretHex)
     this.mcl.pubkey = getPublicKey(secretHex)
     this.mcl.signature = sign(this.message, this.mcl.secret).signature
     return this

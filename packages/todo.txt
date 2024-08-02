@@ -1,1 +1,3 @@
-set gas price to 0 in hardhat config
+- set gas price to 0 in hardhat config
+- is l2.sh used?
+- use ethers 6 in mcl

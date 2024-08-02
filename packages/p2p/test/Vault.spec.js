@@ -1,6 +1,6 @@
 import {logger} from '@leverj/common/utils'
 import {ERC20, ERC20Proxy, getContractAt, getSigners, provider, Vault} from '@leverj/reactor.chain/test'
-import {deserializeHexStrToG2, g2ToBN} from '@leverj/reactor.mcl'
+import {deserializeHexStrToPublicKey, G2ToNumbers} from '@leverj/reactor.mcl'
 import {formatEther} from 'ethers'
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
@@ -35,7 +35,7 @@ describe('Vault', () => {
     await leader.bridgeNode.publishWhitelist()
     await leader.bridgeNode.startDKG(4)
     await setTimeout(1000)
-    const pubkey_ser = g2ToBN(deserializeHexStrToG2(leader.bridgeNode.tssNode.groupPublicKey.serializeToHexStr()))
+    const pubkey_ser = G2ToNumbers(deserializeHexStrToPublicKey(leader.bridgeNode.tssNode.groupPublicKey.serializeToHexStr()))
     const contracts = []
     for (const chain of chains) {
       const contract = await Vault(chain, pubkey_ser)
