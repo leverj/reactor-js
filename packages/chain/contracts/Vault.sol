@@ -2,7 +2,9 @@
 pragma solidity ^0.8.20;
 
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {IERC165} from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import {ERC20Proxy} from "./token/ERC20/ERC20Proxy.sol";
+import {ITokenProxy} from "./token/ITokenProxy.sol";
 import {BlsVerifier} from "./BlsVerifier.sol";
 
 contract Vault {
@@ -33,6 +35,11 @@ contract Vault {
         verifier = new BlsVerifier();
     }
 
+    function isProxy(address token) public view returns (bool) {
+        return isProxyMapping[token];
+//        return IERC165(token).supportsInterface(type(ITokenProxy).interfaceId);
+    }
+
     function sendNative(uint toChain) external payable {
         pool[NATIVE] += msg.value;
         sendCounter++;
@@ -46,7 +53,7 @@ contract Vault {
         uint originatingChain;
         address originatingToken;
         uint decimals;
-        if (isProxyMapping[token]) {
+        if (isProxy(token)) {
             ERC20Proxy proxy = ERC20Proxy(token);
             originatingChain = proxy.chain();
             originatingToken = proxy.token();
@@ -74,7 +81,7 @@ contract Vault {
         tokenArrived[tokenSendHash] = true;
     }
 
-    function payloadHash(uint originatingChain, address token, uint decimals, uint amount, address owner, uint fromChain, uint toChain, uint counter) public pure returns (bytes32){
+    function payloadHash(uint originatingChain, address token, uint decimals, uint amount, address owner, uint fromChain, uint toChain, uint counter) public pure returns (bytes32) {
         return keccak256(abi.encode(originatingChain, token, decimals, amount, owner, fromChain, toChain, counter));
     }
 
@@ -89,7 +96,7 @@ contract Vault {
 
     function mintOrDisburse(bytes calldata payload, string calldata name, string calldata symbol) private {
         //fixme: what's the point of the extra 3 fields in payload?
-        (uint chain, address token, uint decimals, uint amount, address owner, , ,) = abi.decode(payload, (uint, address, uint, uint, address, uint, uint, uint));
+        (uint chain, address token, uint8 decimals, uint amount, address owner, , ,) = abi.decode(payload, (uint, address, uint8, uint, address, uint, uint, uint));
         if (homeChain == chain) {  // if token is coming back home (to originating chain) ...
             // ... disburse amount back to the owner
             pool[token] -= amount; // fixme: require enough amount?
@@ -97,7 +104,7 @@ contract Vault {
         } else {
             // ... it's a foreign country, mint proxy for the owner
             if (proxyMapping[chain][token] == address(0)) { // if proxy does not exist
-                proxyMapping[chain][token] = address(new ERC20Proxy(name, symbol, uint8(decimals), token, chain));
+                proxyMapping[chain][token] = address(new ERC20Proxy(name, symbol, decimals, token, chain));
                 isProxyMapping[proxyMapping[chain][token]] = true;
             }
             ERC20Proxy(proxyMapping[chain][token]).mint(owner, amount);
@@ -115,9 +122,8 @@ contract Vault {
     }
 
     function emitSendEvent(address token, uint originatingChain, address originatingToken, uint decimals, uint amount, address owner, uint toChain, uint counter) private {
-        string memory name = isProxyMapping[token] ? ERC20Proxy(token).originatingName() : ERC20(token).name();
-        string memory symbol = isProxyMapping[token] ? ERC20Proxy(token).originatingSymbol() : ERC20(token).symbol();
-        //fixme: maybe ad an indication whether it is a proxy or not?
+        string memory name = isProxy(token) ? ERC20Proxy(token).originatingName() : ERC20(token).name();
+        string memory symbol = isProxy(token) ? ERC20Proxy(token).originatingSymbol() : ERC20(token).symbol();
         emit TokenSent(originatingChain, originatingToken, name, symbol, decimals, amount, owner, homeChain, toChain, counter);
     }
 }

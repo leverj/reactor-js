@@ -87,7 +87,7 @@ describe('Vault', () => {
     const proxyBalanceOfDepositor = await proxy.balanceOf(owner.address)
     expect(amount).toEqual(proxyBalanceOfDepositor)
 
-    const isProxy = await L2_Contract.isProxyMapping(proxyAddress)
+    const isProxy = await L2_Contract.isProxy(proxyAddress)
     expect(isProxy).toEqual(true)
     expect(await proxy.name()).toEqual('ETHER_REACTOR')
     expect(await proxy.symbol()).toEqual('ETH_R')

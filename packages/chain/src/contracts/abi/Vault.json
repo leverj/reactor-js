@@ -114,11 +114,11 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "",
+          "name": "token",
           "type": "address"
         }
       ],
-      "name": "isProxyMapping",
+      "name": "isProxy",
       "outputs": [
         {
           "internalType": "bool",
