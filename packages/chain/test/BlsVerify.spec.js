@@ -16,8 +16,8 @@ describe('BlsVerifier', () => {
   })
 
   it('hashToPoint', async () => {
-    const res = await contract.hashToPoint(stringToHex(message))
-    const fromJs = G1ToNumbers(hashToPoint(message))
-    expect(res.map(_ => _.toString())).toEqual(fromJs)
+    const fromContract = await contract.hashToPoint(stringToHex(message))
+    const fromMcl = G1ToNumbers(hashToPoint(message))
+    expect(fromContract).toEqual(fromMcl)
   })
 })
