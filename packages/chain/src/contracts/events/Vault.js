@@ -4,9 +4,9 @@ export class TokenSent {
 
   /**
    * @param {uint256} originatingChain
-   * @param {address} originatingToken
-   * @param {string} originatingName
-   * @param {string} originatingSymbol
+   * @param {address} token
+   * @param {string} name
+   * @param {string} symbol
    * @param {uint256} decimals
    * @param {uint256} amount
    * @param {address} owner
@@ -14,11 +14,11 @@ export class TokenSent {
    * @param {uint256} toChain
    * @param {uint256} sendCounter
    */
-  constructor(originatingChain, originatingToken, originatingName, originatingSymbol, decimals, amount, owner, fromChain, toChain, sendCounter) {
+  constructor(originatingChain, token, name, symbol, decimals, amount, owner, fromChain, toChain, sendCounter) {
     this.originatingChain = originatingChain
-    this.originatingToken = originatingToken
-    this.originatingName = originatingName
-    this.originatingSymbol = originatingSymbol
+    this.token = token
+    this.name = name
+    this.symbol = symbol
     this.decimals = decimals
     this.amount = amount
     this.owner = owner

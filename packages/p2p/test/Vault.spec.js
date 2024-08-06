@@ -10,7 +10,7 @@ import {peerIdJsons} from './help/index.js'
 
 const [owner, account] = await getSigners()
 
-describe.only('Vault', () => {
+describe('Vault', () => {
   let nodes, leader
 
   const createBridgeNodes = async (howMany) => {

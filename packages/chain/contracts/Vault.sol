@@ -2,22 +2,33 @@
 pragma solidity ^0.8.20;
 
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {IERC20, SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import {ERC20Proxy} from "./token/ERC20/ERC20Proxy.sol";
 import {ITokenProxy} from "./token/ITokenProxy.sol";
 import {BlsVerifier} from "./BlsVerifier.sol";
 
 contract Vault {
+    using Address for address payable;
+    using SafeERC20 for IERC20;
+
+    struct Chain {
+        string name;
+        string symbol;
+        uint decimals;
+    }
+    mapping(uint => Chain) public chains;
 
     address constant public NATIVE = address(0);
 
     /**
-    * Token Sent out to another chain. The payload has structure
-    * <Origin: {chain, token, decimals}>, token-amount, owner-address, fromChain, toChain, send-counter
-    * fromChain may seem redundant at first glance. however, consider the case where L[1] sends Token to L[n] and L[m].
+    * Token Sent out to another chain.
+    * The payload structure: <Origin: {chain, token, decimals}>, token-amount, owner-address, fromChain, toChain, send-counter
+    * fromChain may seem redundant at first glance. however, consider the case where L[1] sends Token to L[n] and L[m],
     * and both L[n] and L[m] send it back to L[1], and both L[n] and L[m] could have the same counter, so another key in the form of fromChain is needed
     */
-    event TokenSent(uint indexed originatingChain, address indexed originatingToken, string originatingName, string originatingSymbol, uint decimals, uint amount, address indexed owner, uint fromChain, uint toChain, uint sendCounter);
+    event TokenSent(uint indexed originatingChain, address indexed token, string name, string symbol, uint decimals, uint amount, address indexed owner, uint fromChain, uint toChain, uint sendCounter);
 
     uint public homeChain;
     uint[4] public publicKey;
@@ -33,6 +44,11 @@ contract Vault {
         homeChain = chain_;
         publicKey = publicKey_;
         verifier = new BlsVerifier();
+        chains[homeChain] = Chain('ETHER', 'ETH', 18); //fixme: generalize setup, and make it by owner
+    }
+
+    function addChain(uint chainId, string calldata name, string calldata symbol, uint decimals) public {
+        chains[chainId] = Chain(name, symbol, decimals);
     }
 
     function isProxy(address token) public view returns (bool) {
@@ -42,35 +58,29 @@ contract Vault {
 
     function sendNative(uint toChain) external payable {
         pool[NATIVE] += msg.value;
-        sendCounter++;
-        bytes32 hash = payloadHash(homeChain, NATIVE, 18, msg.value, msg.sender, homeChain, toChain, sendCounter);
-        tokenSent[hash] = true;
-        //fixme: native name/symbol for each chain will be different, e.g. BSC, Fantom/FTM. Along with constructor like we set chain ?
-        emit TokenSent(homeChain, NATIVE, 'ETHER', 'ETH', 18, msg.value, msg.sender, homeChain, toChain, sendCounter);
+        Chain storage chain = chains[homeChain];
+        send(homeChain, NATIVE, chain.name, chain.symbol, chain.decimals, msg.value, msg.sender, homeChain, toChain);
     }
 
     function sendToken(uint toChain, address token, uint amount) external {
-        uint originatingChain;
-        address originatingToken;
-        uint decimals;
         if (isProxy(token)) {
             ERC20Proxy proxy = ERC20Proxy(token);
-            originatingChain = proxy.chain();
-            originatingToken = proxy.token();
-            decimals = proxy.decimals();
             proxy.burn(msg.sender, amount);
+            send(proxy.chain(), proxy.token(), proxy.name(), proxy.symbol(), proxy.decimals(), amount, msg.sender, homeChain, toChain);
         }
         else {
-            originatingChain = homeChain;
-            originatingToken = token;
-            decimals = ERC20(token).decimals();
+            ERC20 erc20 = ERC20(token);
             safeTransfer(token, msg.sender, address(this), amount);
             pool[token] += amount;
+            send(homeChain, token, erc20.name(), erc20.symbol(), erc20.decimals(), amount, msg.sender, homeChain, toChain);
         }
+    }
+
+    function send(uint originatingChain, address token, string memory name, string memory symbol, uint decimals, uint amount, address owner, uint fromChain, uint toChain) private {
         sendCounter++;
-        bytes32 hash = payloadHash(originatingChain, originatingToken, decimals, amount, msg.sender, homeChain, toChain, sendCounter);
+        bytes32 hash = payloadHash(originatingChain, token, decimals, amount, owner, fromChain, toChain, sendCounter);
         tokenSent[hash] = true;
-        emit TokenSent(originatingChain, originatingToken, ERC20(token).name(), ERC20(token).symbol(), decimals, amount, msg.sender, homeChain, toChain, sendCounter);
+        emit TokenSent(originatingChain, token, name, symbol, decimals, amount, owner, fromChain, toChain, sendCounter);
     }
 
     function tokenArrival(uint[2] calldata signature, uint[4] calldata signerKey, bytes calldata payload, string calldata name, string calldata symbol) public {
@@ -112,12 +122,11 @@ contract Vault {
     }
 
     function safeTransfer(address token, address from, address to, uint amount) private {
-        //fixme: use safeTransfer()
-        if (token == address(0)) payable(to).transfer(amount);
+        if (token == address(0)) payable(to).sendValue(amount); //fixme: Consider using {ReentrancyGuard}
         else {
-            ERC20 erc20 = ERC20(token);
+            IERC20 erc20 = ERC20(token);
             uint balance = erc20.balanceOf(to);
-            from == address(this) ? erc20.transfer(to, amount) : erc20.transferFrom(from, to, amount);
+            from == address(this) ? erc20.safeTransfer(to, amount) : erc20.safeTransferFrom(from, to, amount);
             require(erc20.balanceOf(to) == (balance + amount), 'Invalid transfer');
         }
     }
