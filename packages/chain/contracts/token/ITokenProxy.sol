@@ -2,5 +2,6 @@
 pragma solidity ^0.8.20;
 
 interface ITokenProxy {
-    function isProxy() external returns (bool);
+    function chain() external returns (uint);
+    function token() external returns (address);
 }

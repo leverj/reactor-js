@@ -10,7 +10,7 @@ import {peerIdJsons} from './help/index.js'
 
 const [owner, account] = await getSigners()
 
-describe('Vault', () => {
+describe.only('Vault', () => {
   let nodes, leader
 
   const createBridgeNodes = async (howMany) => {
@@ -89,8 +89,8 @@ describe('Vault', () => {
 
     const isProxy = await L2_Contract.isProxy(proxyAddress)
     expect(isProxy).toEqual(true)
-    expect(await proxy.name()).toEqual('ETHER_REACTOR')
-    expect(await proxy.symbol()).toEqual('ETH_R')
+    expect(await proxy.name()).toEqual('ETHER')
+    expect(await proxy.symbol()).toEqual('ETH')
   })
 
   it('should deposit ERC20 on source chain and mint on target chain', async () => {
@@ -110,8 +110,8 @@ describe('Vault', () => {
 
     const proxyName = await proxy.name()
     const proxySymbol = await proxy.symbol()
-    expect(proxyName).toEqual('USD_TETHER_REACTOR')
-    expect(proxySymbol).toEqual('USDT_R')
+    expect(proxyName).toEqual('USD_TETHER')
+    expect(proxySymbol).toEqual('USDT')
   })
 
   it('should disburse when withdrawn from target chain', async () => {
@@ -198,8 +198,8 @@ describe('Vault', () => {
       const proxy = await getContractAt('ERC20Proxy', proxyToken)
       const proxyName = await proxy.name()
       const proxySymbol = await proxy.symbol()
-      expect(proxyName).toEqual('ETHER_REACTOR')
-      expect(proxySymbol).toEqual('ETH_R')
+      expect(proxyName).toEqual('ETHER')
+      expect(proxySymbol).toEqual('ETH')
 
       proxyMapping[chains[i]] = proxy
       let proxyBalance = await proxyMapping[chains[i]].balanceOf(owner)

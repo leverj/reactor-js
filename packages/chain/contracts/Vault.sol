@@ -37,7 +37,7 @@ contract Vault {
 
     function isProxy(address token) public view returns (bool) {
         return isProxyMapping[token];
-//        return IERC165(token).supportsInterface(type(ITokenProxy).interfaceId);
+//        return IERC165(token).supportsInterface(type(ITokenProxy).interfaceId); //fixme
     }
 
     function sendNative(uint toChain) external payable {
@@ -70,7 +70,7 @@ contract Vault {
         sendCounter++;
         bytes32 hash = payloadHash(originatingChain, originatingToken, decimals, amount, msg.sender, homeChain, toChain, sendCounter);
         tokenSent[hash] = true;
-        emitSendEvent(token, originatingChain, originatingToken, decimals, amount, msg.sender, toChain, sendCounter);
+        emit TokenSent(originatingChain, originatingToken, ERC20(token).name(), ERC20(token).symbol(), decimals, amount, msg.sender, homeChain, toChain, sendCounter);
     }
 
     function tokenArrival(uint[2] calldata signature, uint[4] calldata signerKey, bytes calldata payload, string calldata name, string calldata symbol) public {
@@ -112,6 +112,7 @@ contract Vault {
     }
 
     function safeTransfer(address token, address from, address to, uint amount) private {
+        //fixme: use safeTransfer()
         if (token == address(0)) payable(to).transfer(amount);
         else {
             ERC20 erc20 = ERC20(token);
@@ -119,11 +120,5 @@ contract Vault {
             from == address(this) ? erc20.transfer(to, amount) : erc20.transferFrom(from, to, amount);
             require(erc20.balanceOf(to) == (balance + amount), 'Invalid transfer');
         }
-    }
-
-    function emitSendEvent(address token, uint originatingChain, address originatingToken, uint decimals, uint amount, address owner, uint toChain, uint counter) private {
-        string memory name = isProxy(token) ? ERC20Proxy(token).originatingName() : ERC20(token).name();
-        string memory symbol = isProxy(token) ? ERC20Proxy(token).originatingSymbol() : ERC20(token).symbol();
-        emit TokenSent(originatingChain, originatingToken, name, symbol, decimals, amount, owner, homeChain, toChain, counter);
     }
 }

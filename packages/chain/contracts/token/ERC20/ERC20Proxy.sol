@@ -27,8 +27,6 @@ contract ERC20Proxy is ERC20, ERC165, ITokenProxy {
         return interfaceId == type(ITokenProxy).interfaceId || super.supportsInterface(interfaceId);
     }
 
-    function isProxy() external pure returns (bool) { return true; }
-
     function mint(address account, uint amount) public isOwner { _mint(account, amount); }
 
     function burn(address account, uint amount) public isOwner { _burn(account, amount); }
@@ -38,10 +36,4 @@ contract ERC20Proxy is ERC20, ERC165, ITokenProxy {
     function token() public view virtual returns (address) { return origin.token; }
 
     function decimals() public view virtual override returns (uint8) { return origin.decimals; }
-
-    //fixme: why do we care about the name & symbol being different?
-    function originatingName() public view returns (string memory) { return super.name(); }
-    function originatingSymbol() public view returns (string memory) { return super.symbol(); }
-    function name() public view override returns (string memory) { return string.concat(super.name(), '_REACTOR'); }
-    function symbol() public view override returns (string memory) { return string.concat(originatingSymbol(), '_R'); }
 }
