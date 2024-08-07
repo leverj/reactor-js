@@ -5,7 +5,7 @@
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "chain_",
+          "name": "chainId_",
           "type": "uint256"
         },
         {
@@ -18,55 +18,12 @@
       "type": "constructor"
     },
     {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "target",
-          "type": "address"
-        }
-      ],
-      "name": "AddressEmptyCode",
-      "type": "error"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "account",
-          "type": "address"
-        }
-      ],
-      "name": "AddressInsufficientBalance",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "FailedInnerCall",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "ReentrancyGuardReentrantCall",
-      "type": "error"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "token",
-          "type": "address"
-        }
-      ],
-      "name": "SafeERC20FailedOperation",
-      "type": "error"
-    },
-    {
       "anonymous": false,
       "inputs": [
         {
           "indexed": true,
           "internalType": "uint256",
-          "name": "originatingChain",
+          "name": "originatingChainId",
           "type": "uint256"
         },
         {
@@ -108,13 +65,13 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "fromChain",
+          "name": "fromChainId",
           "type": "uint256"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "toChain",
+          "name": "toChainId",
           "type": "uint256"
         },
         {
@@ -160,15 +117,14 @@
       "type": "function"
     },
     {
-      "inputs": [
+      "inputs": [],
+      "name": "homeChain",
+      "outputs": [
         {
           "internalType": "uint256",
-          "name": "",
+          "name": "id",
           "type": "uint256"
-        }
-      ],
-      "name": "chains",
-      "outputs": [
+        },
         {
           "internalType": "string",
           "name": "name",
@@ -182,19 +138,6 @@
         {
           "internalType": "uint256",
           "name": "decimals",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "homeChain",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
           "type": "uint256"
         }
       ],
@@ -299,7 +242,7 @@
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "toChain",
+          "name": "toChainId",
           "type": "uint256"
         }
       ],
@@ -312,7 +255,7 @@
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "toChain",
+          "name": "toChainId",
           "type": "uint256"
         },
         {
