@@ -9,12 +9,9 @@ const getBytes = arrayify
 const zeroPadValue = zeroPad
 const toBeHex = hexlify
 
-async function init() {
-  await mcl.init(mcl.BN_SNARK1)
-  mcl.setMapToMode(0) // => 'FT'
-  // mcl.setMapToMode(1) // => 'TI'
-}
-await init()
+await mcl.init(mcl.BN_SNARK1)
+mcl.setMapToMode(0) // => 'FT'
+// mcl.setMapToMode(1) // => 'TI'
 
 export const deserializeHexStrToSecretKey = mcl.deserializeHexStrToFr
 export const deserializeHexStrToPublicKey = mcl.deserializeHexStrToG2
