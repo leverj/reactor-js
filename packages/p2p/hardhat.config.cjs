@@ -2,7 +2,7 @@ module.exports = Object.assign(require('@leverj/chain-deployment/hardhat.config.
   networks: {
     test: {
       url: 'http://127.0.0.1:8545',
-      gasLimit: 6000000000,
+      gasPrice: 0,
       defaultBalanceEther: 10,
     },
   }

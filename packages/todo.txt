@@ -1,2 +1,0 @@
-- set gas price to 0 in hardhat config
-- is l2.sh used?
