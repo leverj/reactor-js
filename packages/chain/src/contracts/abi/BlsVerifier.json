@@ -2,11 +2,6 @@
   "contractName": "BlsVerifier",
   "abi": [
     {
-      "inputs": [],
-      "stateMutability": "nonpayable",
-      "type": "constructor"
-    },
-    {
       "inputs": [
         {
           "internalType": "bytes32",

@@ -32,7 +32,6 @@ contract Vault is ReentrancyGuard{
 
     uint public homeChain;
     uint[4] public publicKey;
-    BlsVerifier private verifier;
     uint public sendCounter = 0;
     mapping(address => uint) public balances;
     mapping(bytes32 => bool) public tokenSent;
@@ -43,7 +42,6 @@ contract Vault is ReentrancyGuard{
     constructor(uint chain_, uint[4] memory publicKey_) {
         homeChain = chain_;
         publicKey = publicKey_;
-        verifier = new BlsVerifier();
         chains[homeChain] = Chain('ETHER', 'ETH', 18);
     }
 
@@ -87,7 +85,7 @@ contract Vault is ReentrancyGuard{
         bytes32 hash = keccak256(payload);
         require(tokenArrived[hash] == false, 'Token Arrival already processed');
         for (uint i = 0; i < 4; i++) require(publicKey[i] == signerKey[i], 'Invalid Public Key'); // validate signerKey
-        verifier.validate(signature, signerKey, hash);
+        BlsVerifier.validate(signature, signerKey, hash);
         (uint fromChain, address token, uint8 decimals, uint amount, address owner, , ,) = abi.decode(payload, (uint, address, uint8, uint, address, uint, uint, uint));
         mintOrDisburse(fromChain, token, decimals, amount, owner, name, symbol);
         tokenArrived[hash] = true;
