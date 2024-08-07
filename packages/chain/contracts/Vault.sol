@@ -72,11 +72,11 @@ contract Vault {
         emit TokenSent(originatingChainId, token, name, symbol, decimals, amount, owner, fromChainId, toChainId, sendCounter);
     }
 
-    function tokenArrival(uint[2] calldata signature, uint[4] calldata signerKey, bytes calldata payload, string calldata name, string calldata symbol) external {
+    function tokenArrival(uint[2] calldata signature, uint[4] calldata signerPublicKey, bytes calldata payload, string calldata name, string calldata symbol) external {
         bytes32 hash = keccak256(payload);
         require(tokenArrived[hash] == false, 'Token Arrival already processed');
-        for (uint i = 0; i < 4; i++) require(publicKey[i] == signerKey[i], 'Invalid Public Key'); // validate signerKey
-        BlsVerifier.validate(signature, signerKey, hash);
+        for (uint i = 0; i < 4; i++) require(publicKey[i] == signerPublicKey[i], 'Invalid Public Key'); // validate signerKey
+        BlsVerifier.validate(signature, signerPublicKey, hash);
         (uint fromChainId, address token, uint8 decimals, uint amount, address owner, , ,) = abi.decode(payload, (uint, address, uint8, uint, address, uint, uint, uint));
         mintOrDisburse(fromChainId, token, decimals, amount, owner, name, symbol);
         tokenArrived[hash] = true;

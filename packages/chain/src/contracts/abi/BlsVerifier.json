@@ -23,32 +23,13 @@
     {
       "inputs": [
         {
-          "internalType": "bytes",
-          "name": "message",
-          "type": "bytes"
-        }
-      ],
-      "name": "hashToPoint",
-      "outputs": [
-        {
-          "internalType": "uint256[2]",
-          "name": "",
-          "type": "uint256[2]"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
           "internalType": "uint256[2]",
           "name": "signature",
           "type": "uint256[2]"
         },
         {
           "internalType": "uint256[4]",
-          "name": "signerKey",
+          "name": "signerPublicKey",
           "type": "uint256[4]"
         },
         {
