@@ -5,7 +5,22 @@
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "chainId_",
+          "name": "chainId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "chainName",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "nativeSymbol",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "nativeDecimals",
           "type": "uint256"
         },
         {

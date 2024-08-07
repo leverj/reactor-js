@@ -36,8 +36,8 @@ contract Vault {
     mapping(address => bool) public isProxyMapping;
 
     //fixme: add chain info to constructor
-    constructor(uint chainId_, uint[4] memory publicKey_) {
-        homeChain = Chain(chainId_, 'ETHER', 'ETH', 18);
+    constructor(uint chainId, string memory chainName, string memory nativeSymbol, uint nativeDecimals, uint[4] memory publicKey_) {
+        homeChain = Chain(chainId, chainName, nativeSymbol, nativeDecimals);
         publicKey = publicKey_;
     }
 

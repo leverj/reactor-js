@@ -5,5 +5,5 @@ export const ERC20Proxy = async (name, symbol, decimals, token, chain) => deploy
 export const BlsVerifier = async () => deployContract('BlsVerifier', [])
 export const Vault = async (chain, publicKey, verifier) => {
   if (!verifier) verifier = await BlsVerifier()
-  return deployContract('Vault', [chain, publicKey], {libraries: {BlsVerifier: verifier.target}})
+  return deployContract('Vault', [chain, 'ETHER', 'ETH', 18, publicKey], {libraries: {BlsVerifier: verifier.target}})
 }
