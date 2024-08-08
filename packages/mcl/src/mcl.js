@@ -1,13 +1,9 @@
 import {BigNumber} from '@ethersproject/bignumber'
-import {arrayify, hexlify, zeroPad} from '@ethersproject/bytes'
+import {arrayify as getBytes, hexlify as toBeHex, zeroPad as zeroPadValue} from '@ethersproject/bytes'
 import {randomBytes} from '@ethersproject/random'
-import {sha256} from '@ethersproject/sha2'
 // import {getBytes, toBeHex, zeroPadValue, randomBytes} from 'ethers'
+import {sha256} from '@ethersproject/sha2'
 import mcl from 'mcl-wasm'
-
-const getBytes = arrayify
-const zeroPadValue = zeroPad
-const toBeHex = hexlify
 
 await mcl.init(mcl.BN_SNARK1)
 mcl.setMapToMode(0) // => 'FT'

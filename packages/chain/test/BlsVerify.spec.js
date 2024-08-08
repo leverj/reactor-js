@@ -1,12 +1,12 @@
-import {BlsVerifier} from '@leverj/reactor.chain/test'
+import {BnsVerifier} from '@leverj/reactor.chain/test'
 import {G1ToNumbers, G2ToNumbers, newKeyPair, sign, stringToHex} from '@leverj/reactor.mcl'
 import {expect} from 'expect'
 
-describe('BlsVerifier', () => {
+describe('BnsVerifier', () => {
   const message = 'hello world'
   let contract
 
-  before(async () => contract = await BlsVerifier())
+  before(async () => contract = await BnsVerifier())
 
   it.skip('validate', async () => {
     const {pubkey, secret} = newKeyPair()

@@ -1,5 +1,5 @@
 import {logger} from '@leverj/common/utils'
-import {BlsVerifier} from '@leverj/reactor.chain/test'
+import {BnsVerifier} from '@leverj/reactor.chain/test'
 import {PublicKey, Signature} from '@leverj/reactor.mcl'
 import {expect} from 'expect'
 import {TssNode} from '../src/TssNode.js'
@@ -9,7 +9,7 @@ describe('dkg', () => {
   const message = 'hello world'
   let contract
 
-  before(async () => contract = await BlsVerifier())
+  before(async () => contract = await BnsVerifier())
 
   it('should be able to match member pub key derived from member pvt key', async () => {
     const members = await createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399])

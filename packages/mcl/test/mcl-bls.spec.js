@@ -4,6 +4,7 @@ import bls from 'bls-wasm'
 import {expect} from 'expect'
 
 //note: this test is for reference only: we don't use bls-wasm any longer, but we might ...
+// we are testing/correlating the BNS256 implementation of both
 describe('mcl-bls', () => {
   const message = 'hello world'
 
