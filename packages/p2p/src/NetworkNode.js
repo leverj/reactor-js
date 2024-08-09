@@ -1,41 +1,30 @@
-import config from 'config'
 import map from 'it-map'
-import {gossipsub} from '@chainsafe/libp2p-gossipsub'
-import {noise} from '@chainsafe/libp2p-noise'
-import {yamux} from '@chainsafe/libp2p-yamux'
-import {bootstrap} from '@libp2p/bootstrap'
-import {identify} from '@libp2p/identify'
-import {kadDHT, passthroughMapper} from '@libp2p/kad-dht'
 import {peerIdFromString} from '@libp2p/peer-id'
-import {createFromJSON} from '@libp2p/peer-id-factory'
-import {ping} from '@libp2p/ping'
-import {tcp} from '@libp2p/tcp'
-import {logger, seconds} from '@leverj/common/utils'
+import {logger} from '@leverj/common/utils'
+import config from 'config'
 import {pipe} from 'it-pipe'
-import {createLibp2p} from 'libp2p'
 import {fromString as uint8ArrayFromString} from 'uint8arrays/from-string'
 import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
 import {events, PEER_CONNECT, PEER_DISCOVERY, tryAgainIfError} from './utils/index.js'
+import {P2P} from './P2P.js'
 
 export class NetworkNode {
-  constructor({ip = '0.0.0.0', port = 0, peerIdJson, bootstrapNodes = []}) {
-    this.peerIdJson = peerIdJson
-    this.ip = ip
+  static async from({ip = '0.0.0.0', port = 0, peerIdJson, bootstrapNodes = []}) {
+    const p2p = await P2P(peerIdJson, ip, port, config.externalIp, bootstrapNodes)
+    return new this(port, bootstrapNodes, p2p)
+  }
+
+  constructor(port, bootstrapNodes, p2p) {
     this.port = port
     this.bootstrapNodes = bootstrapNodes
+    this.p2p = p2p
+    this.p2p.addEventListener(PEER_CONNECT, this.peerConnected.bind(this))
+    this.p2p.addEventListener(PEER_DISCOVERY, this.peerDiscovered.bind(this))
   }
 
-  get multiaddrs() {
-    return this.p2p.getMultiaddrs().map((addr) => addr.toString())
-  }
-
-  get peerId() {
-    return this.p2p.peerId.toString()
-  }
-
-  get peers() {
-    return this.p2p.getPeers().map((peer) => peer.toString())
-  }
+  get multiaddrs() { return this.p2p.getMultiaddrs().map(_ => _.toString()) }
+  get peerId() { return this.p2p.peerId.toString() }
+  get peers() { return this.p2p.getPeers().map(_ => _.toString()) }
 
   exportJson() {
     return {
@@ -45,74 +34,15 @@ export class NetworkNode {
     }
   }
 
-  //Return true to block, false to allow the incoming to join network
-  //FIXME - how do we want to control ? IP seems most logical choice, since peerID and ports can be generated at will.
-  async gater(addr) {
-    const ipsToBlock = [] //The blocklist can come from config
-    const idx = ipsToBlock.findIndex(_ => addr.indexOf(_) > -1)
-    return idx > -1
-  }
+  async start() { return this.p2p.start() }
 
-  async create() {
-    this.p2p = await createLibp2p({
-      peerId: this.peerIdJson ? await createFromJSON(this.peerIdJson) : undefined,
-      addresses: {
-        listen: [`/ip4/${this.ip}/tcp/${this.port}`],
-        announce: [`/ip4/${config.externalIp}/tcp/${this.port}`],
-      },
-      connectionGater: {
-        denyInboundConnection: (maConn => this.gater(maConn.remoteAddr.toString())),
-      },
-      transports: [tcp()],
-      connectionEncryption: [noise()],
-      streamMuxers: [yamux()],
-      connectionManager: {inboundConnectionThreshold: 100 /*Default is 5*/},
-      services: {
-        ping: ping({protocolPrefix: 'autonat'}), pubsub: gossipsub(), identify: identify(),
-        dht: kadDHT({protocol: '/libp2p/autonat/1.0.0', peerInfoMapper: passthroughMapper, clientMode: false}),
-        // nat: autoNAT({
-        //   protocolPrefix: 'autonat', // this should be left as the default value to ensure maximum compatibility
-        //   timeout: 30000, // the remote must complete the AutoNAT protocol within this timeout
-        //   maxInboundStreams: 1, // how many concurrent inbound AutoNAT protocols streams to allow on each connection
-        //   maxOutboundStreams: 1 // how many concurrent outbound AutoNAT protocols streams to allow on each connection
-        // })
-      },
-      peerDiscovery: this.bootstrapNodes.length ? [bootstrap({
-        autoDial: true,
-        interval: 60 * seconds,
-        enabled: true,
-        list: this.bootstrapNodes,
-      })] : undefined,
-    })
+  async stop() { return this.p2p.stop() }
 
-    this.p2p.addEventListener(PEER_CONNECT, this.peerConnected.bind(this))
-    this.p2p.addEventListener(PEER_DISCOVERY, this.peerDiscovered.bind(this))
-    return this
-  }
+  async connect(peerId) { return this.p2p.dial(peerIdFromString(peerId)) }
 
-  async start() {
-    await this.p2p.start()
-    return this
-  }
+  findPeer(peerId) { return this.p2p.peerRouting.findPeer(peerIdFromString(peerId)) }
 
-  async stop() {
-    await this.p2p.stop()
-    return this
-  }
-
-  async connect(peerId) {
-    await this.p2p.dial(peerIdFromString(peerId))
-    return this
-  }
-
-  findPeer(peerId) {
-    return this.p2p.peerRouting.findPeer(peerIdFromString(peerId))
-  }
-
-  peerDiscovered(event) {
-    const {detail: peer} = event
-    events.emit(PEER_DISCOVERY, peer.id.toString())
-  }
+  peerDiscovered(event) { events.emit(PEER_DISCOVERY, event.detail.id.toString()) }
 
   //fixme: remove this peer from the network
   peerConnected(event) {
@@ -132,13 +62,9 @@ export class NetworkNode {
     await this.p2p.services.pubsub.connect(peerId)
   }
 
-  async subscribe(topic) {
-    await this.p2p.services.pubsub.subscribe(topic)
-  }
+  async subscribe(topic) { return this.p2p.services.pubsub.subscribe(topic) }
 
-  async publish(topic, data) {
-    await this.p2p.services.pubsub.publish(topic, new TextEncoder().encode(data))
-  }
+  async publish(topic, data) { return this.p2p.services.pubsub.publish(topic, new TextEncoder().encode(data)) }
 
   // p2p connection
   async createAndSendMessage(peerId, protocol, message, responseHandler) {
@@ -153,33 +79,32 @@ export class NetworkNode {
     }
   }
 
-  async createStream(peerId, protocol) {
-    return await tryAgainIfError(_ => this.p2p.dialProtocol(peerIdFromString(peerId), protocol))
-  }
+  async createStream(peerId, protocol) { return tryAgainIfError(_ => this.p2p.dialProtocol(peerIdFromString(peerId), protocol)) }
 
-  async sendMessageOnStream(stream, message) {
-    return stream.sink([uint8ArrayFromString(message)])
-  }
+  async sendMessageOnStream(stream, message) { return stream.sink([uint8ArrayFromString(message)]) }
 
   async readStream(stream, handler) {
-
-    pipe(stream.source, (source) => map(source, (buf) => uint8ArrayToString(buf.subarray())), async (source) => {
-      for await (const msg of source) handler(msg)
-    })
+    pipe(
+      stream.source,
+      (source) => map(source, (buffer) => uint8ArrayToString(buffer.subarray())),
+      async (sink) => { for await (const each of sink) handler(each) }
+    )
   }
 
   registerStreamHandler(protocol, handler) {
     this.p2p.handle(protocol, async ({stream, connection: {remotePeer}}) => {
-      pipe(stream.source, (source) => map(source, (buf) => uint8ArrayToString(buf.subarray())), async (source) => {
-        for await (const msg of source) handler(stream, remotePeer.string, msg)
-      })
+      pipe(
+        stream.source,
+        (source) => map(source, (buf) => uint8ArrayToString(buf.subarray())),
+        async (sink) => { for await (const each of sink) handler(stream, remotePeer.string, each) }
+      )
     })
   }
 
   // implement ping pong between nodes to maintain status
   async ping(peerId) {
     try {
-      return await this.p2p.services.ping.ping(peerIdFromString(peerId))
+      return this.p2p.services.ping.ping(peerIdFromString(peerId))
     } catch (e) {
       return -1
     }

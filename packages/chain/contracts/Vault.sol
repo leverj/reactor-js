@@ -35,7 +35,6 @@ contract Vault {
     mapping(uint => mapping(address => address)) public proxyMapping;
     mapping(address => bool) public isProxyMapping;
 
-    //fixme: add chain info to constructor
     constructor(uint chainId, string memory chainName, string memory nativeSymbol, uint nativeDecimals, uint[4] memory publicKey_) {
         homeChain = Chain(chainId, chainName, nativeSymbol, nativeDecimals);
         publicKey = publicKey_;

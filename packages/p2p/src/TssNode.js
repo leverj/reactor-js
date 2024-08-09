@@ -9,22 +9,18 @@ import {
 } from '@leverj/reactor.mcl'
 import {events, INFO_CHANGED} from './utils/index.js'
 
-const generateContributionForId = function (id, svec) {
-  return new SecretKey().share(svec, id)
-}
-
 /**
  * Adds secret key contribution together to produce a single secret key
  * @param {Array<Number>} secretKeyShares - an array of pointer to secret keys to add
  * @returns {Number} a pointer to the resulting secret key
  */
-const addContributionShares = function (secretKeyShares) {
-  const first = secretKeyShares.pop()
+const addContributionShares = (secretKeyShares) => {
+  const result = secretKeyShares.pop()
   secretKeyShares.forEach(sk => {
-    first.add(sk)
+    result.add(sk)
     sk.clear()
   })
-  return first
+  return result
 }
 
 /**
@@ -35,70 +31,55 @@ const addContributionShares = function (secretKeyShares) {
  * the verification vector of the sender of the contribution
  * @returns {Boolean}
  */
-const verifyContributionShare = function (id, contribution, vvec) {
+const verifyContributionShare = (id, contribution, vvec) => {
   const pk1 = new PublicKey().share(vvec, id)
   const pk2 = contribution.getPublicKey()
-  const isEqual = pk1.isEqual(pk2)
+  const result = pk1.isEqual(pk2)
   pk1.clear()
   pk2.clear()
-  return Boolean(isEqual)
+  return result
 }
 
 /**
  * Adds an array of verification vectors together to produce the groups verification vector
  * @param {Array<Array<Number>>} vvecs - an array containing all the groups verifciation vectors
  */
-const addVerificationVectors = function (vvecs) {
-  const groupsVvec = []
+const addVerificationVectors = (vvecs) => {
+  const results = []
   vvecs.forEach(vvec => {
     vvec.forEach((pk2, i) => {
-      const pk1 = groupsVvec[i]
+      const pk1 = results[i]
       if (!pk1) {
-        groupsVvec[i] = pk2
+        results[i] = pk2
       } else {
         pk1.add(pk2)
         pk2.clear()
       }
     })
   })
-  return groupsVvec
+  return results
 }
 
 function getMemberContributions(recievedShares, vvecs) {
   const ids = Object.keys(recievedShares).sort()
-  const sortedShares = ids.map(id => recievedShares[id])
-  const sortedVvecs = ids.map(id => vvecs[id])
-  return {recievedShares: sortedShares, vvecs: sortedVvecs}
-}
-
-function toPrivateKey(str) {
-  const result = new SecretKey()
-  result.deserializeHexStr(str)
-  return result
-}
-
-function toPublicKey(str) {
-  const result = new PublicKey()
-  result.deserializeHexStr(str)
-  return result
+  return {
+    recievedShares: ids.map(id => recievedShares[id]),
+    vvecs: ids.map(id => vvecs[id]),
+  }
 }
 
 /* Threshold Signature Scheme */
 export class TssNode {
-
   constructor(id, json) {
     affirm(typeof id === 'string', 'id must be a string')
-    this.id = new SecretKey()
-    this.id.setHashOf(Buffer.from(id))
+    this.id = new SecretKey().setHashOfString(id)
     this.members = {}
     this.reset()
     this.deserializeShares(json)
   }
 
   get threshold() { return this.vvec?.length }
-
   get groupPublicKey() { return this.vvec ? this.vvec[0] : null }
-
   get publicKey() { return new PublicKey().share(this.vvec, this.id) }
 
   reset() {
@@ -113,12 +94,10 @@ export class TssNode {
 
   deserializeShares(json) {
     if (!json) return
-    const secretKey = new SecretKey()
-    secretKey.deserializeHexStr(json.secretKeyShare)
-    this.secretKeyShare = secretKey
-    this.vvec = []
-    for (const each of json.vvec) this.vvec.push(deserializeHexStrToPublicKey(each))
-    this.verificationVector = json.verificationVector.map(_ => toPublicKey(_))
+    const {secretKeyShare, vvec, verificationVector} = json
+    this.secretKeyShare = SecretKey.from(secretKeyShare)
+    this.vvec = vvec.map(_ => deserializeHexStrToPublicKey(_))
+    this.verificationVector = verificationVector.map(_ => PublicKey.from(_))
     this.previouslyShared = true
   }
 
@@ -133,8 +112,8 @@ export class TssNode {
 
   onDkgShare(dkgShareMessage) {
     const {id, secretKeyContribution, verificationVector} = JSON.parse(dkgShareMessage)
-    this.verifyAndAddShare(id, toPrivateKey(secretKeyContribution), verificationVector.map(toPublicKey))
-    this.vvecs[id] = verificationVector.map(toPublicKey)
+    this.verifyAndAddShare(id, SecretKey.from(secretKeyContribution), verificationVector.map(_ => PublicKey.from(_)))
+    this.vvecs[id] = verificationVector.map(_ => PublicKey.from(_))
     if (Object.keys(this.vvecs).length === Object.keys(this.members).length) this.dkgDone()
   }
 
@@ -148,7 +127,7 @@ export class TssNode {
   }
 
   async generateContribution() {
-    for (const [id, dkgHandler] of Object.entries(this.members)) await this.generateContributionForId(id, dkgHandler)
+    for (let [id, dkgHandler] of Object.entries(this.members)) await this.generateContributionForId(id, dkgHandler)
   }
 
   verifyAndAddShare(id, receivedShare, verificationVector) {
@@ -158,7 +137,7 @@ export class TssNode {
   }
 
   async generateContributionForId(id, dkgHandler) {
-    const result = await generateContributionForId(toPrivateKey(id), this.secretVector)
+    const result = new SecretKey().share(this.secretVector, SecretKey.from(id))
     const dkgSharePayload = {
       id: this.id.serializeToHexStr(),
       secretKeyContribution: result.serializeToHexStr(),

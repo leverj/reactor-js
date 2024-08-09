@@ -7,20 +7,20 @@ describe('BridgeNode', () => {
   const nodes = []
 
   afterEach(async () => {
-    for (const node of nodes) await node.stop()
+    for (let each of nodes) await each.stop()
     nodes.length = 0
   })
 
   const createBridgeNodes = async (count) => {
     const bootstraps = []
     for (let i = 0; i < count; i++) {
-      const node = new BridgeNode({
+      const node = await BridgeNode.from({
         port: 9000 + i,
         isLeader: i === 0,
         json: {p2p: peerIdJsons[i]},
         bootstrapNodes: bootstraps,
       })
-      await node.create()
+      await node.start()
       nodes.push(node)
       if (i === 0) bootstraps.push(node.multiaddrs[0])
     }
@@ -29,8 +29,8 @@ describe('BridgeNode', () => {
   it('should race connect multiple nodes with each other', async () => {
     //Starts breaking beyond 6 nodes. works fine till 6
     await createBridgeNodes(6)
-    for (const node of nodes) {
-      for (const peer of nodes) {
+    for (let node of nodes) {
+      for (let peer of nodes) {
         if (node.multiaddrs[0] === peer.multiaddrs[0]) continue
         await node.connect(peer.peerId)
       }
@@ -43,17 +43,17 @@ describe('BridgeNode', () => {
     await createBridgeNodes(howMany)
     const leader = nodes[0]
     await leader.publishWhitelist() // whitelisted nodes
-    for (const node of nodes) expect(node.whitelist.get().length).toEqual(howMany)
+    nodes.forEach(_ => expect(_.whitelist.get().length).toEqual(howMany))
 
     await leader.startDKG(4)
-    const leaderSecretKey = leader.tssNode.secretKeyShare.serializeToHexStr()
-    const leaderGroupKey = leader.tssNode.groupPublicKey.serializeToHexStr()
+    const leaderSecretKey = leader.tss.secretKeyShare.serializeToHexStr()
+    const leaderGroupKey = leader.tss.groupPublicKey.serializeToHexStr()
     await setTimeout(10)
-    for (const node of nodes) {
-      node.tssNode.print()
-      if (leader.peerId === node.peerId) continue
-      expect(leaderGroupKey).toEqual(node.tssNode.groupPublicKey.serializeToHexStr())
-      expect(leaderSecretKey).not.toBe(node.tssNode.secretKeyShare.serializeToHexStr())
+    for (let each of nodes) {
+      each.tss.print()
+      if (leader.peerId === each.peerId) continue
+      expect(leaderGroupKey).toEqual(each.tss.groupPublicKey.serializeToHexStr())
+      expect(leaderSecretKey).not.toBe(each.tss.secretKeyShare.serializeToHexStr())
     }
   })
 })

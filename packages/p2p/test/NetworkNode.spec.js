@@ -16,18 +16,18 @@ describe('NetworkNode', () => {
   const nodes = []
 
   afterEach(async () => {
-    for (const node of nodes) await node.stop()
+    for (let each of nodes) await each.stop()
     nodes.length = 0
   })
 
   const startNetworkNodes = async (count) => {
     let bootstrapNodes = []
     for (let i = 0; i < count; i++) {
-      const node = await new NetworkNode({
+      const node = await NetworkNode.from({
         port: 9000 + i,
         peerIdJson: peerIdJsons[i],
         bootstrapNodes,
-      }).create()
+      })
       await node.start()
       nodes.push(node)
       if (i === 0) bootstrapNodes = node.multiaddrs
@@ -52,18 +52,18 @@ describe('NetworkNode', () => {
       leader.sendMessageOnStream(stream, `responding ${message}`)
     })
     const sendMessage = async (node, message) => node.createAndSendMessage(leader.peerId, meshProtocol, message, _ => responses[node.peerId] = _)
-    for (const node of nodes.slice(1)) await sendMessage(node, `Verified Deposit Hash ${node.port}`)
+    for (let each of nodes.slice(1)) await sendMessage(each, `Verified Deposit Hash ${each.port}`)
     await setTimeout(10)
-    for (const node of nodes.slice(1)) {
-      expect(messages[node.peerId]).toEqual(`Verified Deposit Hash ${node.port}`)
-      expect(responses[node.peerId]).toEqual(`responding Verified Deposit Hash ${node.port}`)
+    for (let each of nodes.slice(1)) {
+      expect(messages[each.peerId]).toEqual(`Verified Deposit Hash ${each.port}`)
+      expect(responses[each.peerId]).toEqual(`responding Verified Deposit Hash ${each.port}`)
     }
 
-    for (const node of nodes.slice(1)) await sendMessage(node, `Verified Deposit Hash ${node.port} again`)
+    for (let each of nodes.slice(1)) await sendMessage(each, `Verified Deposit Hash ${each.port} again`)
     await setTimeout(10)
-    for (const node of nodes.slice(1)) {
-      expect(messages[node.peerId]).toEqual(`Verified Deposit Hash ${node.port} again`)
-      expect(responses[node.peerId]).toEqual(`responding Verified Deposit Hash ${node.port} again`)
+    for (let each of nodes.slice(1)) {
+      expect(messages[each.peerId]).toEqual(`Verified Deposit Hash ${each.port} again`)
+      expect(responses[each.peerId]).toEqual(`responding Verified Deposit Hash ${each.port} again`)
     }
   })
 
@@ -71,35 +71,35 @@ describe('NetworkNode', () => {
     const depositReceipts = {} // each node will just save the hash and ack. later children will sign and attest point to point
     await startNetworkNodes(4, true)
     const [leader, node2, node3, node4] = nodes
-    for (const node of [node2, node3, node4]) {
-      await node.connectPubSub(
+    for (let each of [node2, node3, node4]) {
+      await each.connectPubSub(
         leader.peerId,
-        ({topic, data}) => (topic === 'DepositHash') && (depositReceipts[node.peerId] = data),
+        ({topic, data}) => (topic === 'DepositHash') && (depositReceipts[each.peerId] = data),
       )
-      await node.subscribe('DepositHash')
+      await each.subscribe('DepositHash')
     }
     await setTimeout(10)
     const depositHash = '0xbef807c488b8a3db6834ee242ff888e9ebb5961deb9323c8da97853b43755aab'
     await leader.publish('DepositHash', depositHash)
     await setTimeout(10)
     expect(leader.peers.length).toEqual(3)
-    for (const peerOfNode1 of leader.peers) expect(depositReceipts[peerOfNode1]).toEqual(depositHash)
+    for (let each of leader.peers) expect(depositReceipts[each]).toEqual(depositHash)
 
     await leader.publish('DepositHash', depositHash + depositHash)
     await setTimeout(10)
     expect(leader.peers.length).toEqual(3)
-    for (const peerOfNode1 of leader.peers) expect(depositReceipts[peerOfNode1]).toEqual(depositHash + depositHash)
+    for (let each of leader.peers) expect(depositReceipts[each]).toEqual(depositHash + depositHash)
   })
 
   it('should only create nodes and discovery should happen automatically', async () => {
     const numNodes = 6
     await startNetworkNodes(numNodes)
-    for (const node of nodes) {
+    for (let node of nodes) {
       expect(node.peers.length).toEqual(numNodes - 1)
-      for (const peerId of node.peers) {
-        const peerInfo = await node.findPeer(peerId)
+      for (let peer of node.peers) {
+        const peerInfo = await node.findPeer(peer)
         const found = peerInfo.multiaddrs[0].toString()
-        const expected = nodes.find(node => node.peerId === peerId).multiaddrs[0]
+        const expected = nodes.find(node => node.peerId === peer).multiaddrs[0]
         expect(found.split('/')[3]).toEqual(expected.split('/')[3])
       }
     }
@@ -111,15 +111,15 @@ describe('NetworkNode', () => {
     const numNodes = 6
     const mesgPrefix = 'Hello from sender '
     await startNetworkNodes(numNodes)
-    for (const node of nodes) logger.log('Peers of Node', node.peers.length)
-    for (const node of nodes) {
-      await node.registerStreamHandler(meshProtocol, function (stream, peerId, msgStr) {
-        logger.log(node.peerId, 'Recd stream msg from', peerId, msgStr)
+    for (let each of nodes) logger.log('Peers of Node', each.peers.length)
+    for (let each of nodes) {
+      await each.registerStreamHandler(meshProtocol, function (stream, peerId, msgStr) {
+        logger.log(each.peerId, 'Recd stream msg from', peerId, msgStr)
       })
     }
     const sender = nodes[0]
-    for (const peerId of sender.peers) {
-      const stream = await sender.p2p.dialProtocol(peerIdFromString(peerId), meshProtocol)
+    for (let each of sender.peers) {
+      const stream = await sender.p2p.dialProtocol(peerIdFromString(each), meshProtocol)
       await sender.sendMessageOnStream(stream, mesgPrefix + Math.random())
     }
 
@@ -176,10 +176,10 @@ describe('NetworkNode', () => {
     const {publicKey: publicKey2, privateKey: privateKey2} = await createFromJSON(peerIdJsons[2])
     const secret = await createSharedSecret(privateKey1, publicKey2)
     expect(secret).toEqual(await createSharedSecret(privateKey2, publicKey1))
-    for (const message of ['hello world', 'hello world2', 'jqiweuouqwoeuopqweopiqwoeiwqoiepqwiepiqwpoei']) {
-      const encrypted = encrypt(message, uint8ArrayToString(secret, 'hex'))
+    for (const each of ['hello world', 'hello world2', 'jqiweuouqwoeuopqweopiqwoeiwqoiepqwiepiqwpoei']) {
+      const encrypted = encrypt(each, uint8ArrayToString(secret, 'hex'))
       const decrypted = decrypt(encrypted, uint8ArrayToString(secret, 'hex'))
-      expect(decrypted).toEqual(message)
+      expect(decrypted).toEqual(each)
     }
   })
 })

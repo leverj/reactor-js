@@ -5,9 +5,7 @@ import {
   deserializeHexStrToSignature,
   G1ToNumbers,
   G2ToNumbers,
-  hashToPoint,
   PublicKey,
-  sign,
   Signature,
 } from '@leverj/reactor.mcl'
 import {expect} from 'expect'
@@ -31,7 +29,7 @@ describe('TssNode', () => {
   }
 
   const addMember = async (members, joiner) => {
-    for (const each of members) {
+    for (let each of members) {
       await each.generateContributionForId(joiner.id.serializeToHexStr(), joiner.onDkgShare.bind(joiner))
       each.addMember(joiner.id.serializeToHexStr(), joiner.onDkgShare.bind(joiner))
       joiner.addMember(each.id.serializeToHexStr(), each.onDkgShare.bind(each))
@@ -42,14 +40,14 @@ describe('TssNode', () => {
   }
 
   const setupMembersThreshold = async (members, threshold) => {
-    for (const each of members) each.generateVectors(threshold)
-    for (const each of members) await each.generateContribution()
+    for (let each of members) each.generateVectors(threshold)
+    for (let each of members) await each.generateContribution()
   }
 
   const createDkgMembers = async (memberIds, threshold = 4) => {
     const members = memberIds.map(id => new TssNode(id.toString()))
-    for (const member1 of members)
-      for (const member2 of members)
+    for (let member1 of members)
+      for (let member2 of members)
         member1.addMember(member2.id.serializeToHexStr(), member2.onDkgShare.bind(member2)) //fixme: why do we need this bind() ?
     await setupMembersThreshold(members, threshold)
     expect(members.length).toBe(memberIds.length)
@@ -58,46 +56,31 @@ describe('TssNode', () => {
 
   it('should be able to match member pub key derived from member pvt key', async () => {
     const members = await createDkgMembers(memberIds)
-    for (const each of members) {
-      expect(each.publicKey.serializeToHexStr()).toEqual(each.secretKeyShare.getPublicKey().serializeToHexStr())
-    }
+    members.forEach(_ => expect(_.publicKey.serializeToHexStr()).toEqual(_.secretKeyShare.getPublicKey().serializeToHexStr()))
   })
 
-  it.skip('signAndVerify', async () => {
-    const verifier = await BnsVerifier()
-    const message_ = keccak256(AbiCoder.defaultAbiCoder().encode(['string'], [message]))
+  it('signAndVerify', async () => {
     const verifyInContract = async (members) => {
       const signature = new Signature().recover(...signMessage(members))
+      const verifier = await BnsVerifier()
       return verifier.verify(
         G1ToNumbers(deserializeHexStrToSignature(signature.serializeToHexStr())),
         G2ToNumbers(deserializeHexStrToPublicKey(members[0].groupPublicKey.serializeToHexStr())),
-        G1ToNumbers(hashToPoint(message)),
+        keccak256(AbiCoder.defaultAbiCoder().encode(['string'], [message])),
       )
     }
 
     const members = await createDkgMembers(memberIds)
     expect(await signAndVerify(members.slice(0, 3))).toBe(false)
-    // expect(await signAndVerify(members.slice(0, 3))).toBe(await verifyInContract(members.slice(0, 3)))
-    // await expect(() => verifier.validate(
-    //   G1ToNumbers(sign(message, impersonator.secret).signature),
-    //   G2ToNumbers(signer.pubkey),
-    //   message
-    // )).rejects.toThrow(/'Invalid Signature/)
+    await expect(() => verifyInContract(members.slice(0, 3))).rejects.toThrow(/'Invalid Signature/)
 
     expect(await signAndVerify(members)).toBe(true)
-    // expect(await signAndVerify(members)).toBe(await verifyInContract(members))
-    // await expect(() => verifier.validate(
-    //   G1ToNumbers(sign(message, signer.secret).signature),
-    //   G2ToNumbers(signer.pubkey),
-    //   message
-    // )).not.toThrow()
+    await expect(() => verifyInContract(members)).not.toThrow()
   })
 
   it('should be able to create distributed keys and sign message', async () => {
     const members = await createDkgMembers(memberIds)
-    for (const each of members) {
-      expect(each.groupPublicKey.serializeToHexStr()).toEqual(members[0].groupPublicKey.serializeToHexStr())
-    }
+    members.forEach(_ => expect(_.groupPublicKey.serializeToHexStr()).toEqual(members[0].groupPublicKey.serializeToHexStr()))
     expect(await signAndVerify(members.slice(0, 3))).toBe(false)
     expect(await signAndVerify(members.slice(0, 4))).toBe(true)
     expect(await signAndVerify(members.slice(0, 5))).toBe(true)
@@ -110,9 +93,9 @@ describe('TssNode', () => {
     const groupPublicKeyHex = members[0].vvec[0].serializeToHexStr()
     await addMember(members, new TssNode('100'))
     expect(members.length).toBe(8)
-    for (const member of members) expect(member.groupPublicKey.serializeToHexStr()).toEqual(groupPublicKeyHex)
+    members.forEach(_ => expect(_.groupPublicKey.serializeToHexStr()).toEqual(groupPublicKeyHex))
 
-    for (const [start, total, expected] of [
+    for (let [start, total, expected] of [
       [0, 3, false],
       [0, 4, true],
       [0, 5, true],
@@ -123,9 +106,7 @@ describe('TssNode', () => {
       [3, 8, true],
       [4, 4, true],
       [5, 3, false],
-    ]) {
-      expect(await signAndVerify(members.slice(start, start + total))).toBe(expected)
-    }
+    ]) expect(await signAndVerify(members.slice(start, start + total))).toBe(expected)
   })
 
   it('should be able to increase threshold', async () => {
@@ -134,9 +115,9 @@ describe('TssNode', () => {
     expect(await signAndVerify(members.slice(0, 4))).toBe(true)
 
     const groupsPublicKeyHex = members[0].groupPublicKey.serializeToHexStr()
-    members.forEach(member => member.reinitiate())
+    members.forEach(_ => _.reinitiate())
     await setupMembersThreshold(members, threshold + 1)
-    for (const member of members) expect(member.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKeyHex)
+    members.forEach(_ => expect(_.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKeyHex))
     expect(await signAndVerify(members.slice(0, 4))).toBe(false)
     expect(await signAndVerify(members.slice(3, 7))).toBe(false)
     expect(await signAndVerify(members.slice(0, 5))).toBe(true)
@@ -150,9 +131,9 @@ describe('TssNode', () => {
 
     const groupsPublicKey = members[0].groupPublicKey
     await addMember(members, new TssNode('100'))
-    members.forEach(member => member.reinitiate())
+    members.forEach(_ => _.reinitiate())
     await setupMembersThreshold(members, threshold + 1)
-    for (const member of members) expect(member.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKey.serializeToHexStr())
+    members.forEach(_ => expect(_.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKey.serializeToHexStr()))
     expect(await signAndVerify(members.slice(0, 4))).toBe(false)
     expect(await signAndVerify(members.slice(4, 8))).toBe(false)
     expect(await signAndVerify(members.slice(0, 5))).toBe(true)
@@ -177,7 +158,7 @@ describe('TssNode', () => {
     // -> member shares array reinitialized
     members.forEach(_ => _.reinitiate())
     await setupMembersThreshold(members, threshold)
-    for (const each of members) expect(each.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKey.serializeToHexStr())
+    members.forEach(_ => expect(_.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKey.serializeToHexStr()))
     const [newSigns, newSigners] = signMessage(members)
     const newGroupsSign = new Signature().recover(newSigns.slice(0, 4), newSigners.slice(0, 4))
     expect(members[0].groupPublicKey.verify(newGroupsSign, message)).toBe(true)
@@ -188,10 +169,10 @@ describe('TssNode', () => {
     const threshold = 4
     const members = await createDkgMembers(memberIds.concat(138473), threshold)
     const groupsPublicKey = members[0].groupPublicKey
-    members.forEach(member => member.reinitiate())
+    members.forEach(_ => _.reinitiate())
     members.pop()
     await setupMembersThreshold(members, threshold)
-    for (const member of members) expect(member.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKey.serializeToHexStr())
+    members.forEach(_ => expect(_.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKey.serializeToHexStr()))
     expect(await signAndVerify(members.slice(0, 3))).toBe(false)
     expect(await signAndVerify(members.slice(0, 4))).toBe(true)
     expect(await signAndVerify(members.slice(0, 5))).toBe(true)
@@ -206,9 +187,9 @@ describe('TssNode', () => {
     expect(await signAndVerify(members.slice(0, 5))).toBe(true)
 
     const groupsPublicKey = members[0].groupPublicKey
-    members.forEach(member => member.reinitiate())
+    members.forEach(_ => _.reinitiate())
     await setupMembersThreshold(members, threshold - 1)
-    for (const member of members) expect(member.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKey.serializeToHexStr())
+    members.forEach(_ => expect(_.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKey.serializeToHexStr()))
     expect(await signAndVerify(members.slice(0, 3))).toBe(false)
     //fixme: test fails here
     expect(await signAndVerify(members.slice(0, 4))).toBe(true)
@@ -223,9 +204,8 @@ describe('TssNode', () => {
       const members = await createDkgMembers(Array(length).fill(0).map((_, i) => 10000 + i), threshold)
       time.dkg = (Date.now() - time.dkg) / 1000 + 's'
       time.sign = Date.now()
-      const {signs, signers} = signMessage(members.slice(0, threshold))
-      const groupsSign = new Signature()
-      groupsSign.recover(signs, signers)
+      const [signs, signers] = signMessage(members.slice(0, threshold))
+      const groupsSign = new Signature().recover(signs, signers) //fixme: what's the point of doing this?
       time.sign = (Date.now() - time.sign) / 1000 + 's'
       logger.log('length', length, 'threshold', threshold, 'dkg', time.dkg, 'sign', time.sign)
       times.push(time)

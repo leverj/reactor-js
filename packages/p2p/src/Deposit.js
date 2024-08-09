@@ -2,7 +2,6 @@ import * as chain from '@leverj/reactor.chain/contracts'
 import {deserializeHexStrToPublicKey, deserializeHexStrToSignature, G1ToNumbers, G2ToNumbers} from '@leverj/reactor.mcl'
 import {AbiCoder, Interface, keccak256} from 'ethers'
 
-const abi = AbiCoder.defaultAbiCoder()
 const iface = new Interface(chain.abi.Vault.abi)
 
 export class Deposit {
@@ -32,11 +31,11 @@ export class Deposit {
     if (aggregateSignature.verified !== true) return
     const signature = deserializeHexStrToSignature(aggregateSignature.groupSign)
     const sig_ser = G1ToNumbers(signature)
-    const pubkeyHex = this.bridgeNode.tssNode.groupPublicKey.serializeToHexStr()
+    const pubkeyHex = this.bridgeNode.tss.groupPublicKey.serializeToHexStr()
     const pubkey = deserializeHexStrToPublicKey(pubkeyHex)
     const pubkey_ser = G2ToNumbers(pubkey)
     const targetContract = this.contracts[toChain]
-    await targetContract.tokenArrival(sig_ser, pubkey_ser, abi.encode(
+    await targetContract.tokenArrival(sig_ser, pubkey_ser, AbiCoder.defaultAbiCoder().encode(
       ['uint', 'address', 'uint', 'uint', 'address', 'uint', 'uint', 'uint'],
       [BigInt(chain), token, BigInt(decimals), BigInt(amount), owner, BigInt(fromChain), BigInt(toChain), BigInt(sendCounter)]
     ), name, symbol).then(tx => tx.wait())

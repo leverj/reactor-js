@@ -3,7 +3,6 @@ pragma solidity ^0.8.20;
 
 import {modexp_3064_fd54, modexp_c191_3f52} from "./modexp.sol";
 
-//fixme: verify vs. validate
 library BnsVerifier {
     // Field order
     uint constant N = 21888242871839275222246405745257275088696311157297823662689037894645226208583;

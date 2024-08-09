@@ -1,6 +1,6 @@
+import {logger} from '@leverj/common/utils'
 import config from 'config'
 import {createServer} from 'http'
-import {logger} from '@leverj/common/utils'
 import app from './rest/app.js'
 import bridgeNode from './rest/manager.js'
 
@@ -15,8 +15,8 @@ export class ApiApp {
     this.server.listen(port, ip, () => logger.log(`Bridge api server  is running at port ${port}`))
   }
 
-  stop() {
+  async stop() {
     this.server.close()
-    bridgeNode.stop()
+    return bridgeNode.stop()
   }
 }

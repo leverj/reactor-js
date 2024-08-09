@@ -21,31 +21,29 @@ export function stringToHex(str) {
 
 const FIELD_ORDER = BigNumber.from('0x30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47')
 
-function hashToField(domain, msg, count) {
+function hashToField(domain, message, count) {
   const u = 48
-  const _msg = expandMsg(domain, msg, count * u)
-  const els = []
+  const _message = expandMsg(domain, message, count * u)
+  const results = []
   for (let i = 0; i < count; i++) {
-    const value = BigNumber.from(_msg.slice(i * u, (i + 1) * u))
-    const el = value.mod(FIELD_ORDER)
-    els.push(el)
+    results.push(BigNumber.from(_message.slice(i * u, (i + 1) * u)).mod(FIELD_ORDER))
   }
-  return els
+  return results
 }
 
-function expandMsg(domain, msg, outLen) {
+function expandMsg(domain, message, length) {
   if (domain.length > 255) throw Error('bad domain size')
 
-  const out = new Uint8Array(outLen)
-  const len0 = 64 + msg.length + 2 + 1 + domain.length + 1
+  const result = new Uint8Array(length)
+  const len0 = 64 + message.length + 2 + 1 + domain.length + 1
   const in0 = new Uint8Array(len0)
   // zero pad
   let off = 64
-  // msg
-  in0.set(msg, off)
-  off += msg.length
+  // message
+  in0.set(message, off)
+  off += message.length
   // l_i_b_str
-  in0.set([(outLen >> 8) & 0xff, outLen & 0xff], off)
+  in0.set([(length >> 8) & 0xff, length & 0xff], off)
   off += 2
   // I2OSP(0, 1)
   in0.set([0], off)
@@ -70,7 +68,7 @@ function expandMsg(domain, msg, outLen) {
   in1.set([domain.length], off)
 
   const b1 = sha256(in1)
-  const ell = Math.floor((outLen + 32 - 1) / 32)
+  const ell = Math.floor((length + 32 - 1) / 32)
   let bi = b1
   for (let i = 1; i < ell; i++) {
     const ini = new Uint8Array(32 + 1 + domain.length + 1)
@@ -88,18 +86,18 @@ function expandMsg(domain, msg, outLen) {
     off += domain.length
     ini.set([domain.length], off)
 
-    out.set(getBytes(bi), 32 * (i - 1))
+    result.set(getBytes(bi), 32 * (i - 1))
     bi = sha256(ini)
   }
-  out.set(getBytes(bi), 32 * (ell - 1))
-  return out
+  result.set(getBytes(bi), 32 * (ell - 1))
+  return result
 }
 
 const DOMAIN = Uint8Array.from(Buffer.from('BNS_SIG_BNS256_XMD:SHA-256_SSWU', 'utf8'))
 
-export function hashToPoint(msg) {
-  const _msg = Uint8Array.from(Buffer.from(stringToHex(msg).slice(2), 'hex'))
-  const hashRes = hashToField(DOMAIN, _msg, 2)
+export function hashToPoint(message) {
+  const messageAsUint8Array = Uint8Array.from(Buffer.from(stringToHex(message).slice(2), 'hex'))
+  const hashRes = hashToField(DOMAIN, messageAsUint8Array, 2)
   const p0 = mapToPoint(hashRes[0].toHexString())
   const p1 = mapToPoint(hashRes[1].toHexString())
   const result = mcl.add(p0, p1)
@@ -174,9 +172,16 @@ function randFr() {
   return result
 }
 
+
 /*------------------------------- MCL extensions -------------------------------*/
 
 export const SecretKey = mcl.Fr
+SecretKey.from = function (string) {
+  const result = new this()
+  result.deserializeHexStr(string)
+  return result
+}
+
 mcl.Fr.prototype.getPublicKey = function () {
   return getPublicKey(this.serializeToHexStr())
 }
@@ -191,11 +196,23 @@ mcl.Fr.prototype.add = function (sk) {
   return this
 }
 
-mcl.Fr.prototype.sign = function (msg) {
-  return sign(msg, this).signature
+mcl.Fr.prototype.setHashOfString = function (string) {
+  this.setHashOf(Buffer.from(string))
+  return this
 }
 
+mcl.Fr.prototype.sign = function (message) {
+  return sign(message, this).signature
+}
+
+
 export const PublicKey = mcl.G2
+PublicKey.from = function (string) {
+  const result = new this()
+  result.deserializeHexStr(string)
+  return result
+}
+
 mcl.G2.prototype.share = function (vec, id) {
   this.setStr(mcl.shareG2(vec, id).getStr())
   return this
@@ -207,9 +224,9 @@ mcl.G2.prototype.add = function (pk) {
 }
 
 // fast and copy from mcl-wasm c++ code
-mcl.G2.prototype.verify = function (signature, msg) {
-  // let H = mcl.hashAndMapToG1(msg)  // does not have domain, so does not work. to be worked later
-  let H = hashToPoint(msg) // has domain
+mcl.G2.prototype.verify = function (signature, message) {
+  // let H = mcl.hashAndMapToG1(message)  // does not have domain, so does not work. to be worked later
+  let H = hashToPoint(message) // has domain
   H = mcl.neg(H)
   let e1 = mcl.precomputedMillerLoop(signature, new mcl.PrecomputedG2(G2()))
   const e2 = mcl.millerLoop(H, this)
@@ -219,8 +236,8 @@ mcl.G2.prototype.verify = function (signature, msg) {
 }
 
 // slow but clean
-mcl.G2.prototype.verify_slow = function (signature, msg) {
-  const M = hashToPoint(msg)
+mcl.G2.prototype.verify_slow = function (signature, message) {
+  const M = hashToPoint(message)
   const preComputedG2 = mcl.neg(G2())
   const messageToPublicKeyPairing = mcl.pairing(M, this)
   const messageToPrecomputedG2Pairing = mcl.pairing(signature, preComputedG2)
@@ -232,3 +249,4 @@ mcl.G1.prototype.recover = function (signs, signers) {
   this.setStr(mcl.recoverG1(signers, signs).getStr())
   return this
 }
+
