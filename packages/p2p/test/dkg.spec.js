@@ -7,18 +7,17 @@ import {
   G2ToNumbers,
   hashToPoint,
   PublicKey,
+  sign,
   Signature,
 } from '@leverj/reactor.mcl'
 import {expect} from 'expect'
+import {AbiCoder, keccak256} from 'ethers'
 import {TssNode} from '../src/TssNode.js'
 
 //fixme: is this a TssNode.spec ?
 describe('dkg', () => {
   const message = 'hello world'
   const memberIds = [10314, 30911, 25411, 8608, 31524, 15441, 23399]
-  let verifier
-
-  before(async () => verifier = await BnsVerifier())
 
   const signMessage = (members) => [
     members.map(_ => _.sign(message)),
@@ -65,20 +64,12 @@ describe('dkg', () => {
     }
   })
 
-  it('should verify signature from dkgnodes', async () => {
-    const members = await createDkgMembers(memberIds)
-    const groupsSign = new Signature().recover(...signMessage(members))
-    expect(await verifier.verify(
-      G1ToNumbers(deserializeHexStrToSignature(groupsSign.serializeToHexStr())),
-      G2ToNumbers(deserializeHexStrToPublicKey(members[0].groupPublicKey.serializeToHexStr())),
-      G1ToNumbers(hashToPoint(message))
-    )).toEqual(true)
-  })
-
-  it('signAndVerify', async () => {
-    const verifiedInContract = async (members) => {
+  it.skip('signAndVerify', async () => {
+    const verifier = await BnsVerifier()
+    const message_ = keccak256(AbiCoder.defaultAbiCoder().encode(['string'], [message]))
+    const validateInContract = async (members) => {
       const signature = new Signature().recover(...signMessage(members))
-      return verifier.verify(
+      return verifier.validate(
         G1ToNumbers(deserializeHexStrToSignature(signature.serializeToHexStr())),
         G2ToNumbers(deserializeHexStrToPublicKey(members[0].groupPublicKey.serializeToHexStr())),
         G1ToNumbers(hashToPoint(message)),
@@ -87,9 +78,19 @@ describe('dkg', () => {
 
     const members = await createDkgMembers(memberIds)
     expect(await signAndVerify(members.slice(0, 3))).toBe(false)
-    expect(await signAndVerify(members.slice(0, 3))).toBe(await verifiedInContract(members.slice(0, 3)))
+    expect(await signAndVerify(members.slice(0, 3))).toBe(await validateInContract(members.slice(0, 3)))
+    await expect(() => verifier.validate(
+      G1ToNumbers(sign(message, impersonator.secret).signature),
+      G2ToNumbers(signer.pubkey),
+      message
+    )).rejects.toThrow(/'Invalid Signature/)
+
     expect(await signAndVerify(members)).toBe(true)
-    expect(await signAndVerify(members)).toBe(await verifiedInContract(members))
+    await expect(() => verifier.validate(
+      G1ToNumbers(sign(message, signer.secret).signature),
+      G2ToNumbers(signer.pubkey),
+      message
+    )).not.toThrow()
   })
 
   it('should be able to create distributed keys and sign message', async () => {

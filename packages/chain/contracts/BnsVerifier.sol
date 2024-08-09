@@ -24,12 +24,8 @@ library BnsVerifier {
 
     bytes constant cipher_suite_domain = bytes('BNS_SIG_BNS256_XMD:SHA-256_SSWU');
 
-    function validate(uint[2] memory signature, uint[4] memory signerPublicKey, bytes32 hash) external view {
-        uint[2] memory messageToPoint = hashToPoint(bytes(bytes32ToHexString(hash)));
-        require(verify(signature, signerPublicKey, messageToPoint), 'Invalid Signature');
-    }
-
-    function verify(uint[2] memory signature, uint[4] memory pubkey, uint[2] memory message) public view returns (bool) {
+    function validate(uint[2] memory signature, uint[4] memory pubkey, bytes32 hash) external view {
+        uint[2] memory message = hashToPoint(bytes(bytes32ToHexString(hash)));
         uint[12] memory input = [signature[0], signature[1], nG2x1, nG2x0, nG2y1, nG2y0, message[0], message[1], pubkey[1], pubkey[0], pubkey[3], pubkey[2]];
         uint[1] memory out;
         bool success;
@@ -40,8 +36,7 @@ library BnsVerifier {
                 invalid()
             }
         }
-        require(success, "invalid signature");
-        return out[0] != 0;
+        require(success && out[0] != 0, 'Invalid Signature');
     }
 
     function hashToPoint(bytes memory message) private view returns (uint[2] memory) {
