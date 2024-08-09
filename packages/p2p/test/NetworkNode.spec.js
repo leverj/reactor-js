@@ -7,48 +7,70 @@ import AesEncryption from 'aes-encryption'
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
 import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
-import {peerIdJsons, startNetworkNodes, stopNetworkNodes} from './help/index.js'
+import NetworkNode from '../src/NetworkNode.js'
+import {waitToSync} from '../src/utils/index.js'
+import {peerIdJsons} from './help/index.js'
 
-describe('p2p nodes', () => {
+describe('NetworkNode - p2p nodes', () => {
   const meshProtocol = '/mesh/1.0.0'
+  const nodes = []
 
-  afterEach(stopNetworkNodes)
+  afterEach(async () => {
+    for (const node of nodes) await node.stop()
+    nodes.length = 0
+  })
+
+  const startNetworkNodes = async (count) => {
+    let bootstrapNodes = []
+    for (let i = 0; i < count; i++) {
+      const node = await new NetworkNode({
+        port: 9000 + i,
+        peerIdJson: peerIdJsons[i],
+        bootstrapNodes,
+      }).create()
+      await node.start()
+      nodes.push(node)
+      if (i === 0) bootstrapNodes = node.multiaddrs
+    }
+    await waitToSync([_ => nodes[count - 1].peers.length === nodes.length - 1])
+  }
 
   it('should be able to ping a node', async () => {
-    const [node1, node2] = await startNetworkNodes(2)
+    await startNetworkNodes(2)
+    const [node1, node2] = nodes
     const latency = await node1.ping(node2.peerId)
     expect(latency).toBeGreaterThan(0)
   })
 
   it('it should send data across stream from node1 to node2', async () => {
-    const messageRecd = {}
+    const messages = {}
     const responses = {}
-    const nodes = await startNetworkNodes(6)
-    nodes[0].registerStreamHandler(meshProtocol, async (stream, peerId, msg) => {
-      messageRecd[peerId] = msg
-      nodes[0].sendMessageOnStream(stream, `responding ${msg}`)
+    await startNetworkNodes(6)
+    const leader = nodes[0]
+    leader.registerStreamHandler(meshProtocol, async (stream, peerId, message) => {
+      messages[peerId] = message
+      leader.sendMessageOnStream(stream, `responding ${message}`)
     })
-    const sendMsg = async (node, message) => await node.createAndSendMessage(nodes[0].peerId, meshProtocol, message, (msg) => {
-      responses[node.peerId] = msg
-    })
-    for (const node of nodes.slice(1)) await sendMsg(node, `Verified Deposit Hash ${node.port}`)
+    const sendMessage = async (node, message) => node.createAndSendMessage(leader.peerId, meshProtocol, message, _ => responses[node.peerId] = _)
+    for (const node of nodes.slice(1)) await sendMessage(node, `Verified Deposit Hash ${node.port}`)
     await setTimeout(100)
     for (const node of nodes.slice(1)) {
-      expect(messageRecd[node.peerId]).toEqual(`Verified Deposit Hash ${node.port}`)
+      expect(messages[node.peerId]).toEqual(`Verified Deposit Hash ${node.port}`)
       expect(responses[node.peerId]).toEqual(`responding Verified Deposit Hash ${node.port}`)
     }
 
-    for (const node of nodes.slice(1)) await sendMsg(node, `Verified Deposit Hash ${node.port} again`)
+    for (const node of nodes.slice(1)) await sendMessage(node, `Verified Deposit Hash ${node.port} again`)
     await setTimeout(100)
     for (const node of nodes.slice(1)) {
-      expect(messageRecd[node.peerId]).toEqual(`Verified Deposit Hash ${node.port} again`)
+      expect(messages[node.peerId]).toEqual(`Verified Deposit Hash ${node.port} again`)
       expect(responses[node.peerId]).toEqual(`responding Verified Deposit Hash ${node.port} again`)
     }
   })
 
   it('it should send data using gossipsub', async () => {
     const depositReceipts = {} // each node will just save the hash and ack. later children will sign and attest point to point
-    const [leader, node2, node3, node4] = await startNetworkNodes(4, true)
+    await startNetworkNodes(4, true)
+    const [leader, node2, node3, node4] = nodes
     for (const node of [node2, node3, node4]) {
       await node.connectPubSub(
         leader.peerId,
@@ -71,7 +93,7 @@ describe('p2p nodes', () => {
 
   it('should only create nodes and discovery should happen automatically', async () => {
     const numNodes = 6
-    const nodes = await startNetworkNodes(numNodes)
+    await startNetworkNodes(numNodes)
     await setTimeout(3000)
     for (const node of nodes) {
       expect(node.peers.length).toEqual(numNodes - 1)
@@ -89,7 +111,7 @@ describe('p2p nodes', () => {
   it('should create p2p nodes and send stream message to peers without using their address', async () => {
     const numNodes = 6
     const mesgPrefix = 'Hello from sender '
-    const nodes = await startNetworkNodes(numNodes)
+    await startNetworkNodes(numNodes)
     for (const node of nodes) logger.log('Peers of Node', node.peers.length)
     for (const node of nodes) {
       await node.registerStreamHandler(meshProtocol, function (stream, peerId, msgStr) {
@@ -101,6 +123,7 @@ describe('p2p nodes', () => {
       const stream = await sender.p2p.dialProtocol(peerIdFromString(peerId), meshProtocol)
       await sender.sendMessageOnStream(stream, mesgPrefix + Math.random())
     }
+
     /* following also works since this is the old way. we are just constructing the address w/o storing it. Extra lookup step though.
     const peerId = nodes[1].peerId
     const peerInfo = await nodes[0].findPeer(peerId)
@@ -133,11 +156,9 @@ describe('p2p nodes', () => {
 
   it('message encryption and decryption', async () => {
     async function createSharedSecret(privateKey, publicKey) {
-      const unmarshelledPriv = await unmarshalPrivateKey(privateKey)
-      const ms = edwardsToMontgomeryPriv(unmarshelledPriv._key)
-      const edwardsPub = await unmarshalPublicKey(publicKey)
-      const mp = edwardsToMontgomeryPub(edwardsPub._key)
-      return x25519.getSharedSecret(ms, mp)
+      return x25519.getSharedSecret(
+        edwardsToMontgomeryPriv((await unmarshalPrivateKey(privateKey))._key),
+        edwardsToMontgomeryPub((await unmarshalPublicKey(publicKey))._key))
     }
 
     function encrypt(message, secretKey) {
@@ -154,12 +175,11 @@ describe('p2p nodes', () => {
 
     const {publicKey: publicKey1, privateKey: privateKey1} = await createFromJSON(peerIdJsons[1])
     const {publicKey: publicKey2, privateKey: privateKey2} = await createFromJSON(peerIdJsons[2])
-    const secret1 = await createSharedSecret(privateKey1, publicKey2)
-    const secret2 = await createSharedSecret(privateKey2, publicKey1)
-    expect(secret1).toEqual(secret2)
+    const secret = await createSharedSecret(privateKey1, publicKey2)
+    expect(secret).toEqual(await createSharedSecret(privateKey2, publicKey1))
     for (const message of ['hello world', 'hello world2', 'jqiweuouqwoeuopqweopiqwoeiwqoiepqwiepiqwpoei']) {
-      const encrypted = encrypt(message, uint8ArrayToString(secret1, 'hex'))
-      const decrypted = decrypt(encrypted, uint8ArrayToString(secret1, 'hex'))
+      const encrypted = encrypt(message, uint8ArrayToString(secret, 'hex'))
+      const decrypted = decrypt(encrypted, uint8ArrayToString(secret, 'hex'))
       expect(decrypted).toEqual(message)
     }
   })

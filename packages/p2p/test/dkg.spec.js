@@ -6,7 +6,7 @@ import {TssNode} from '../src/TssNode.js'
 import {addMember, createDkgMembers, setupMembers, signAndVerify, signMessage} from './help/index.js'
 
 //fixme: is this a TssNode.spec ?
-describe.only('dkg', () => {
+describe('dkg', () => {
   const message = 'hello world'
   const memberIds = [10314, 30911, 25411, 8608, 31524, 15441, 23399]
   let verifier
