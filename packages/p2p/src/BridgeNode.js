@@ -1,6 +1,6 @@
 import {affirm, logger} from '@leverj/common/utils'
 import {setTimeout} from 'node:timers/promises'
-import NetworkNode from './NetworkNode.js'
+import {NetworkNode} from './NetworkNode.js'
 import {TssNode} from './TssNode.js'
 import {events, INFO_CHANGED, PEER_DISCOVERY, waitToSync} from './utils/index.js'
 import Whitelist from './Whitelist.js'

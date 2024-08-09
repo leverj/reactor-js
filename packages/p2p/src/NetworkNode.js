@@ -17,7 +17,7 @@ import {fromString as uint8ArrayFromString} from 'uint8arrays/from-string'
 import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
 import {events, PEER_CONNECT, PEER_DISCOVERY, tryAgainIfError} from './utils/index.js'
 
-export default class NetworkNode {
+export class NetworkNode {
   constructor({ip = '0.0.0.0', port = 0, peerIdJson, bootstrapNodes = []}) {
     this.peerIdJson = peerIdJson
     this.ip = ip

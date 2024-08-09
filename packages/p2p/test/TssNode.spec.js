@@ -14,8 +14,7 @@ import {expect} from 'expect'
 import {AbiCoder, keccak256} from 'ethers'
 import {TssNode} from '../src/TssNode.js'
 
-//fixme: is this a TssNode.spec ?
-describe('dkg', () => {
+describe('TssNode', () => {
   const message = 'hello world'
   const memberIds = [10314, 30911, 25411, 8608, 31524, 15441, 23399]
 

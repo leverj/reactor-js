@@ -7,12 +7,11 @@ import AesEncryption from 'aes-encryption'
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
 import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
-import NetworkNode from '../src/NetworkNode.js'
+import {NetworkNode} from '../src/NetworkNode.js'
 import {waitToSync} from '../src/utils/index.js'
 import {peerIdJsons} from './help/fixtures.js'
 
-//fixme: is this a NetworkNode.spec ?
-describe('p2p nodes', () => {
+describe('NetworkNode', () => {
   const meshProtocol = '/mesh/1.0.0'
   const nodes = []
 
