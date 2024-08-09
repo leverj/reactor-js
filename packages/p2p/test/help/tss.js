@@ -1,30 +1,5 @@
-import {
-  deserializeHexStrToPublicKey,
-  deserializeHexStrToSignature,
-  G1ToNumbers,
-  G2ToNumbers,
-  hashToPoint,
-  Signature,
-} from '@leverj/reactor.mcl'
 import {expect} from 'expect'
 import {TssNode} from '../../src/TssNode.js'
-
-export async function signAndVerify(verifier, message, members) {
-  const leader = members[0]
-  const {signs, signers} = signMessage(message, members)
-  const signature = new Signature()
-  signature.recover(signs, signers)
-  const verified = leader.groupPublicKey.verify(signature, message)
-  const verifiedInContract = await verifier.verify(
-    G1ToNumbers(deserializeHexStrToSignature(signature.serializeToHexStr())),
-    G2ToNumbers(deserializeHexStrToPublicKey(leader.groupPublicKey.serializeToHexStr())),
-    G1ToNumbers(hashToPoint(message))
-  )
-  //fixme: this should be tested once, separately from this method
-  expect(verifiedInContract).toBe(verified)
-  signature.clear()
-  return verified
-}
 
 export const signMessage = (message, members) => {
   const signs = [], signers = []
@@ -40,17 +15,6 @@ export const signMessage = (message, members) => {
 export const setupMembers = async (members, threshold) => {
   for (const each of members) each.generateVectors(threshold)
   for (const each of members) await each.generateContribution()
-}
-
-export async function addMember(members, joiner) {
-  for (const each of members) {
-    await each.generateContributionForId(joiner.id.serializeToHexStr(), joiner.onDkgShare.bind(joiner))
-    each.addMember(joiner.id.serializeToHexStr(), joiner.onDkgShare.bind(joiner))
-    joiner.addMember(each.id.serializeToHexStr(), each.onDkgShare.bind(each))
-  }
-  joiner.addMember(joiner.id.serializeToHexStr(), joiner.onDkgShare.bind(joiner))
-  joiner.dkgDone()
-  members.push(joiner)
 }
 
 export const createDkgMembers = async (memberIds, threshold = 4) => {
