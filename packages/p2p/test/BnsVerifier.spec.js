@@ -11,6 +11,10 @@ import {expect} from 'expect'
 import {createDkgMembers, signMessage} from './help/index.js'
 
 describe('BnsVerifier', () => {
+  let verifier
+
+  before(async () => verifier = await BnsVerifier())
+
   it('should verify signature from dkgnodes', async () => {
     const message = 'hello world'
     const members = await createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399])
@@ -22,7 +26,6 @@ describe('BnsVerifier', () => {
     const message_ser = G1ToNumbers(hashToPoint(message))
     const pubkey_ser = G2ToNumbers(pubkey)
     const sig_ser = G1ToNumbers(signature)
-    const contract = await BnsVerifier()
-    expect(await contract.verify(sig_ser, pubkey_ser, message_ser)).toEqual(true)
+    expect(await verifier.verify(sig_ser, pubkey_ser, message_ser)).toEqual(true)
   })
 })

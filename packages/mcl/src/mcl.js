@@ -182,13 +182,11 @@ mcl.Fr.prototype.getPublicKey = function () {
 }
 
 mcl.Fr.prototype.share = function (vec, id) {
-  const shared = mcl.shareFr(vec, id)
-  this.setStr(shared.getStr())
+  this.setStr(mcl.shareFr(vec, id).getStr())
 }
 
 mcl.Fr.prototype.add = function (sk) {
-  const added = mcl.add(sk, this)
-  this.setStr(added.getStr())
+  this.setStr(mcl.add(sk, this).getStr())
 }
 
 mcl.Fr.prototype.sign = function (msg) {
@@ -197,13 +195,11 @@ mcl.Fr.prototype.sign = function (msg) {
 
 export const PublicKey = mcl.G2
 mcl.G2.prototype.share = function (vec, id) {
-  const shared = mcl.shareG2(vec, id)
-  this.setStr(shared.getStr())
+  this.setStr(mcl.shareG2(vec, id).getStr())
 }
 
 mcl.G2.prototype.add = function (pk) {
-  const added = mcl.add(pk, this)
-  this.setStr(added.getStr())
+  this.setStr(mcl.add(pk, this).getStr())
 }
 
 // fast and copy from mcl-wasm c++ code
@@ -229,6 +225,5 @@ mcl.G2.prototype.verify_slow = function (signature, msg) {
 
 export const Signature = mcl.G1
 mcl.G1.prototype.recover = function (signs, signers) {
-  let groupSignature = mcl.recoverG1(signers, signs)
-  this.setStr(groupSignature.getStr())
+  this.setStr(mcl.recoverG1(signers, signs).getStr())
 }

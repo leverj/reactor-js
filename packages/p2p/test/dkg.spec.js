@@ -5,40 +5,42 @@ import {expect} from 'expect'
 import {TssNode} from '../src/TssNode.js'
 import {addMember, createDkgMembers, setupMembers, signAndVerify, signMessage} from './help/index.js'
 
-describe('dkg', () => {
+//fixme: is this a TssNode.spec ?
+describe.only('dkg', () => {
   const message = 'hello world'
-  let contract
+  const memberIds = [10314, 30911, 25411, 8608, 31524, 15441, 23399]
+  let verifier
 
-  before(async () => contract = await BnsVerifier())
+  before(async () => verifier = await BnsVerifier())
 
   it('should be able to match member pub key derived from member pvt key', async () => {
-    const members = await createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399])
-    for (const member of members) {
-      expect(member.publicKey.serializeToHexStr()).toEqual(member.secretKeyShare.getPublicKey().serializeToHexStr())
+    const members = await createDkgMembers(memberIds)
+    for (const each of members) {
+      expect(each.publicKey.serializeToHexStr()).toEqual(each.secretKeyShare.getPublicKey().serializeToHexStr())
     }
   })
 
   it('should be able to create distributed keys and sign message', async () => {
-    const members = await createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399])
-    expect(members.length).toBe(7)
-    for (const member of members) {
-      expect(member.groupPublicKey.serializeToHexStr()).toEqual(members[0].groupPublicKey.serializeToHexStr())
+    const members = await createDkgMembers(memberIds)
+    const leader = members[0]
+    for (const each of members) {
+      expect(each.groupPublicKey.serializeToHexStr()).toEqual(leader.groupPublicKey.serializeToHexStr())
     }
-    expect(await signAndVerify(contract, message, members.slice(0, 3))).toBe(false)
-    expect(await signAndVerify(contract, message, members.slice(0, 4))).toBe(true)
-    expect(await signAndVerify(contract, message, members.slice(0, 5))).toBe(true)
-    expect(await signAndVerify(contract, message, members.slice(0, 6))).toBe(true)
-    expect(await signAndVerify(contract, message, members.slice(0, 7))).toBe(true)
+    expect(await signAndVerify(verifier, message, members.slice(0, 3))).toBe(false)
+    expect(await signAndVerify(verifier, message, members.slice(0, 4))).toBe(true)
+    expect(await signAndVerify(verifier, message, members.slice(0, 5))).toBe(true)
+    expect(await signAndVerify(verifier, message, members.slice(0, 6))).toBe(true)
+    expect(await signAndVerify(verifier, message, members.slice(0, 7))).toBe(true)
   })
 
   it('should be able to add new member retaining old public key and sign messages', async () => {
-    const members = await createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399])
-    expect(members.length).toBe(7)
-    const groupPublicKey = members[0].vvec[0]
+    const members = await createDkgMembers(memberIds)
+    const groupPublicKeyHex = members[0].vvec[0].serializeToHexStr()
     await addMember(members, new TssNode('100'))
     expect(members.length).toBe(8)
-    for (const member of members) expect(member.groupPublicKey.serializeToHexStr()).toEqual(groupPublicKey.serializeToHexStr())
-    const fixtures = [
+    for (const member of members) expect(member.groupPublicKey.serializeToHexStr()).toEqual(groupPublicKeyHex)
+
+    for (const [start, total, expected] of [
       [0, 3, false],
       [0, 4, true],
       [0, 5, true],
@@ -49,45 +51,44 @@ describe('dkg', () => {
       [3, 8, true],
       [4, 4, true],
       [5, 3, false],
-    ]
-    for (const [start, total, expected] of fixtures) {
-      expect(await signAndVerify(contract, message, members.slice(start, start + total))).toBe(expected)
+    ]) {
+      expect(await signAndVerify(verifier, message, members.slice(start, start + total))).toBe(expected)
     }
   })
 
   it('should be able to increase threshold', async () => {
     const threshold = 4
-    const members = await createDkgMembers([10314, 30911, 25411, 8608, 31524, 23399, 15441, 138473], threshold)
-    expect(await signAndVerify(contract, message, members.slice(0, 4))).toBe(true)
+    const members = await createDkgMembers(memberIds, threshold)
+    expect(await signAndVerify(verifier, message, members.slice(0, 4))).toBe(true)
 
-    const groupsPublicKey = members[0].groupPublicKey
+    const groupsPublicKeyHex = members[0].groupPublicKey.serializeToHexStr()
     members.forEach(member => member.reinitiate())
     await setupMembers(members, threshold + 1)
-    for (const member of members) expect(member.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKey.serializeToHexStr())
-    expect(await signAndVerify(contract, message, members.slice(0, 4))).toBe(false)
-    expect(await signAndVerify(contract, message, members.slice(3, 7))).toBe(false)
-    expect(await signAndVerify(contract, message, members.slice(0, 5))).toBe(true)
-    expect(await signAndVerify(contract, message, members.slice(2, 7))).toBe(true)
+    for (const member of members) expect(member.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKeyHex)
+    expect(await signAndVerify(verifier, message, members.slice(0, 4))).toBe(false)
+    expect(await signAndVerify(verifier, message, members.slice(3, 7))).toBe(false)
+    expect(await signAndVerify(verifier, message, members.slice(0, 5))).toBe(true)
+    expect(await signAndVerify(verifier, message, members.slice(2, 7))).toBe(true)
   })
 
   it('should be able to add member and increase threshold without changing group public key', async () => {
     const threshold = 4
-    const members = await createDkgMembers([10314, 30911, 25411, 8608, 31524, 23399, 15441], threshold)
-    expect(await signAndVerify(contract, message, members.slice(0, 4))).toBe(true)
+    const members = await createDkgMembers(memberIds.slice(0, memberIds.length), threshold)
+    expect(await signAndVerify(verifier, message, members.slice(0, 4))).toBe(true)
 
     const groupsPublicKey = members[0].groupPublicKey
     await addMember(members, new TssNode('100'))
     members.forEach(member => member.reinitiate())
     await setupMembers(members, threshold + 1)
     for (const member of members) expect(member.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKey.serializeToHexStr())
-    expect(await signAndVerify(contract, message, members.slice(0, 4))).toBe(false)
-    expect(await signAndVerify(contract, message, members.slice(4, 8))).toBe(false)
-    expect(await signAndVerify(contract, message, members.slice(0, 5))).toBe(true)
-    expect(await signAndVerify(contract, message, members.slice(3, 8))).toBe(true)
+    expect(await signAndVerify(verifier, message, members.slice(0, 4))).toBe(false)
+    expect(await signAndVerify(verifier, message, members.slice(4, 8))).toBe(false)
+    expect(await signAndVerify(verifier, message, members.slice(0, 5))).toBe(true)
+    expect(await signAndVerify(verifier, message, members.slice(3, 8))).toBe(true)
   })
 
   it('should be able to get shared public key from verification vector', async () => {
-    const members = await createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399], 4)
+    const members = await createDkgMembers(memberIds, 4)
     const member = members[4]
     const pk1 = new PublicKey()
     pk1.share(member.vvec, member.id)
@@ -99,7 +100,7 @@ describe('dkg', () => {
 
   it('share renewal', async () => {
     const threshold = 4
-    const members = await createDkgMembers([10314, 30911, 25411, 8608, 31524, 15441, 23399], threshold)
+    const members = await createDkgMembers(memberIds, threshold)
     const {signs, signers} = signMessage(message, members)
     const groupsSign = new Signature()
     groupsSign.recover(signs, signers)
@@ -117,33 +118,33 @@ describe('dkg', () => {
 
   it('should be able to remove a member', async () => {
     const threshold = 4
-    const members = await createDkgMembers([10314, 30911, 25411, 8608, 31524, 23399, 15441, 138473], threshold)
+    const members = await createDkgMembers(memberIds.concat(138473), threshold)
     const groupsPublicKey = members[0].groupPublicKey
     members.forEach(member => member.reinitiate())
     members.pop()
     await setupMembers(members, threshold)
     for (const member of members) expect(member.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKey.serializeToHexStr())
-    expect(await signAndVerify(contract, message, members.slice(0, 3))).toBe(false)
-    expect(await signAndVerify(contract, message, members.slice(0, 4))).toBe(true)
-    expect(await signAndVerify(contract, message, members.slice(0, 5))).toBe(true)
-    expect(await signAndVerify(contract, message, members.slice(3, 7))).toBe(true)
-    expect(await signAndVerify(contract, message, members.slice(4, 7))).toBe(false)
+    expect(await signAndVerify(verifier, message, members.slice(0, 3))).toBe(false)
+    expect(await signAndVerify(verifier, message, members.slice(0, 4))).toBe(true)
+    expect(await signAndVerify(verifier, message, members.slice(0, 5))).toBe(true)
+    expect(await signAndVerify(verifier, message, members.slice(3, 7))).toBe(true)
+    expect(await signAndVerify(verifier, message, members.slice(4, 7))).toBe(false)
   })
 
   it.skip('should be able to decrease threshold', async () => {
     const threshold = 5
-    const members = await createDkgMembers([10314, 30911, 25411, 8608, 31524, 23399, 15441, 138473], threshold)
-    expect(await signAndVerify(contract, message, members.slice(0, 4))).toBe(false)
-    expect(await signAndVerify(contract, message, members.slice(0, 5))).toBe(true)
+    const members = await createDkgMembers(memberIds, threshold)
+    expect(await signAndVerify(verifier, message, members.slice(0, 4))).toBe(false)
+    expect(await signAndVerify(verifier, message, members.slice(0, 5))).toBe(true)
 
     const groupsPublicKey = members[0].groupPublicKey
     members.forEach(member => member.reinitiate())
     await setupMembers(members, threshold - 1)
     for (const member of members) expect(member.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKey.serializeToHexStr())
-    expect(await signAndVerify(contract, message, members.slice(0, 3))).toBe(false)
+    expect(await signAndVerify(verifier, message, members.slice(0, 3))).toBe(false)
     //fixme: test fails here
-    expect(await signAndVerify(contract, message, members.slice(0, 4))).toBe(true)
-    expect(await signAndVerify(contract, message, members.slice(0, 5))).toBe(true)
+    expect(await signAndVerify(verifier, message, members.slice(0, 4))).toBe(true)
+    expect(await signAndVerify(verifier, message, members.slice(0, 5))).toBe(true)
   })
 
   it.skip('measurement matrix: takes a lot of time.', async () => {
