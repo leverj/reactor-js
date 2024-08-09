@@ -21,7 +21,7 @@ const stop = async (...ports) => {
     await childProcesses[port].kill()
     delete childProcesses[port]
   }
-  await setTimeout(200)
+  await setTimeout(10)
 }
 
 async function getBootstrapNodes() {
@@ -45,7 +45,7 @@ async function createFrom(ports, count) {
       isLeader: index === 0,
       bootstrapNodes: JSON.stringify(bootstrapNodes),
     })
-    await setTimeout(200)
+    await setTimeout(100)
   }
   await waitForBootstrapSync(ports, count)
   return ports
@@ -114,7 +114,7 @@ describe('e2e', () => {
 
     const allNodes = await createApiNodes(2)
     await startDkg()
-    await setTimeout(1000)
+    await setTimeout(100)
     const publicKeys = allNodes.map(node => getPublicKey(node))
     for (const publicKey of publicKeys) {
       expect(publicKey).not.toBeNull()
@@ -142,7 +142,6 @@ describe('e2e', () => {
     await createInfo_json(allNodes.length)
 
     await createApiNodes(allNodes.length)
-    // await setTimeout(2000)
     const txnHash = 'hash123456'
     await axios.post('http://127.0.0.1:9000/api/tss/aggregateSign', {txnHash, 'msg': message})
     const fn = async () => {

@@ -48,7 +48,7 @@ describe('BridgeNode', () => {
     await leader.startDKG(4)
     const leaderSecretKey = leader.tssNode.secretKeyShare.serializeToHexStr()
     const leaderGroupKey = leader.tssNode.groupPublicKey.serializeToHexStr()
-    await setTimeout(100)
+    await setTimeout(10)
     for (const node of nodes) {
       node.tssNode.print()
       if (leader.peerId === node.peerId) continue

@@ -193,7 +193,6 @@ mcl.Fr.prototype.add = function (sk) {
 
 mcl.Fr.prototype.sign = function (msg) {
   return sign(msg, this).signature
-  return this
 }
 
 export const PublicKey = mcl.G2
@@ -231,4 +230,5 @@ mcl.G2.prototype.verify_slow = function (signature, msg) {
 export const Signature = mcl.G1
 mcl.G1.prototype.recover = function (signs, signers) {
   this.setStr(mcl.recoverG1(signers, signs).getStr())
+  return this
 }

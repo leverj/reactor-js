@@ -1,5 +1,5 @@
 import * as chain from '@leverj/reactor.chain/contracts'
-import {deserializeHexStrToSignature, deserializeHexStrToPublicKey, G1ToNumbers, G2ToNumbers} from '@leverj/reactor.mcl'
+import {deserializeHexStrToPublicKey, deserializeHexStrToSignature, G1ToNumbers, G2ToNumbers} from '@leverj/reactor.mcl'
 import {AbiCoder, Interface, keccak256} from 'ethers'
 
 const abi = AbiCoder.defaultAbiCoder()

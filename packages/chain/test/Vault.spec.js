@@ -1,7 +1,4 @@
 import {provider, Vault} from '@leverj/reactor.chain/test'
-import {AbiCoder, keccak256} from 'ethers'
-import {expect} from 'expect'
-import {setTimeout} from 'node:timers/promises'
 
 describe('Vault', () => {
   it.skip('should mint token using fixture data', async () => {

@@ -1,8 +1,8 @@
 // import {keccak256} from 'ethers'
-import {solidityPackedKeccak256, solidityPackedSha256, solidityPacked} from 'ethers'
+import {solidityPackedKeccak256} from 'ethers'
 // import {keccak256} from '@leverj/common/utils'
 import {BnsVerifier} from '@leverj/reactor.chain/test'
-import {G1ToNumbers, G2ToNumbers, newKeyPair, sign, stringToHex, hashToPoint} from '@leverj/reactor.mcl'
+import {G1ToNumbers, G2ToNumbers, newKeyPair, sign, stringToHex} from '@leverj/reactor.mcl'
 import {expect} from 'expect'
 
 export const keccak256 = (subject) => solidityPackedKeccak256(['string'], [subject])

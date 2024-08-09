@@ -54,14 +54,14 @@ describe('p2p nodes', () => {
     })
     const sendMessage = async (node, message) => node.createAndSendMessage(leader.peerId, meshProtocol, message, _ => responses[node.peerId] = _)
     for (const node of nodes.slice(1)) await sendMessage(node, `Verified Deposit Hash ${node.port}`)
-    await setTimeout(100)
+    await setTimeout(10)
     for (const node of nodes.slice(1)) {
       expect(messages[node.peerId]).toEqual(`Verified Deposit Hash ${node.port}`)
       expect(responses[node.peerId]).toEqual(`responding Verified Deposit Hash ${node.port}`)
     }
 
     for (const node of nodes.slice(1)) await sendMessage(node, `Verified Deposit Hash ${node.port} again`)
-    await setTimeout(100)
+    await setTimeout(10)
     for (const node of nodes.slice(1)) {
       expect(messages[node.peerId]).toEqual(`Verified Deposit Hash ${node.port} again`)
       expect(responses[node.peerId]).toEqual(`responding Verified Deposit Hash ${node.port} again`)
@@ -79,15 +79,15 @@ describe('p2p nodes', () => {
       )
       await node.subscribe('DepositHash')
     }
-    await setTimeout(100)
+    await setTimeout(10)
     const depositHash = '0xbef807c488b8a3db6834ee242ff888e9ebb5961deb9323c8da97853b43755aab'
     await leader.publish('DepositHash', depositHash)
-    await setTimeout(100)
+    await setTimeout(10)
     expect(leader.peers.length).toEqual(3)
     for (const peerOfNode1 of leader.peers) expect(depositReceipts[peerOfNode1]).toEqual(depositHash)
 
     await leader.publish('DepositHash', depositHash + depositHash)
-    await setTimeout(100)
+    await setTimeout(10)
     expect(leader.peers.length).toEqual(3)
     for (const peerOfNode1 of leader.peers) expect(depositReceipts[peerOfNode1]).toEqual(depositHash + depositHash)
   })
@@ -95,7 +95,6 @@ describe('p2p nodes', () => {
   it('should only create nodes and discovery should happen automatically', async () => {
     const numNodes = 6
     await startNetworkNodes(numNodes)
-    await setTimeout(3000)
     for (const node of nodes) {
       expect(node.peers.length).toEqual(numNodes - 1)
       for (const peerId of node.peers) {
@@ -131,20 +130,20 @@ describe('p2p nodes', () => {
     const peerAddress = peerInfo.multiaddrs[0]
     const addressToSend = peerAddress + '/p2p/' + peerId
     await nodes[0].createAndSendMessage(addressToSend, meshProtocol, "HI", (msg) => {logger.log("ACK RESP", msg)})*/
-    // await setTimeout(1000)
+    // await setTimeout(10)
   })
 
   // fixme: to be implemented
   it.skip('should not allow to connect a node if not approved', async () => {
     const [node1, node2] = await startNetworkNodes(2)
     node1.connect(node2.peerId)
-    await setTimeout(100)
+    await setTimeout(10)
     expect(node2.peers.length).toEqual(0)
     expect(node1.peers.length).toEqual(0)
 
     node1.addToKnownPeers(node2.peerId)
     node1.connect(node2.peerId)
-    await setTimeout(100)
+    await setTimeout(10)
     expect(node1.peers.length).toEqual(1)
     expect(node2.peers.length).toEqual(1)
   })

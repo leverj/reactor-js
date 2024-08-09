@@ -20,24 +20,14 @@ describe('dkg', () => {
 
   before(async () => verifier = await BnsVerifier())
 
-  const signMessage = (members) => {
-    const signs = [], signers = []
-    for (const each of members) {
-      signs.push(each.sign(message))
-      signers.push(each.id)
-    }
-    return {signs, signers}
-    //fixme: maybe a better implementation is:
-    // return members.map(_ => ({id: _.id, signature: _.sign(message)}))
-  }
-
+  const signMessage = (members) => [
+    members.map(_ => _.sign(message)),
+    members.map(_ => _.id),
+  ]
 
   const signAndVerify = async (members) => {
-    const leader = members[0]
-    const {signs, signers} = signMessage(members)
-    const signature = new Signature()
-    signature.recover(signs, signers)
-    const verified = leader.groupPublicKey.verify(signature, message)
+    const signature = new Signature().recover(...signMessage(members))
+    const verified = members[0].groupPublicKey.verify(signature, message)
     signature.clear()
     return verified
   }
@@ -77,10 +67,7 @@ describe('dkg', () => {
 
   it('should verify signature from dkgnodes', async () => {
     const members = await createDkgMembers(memberIds)
-    const leader = members[0]
-    const {signs, signers} = signMessage(members)
-    const groupsSign = new Signature()
-    groupsSign.recover(signs, signers)
+    const groupsSign = new Signature().recover(...signMessage(members))
     expect(await verifier.verify(
       G1ToNumbers(deserializeHexStrToSignature(groupsSign.serializeToHexStr())),
       G2ToNumbers(deserializeHexStrToPublicKey(members[0].groupPublicKey.serializeToHexStr())),
@@ -90,13 +77,10 @@ describe('dkg', () => {
 
   it('signAndVerify', async () => {
     const verifiedInContract = async (members) => {
-      const leader = members[0]
-      const {signs, signers} = signMessage(members)
-      const signature = new Signature()
-      signature.recover(signs, signers)
+      const signature = new Signature().recover(...signMessage(members))
       return verifier.verify(
         G1ToNumbers(deserializeHexStrToSignature(signature.serializeToHexStr())),
-        G2ToNumbers(deserializeHexStrToPublicKey(leader.groupPublicKey.serializeToHexStr())),
+        G2ToNumbers(deserializeHexStrToPublicKey(members[0].groupPublicKey.serializeToHexStr())),
         G1ToNumbers(hashToPoint(message)),
       )
     }
@@ -110,9 +94,8 @@ describe('dkg', () => {
 
   it('should be able to create distributed keys and sign message', async () => {
     const members = await createDkgMembers(memberIds)
-    const leader = members[0]
     for (const each of members) {
-      expect(each.groupPublicKey.serializeToHexStr()).toEqual(leader.groupPublicKey.serializeToHexStr())
+      expect(each.groupPublicKey.serializeToHexStr()).toEqual(members[0].groupPublicKey.serializeToHexStr())
     }
     expect(await signAndVerify(members.slice(0, 3))).toBe(false)
     expect(await signAndVerify(members.slice(0, 4))).toBe(true)
@@ -188,17 +171,14 @@ describe('dkg', () => {
   it('share renewal', async () => {
     const threshold = 4
     const members = await createDkgMembers(memberIds, threshold)
-    const {signs, signers} = signMessage(members)
-    const groupsSign = new Signature()
-    groupsSign.recover(signs, signers)
+    // const groupsSign = new Signature().recover(...signMessage(members))
     const groupsPublicKey = members[0].groupPublicKey
     // -> member shares array reinitialized
-    members.forEach(member => member.reinitiate())
+    members.forEach(_ => _.reinitiate())
     await setupMembersThreshold(members, threshold)
-    for (const member of members) expect(member.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKey.serializeToHexStr())
-    const {signs: newSigns, signers: newSigners} = signMessage(members)
-    const newGroupsSign = new Signature()
-    newGroupsSign.recover(newSigns.slice(0, 4), newSigners.slice(0, 4))
+    for (const each of members) expect(each.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKey.serializeToHexStr())
+    const [newSigns, newSigners] = signMessage(members)
+    const newGroupsSign = new Signature().recover(newSigns.slice(0, 4), newSigners.slice(0, 4))
     expect(members[0].groupPublicKey.verify(newGroupsSign, message)).toBe(true)
   })
 
