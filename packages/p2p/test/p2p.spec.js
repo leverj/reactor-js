@@ -11,7 +11,8 @@ import NetworkNode from '../src/NetworkNode.js'
 import {waitToSync} from '../src/utils/index.js'
 import {peerIdJsons} from './help/index.js'
 
-describe('NetworkNode - p2p nodes', () => {
+//fixme: is this a NetworkNode.spec ?
+describe('p2p nodes', () => {
   const meshProtocol = '/mesh/1.0.0'
   const nodes = []
 
