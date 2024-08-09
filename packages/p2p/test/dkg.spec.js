@@ -67,9 +67,9 @@ describe('dkg', () => {
   it.skip('signAndVerify', async () => {
     const verifier = await BnsVerifier()
     const message_ = keccak256(AbiCoder.defaultAbiCoder().encode(['string'], [message]))
-    const validateInContract = async (members) => {
+    const verifyInContract = async (members) => {
       const signature = new Signature().recover(...signMessage(members))
-      return verifier.validate(
+      return verifier.verify(
         G1ToNumbers(deserializeHexStrToSignature(signature.serializeToHexStr())),
         G2ToNumbers(deserializeHexStrToPublicKey(members[0].groupPublicKey.serializeToHexStr())),
         G1ToNumbers(hashToPoint(message)),
@@ -78,19 +78,20 @@ describe('dkg', () => {
 
     const members = await createDkgMembers(memberIds)
     expect(await signAndVerify(members.slice(0, 3))).toBe(false)
-    expect(await signAndVerify(members.slice(0, 3))).toBe(await validateInContract(members.slice(0, 3)))
-    await expect(() => verifier.validate(
-      G1ToNumbers(sign(message, impersonator.secret).signature),
-      G2ToNumbers(signer.pubkey),
-      message
-    )).rejects.toThrow(/'Invalid Signature/)
+    // expect(await signAndVerify(members.slice(0, 3))).toBe(await verifyInContract(members.slice(0, 3)))
+    // await expect(() => verifier.validate(
+    //   G1ToNumbers(sign(message, impersonator.secret).signature),
+    //   G2ToNumbers(signer.pubkey),
+    //   message
+    // )).rejects.toThrow(/'Invalid Signature/)
 
     expect(await signAndVerify(members)).toBe(true)
-    await expect(() => verifier.validate(
-      G1ToNumbers(sign(message, signer.secret).signature),
-      G2ToNumbers(signer.pubkey),
-      message
-    )).not.toThrow()
+    // expect(await signAndVerify(members)).toBe(await verifyInContract(members))
+    // await expect(() => verifier.validate(
+    //   G1ToNumbers(sign(message, signer.secret).signature),
+    //   G2ToNumbers(signer.pubkey),
+    //   message
+    // )).not.toThrow()
   })
 
   it('should be able to create distributed keys and sign message', async () => {

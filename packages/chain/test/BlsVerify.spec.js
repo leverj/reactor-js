@@ -9,16 +9,16 @@ describe('BnsVerifier', () => {
 
   before(async () => verifier = await BnsVerifier())
 
-  it('can validate', async () => {
+  it('can verify', async () => {
     const signer = newKeyPair()
-    await expect(() => verifier.validate(
+    await expect(() => verifier.verify(
       G1ToNumbers(sign(message, signer.secret).signature),
       G2ToNumbers(signer.pubkey),
       message
     )).not.toThrow()
 
     const impersonator = newKeyPair()
-    await expect(() => verifier.validate(
+    await expect(() => verifier.verify(
       G1ToNumbers(sign(message, impersonator.secret).signature),
       G2ToNumbers(signer.pubkey),
       message

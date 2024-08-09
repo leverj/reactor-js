@@ -24,7 +24,7 @@ library BnsVerifier {
 
     bytes constant cipher_suite_domain = bytes('BNS_SIG_BNS256_XMD:SHA-256_SSWU');
 
-    function validate(uint[2] memory signature, uint[4] memory pubkey, bytes32 hash) external view {
+    function verify(uint[2] memory signature, uint[4] memory pubkey, bytes32 hash) external view {
         uint[2] memory message = hashToPoint(bytes(bytes32ToHexString(hash)));
         uint[12] memory input = [signature[0], signature[1], nG2x1, nG2x0, nG2y1, nG2y0, message[0], message[1], pubkey[1], pubkey[0], pubkey[3], pubkey[2]];
         uint[1] memory out;
