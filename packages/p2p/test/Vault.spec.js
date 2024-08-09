@@ -6,7 +6,7 @@ import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
 import {BridgeNode} from '../src/BridgeNode.js'
 import {Deposit} from '../src/Deposit.js'
-import {peerIdJsons} from './help/index.js'
+import {peerIdJsons} from './help/fixtures.js'
 
 const [owner, account] = await getSigners()
 

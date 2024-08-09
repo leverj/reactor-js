@@ -7,7 +7,7 @@ import {mkdirSync, readFileSync, rmdirSync, writeFileSync} from 'node:fs'
 import {setTimeout} from 'node:timers/promises'
 import path from 'path'
 import {tryAgainIfError, waitToSync} from '../src/utils/index.js'
-import {getBridgeInfos} from './help/index.js'
+import {getBridgeInfos} from './help/fixtures.js'
 
 const childProcesses = {}
 

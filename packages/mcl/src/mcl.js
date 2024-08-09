@@ -183,23 +183,28 @@ mcl.Fr.prototype.getPublicKey = function () {
 
 mcl.Fr.prototype.share = function (vec, id) {
   this.setStr(mcl.shareFr(vec, id).getStr())
+  return this
 }
 
 mcl.Fr.prototype.add = function (sk) {
   this.setStr(mcl.add(sk, this).getStr())
+  return this
 }
 
 mcl.Fr.prototype.sign = function (msg) {
   return sign(msg, this).signature
+  return this
 }
 
 export const PublicKey = mcl.G2
 mcl.G2.prototype.share = function (vec, id) {
   this.setStr(mcl.shareG2(vec, id).getStr())
+  return this
 }
 
 mcl.G2.prototype.add = function (pk) {
   this.setStr(mcl.add(pk, this).getStr())
+  return this
 }
 
 // fast and copy from mcl-wasm c++ code

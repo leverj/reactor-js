@@ -11,7 +11,6 @@ import {
 } from '@leverj/reactor.mcl'
 import {expect} from 'expect'
 import {TssNode} from '../src/TssNode.js'
-import {createDkgMembers, setupMembers, signMessage} from './help/index.js'
 
 //fixme: is this a TssNode.spec ?
 describe('dkg', () => {
@@ -21,9 +20,21 @@ describe('dkg', () => {
 
   before(async () => verifier = await BnsVerifier())
 
+  const signMessage = (members) => {
+    const signs = [], signers = []
+    for (const each of members) {
+      signs.push(each.sign(message))
+      signers.push(each.id)
+    }
+    return {signs, signers}
+    //fixme: maybe a better implementation is:
+    // return members.map(_ => ({id: _.id, signature: _.sign(message)}))
+  }
+
+
   const signAndVerify = async (members) => {
     const leader = members[0]
-    const {signs, signers} = signMessage(message, members)
+    const {signs, signers} = signMessage(members)
     const signature = new Signature()
     signature.recover(signs, signers)
     const verified = leader.groupPublicKey.verify(signature, message)
@@ -42,6 +53,21 @@ describe('dkg', () => {
     members.push(joiner)
   }
 
+  const setupMembersThreshold = async (members, threshold) => {
+    for (const each of members) each.generateVectors(threshold)
+    for (const each of members) await each.generateContribution()
+  }
+
+  const createDkgMembers = async (memberIds, threshold = 4) => {
+    const members = memberIds.map(id => new TssNode(id.toString()))
+    for (const member1 of members)
+      for (const member2 of members)
+        member1.addMember(member2.id.serializeToHexStr(), member2.onDkgShare.bind(member2)) //fixme: why do we need this bind() ?
+    await setupMembersThreshold(members, threshold)
+    expect(members.length).toBe(memberIds.length)
+    return members
+  }
+
   it('should be able to match member pub key derived from member pvt key', async () => {
     const members = await createDkgMembers(memberIds)
     for (const each of members) {
@@ -49,10 +75,23 @@ describe('dkg', () => {
     }
   })
 
+  it('should verify signature from dkgnodes', async () => {
+    const members = await createDkgMembers(memberIds)
+    const leader = members[0]
+    const {signs, signers} = signMessage(members)
+    const groupsSign = new Signature()
+    groupsSign.recover(signs, signers)
+    expect(await verifier.verify(
+      G1ToNumbers(deserializeHexStrToSignature(groupsSign.serializeToHexStr())),
+      G2ToNumbers(deserializeHexStrToPublicKey(members[0].groupPublicKey.serializeToHexStr())),
+      G1ToNumbers(hashToPoint(message))
+    )).toEqual(true)
+  })
+
   it('signAndVerify', async () => {
     const verifiedInContract = async (members) => {
       const leader = members[0]
-      const {signs, signers} = signMessage(message, members)
+      const {signs, signers} = signMessage(members)
       const signature = new Signature()
       signature.recover(signs, signers)
       return verifier.verify(
@@ -112,7 +151,7 @@ describe('dkg', () => {
 
     const groupsPublicKeyHex = members[0].groupPublicKey.serializeToHexStr()
     members.forEach(member => member.reinitiate())
-    await setupMembers(members, threshold + 1)
+    await setupMembersThreshold(members, threshold + 1)
     for (const member of members) expect(member.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKeyHex)
     expect(await signAndVerify(members.slice(0, 4))).toBe(false)
     expect(await signAndVerify(members.slice(3, 7))).toBe(false)
@@ -128,7 +167,7 @@ describe('dkg', () => {
     const groupsPublicKey = members[0].groupPublicKey
     await addMember(members, new TssNode('100'))
     members.forEach(member => member.reinitiate())
-    await setupMembers(members, threshold + 1)
+    await setupMembersThreshold(members, threshold + 1)
     for (const member of members) expect(member.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKey.serializeToHexStr())
     expect(await signAndVerify(members.slice(0, 4))).toBe(false)
     expect(await signAndVerify(members.slice(4, 8))).toBe(false)
@@ -139,8 +178,7 @@ describe('dkg', () => {
   it('should be able to get shared public key from verification vector', async () => {
     const members = await createDkgMembers(memberIds, 4)
     const member = members[4]
-    const pk1 = new PublicKey()
-    pk1.share(member.vvec, member.id)
+    const pk1 = new PublicKey().share(member.vvec, member.id)
     const pk2 = member.secretKeyShare.getPublicKey()
     expect(pk1.isEqual(pk2)).toBe(true)
     pk1.clear()
@@ -150,15 +188,15 @@ describe('dkg', () => {
   it('share renewal', async () => {
     const threshold = 4
     const members = await createDkgMembers(memberIds, threshold)
-    const {signs, signers} = signMessage(message, members)
+    const {signs, signers} = signMessage(members)
     const groupsSign = new Signature()
     groupsSign.recover(signs, signers)
     const groupsPublicKey = members[0].groupPublicKey
     // -> member shares array reinitialized
     members.forEach(member => member.reinitiate())
-    await setupMembers(members, threshold)
+    await setupMembersThreshold(members, threshold)
     for (const member of members) expect(member.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKey.serializeToHexStr())
-    const {signs: newSigns, signers: newSigners} = signMessage(message, members)
+    const {signs: newSigns, signers: newSigners} = signMessage(members)
     const newGroupsSign = new Signature()
     newGroupsSign.recover(newSigns.slice(0, 4), newSigners.slice(0, 4))
     expect(members[0].groupPublicKey.verify(newGroupsSign, message)).toBe(true)
@@ -171,7 +209,7 @@ describe('dkg', () => {
     const groupsPublicKey = members[0].groupPublicKey
     members.forEach(member => member.reinitiate())
     members.pop()
-    await setupMembers(members, threshold)
+    await setupMembersThreshold(members, threshold)
     for (const member of members) expect(member.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKey.serializeToHexStr())
     expect(await signAndVerify(members.slice(0, 3))).toBe(false)
     expect(await signAndVerify(members.slice(0, 4))).toBe(true)
@@ -188,7 +226,7 @@ describe('dkg', () => {
 
     const groupsPublicKey = members[0].groupPublicKey
     members.forEach(member => member.reinitiate())
-    await setupMembers(members, threshold - 1)
+    await setupMembersThreshold(members, threshold - 1)
     for (const member of members) expect(member.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKey.serializeToHexStr())
     expect(await signAndVerify(members.slice(0, 3))).toBe(false)
     //fixme: test fails here
@@ -204,7 +242,7 @@ describe('dkg', () => {
       const members = await createDkgMembers(Array(length).fill(0).map((_, i) => 10000 + i), threshold)
       time.dkg = (Date.now() - time.dkg) / 1000 + 's'
       time.sign = Date.now()
-      const {signs, signers} = signMessage('hello world', members.slice(0, threshold))
+      const {signs, signers} = signMessage(members.slice(0, threshold))
       const groupsSign = new Signature()
       groupsSign.recover(signs, signers)
       time.sign = (Date.now() - time.sign) / 1000 + 's'

@@ -1,9 +1,9 @@
 import {SecretKey} from '@leverj/reactor.mcl'
 
 function generateDkgId(id) {
-  const dkgId = new SecretKey()
-  dkgId.setHashOf(Buffer.from(id))
-  return dkgId.serializeToHexStr()
+  const key = new SecretKey()
+  key.setHashOf(Buffer.from(id))
+  return key.serializeToHexStr()
 }
 
 export default class Whitelist {

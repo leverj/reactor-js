@@ -1,7 +1,7 @@
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
 import {BridgeNode} from '../src/BridgeNode.js'
-import {peerIdJsons} from './help/index.js'
+import {peerIdJsons} from './help/fixtures.js'
 
 describe('BridgeNode', () => {
   const nodes = []

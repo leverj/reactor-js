@@ -9,7 +9,7 @@ import {setTimeout} from 'node:timers/promises'
 import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
 import NetworkNode from '../src/NetworkNode.js'
 import {waitToSync} from '../src/utils/index.js'
-import {peerIdJsons} from './help/index.js'
+import {peerIdJsons} from './help/fixtures.js'
 
 //fixme: is this a NetworkNode.spec ?
 describe('p2p nodes', () => {
