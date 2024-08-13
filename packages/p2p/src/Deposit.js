@@ -12,7 +12,7 @@ export class Deposit {
 
   setContract(chain, contract) { this.contracts[chain] = contract }
 
-  //fixme: could not find any "native" or default way to extract event log's column names and types, so lil bit of manual js work
+  // fixme: could not find any "native" or default way to extract event log's column names and types, so lil bit of manual js work
   async processTokenSent(log) {
     if (this.bridgeNode.isLeader !== true) return
     const parsedLog = iface.parseLog(log)

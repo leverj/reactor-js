@@ -33,7 +33,7 @@ export class BridgeNode {
     this.monitor = new Monitor()
     this.network.registerStreamHandler(meshProtocol, this.onStreamMessage.bind(this))
     this.addPeersToWhiteList(...this.whitelist.initial)
-    //fixme: changes when real whitelisting done
+    // fixme: changes when real whitelisting done
     if (this.isLeader) events.on(PEER_DISCOVERY, _ => this.addPeersToWhiteList(_))
   }
 
@@ -56,7 +56,7 @@ export class BridgeNode {
     await this.addLeader()
     if (!this.isLeader) await this.sendMessageToPeer(this.leader, WHITELIST_REQUEST, '')
     events.emit(INFO_CHANGED)
-    this.ping() //fixme: what is this for?
+    this.ping() // fixme: what is this for?
     return this
   }
 
@@ -117,7 +117,7 @@ export class BridgeNode {
     await this.network.createAndSendMessage(peerId, meshProtocol, messageStr)
   }
 
-  async connectPubSub(peerId) { return this.network.connectPubSub(peerId, this.onPubSubMessage.bind(this)) } //fixme: ??? this.onPubSubMessage.bind(this.network)
+  async connectPubSub(peerId) { return this.network.connectPubSub(peerId, this.onPubSubMessage.bind(this)) } // fixme: ??? this.onPubSubMessage.bind(this.network)
 
   async onPubSubMessage({peerId, topic, data}) {
     switch (topic) {
@@ -218,7 +218,7 @@ class Whitelist {
 
   exists(peerId) { return this.allowed[peerId] }
   get() { return Object.keys(this.allowed) }
-  exportJson() { return this.get() } //fixme: why the duplication?
+  exportJson() { return this.get() } // fixme: why the duplication?
   add(peerId) {
     this.allowed[peerId] = new SecretKey().setHashOfString(peerId).serializeToHexStr()
     return this.allowed[peerId]

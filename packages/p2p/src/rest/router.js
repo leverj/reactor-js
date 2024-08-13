@@ -47,7 +47,7 @@ async function publishWhitelist(req, res) {
 async function getBootstrapPeers(req, res) {
   const peers = bridgeNode.peers
   const all = []
-  for (let each of peers) all.push(await bridgeNode.p2p.peerRouting.findPeer(peerIdFromString(each)))
+  for (let each of peers) all.push(await bridgeNode.network.p2p.peerRouting.findPeer(peerIdFromString(each)))
   res.send(all)
 }
 

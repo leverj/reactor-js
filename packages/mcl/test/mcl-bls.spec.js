@@ -25,7 +25,7 @@ describe('mcl-bls', () => {
     expect(mclPubKey.serializeToHexStr()).toEqual(pubKey1.serializeToHexStr())
   })
 
-  //fixme: this test is failing when import for bls is actually from bls-wasm
+  // fixme: this test is failing when import for bls is actually from bls-wasm
   it.skip('bls should verify mcl signature', async () => {
     const secretHex = 'a3e9769b84c095eca6b98449ac86b6e2c589834fe24cb8fbb7b36f814fd06113'
     const map = new Keymap(message).replenish(secretHex)//.print()

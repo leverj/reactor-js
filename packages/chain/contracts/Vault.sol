@@ -42,7 +42,7 @@ contract Vault {
 
     function isProxy(address token) public view returns (bool) {
         return isProxyMapping[token];
-//        return IERC165(token).supportsInterface(type(ITokenProxy).interfaceId); //fixme
+//        return IERC165(token).supportsInterface(type(ITokenProxy).interfaceId); // fixme
     }
 
     function sendNative(uint toChainId) external payable {

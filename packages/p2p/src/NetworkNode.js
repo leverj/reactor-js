@@ -44,7 +44,7 @@ export class NetworkNode {
 
   peerDiscovered(event) { events.emit(PEER_DISCOVERY, event.detail.id.toString()) }
 
-  //fixme: remove this peer from the network
+  // fixme: remove this peer from the network
   peerConnected(event) {
     const peerId = event.detail.toString()
     // if (!this.knownPeers[peerId]) {

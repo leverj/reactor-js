@@ -66,7 +66,7 @@ describe('Vault', () => {
     await erc20.mint(account, 1e9)
     await erc20.connect(account).approve(L1_Contract.target, 1000000, {from: account.address}).then(tx => tx.wait())
     const logs = await provider.getLogs(await L1_Contract.connect(account).sendToken(L2, erc20.target, amount).then(tx => tx.wait()))
-    const depositHash = await leader.processTokenSent(logs[1]) //fixme: why the difference from sendNative?
+    const depositHash = await leader.processTokenSent(logs[1]) // fixme: why the difference from sendNative?
     return {L2_Contract, depositHash, erc20}
   }
 
@@ -138,7 +138,7 @@ describe('Vault', () => {
     }
     await setTimeout(10)
     ethBalanceOfDepositor = await provider.getBalance(owner)
-    //fixme: need to test ETH balance
+    // fixme: need to test ETH balance
     logger.log('after withdraw', formatEther(ethBalanceOfDepositor.toString()))
   })
 
@@ -219,7 +219,7 @@ describe('Vault', () => {
 
     ethBalanceOfDepositor = await provider.getBalance(owner)
     logger.log('after withdraw', formatEther(ethBalanceOfDepositor.toString()))
-    //fixme: because of Gas consumption and due to all chains being simulated in one place, final ETH will be different.
+    // fixme: because of Gas consumption and due to all chains being simulated in one place, final ETH will be different.
     // This is approximation test for now, but can be made precise by having exact gas calculation. Ok for time being
     const delta = balanceBeforeDeposit - ethBalanceOfDepositor
     logger.log('DELTA', delta, formatEther(delta).toString())

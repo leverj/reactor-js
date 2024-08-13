@@ -35,7 +35,7 @@ describe('BridgeNode', () => {
         await node.connect(peer.peerId)
       }
     }
-    //fixme: where are the asserts?
+    // fixme: where are the asserts?
   })
 
   it('it should be able to connect with other nodes', async () => {

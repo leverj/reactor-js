@@ -48,7 +48,7 @@ describe('TssNode', () => {
     const members = memberIds.map(id => new TssNode(id.toString()))
     for (let member1 of members)
       for (let member2 of members)
-        member1.addMember(member2.id.serializeToHexStr(), member2.onDkgShare.bind(member2)) //fixme: why do we need this bind() ?
+        member1.addMember(member2.id.serializeToHexStr(), member2.onDkgShare.bind(member2)) // fixme: why do we need this bind() ?
     await setupMembersThreshold(members, threshold)
     expect(members.length).toBe(memberIds.length)
     return members
@@ -191,7 +191,7 @@ describe('TssNode', () => {
     await setupMembersThreshold(members, threshold - 1)
     members.forEach(_ => expect(_.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKey.serializeToHexStr()))
     expect(await signAndVerify(members.slice(0, 3))).toBe(false)
-    //fixme: test fails here
+    // fixme: test fails here
     expect(await signAndVerify(members.slice(0, 4))).toBe(true)
     expect(await signAndVerify(members.slice(0, 5))).toBe(true)
   })
@@ -205,7 +205,7 @@ describe('TssNode', () => {
       time.dkg = (Date.now() - time.dkg) / 1000 + 's'
       time.sign = Date.now()
       const [signs, signers] = signMessage(members.slice(0, threshold))
-      const groupsSign = new Signature().recover(signs, signers) //fixme: what's the point of doing this?
+      const groupsSign = new Signature().recover(signs, signers) // fixme: what's the point of doing this?
       time.sign = (Date.now() - time.sign) / 1000 + 's'
       logger.log('length', length, 'threshold', threshold, 'dkg', time.dkg, 'sign', time.sign)
       times.push(time)
