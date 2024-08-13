@@ -87,7 +87,7 @@ export class NetworkNode {
     pipe(
       stream.source,
       (source) => map(source, (buffer) => uint8ArrayToString(buffer.subarray())),
-      async (sink) => { for await (const each of sink) handler(each) }
+      async (source) => { for await (const each of source) handler(each) }
     )
   }
 
@@ -96,7 +96,7 @@ export class NetworkNode {
       pipe(
         stream.source,
         (source) => map(source, (buf) => uint8ArrayToString(buf.subarray())),
-        async (sink) => { for await (const each of sink) handler(stream, remotePeer.string, each) }
+        async (source) => { for await (const each of source) handler(stream, remotePeer.string, each) }
       )
     })
   }

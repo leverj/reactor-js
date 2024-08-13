@@ -56,7 +56,7 @@ export class BridgeNode {
     await this.addLeader()
     if (!this.isLeader) await this.sendMessageToPeer(this.leader, WHITELIST_REQUEST, '')
     events.emit(INFO_CHANGED)
-    this.ping() // fixme: what is this for?
+    this.ping()
     return this
   }
 
@@ -84,8 +84,9 @@ export class BridgeNode {
   async publishWhitelist() {
     if (!this.isLeader) return
     this.whitelist.canPublish = true
-    const message = JSON.stringify(this.whitelist.exportJson())
-    await this.publishOrFanOut(WHITELIST_TOPIC, message, this.monitor.filter(this.whitelist.get()))
+    const whitelist = this.whitelist.get()
+    const message = JSON.stringify(whitelist)
+    await this.publishOrFanOut(WHITELIST_TOPIC, message, this.monitor.filter(whitelist))
   }
 
   async publishOrFanOut(topic, message, peerIds, fanOut = true) {
@@ -103,7 +104,7 @@ export class BridgeNode {
     this.messageMap[txnHash].signatures[this.tss.id.serializeToHexStr()] = {
       message,
       signature: signature.serializeToHexStr(),
-      'signer': this.tss.id.serializeToHexStr(),
+      signer: this.tss.id.serializeToHexStr(),
     }
     await this.publishOrFanOut(SIGNATURE_START, JSON.stringify({
       txnHash,
@@ -113,11 +114,14 @@ export class BridgeNode {
   }
 
   async sendMessageToPeer(peerId, topic, message) {
+    // fixme: message is already a json
     const messageStr = JSON.stringify({topic, message})
-    await this.network.createAndSendMessage(peerId, meshProtocol, messageStr)
+    // fixme: responseHandler was not defined
+    const responseHandler = (msg) => logger.log('!!! troubles in paradise !!!', msg)
+    await this.network.createAndSendMessage(peerId, meshProtocol, messageStr, responseHandler)
   }
 
-  async connectPubSub(peerId) { return this.network.connectPubSub(peerId, this.onPubSubMessage.bind(this)) } // fixme: ??? this.onPubSubMessage.bind(this.network)
+  async connectPubSub(peerId) { return this.network.connectPubSub(peerId, this.onPubSubMessage.bind(this)) }
 
   async onPubSubMessage({peerId, topic, data}) {
     switch (topic) {
@@ -233,6 +237,6 @@ class Monitor {
     this.peers[peerId].latency = latency
   }
   getPeersStatus() { return Object.entries(this.peers).map(([peerId, {latency}]) => ({peerId, latency})) }
-  filter(peerIds) { return peerIds.filter(peerId => this.peers[peerId]?.latency !== -1)}
+  filter(peerIds) { return peerIds.filter(_ => this.peers[_]?.latency !== -1)}
   print() { logger.table(this.peers) }
 }
