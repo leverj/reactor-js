@@ -104,7 +104,7 @@ export class NetworkNode {
   // implement ping pong between nodes to maintain status
   async ping(peerId) {
     try {
-      return this.p2p.services.ping.ping(peerIdFromString(peerId))
+      return await this.p2p.services.ping.ping(peerIdFromString(peerId))
     } catch (e) {
       return -1
     }
