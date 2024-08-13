@@ -85,8 +85,7 @@ export class BridgeNode {
     if (!this.isLeader) return
     this.whitelist.canPublish = true
     const whitelist = this.whitelist.get()
-    const message = JSON.stringify(whitelist)
-    await this.publishOrFanOut(WHITELIST_TOPIC, message, this.monitor.filter(whitelist))
+    await this.publishOrFanOut(WHITELIST_TOPIC, whitelist, this.monitor.filter(whitelist))
   }
 
   async publishOrFanOut(topic, message, peerIds, fanOut = true) {
@@ -158,10 +157,10 @@ export class BridgeNode {
     affirm(this.whitelist.exists(peerId, `Unknown peer ${peerId}`))
     switch (msg.topic) {
       case WHITELIST_REQUEST:
-        if (this.whitelist.canPublish) await this.sendMessageToPeer(peerId, WHITELIST_TOPIC, JSON.stringify(this.whitelist.get()))
+        if (this.whitelist.canPublish) await this.sendMessageToPeer(peerId, WHITELIST_TOPIC, this.whitelist.get())
         return
       case WHITELIST_TOPIC:
-        return this.handleWhitelistMessage(peerId, JSON.parse(msg.message))
+        return this.handleWhitelistMessage(peerId, msg.message)
       case DKG_INIT_THRESHOLD_VECTORS:
         this.tss.generateVectors(msg.threshold)
         return this.tss.generateContribution()
