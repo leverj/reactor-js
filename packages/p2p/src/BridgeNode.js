@@ -46,7 +46,7 @@ export class BridgeNode {
     return {
       p2p: this.network.exportJson(),
       tssNode: this.tss.exportJson(),
-      whitelist: this.whitelist.exportJson(),
+      whitelist: this.whitelist.get(),
       leader: this.leader,
     }
   }
@@ -113,11 +113,8 @@ export class BridgeNode {
   }
 
   async sendMessageToPeer(peerId, topic, message) {
-    // fixme: message is already a json
     const messageStr = JSON.stringify({topic, message})
-    // fixme: responseHandler was not defined
-    const responseHandler = (msg) => logger.log('!!! troubles in paradise !!!', msg)
-    await this.network.createAndSendMessage(peerId, meshProtocol, messageStr, responseHandler)
+    await this.network.createAndSendMessage(peerId, meshProtocol, messageStr, _ => logger.log(`${topic} response from ${peerId} `, _))
   }
 
   async connectPubSub(peerId) { return this.network.connectPubSub(peerId, this.onPubSubMessage.bind(this)) }
@@ -221,7 +218,6 @@ class Whitelist {
 
   exists(peerId) { return this.allowed[peerId] }
   get() { return Object.keys(this.allowed) }
-  exportJson() { return this.get() } // fixme: why the duplication?
   add(peerId) {
     this.allowed[peerId] = new SecretKey().setHashOfString(peerId).serializeToHexStr()
     return this.allowed[peerId]
