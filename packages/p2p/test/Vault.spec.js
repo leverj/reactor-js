@@ -221,6 +221,7 @@ describe('Vault', () => {
     logger.log('after withdraw', formatEther(ethBalanceOfDepositor.toString()))
     // fixme: because of Gas consumption and due to all chains being simulated in one place, final ETH will be different.
     // This is approximation test for now, but can be made precise by having exact gas calculation. Ok for time being
+    // fixme: gas cost is now 0
     const delta = balanceBeforeDeposit - ethBalanceOfDepositor
     logger.log('DELTA', delta, formatEther(delta).toString())
     const isEthCloseToOriginalAmount = formatEther(delta).toString().startsWith('0.00')

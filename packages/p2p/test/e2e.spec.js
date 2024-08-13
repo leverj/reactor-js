@@ -152,7 +152,6 @@ describe('e2e', () => {
   })
 
   describe('stability', () => {
-    // fixme: failing due to refactoring of BridgeNode
     it('whitelist', async () => {
       const getWhitelists = (port) => JSON.parse(readFileSync(filePath(port - 9000)).toString()).whitelist
 

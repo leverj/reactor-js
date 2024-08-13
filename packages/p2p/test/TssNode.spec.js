@@ -48,7 +48,7 @@ describe('TssNode', () => {
     const members = memberIds.map(id => new TssNode(id.toString()))
     for (let member1 of members)
       for (let member2 of members)
-        member1.addMember(member2.id.serializeToHexStr(), member2.onDkgShare.bind(member2)) // fixme: why do we need this bind() ?
+        member1.addMember(member2.id.serializeToHexStr(), member2.onDkgShare.bind(member2))
     await setupMembersThreshold(members, threshold)
     expect(members.length).toBe(memberIds.length)
     return members
