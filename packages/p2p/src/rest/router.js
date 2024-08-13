@@ -37,7 +37,9 @@ async function aggregateSignature(req, res) {
 async function getAggregateSignature(req, res) {
   res.send(bridgeNode.getAggregateSignature(req.query.txnHash))
 }
-
+async function getWhitelists(req, res) {
+  res.send(bridgeNode.whitelist.get())
+}
 async function publishWhitelist(req, res) {
   if (!bridgeNode.isLeader) return
   await bridgeNode.publishWhitelist()
@@ -60,5 +62,6 @@ router.get('/peer/bootstrapped', getBootstrapPeers)
 router.post('/tss/aggregateSign', aggregateSignature)
 router.get('/tss/aggregateSign', getAggregateSignature)
 router.post('/dkg/start', startDkg)
+router.get('/whitelist', getWhitelists)
 router.post('/publish/whitelist', publishWhitelist)
 export default router

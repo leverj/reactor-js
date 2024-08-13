@@ -99,7 +99,7 @@ describe('Vault', () => {
     const L2_Chain = 10101
     const amount = 1000n
     const {L2_Contract, depositHash, erc20} = await sendTokenFromL1([L1_Chain, L2_Chain], amount)
-    await setTimeout(10)
+    await setTimeout(100)
     const minted = await L2_Contract.tokenArrived(depositHash)
     expect(minted).toEqual(true)
 

@@ -90,13 +90,11 @@ async function waitForBootstrapSync(ports, count = ports.length - 1) {
 }
 
 
-async function waitForWhitelistSync(ports, total = ports.length, available = ports.length) {
-  const getMonitorStatus = async (port) => axios.get(`http://127.0.0.1:${port}/api/peer/status`).then(_ => _.data)
-
-  logger.log('#'.repeat(50), 'waitForWhitelistSync', ports, total)
+async function waitForWhitelistSync(ports, total = ports.length) {
+  const getWhitelist = async (port) => axios.get(`http://127.0.0.1:${port}/api/whitelist`).then(_ => _.data)
   const fn = (port) => async () => {
-    const whitelists = await getMonitorStatus(port)
-    return whitelists.length === total - 1 && whitelists.filter(_ => _.latency !== -1).length === available - 1
+    const whitelists = await getWhitelist(port)
+    return whitelists.length === total
   }
   await waitToSync(ports.map(fn))
   logger.log('whitelisted synced...')
@@ -155,13 +153,13 @@ describe('e2e', () => {
 
   describe('stability', () => {
     // fixme: failing due to refactoring of BridgeNode
-    it.skip('whitelist', async () => {
+    it('whitelist', async () => {
       const getWhitelists = (port) => JSON.parse(readFileSync(filePath(port - 9000)).toString()).whitelist
 
       const ports = await createApiNodes(4, false)
       await axios.get(`http://127.0.0.1:9001/api/peer/bootstrapped`)
       await stop(...ports.slice(2))
-      await publishWhitelist(ports.slice(0, 2), 4, 2)
+      await publishWhitelist(ports.slice(0, 2), 4)
       expect(getWhitelists(ports[0]).length).toEqual(4)
       expect(getWhitelists(ports[1]).length).toEqual(4)
       expect(getWhitelists(ports[2]).length).toEqual(1)
