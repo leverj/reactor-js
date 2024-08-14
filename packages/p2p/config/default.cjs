@@ -17,7 +17,7 @@ module.exports = {
     providerUrl: '',
   },
 
-  depositWithdraw: {
+  transfer: {
     contractAddress1: {
       chainId: 1,
       providerUrl: '',
@@ -27,6 +27,6 @@ module.exports = {
       providerUrl: '',
     },
   },
-  components: ['DEPOSIT_WITHDRAW'],
+  components: ['TRANSFER'],
 
 }

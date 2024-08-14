@@ -14,14 +14,14 @@ module.exports = {
     bootstrapNode: 'BRIDGE_BOOTSTRAP_NODE',
     bootstrapNodes: {__name: 'BRIDGE_BOOTSTRAP_NODES', __format: 'json'},
   },
-  depositWithdraw: {
+  transfer: {
     l1: {
-      contractAddress: 'DEPOSIT_WITHDRAW_L1_CONTRACT_ADDRESS',
-      providerUrl: 'DEPOSIT_WITHDRAW_L1_PROVIDER_URL',
+      contractAddress: 'TRANSFER_L1_CONTRACT_ADDRESS',
+      providerUrl: 'TRANSFER_L1_PROVIDER_URL',
     },
     l2: {
-      contractAddress: 'DEPOSIT_WITHDRAW_L2_CONTRACT_ADDRESS',
-      providerUrl: 'DEPOSIT_WITHDRAW_L2_PROVIDER_URL',
+      contractAddress: 'TRANSFER_L2_CONTRACT_ADDRESS',
+      providerUrl: 'TRANSFER_L2_PROVIDER_URL',
     },
   },
   components: {__name: 'COMPONENTS', __format: 'json'},

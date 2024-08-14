@@ -4,7 +4,7 @@ import {AbiCoder, Interface, keccak256} from 'ethers'
 
 const iface = new Interface(chain.abi.Vault.abi)
 
-export class Deposit {
+export class Transfer {
   constructor(node) {
     this.node = node
     this.contracts = {}

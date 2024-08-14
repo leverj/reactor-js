@@ -52,43 +52,43 @@ describe('NetworkNode', () => {
       leader.sendMessageOnStream(stream, `responding ${message}`)
     })
     const sendMessage = async (node, message) => node.createAndSendMessage(leader.peerId, meshProtocol, message, _ => responses[node.peerId] = _)
-    for (let each of nodes.slice(1)) await sendMessage(each, `Verified Deposit Hash ${each.port}`)
+    for (let each of nodes.slice(1)) await sendMessage(each, `Verified Transfer Hash ${each.port}`)
     await setTimeout(10)
     for (let each of nodes.slice(1)) {
-      expect(messages[each.peerId]).toEqual(`Verified Deposit Hash ${each.port}`)
-      expect(responses[each.peerId]).toEqual(`responding Verified Deposit Hash ${each.port}`)
+      expect(messages[each.peerId]).toEqual(`Verified Transfer Hash ${each.port}`)
+      expect(responses[each.peerId]).toEqual(`responding Verified Transfer Hash ${each.port}`)
     }
 
-    for (let each of nodes.slice(1)) await sendMessage(each, `Verified Deposit Hash ${each.port} again`)
+    for (let each of nodes.slice(1)) await sendMessage(each, `Verified Transfer Hash ${each.port} again`)
     await setTimeout(10)
     for (let each of nodes.slice(1)) {
-      expect(messages[each.peerId]).toEqual(`Verified Deposit Hash ${each.port} again`)
-      expect(responses[each.peerId]).toEqual(`responding Verified Deposit Hash ${each.port} again`)
+      expect(messages[each.peerId]).toEqual(`Verified Transfer Hash ${each.port} again`)
+      expect(responses[each.peerId]).toEqual(`responding Verified Transfer Hash ${each.port} again`)
     }
   })
 
   it('it should send data using gossipsub', async () => {
-    const depositReceipts = {} // each node will just save the hash and ack. later children will sign and attest point to point
+    const transferReceipts = {} // each node will just save the hash and ack. later children will sign and attest point to point
     await startNetworkNodes(4, true)
     const [leader, node2, node3, node4] = nodes
     for (let each of [node2, node3, node4]) {
       await each.connectPubSub(
         leader.peerId,
-        ({topic, data}) => (topic === 'DepositHash') && (depositReceipts[each.peerId] = data),
+        ({topic, data}) => (topic === 'TransferHash') && (transferReceipts[each.peerId] = data),
       )
-      await each.subscribe('DepositHash')
+      await each.subscribe('TransferHash')
     }
     await setTimeout(10)
-    const depositHash = '0xbef807c488b8a3db6834ee242ff888e9ebb5961deb9323c8da97853b43755aab'
-    await leader.publish('DepositHash', depositHash)
+    const transferHash = '0xbef807c488b8a3db6834ee242ff888e9ebb5961deb9323c8da97853b43755aab'
+    await leader.publish('TransferHash', transferHash)
     await setTimeout(10)
     expect(leader.peers.length).toEqual(3)
-    for (let each of leader.peers) expect(depositReceipts[each]).toEqual(depositHash)
+    for (let each of leader.peers) expect(transferReceipts[each]).toEqual(transferHash)
 
-    await leader.publish('DepositHash', depositHash + depositHash)
+    await leader.publish('TransferHash', transferHash + transferHash)
     await setTimeout(10)
     expect(leader.peers.length).toEqual(3)
-    for (let each of leader.peers) expect(depositReceipts[each]).toEqual(depositHash + depositHash)
+    for (let each of leader.peers) expect(transferReceipts[each]).toEqual(transferHash + transferHash)
   })
 
   it('should only create nodes and discovery should happen automatically', async () => {

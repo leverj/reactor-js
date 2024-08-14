@@ -45,6 +45,12 @@ export class BridgeNode {
   get secretKeyShare() { return this.tss.secretKeyShare }
   get groupPublicKey() { return this.tss.groupPublicKey }
 
+  getAggregateSignature(txnHash) { return this.messageMap[txnHash] }
+
+  setTransfer(transfer) { this.transfer = transfer }
+
+  print() { this.tss.print() }
+
   exportJson() {
     return {
       p2p: this.network.exportJson(),
@@ -53,8 +59,6 @@ export class BridgeNode {
       leader: this.leader,
     }
   }
-
-  print() { this.tss.print() }
 
   async start() {
     await this.network.start()
@@ -95,7 +99,6 @@ export class BridgeNode {
 
   async publishOrFanOut(topic, message, peerIds, fanOut = true) {
     if (!fanOut) return await this.network.publish(topic, message)
-
     for (let each of peerIds) {
       if (each === this.peerId) continue
       await this.sendMessageToPeer(each, topic, message)
@@ -104,7 +107,7 @@ export class BridgeNode {
 
   async aggregateSignature(txnHash, message, chainId, callback) {
     const signature = await this.tss.sign(message)
-    this.messageMap[txnHash] = {signatures: {}, verified: false, depositCallback: callback}
+    this.messageMap[txnHash] = {signatures: {}, verified: false, transferCallback: callback}
     this.messageMap[txnHash].signatures[this.tss.id.serializeToHexStr()] = {
       message,
       signature: signature.serializeToHexStr(),
@@ -118,11 +121,13 @@ export class BridgeNode {
   }
 
   async sendMessageToPeer(peerId, topic, message) {
-    const messageStr = JSON.stringify({topic, message})
-    await this.network.createAndSendMessage(peerId, meshProtocol, messageStr, _ => logger.log(`${topic} response from ${peerId} `, _))
+    const responseHandler = _ => logger.log(`${topic} response from ${peerId} `, _)
+    await this.network.createAndSendMessage(peerId, meshProtocol, JSON.stringify({topic, message}), responseHandler)
   }
 
-  async connectPubSub(peerId) { return this.network.connectPubSub(peerId, this.onPubSubMessage.bind(this)) }
+  async connectPubSub(peerId) {
+    return this.network.connectPubSub(peerId, this.onPubSubMessage.bind(this))
+  }
 
   async onPubSubMessage({peerId, topic, data}) {
     switch (topic) {
@@ -141,7 +146,7 @@ export class BridgeNode {
   async handleSignatureStart(peerId, data) {
     if (this.leader !== peerId) return logger.log('Ignoring signature start from non-leader', peerId, this.leader)
     const {txnHash, message, chainId} = data
-    if (!await this.deposit.verifySentHash(chainId, data.message)) return
+    if (!await this.transfer.verifySentHash(chainId, data.message)) return
 
     const signature = await this.tss.sign(message)
     logger.log(SIGNATURE_START, txnHash, message, signature.serializeToHexStr())
@@ -177,7 +182,7 @@ export class BridgeNode {
           this.messageMap[txnHash].groupSign = groupSign
           this.messageMap[txnHash].verified = this.tss.verify(groupSign, this.messageMap[txnHash].signatures[this.tss.id.serializeToHexStr()].message)
           logger.log('Verified', txnHash, this.messageMap[txnHash].verified, groupSign)
-          this.messageMap[txnHash].depositCallback(this.messageMap[txnHash])
+          this.messageMap[txnHash].transferCallback(this.messageMap[txnHash])
         }
         return
       case SIGNATURE_START:
@@ -186,10 +191,6 @@ export class BridgeNode {
         logger.log('Unknown message', msg)
     }
   }
-
-  getAggregateSignature(txnHash) { return this.messageMap[txnHash] }
-
-  setDeposit(deposit) { this.deposit = deposit }
 
   async startDKG(threshold) {
     if (!this.isLeader) return

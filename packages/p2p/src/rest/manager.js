@@ -2,7 +2,7 @@ import config from 'config'
 import {existsSync, readFileSync, writeFileSync} from 'node:fs'
 import path from 'path'
 import {BridgeNode} from '../BridgeNode.js'
-import {Deposit} from '../Deposit.js'
+import {Transfer} from '../Transfer.js'
 import {events, INFO_CHANGED} from '../utils/index.js'
 
 class Info {
@@ -38,7 +38,7 @@ class Info {
 const {bridgeNode: {port, isLeader, bootstrapNodes}} = config
 const info = new Info()
 const node = await BridgeNode.from({port, isLeader, json: info.get(), bootstrapNodes})
-node.setDeposit(new Deposit(node))
+node.setTransfer(new Transfer(node))
 info.setNode(node)
 await node.start()
 

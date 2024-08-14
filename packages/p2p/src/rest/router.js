@@ -1,55 +1,57 @@
 import {peerIdFromString} from '@libp2p/peer-id'
 import config from 'config'
 import {Router} from 'express'
-import bridgeNode from './manager.js'
+import node from './manager.js'
 
-const multiaddr = `/ip4/${config.externalIp}/tcp/${config.bridgeNode.port}/p2p/${bridgeNode.peerId}`
+const multiaddr = `/ip4/${config.externalIp}/tcp/${config.bridgeNode.port}/p2p/${node.peerId}`
 
 async function getMultiaddrs(req, res) {
   res.send({multiaddr})
 }
 
 async function getAllMultiaddrs(req, res) {
-  res.send(bridgeNode.multiaddrs)
+  res.send(node.multiaddrs)
 }
 
 async function getPeers(req, res) {
-  res.send(bridgeNode.peers)
+  res.send(node.peers)
 }
 
 function getPeersStatus(req, res) {
-  res.send(bridgeNode.monitor.getPeersStatus())
+  res.send(node.monitor.getPeersStatus())
 }
 
 async function startDkg(req, res) {
-  await bridgeNode.startDKG(config.bridgeNode.threshold)
+  await node.startDKG(config.bridgeNode.threshold)
   res.send('ok')
 }
 
 async function aggregateSignature(req, res) {
-  if (!bridgeNode.isLeader) return
+  if (!node.isLeader) return
   const msg = req.body
-  await bridgeNode.aggregateSignature(msg.txnHash, msg.msg, -1, () => {
+  await node.aggregateSignature(msg.txnHash, msg.msg, -1, () => {
   })
   res.send('ok')
 }
 
 async function getAggregateSignature(req, res) {
-  res.send(bridgeNode.getAggregateSignature(req.query.txnHash))
+  res.send(node.getAggregateSignature(req.query.txnHash))
 }
+
 async function getWhitelists(req, res) {
-  res.send(bridgeNode.whitelist.get())
+  res.send(node.whitelist.get())
 }
+
 async function publishWhitelist(req, res) {
-  if (!bridgeNode.isLeader) return
-  await bridgeNode.publishWhitelist()
+  if (!node.isLeader) return
+  await node.publishWhitelist()
   res.send('ok')
 }
 
 async function getBootstrapPeers(req, res) {
-  const peers = bridgeNode.peers
+  const peers = node.peers
   const all = []
-  for (let each of peers) all.push(await bridgeNode.network.p2p.peerRouting.findPeer(peerIdFromString(each)))
+  for (let each of peers) all.push(await node.network.p2p.peerRouting.findPeer(peerIdFromString(each)))
   res.send(all)
 }
 
