@@ -61,19 +61,19 @@ export class BridgeNode {
 
   async processTokenSent(log) {
     if (this.isLeader) {
-    const {originatingChainId, token, name, symbol, decimals, amount, owner, fromChainId, toChainId, sendCounter} = iface.parseLog(log).args
+    const {origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter} = iface.parseLog(log).args
       const sentHash = keccak256(AbiCoder.defaultAbiCoder().encode( // fixme: no need for decimals in hash
       ['uint', 'address', 'uint', 'uint', 'address', 'uint', 'uint', 'uint'],
-      [originatingChainId, token, decimals, amount, owner, fromChainId, toChainId, sendCounter]
+      [origin, token, decimals, amount, owner, from, to, sendCounter]
     ))
-      if (await this.contracts[fromChainId].tokenSent(sentHash)) {
-    await this.aggregateSignature(sentHash, sentHash, fromChainId, this.sentPayloadVerified.bind(this, originatingChainId, token, name, symbol, decimals, amount, owner, fromChainId, toChainId, sendCounter))
+      if (await this.contracts[from].outTransfers(sentHash)) {
+    await this.aggregateSignature(sentHash, sentHash, from, this.sentPayloadVerified.bind(this, origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter))
     return sentHash
   }
     }
   }
 
-  async sentPayloadVerified(originatingChainId, token, name, symbol, decimals, amount, owner, fromChainId, toChainId, sendCounter, aggregateSignature) {
+  async sentPayloadVerified(origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter, aggregateSignature) {
     // fixme: aggregateSignature is undefined
     if (aggregateSignature.verified) {
     const signature = deserializeHexStrToSignature(aggregateSignature.groupSign)
@@ -81,18 +81,18 @@ export class BridgeNode {
     const pubkeyHex = this.groupPublicKey.serializeToHexStr()
     const pubkey = deserializeHexStrToPublicKey(pubkeyHex)
     const pubkey_ser = G2ToNumbers(pubkey)
-      const toContract = this.contracts[toChainId]
-    //fixme: wouldn't there be a delay from tokenSent to tokenArrival?
+      const toContract = this.contracts[to]
+    //fixme: wouldn't there be a delay from outTransfers to tokenArrival?
     await toContract.tokenArrival(sig_ser, pubkey_ser, AbiCoder.defaultAbiCoder().encode(
       ['uint', 'address', 'uint', 'uint', 'address', 'uint', 'uint', 'uint'],
-        [originatingChainId, token, decimals, amount, owner, fromChainId, toChainId, sendCounter],
+        [origin, token, decimals, amount, owner, from, to, sendCounter],
     ), name, symbol).then(_ => _.wait())
   }
   }
 
   async verifySentHash(chain, sentHash) {
     if (chain === -1) return true // note: for local e2e testing, which will not  have any contracts or hardhat, till we expand the scope of e2e
-    return this.contracts[chain].tokenSent(sentHash)
+    return this.contracts[chain].outTransfers(sentHash)
   }
 
   print() { this.tss.print() }

@@ -76,7 +76,7 @@ describe('Vault', () => {
     const L2_Chain = 10101
     const amount = BigInt(1e+19)
     const {L2_Contract, transferHash} = await sendNativeFromL1([L1_Chain, L2_Chain], amount)
-    const minted = await L2_Contract.tokenArrived(transferHash)
+    const minted = await L2_Contract.inTransfers(transferHash)
     expect(minted).toEqual(true)
 
     const proxyAddress = await L2_Contract.proxyMapping(network.chainId, '0x0000000000000000000000000000000000000000')
@@ -97,7 +97,7 @@ describe('Vault', () => {
     const amount = 1000n
     const {L2_Contract, transferHash, erc20} = await sendTokenFromL1([L1_Chain, L2_Chain], amount)
     await setTimeout(100)
-    const minted = await L2_Contract.tokenArrived(transferHash)
+    const minted = await L2_Contract.inTransfers(transferHash)
     expect(minted).toEqual(true)
 
     const proxyToken = await L2_Contract.proxyMapping(network.chainId, erc20.target)
@@ -146,7 +146,7 @@ describe('Vault', () => {
     const amount = 1000n
     const {L2_Contract, transferHash, erc20} = await sendTokenFromL1([L1_Chain, L2_Chain], amount)
     await setTimeout(100)
-    const minted = await L2_Contract.tokenArrived(transferHash)
+    const minted = await L2_Contract.inTransfers(transferHash)
     expect(minted).toEqual(true)
 
     const proxyToken = await L2_Contract.proxyMapping(L1_Chain, erc20.target)

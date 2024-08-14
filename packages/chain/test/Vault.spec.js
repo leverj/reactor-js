@@ -17,17 +17,17 @@ describe('Vault', () => {
       owner: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
       token: '0x0000000000000000000000000000000000000000',
       decimals: 18n,
-      toChain: 10101n,
+      to: 10101n,
       amount: 1000000n,
     }
-    const {sig_ser, pubkey_ser, owner, token, decimals, toChain, amount} = fixture
+    const {sig_ser, pubkey_ser, owner, token, decimals, to, amount} = fixture
     const contract = await Vault(network.chainId, pubkey_ser)
     // await contract.mint(sig_ser, pubkey_ser, AbiCoder.defaultAbiCoder().encode(
     //   ['address', 'address', 'uint', 'uint', 'uint', 'uint', 'uint', 'string', 'string'],
-    //   [owner, token, BigInt(decimals), BigInt(network.chain), BigInt(toChain), BigInt(amount), BigInt(depositCounter), 'PROXY_NAME', 'PROXY_SYMBOL'],
+    //   [owner, token, BigInt(decimals), BigInt(network.chain), BigInt(to), BigInt(amount), BigInt(depositCounter), 'PROXY_NAME', 'PROXY_SYMBOL'],
     // ))
     // await setTimeout(1000)
-    // const depositHash = keccak256(owner, token, BigInt(decimals), BigInt(toChain), BigInt(amount), BigInt(depositCounter))
+    // const depositHash = keccak256(owner, token, BigInt(decimals), BigInt(to), BigInt(amount), BigInt(depositCounter))
     // const minted = await contract.minted(depositHash)
     // expect(minted).toEqual(true)
     //
