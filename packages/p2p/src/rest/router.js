@@ -53,7 +53,7 @@ async function getBootstrapPeers(req, res) {
   res.send(all)
 }
 
-export const router = Router()
+const router = Router()
 router.get('/fixme/bridge/multiaddr', getMultiaddrs)
 router.get('/fixme/bridge/multiaddr/all', getAllMultiaddrs)
 router.get('/peer', getPeers)
@@ -63,5 +63,6 @@ router.post('/tss/aggregateSign', aggregateSignature)
 router.get('/tss/aggregateSign', getAggregateSignature)
 router.post('/dkg/start', startDkg)
 router.get('/whitelist', getWhitelists)
-router.post('/publish/whitelist', publishWhitelist)
+router.post('/whitelist/publish', publishWhitelist)
+
 export default router

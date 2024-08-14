@@ -133,11 +133,11 @@ function remote_install() {
 
 function local_whitelist() {
     echo "Local whitelist"
-    curl --location --request POST 'http://localhost:9000/api/publish/whitelist'
+    curl --location --request POST 'http://localhost:9000/api/whitelist/publish'
 }
 function remote_whitelist() {
     echo "Remote whitelist"
-    curl --location --request POST $(remote_leader)/api/publish/whitelist
+    curl --location --request POST $(remote_leader)/api/whitelist/publish
 }
 function local_dkg() {
     echo "Local DKG"

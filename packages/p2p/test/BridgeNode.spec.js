@@ -46,14 +46,14 @@ describe('BridgeNode', () => {
     nodes.forEach(_ => expect(_.whitelist.get().length).toEqual(howMany))
 
     await leader.startDKG(4)
-    const leaderSecretKey = leader.tss.secretKeyShare.serializeToHexStr()
-    const leaderGroupKey = leader.tss.groupPublicKey.serializeToHexStr()
+    const leaderSecretKey = leader.secretKeyShare.serializeToHexStr()
+    const leaderGroupKey = leader.groupPublicKey.serializeToHexStr()
     await setTimeout(10)
     for (let each of nodes) {
-      each.tss.print()
+      each.print()
       if (leader.peerId === each.peerId) continue
-      expect(leaderGroupKey).toEqual(each.tss.groupPublicKey.serializeToHexStr())
-      expect(leaderSecretKey).not.toBe(each.tss.secretKeyShare.serializeToHexStr())
+      expect(leaderGroupKey).toEqual(each.groupPublicKey.serializeToHexStr())
+      expect(leaderSecretKey).not.toBe(each.secretKeyShare.serializeToHexStr())
     }
   })
 })

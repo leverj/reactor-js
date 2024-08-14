@@ -11,7 +11,7 @@ import {peerIdJsons} from './help/fixtures.js'
 const [owner, account] = await getSigners()
 
 describe('Vault', () => {
-  let nodes, leader
+  let deposits, leader
 
   const createBridgeNodes = async (howMany) => {
     const bootstraps = []
@@ -25,17 +25,17 @@ describe('Vault', () => {
       await node.start()
       const deposit = new Deposit(node)
       node.setDeposit(deposit)
-      nodes.push(deposit)
+      deposits.push(deposit)
       if (i === 0) bootstraps.push(node.multiaddrs[0])
     }
-    leader = nodes[0]
+    leader = deposits[0]
   }
 
   const deployVaultContractPerChainsOnNodes = async (chains, nodes) => {
-    await leader.bridgeNode.publishWhitelist()
-    await leader.bridgeNode.startDKG(4)
+    await leader.node.publishWhitelist()
+    await leader.node.startDKG(4)
     await setTimeout(10)
-    const pubkey_ser = G2ToNumbers(deserializeHexStrToPublicKey(leader.bridgeNode.tss.groupPublicKey.serializeToHexStr()))
+    const pubkey_ser = G2ToNumbers(deserializeHexStrToPublicKey(leader.node.groupPublicKey.serializeToHexStr()))
     const contracts = []
     for (let chain of chains) {
       const contract = await Vault(chain, pubkey_ser)
@@ -48,7 +48,7 @@ describe('Vault', () => {
   const sendNativeFromL1 = async (chains, amount) => {
     const [L1, L2] = chains
     await createBridgeNodes(7)
-    const [L1_Contract, L2_Contract] = await deployVaultContractPerChainsOnNodes(chains, nodes)
+    const [L1_Contract, L2_Contract] = await deployVaultContractPerChainsOnNodes(chains, deposits)
     const logs = await provider.getLogs(await L1_Contract.sendNative(L2, {value: amount}).then(tx => tx.wait()))
     let depositHash
     for (let each of logs) {
@@ -61,7 +61,7 @@ describe('Vault', () => {
   const sendTokenFromL1 = async (chains, amount) => {
     const [L1, L2] = chains
     await createBridgeNodes(7)
-    const [L1_Contract, L2_Contract] = await deployVaultContractPerChainsOnNodes(chains, nodes)
+    const [L1_Contract, L2_Contract] = await deployVaultContractPerChainsOnNodes(chains, deposits)
     const erc20 = await ERC20('USD_TETHER', 'USDT')
     await erc20.mint(account, 1e9)
     await erc20.connect(account).approve(L1_Contract.target, 1000000, {from: account.address}).then(tx => tx.wait())
@@ -70,8 +70,8 @@ describe('Vault', () => {
     return {L2_Contract, depositHash, erc20}
   }
 
-  beforeEach(() => nodes = [])
-  afterEach(async () => { for (let each of nodes) await each.bridgeNode.stop() })
+  beforeEach(() => deposits = [])
+  afterEach(async () => { for (let each of deposits) await each.node.stop() })
 
   it('should invoke Deposit workflow on receipt of message', async () => {
     const network = await provider.getNetwork()
@@ -114,7 +114,7 @@ describe('Vault', () => {
     expect(proxySymbol).toEqual('USDT')
   })
 
-  it('should disburse when withdrawn from target chain', async () => {
+  it.only('should disburse when withdrawn from target chain', async () => {
     const network = await provider.getNetwork()
     const L1_Chain = network.chainId
     const L2_Chain = 10101
@@ -176,7 +176,7 @@ describe('Vault', () => {
     const chains = [33333, 10101, 10102, 10103, 10104, 10105]
     const amount = BigInt(1e+19)
     await createBridgeNodes(7)
-    const contracts = await deployVaultContractPerChainsOnNodes(chains, nodes)
+    const contracts = await deployVaultContractPerChainsOnNodes(chains, deposits)
 
     let ethBalanceOfDepositor = await provider.getBalance(owner)
     logger.log('b4 deposit', formatEther(ethBalanceOfDepositor))
@@ -231,7 +231,7 @@ describe('Vault', () => {
   it('multi-chain scenarios with ERC20 deposit on first chain', async () => {
     const chains = [33333, 10101, 10102, 10103, 10104]
     await createBridgeNodes(7)
-    const contracts = await deployVaultContractPerChainsOnNodes(chains, nodes)
+    const contracts = await deployVaultContractPerChainsOnNodes(chains, deposits)
     const proxy = await ERC20Proxy('L2Test', 'L2Test', 12, '0x0000000000000000000000000000000000000000', 1)
     await proxy.mint(owner, 1e3)
     logger.log('erc20Balance init', await proxy.balanceOf(owner))

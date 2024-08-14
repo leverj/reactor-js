@@ -42,6 +42,9 @@ export class BridgeNode {
   get peerId() { return this.network.peerId }
   get peers() { return this.network.peers }
 
+  get secretKeyShare() { return this.tss.secretKeyShare }
+  get groupPublicKey() { return this.tss.groupPublicKey }
+
   exportJson() {
     return {
       p2p: this.network.exportJson(),
@@ -50,6 +53,8 @@ export class BridgeNode {
       leader: this.leader,
     }
   }
+
+  print() { this.tss.print() }
 
   async start() {
     await this.network.start()

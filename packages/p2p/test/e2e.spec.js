@@ -32,7 +32,7 @@ async function getBootstrapNodes() {
 }
 
 async function publishWhitelist(ports, total, available) {
-  await tryAgainIfError(_ => axios.post(`http://127.0.0.1:${ports[0]}/api/publish/whitelist`))
+  await tryAgainIfError(_ => axios.post(`http://127.0.0.1:${ports[0]}/api/whitelist/publish`))
   await waitForWhitelistSync(ports, total, available)
 }
 
