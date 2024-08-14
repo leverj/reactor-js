@@ -4,7 +4,6 @@ pragma solidity ^0.8.20;
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import {ERC20Proxy} from "./token/ERC20/ERC20Proxy.sol";
-//import {ITokenProxy} from "./token/ITokenProxy.sol";
 import {BnsVerifier} from "./BnsVerifier.sol";
 
 contract Vault {
@@ -13,18 +12,22 @@ contract Vault {
         uint64 id; // see: https://eips.ethereum.org/EIPS/eip-2294
         string name;
         string symbol;
-        uint decimals; //fixme: uint8
+        uint8 decimals;
     }
 
     address constant public NATIVE = address(0);
 
     /**
-    * Token transferred to another chain.
-    * The payload structure: <Origin: {chain, token, decimals}>, token-amount, owner-address, from-chain, to-chain, send-counter
-    * from-chain may seem redundant at first glance. however, consider the case where L[1] transfers Token to L[n] and L[m],
-    * and both L[n] and L[m] transfers it back to L[1], and both L[n] and L[m] could have the same counter, so another key in the form of from-chain is needed
-    */
-    event Transfer(uint64 indexed origin, address indexed token, string name, string symbol, uint decimals, uint amount, address indexed owner, uint64 from, uint64 to, uint sendCounter);
+     * Token transferred to another chain.
+     * The payload structure: <Origin: {chain, token, decimals}>, token-amount, owner-address, from-chain, to-chain, send-counter
+     * from-chain may seem redundant at first glance. however, consider the case where L[1] transfers Token to L[n] and L[m],
+     * and both L[n] and L[m] transfers it back to L[1], and both L[n] and L[m] could have the same counter, so another key in the form of from-chain is needed
+     */
+    event Transfer(uint64 indexed origin, address indexed token, string name, string symbol, uint8 decimals, uint amount, address indexed owner, uint64 from, uint64 to, uint sendCounter);
+
+
+    /// key[index] is invalid
+    error InvalidPublicKey(uint8 index);
 
     Chain public home;
     uint[4] public publicKey;
@@ -32,79 +35,74 @@ contract Vault {
     mapping(address => uint) public balances;
     mapping(bytes32 => bool) public outTransfers;
     mapping(bytes32 => bool) public inTransfers;
-    mapping(uint64 => mapping(address => address)) public proxyMapping;
-    mapping(address => bool) public isProxyMapping;
+    mapping(uint64 => mapping(address => address)) public proxies;
+    mapping(address => bool) public isCheckedIn;
 
-    constructor(uint64 chainId, string memory chainName, string memory nativeSymbol, uint nativeDecimals, uint[4] memory publicKey_) {
+    constructor(uint64 chainId, string memory chainName, string memory nativeSymbol, uint8 nativeDecimals, uint[4] memory publicKey_) {
         home = Chain(chainId, chainName, nativeSymbol, nativeDecimals);
         publicKey = publicKey_;
     }
 
-    function isProxy(address token) public view returns (bool) {
-        return isProxyMapping[token];
-//        return IERC165(token).supportsInterface(type(ITokenProxy).interfaceId); // fixme
-    }
-
-    //fixme: send => out
-    function sendNative(uint64 to) external payable {
+    function checkOutNative(uint64 to) external payable {
         balances[NATIVE] += msg.value;
-        send(home.id, NATIVE, home.name, home.symbol, home.decimals, msg.value, msg.sender, home.id, to);
+        checkOut(home.id, NATIVE, home.name, home.symbol, home.decimals, msg.value, msg.sender, home.id, to);
     }
 
-    function sendToken(uint64 to, address token, uint amount) external {
-        if (isProxy(token)) {
+    function checkOutToken(uint64 to, address token, uint amount) external {
+        if (isCheckedIn[token]) {
             ERC20Proxy proxy = ERC20Proxy(token);
             proxy.burn(msg.sender, amount);
-            send(proxy.chain(), proxy.token(), proxy.name(), proxy.symbol(), proxy.decimals(), amount, msg.sender, home.id, to);
-        }
-        else {
+            checkOut(proxy.chain(), proxy.token(), proxy.name(), proxy.symbol(), proxy.decimals(), amount, msg.sender, home.id, to);
+        } else {
             ERC20 erc20 = ERC20(token);
             disburseToken(token, msg.sender, address(this), amount);
             balances[token] += amount;
-            send(home.id, token, erc20.name(), erc20.symbol(), erc20.decimals(), amount, msg.sender, home.id, to);
+            checkOut(home.id, token, erc20.name(), erc20.symbol(), erc20.decimals(), amount, msg.sender, home.id, to);
         }
     }
 
-    function send(uint64 origin, address token, string memory name, string memory symbol, uint decimals, uint amount, address owner, uint64 from, uint64 to) private {
+    function checkOut(uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner, uint64 from, uint64 to) private {
         sendCounter++;
         bytes32 hash = keccak256(abi.encode(origin, token, decimals, amount, owner, from, to, sendCounter));
         outTransfers[hash] = true;
         emit Transfer(origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter);
     }
 
-    //fixme: tokenArrival => in
-    function tokenArrival(uint[2] calldata signature, uint[4] calldata signerPublicKey, bytes calldata payload, string calldata name, string calldata symbol) external {
+    function validatePublicKey(uint[4] calldata key) private view {
+        for (uint8 i = 0; i < 4; i++) if (publicKey[i] != key[i]) revert InvalidPublicKey(i);
+    }
+
+    function checkIn(uint[2] calldata signature, uint[4] calldata signerPublicKey, bytes calldata payload, string calldata name, string calldata symbol) external {
+        validatePublicKey(signerPublicKey);
         bytes32 hash = keccak256(payload);
-        require(inTransfers[hash] == false, 'Token Arrival already processed');
-        for (uint i = 0; i < 4; i++) require(publicKey[i] == signerPublicKey[i], 'Invalid Public Key'); // validate signerKey
+        require(!inTransfers[hash], 'Token already checked-in');
         BnsVerifier.verify(signature, signerPublicKey, hash);
-        (uint64 from, address token, uint8 decimals, uint amount, address owner, , ,) = abi.decode(payload, (uint64, address, uint8, uint, address, uint, uint, uint));
-        mintOrDisburse(from, token, decimals, amount, owner, name, symbol);
+        (uint64 origin, address token, uint8 decimals, uint amount, address owner, , ,) = abi.decode(payload, (uint64, address, uint8, uint, address, uint, uint, uint));
+        //fixme: can token be NATIVE?
+        mintOrDisburse(origin, token, decimals, amount, owner, name, symbol);
         inTransfers[hash] = true;
     }
 
     function mintOrDisburse(uint64 origin, address token, uint8 decimals, uint amount, address owner, string calldata name, string calldata symbol) private {
-        if (home.id == origin) {  // if token is coming back home (to originating chain) ...
-            // ... disburse amount back to the owner
-            balances[token] -= amount;
-            disburse(token, address(this), owner, amount);
-        } else {
-            // ... it's a foreign country, mint proxy for the owner
-            if (proxyMapping[origin][token] == address(0)) { // if proxy does not exist
-                proxyMapping[origin][token] = address(new ERC20Proxy(name, symbol, decimals, token, origin));
-                isProxyMapping[proxyMapping[origin][token]] = true;
-            }
-            ERC20Proxy(proxyMapping[origin][token]).mint(owner, amount);
+        home.id == origin ?                                             // if token is coming back home (to originating chain) ...
+            disburse(token, address(this), owner, amount) :             // ... disburse amount back to the owner
+            mint(origin, token, decimals, amount, owner, name, symbol); // ... it's a foreign country, mint proxy for the owner
+    }
+
+    function mint(uint64 origin, address token, uint8 decimals, uint amount, address owner, string calldata name, string calldata symbol) private {
+        if (proxies[origin][token] == address(0)) { // if proxy yet to exist
+            proxies[origin][token] = address(new ERC20Proxy(name, symbol, decimals, token, origin));
+            isCheckedIn[proxies[origin][token]] = true;
         }
+        ERC20Proxy(proxies[origin][token]).mint(owner, amount);
     }
 
     function disburse(address token, address from, address to, uint amount) private {
+        balances[token] -= amount;
         token == NATIVE ? disburseNative(to, amount) : disburseToken(token, from, to, amount);
     }
 
-    function disburseNative(address to, uint amount) private {
-        payable(to).transfer(amount);
-    }
+    function disburseNative(address to, uint amount) private { payable(to).transfer(amount); }
 
     function disburseToken(address token, address from, address to, uint amount) private {
         ERC20 erc20 = ERC20(token);

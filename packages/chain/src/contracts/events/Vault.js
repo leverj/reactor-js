@@ -1,13 +1,13 @@
 export class Transfer {
-  static signature = 'Transfer(uint64,address,string,string,uint256,uint256,address,uint64,uint64,uint256)'
-  static topic = '0xa0c4fa9afe14737524442437065b853fb01b9c456979fc71ab6f9a173046f8d1'
+  static signature = 'Transfer(uint64,address,string,string,uint8,uint256,address,uint64,uint64,uint256)'
+  static topic = '0x99073eada924242ed3a1b5a4dafd3d70d1755a1b93a755fdfeb0f7b246a25050'
 
   /**
    * @param {uint64} origin
    * @param {address} token
    * @param {string} name
    * @param {string} symbol
-   * @param {uint256} decimals
+   * @param {uint8} decimals
    * @param {uint256} amount
    * @param {address} owner
    * @param {uint64} from

@@ -39,7 +39,7 @@ export class BridgeNode {
     this.isLeader = isLeader
     this.leader = leader
     this.messageMap = {}
-    this.contracts = {}
+    this.vaults = {}
     this.monitor = new Monitor()
     this.network.registerStreamHandler(meshProtocol, this.onStreamMessage.bind(this))
     this.addPeersToWhiteList(...this.whitelist.initial)
@@ -51,48 +51,52 @@ export class BridgeNode {
   get multiaddrs() { return this.network.multiaddrs }
   get peerId() { return this.network.peerId }
   get peers() { return this.network.peers }
-
   get secretKeyShare() { return this.tss.secretKeyShare }
   get groupPublicKey() { return this.tss.groupPublicKey }
 
   getAggregateSignature(txnHash) { return this.messageMap[txnHash] }
 
-  setContract(chain, contract) { this.contracts[chain] = contract }
+  setVaultForChain(chain, vault) { this.vaults[chain] = vault }
 
-  async processTokenSent(log) {
+  async processTransfer(log) {
     if (this.isLeader) {
-    const {origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter} = iface.parseLog(log).args
-      const sentHash = keccak256(AbiCoder.defaultAbiCoder().encode( // fixme: no need for decimals in hash
-      ['uint64', 'address', 'uint', 'uint', 'address', 'uint64', 'uint64', 'uint'],
-      [origin, token, decimals, amount, owner, from, to, sendCounter]
-    ))
-      if (await this.contracts[from].outTransfers(sentHash)) {
-    await this.aggregateSignature(sentHash, sentHash, from, this.sentPayloadVerified.bind(this, origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter))
-    return sentHash
-  }
+      const {origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter} = iface.parseLog(log).args
+      const transferHash = keccak256(AbiCoder.defaultAbiCoder().encode( // fixme: no need for decimals in hash?
+        ['uint64', 'address', 'uint8', 'uint', 'address', 'uint64', 'uint64', 'uint'],
+        [origin, token, decimals, amount, owner, from, to, sendCounter]
+      ))
+      if (await this.vaults[from].outTransfers(transferHash)) {
+        await this.aggregateSignature(
+          transferHash,
+          transferHash,
+          from,
+          this.transferPayloadVerified.bind(this, origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter),
+        )
+        return transferHash
+      }
     }
   }
 
-  async sentPayloadVerified(origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter, aggregateSignature) {
+  async transferPayloadVerified(origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter, aggregateSignature) {
     // fixme: aggregateSignature is undefined
     if (aggregateSignature.verified) {
-    const signature = deserializeHexStrToSignature(aggregateSignature.groupSign)
-    const sig_ser = G1ToNumbers(signature)
-    const pubkeyHex = this.groupPublicKey.serializeToHexStr()
-    const pubkey = deserializeHexStrToPublicKey(pubkeyHex)
-    const pubkey_ser = G2ToNumbers(pubkey)
-      const toContract = this.contracts[to]
-    //fixme: wouldn't there be a delay from outTransfers to tokenArrival?
-    await toContract.tokenArrival(sig_ser, pubkey_ser, AbiCoder.defaultAbiCoder().encode(
-      ['uint64', 'address', 'uint', 'uint', 'address', 'uint64', 'uint64', 'uint'],
-      [origin, token, decimals, amount, owner, from, to, sendCounter],
-    ), name, symbol).then(_ => _.wait())
-  }
+      const signature = deserializeHexStrToSignature(aggregateSignature.groupSign)
+      const sig_ser = G1ToNumbers(signature)
+      const pubkeyHex = this.groupPublicKey.serializeToHexStr()
+      const pubkey = deserializeHexStrToPublicKey(pubkeyHex)
+      const pubkey_ser = G2ToNumbers(pubkey)
+        const toContract = this.vaults[to]
+      //fixme: wouldn't there be a delay from outTransfers to checkIn?
+      await toContract.checkIn(sig_ser, pubkey_ser, AbiCoder.defaultAbiCoder().encode(
+        ['uint64', 'address', 'uint8', 'uint', 'address', 'uint64', 'uint64', 'uint'],
+        [origin, token, decimals, amount, owner, from, to, sendCounter],
+      ), name, symbol).then(_ => _.wait())
+    }
   }
 
-  async verifySentHash(chain, sentHash) {
+  async verifyTransferHash(chain, transferHash) {
     if (chain === -1) return true // note: for local e2e testing, which will not  have any contracts or hardhat, till we expand the scope of e2e
-    return this.contracts[chain].outTransfers(sentHash)
+    return this.vaults[chain].outTransfers(transferHash)
   }
 
   print() { this.tss.print() }
@@ -195,7 +199,7 @@ export class BridgeNode {
     if (this.leader !== peerId) return logger.log('Ignoring signature start from non-leader', peerId, this.leader)
 
     const {txnHash, message, chainId} = data
-    if (await this.verifySentHash(chainId, message)) {
+    if (await this.verifyTransferHash(chainId, message)) {
       const signature = await this.tss.sign(message)
       logger.log(SIGNATURE_START, txnHash, message, signature.serializeToHexStr())
       const signaturePayloadToLeader = {
@@ -243,8 +247,7 @@ export class BridgeNode {
   async startDKG(threshold) {
     if (this.isLeader) {
       const responseHandler = (msg) => logger.log('dkg received', msg)
-      for (let each of this.whitelist.get()) {
-        if (each === this.peerId) continue
+      for (let each of this.whitelist.get()) if (each !== this.peerId) {
         const message = JSON.stringify({topic: DKG_INIT_THRESHOLD_VECTORS, threshold})
         await this.network.createAndSendMessage(each, meshProtocol, message, responseHandler)
       }
@@ -254,12 +257,11 @@ export class BridgeNode {
 
   async ping() {
     const peerIds = this.whitelist.get()
-    for (let each of peerIds) {
-      if (each === this.peerId) continue
+    for (let each of peerIds) if (each !== this.peerId) {
       this.monitor.updateLatency(each, await this.network.ping(each))
-      await setTimeout(100)
+      await setTimeout(100) // fixme: parameterize timeout?
     }
-    setTimeout(1000).then(this.ping.bind(this))
+    setTimeout(1000).then(this.ping.bind(this)) // fixme: parameterize timeout?
   }
 }
 

@@ -19,9 +19,9 @@
           "type": "string"
         },
         {
-          "internalType": "uint256",
+          "internalType": "uint8",
           "name": "nativeDecimals",
-          "type": "uint256"
+          "type": "uint8"
         },
         {
           "internalType": "uint256[4]",
@@ -31,6 +31,17 @@
       ],
       "stateMutability": "nonpayable",
       "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint8",
+          "name": "index",
+          "type": "uint8"
+        }
+      ],
+      "name": "InvalidPublicKey",
+      "type": "error"
     },
     {
       "anonymous": false,
@@ -61,9 +72,9 @@
         },
         {
           "indexed": false,
-          "internalType": "uint256",
+          "internalType": "uint8",
           "name": "decimals",
-          "type": "uint256"
+          "type": "uint8"
         },
         {
           "indexed": false,
@@ -132,6 +143,75 @@
       "type": "function"
     },
     {
+      "inputs": [
+        {
+          "internalType": "uint256[2]",
+          "name": "signature",
+          "type": "uint256[2]"
+        },
+        {
+          "internalType": "uint256[4]",
+          "name": "signerPublicKey",
+          "type": "uint256[4]"
+        },
+        {
+          "internalType": "bytes",
+          "name": "payload",
+          "type": "bytes"
+        },
+        {
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "symbol",
+          "type": "string"
+        }
+      ],
+      "name": "checkIn",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint64",
+          "name": "to",
+          "type": "uint64"
+        }
+      ],
+      "name": "checkOutNative",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint64",
+          "name": "to",
+          "type": "uint64"
+        },
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "checkOutToken",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "name": "home",
       "outputs": [
@@ -151,9 +231,9 @@
           "type": "string"
         },
         {
-          "internalType": "uint256",
+          "internalType": "uint8",
           "name": "decimals",
-          "type": "uint256"
+          "type": "uint8"
         }
       ],
       "stateMutability": "view",
@@ -182,30 +262,11 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "token",
-          "type": "address"
-        }
-      ],
-      "name": "isProxy",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
           "name": "",
           "type": "address"
         }
       ],
-      "name": "isProxyMapping",
+      "name": "isCheckedIn",
       "outputs": [
         {
           "internalType": "bool",
@@ -248,7 +309,7 @@
           "type": "address"
         }
       ],
-      "name": "proxyMapping",
+      "name": "proxies",
       "outputs": [
         {
           "internalType": "address",
@@ -289,75 +350,6 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint64",
-          "name": "to",
-          "type": "uint64"
-        }
-      ],
-      "name": "sendNative",
-      "outputs": [],
-      "stateMutability": "payable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint64",
-          "name": "to",
-          "type": "uint64"
-        },
-        {
-          "internalType": "address",
-          "name": "token",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "sendToken",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256[2]",
-          "name": "signature",
-          "type": "uint256[2]"
-        },
-        {
-          "internalType": "uint256[4]",
-          "name": "signerPublicKey",
-          "type": "uint256[4]"
-        },
-        {
-          "internalType": "bytes",
-          "name": "payload",
-          "type": "bytes"
-        },
-        {
-          "internalType": "string",
-          "name": "name",
-          "type": "string"
-        },
-        {
-          "internalType": "string",
-          "name": "symbol",
-          "type": "string"
-        }
-      ],
-      "name": "tokenArrival",
-      "outputs": [],
-      "stateMutability": "nonpayable",
       "type": "function"
     }
   ]

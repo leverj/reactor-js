@@ -1,5 +1,10 @@
 import {provider, Vault} from '@leverj/reactor.chain/test'
 
+/* methods to test:
+  checkOutNative(uint64 to)
+  checkOutToken(uint64 to, address token, uint amount)
+  checkIn(uint[2] calldata signature, uint[4] calldata signerPublicKey, bytes calldata payload, string calldata name, string calldata symbol)
+ */
 describe('Vault', () => {
   it.skip('should mint token using fixture data', async () => {
     const network = await provider.getNetwork()
@@ -31,7 +36,7 @@ describe('Vault', () => {
     // const minted = await contract.minted(depositHash)
     // expect(minted).toEqual(true)
     //
-    // const proxyToken = await contract.proxyMapping(BigInt(network.chain), token)
+    // const proxyToken = await contract.proxies(BigInt(network.chain), token)
     // const proxyBalanceOfDepositor = await contract.balanceOf(proxyToken, owner)
     // expect(amount).toEqual(proxyBalanceOfDepositor)
   })
