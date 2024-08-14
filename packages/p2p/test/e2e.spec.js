@@ -92,10 +92,7 @@ async function waitForBootstrapSync(ports, count = ports.length - 1) {
 
 async function waitForWhitelistSync(ports, total = ports.length) {
   const getWhitelist = async (port) => axios.get(`http://127.0.0.1:${port}/api/whitelist`).then(_ => _.data)
-  const fn = (port) => async () => {
-    const whitelists = await getWhitelist(port)
-    return whitelists.length === total
-  }
+  const fn = (port) => async () => getWhitelist(port).then(_ => _.length === total)
   await waitToSync(ports.map(fn))
   logger.log('whitelisted synced...')
 }

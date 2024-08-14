@@ -5,13 +5,12 @@ import {formatEther} from 'ethers'
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
 import {BridgeNode} from '../src/BridgeNode.js'
-import {Transfer} from '../src/Transfer.js'
 import {peerIdJsons} from './help/fixtures.js'
 
 const [owner, account] = await getSigners()
 
 describe('Vault', () => {
-  let transfers, leader
+  let nodes, leader
 
   const createBridgeNodes = async (howMany) => {
     const bootstraps = []
@@ -23,19 +22,17 @@ describe('Vault', () => {
         bootstrapNodes: bootstraps,
       })
       await node.start()
-      const transfer = new Transfer(node)
-      node.setTransfer(transfer)
-      transfers.push(transfer)
+      nodes.push(node)
       if (i === 0) bootstraps.push(node.multiaddrs[0])
     }
-    leader = transfers[0]
+    leader = nodes[0]
   }
 
   const deployVaultContractPerChainsOnNodes = async (chains, nodes) => {
-    await leader.node.publishWhitelist()
-    await leader.node.startDKG(4)
+    await leader.publishWhitelist()
+    await leader.startDKG(4)
     await setTimeout(10)
-    const pubkey_ser = G2ToNumbers(deserializeHexStrToPublicKey(leader.node.groupPublicKey.serializeToHexStr()))
+    const pubkey_ser = G2ToNumbers(deserializeHexStrToPublicKey(leader.groupPublicKey.serializeToHexStr()))
     const contracts = []
     for (let chain of chains) {
       const contract = await Vault(chain, pubkey_ser)
@@ -48,8 +45,8 @@ describe('Vault', () => {
   const sendNativeFromL1 = async (chains, amount) => {
     const [L1, L2] = chains
     await createBridgeNodes(7)
-    const [L1_Contract, L2_Contract] = await deployVaultContractPerChainsOnNodes(chains, transfers)
-    const logs = await provider.getLogs(await L1_Contract.sendNative(L2, {value: amount}).then(tx => tx.wait()))
+    const [L1_Contract, L2_Contract] = await deployVaultContractPerChainsOnNodes(chains, nodes)
+    const logs = await provider.getLogs(await L1_Contract.sendNative(L2, {value: amount}).then(_ => _.wait()))
     let transferHash
     for (let each of logs) {
       transferHash = await leader.processTokenSent(each)
@@ -61,17 +58,17 @@ describe('Vault', () => {
   const sendTokenFromL1 = async (chains, amount) => {
     const [L1, L2] = chains
     await createBridgeNodes(7)
-    const [L1_Contract, L2_Contract] = await deployVaultContractPerChainsOnNodes(chains, transfers)
+    const [L1_Contract, L2_Contract] = await deployVaultContractPerChainsOnNodes(chains, nodes)
     const erc20 = await ERC20('USD_TETHER', 'USDT')
     await erc20.mint(account, 1e9)
-    await erc20.connect(account).approve(L1_Contract.target, 1000000, {from: account.address}).then(tx => tx.wait())
-    const logs = await provider.getLogs(await L1_Contract.connect(account).sendToken(L2, erc20.target, amount).then(tx => tx.wait()))
+    await erc20.connect(account).approve(L1_Contract.target, 1000000, {from: account.address}).then(_ => _.wait())
+    const logs = await provider.getLogs(await L1_Contract.connect(account).sendToken(L2, erc20.target, amount).then(_ => _.wait()))
     const transferHash = await leader.processTokenSent(logs[1]) // fixme: why the difference from sendNative?
     return {L2_Contract, transferHash, erc20}
   }
 
-  beforeEach(() => transfers = [])
-  afterEach(async () => { for (let each of transfers) await each.node.stop() })
+  beforeEach(() => nodes = [])
+  afterEach(async () => { for (let each of nodes) await each.stop() })
 
   it('should invoke Transfer workflow on receipt of message', async () => {
     const network = await provider.getNetwork()
@@ -127,7 +124,7 @@ describe('Vault', () => {
     let proxyBalanceOfTransferer = await proxy.balanceOf(owner.address)
     expect(amount).toEqual(proxyBalanceOfTransferer)
 
-    const withdrawReceipt = await L2_Contract.sendToken(L1_Chain, proxyToken, amount).then(tx => tx.wait())
+    const withdrawReceipt = await L2_Contract.sendToken(L1_Chain, proxyToken, amount).then(_ => _.wait())
     proxyBalanceOfTransferer = await proxy.balanceOf(owner.address)
     expect(0n).toEqual(proxyBalanceOfTransferer)
 
@@ -164,7 +161,7 @@ describe('Vault', () => {
     logger.log('Instantiated token', proxy)
     logger.log('Approve for', L2_Contract.target)
     await proxy.approve(L2_Contract.target, amount)
-    const withdrawReceipt = await contractWithAccount1.sendToken(L1_Chain, proxyToken, amount).then(tx => tx.wait())
+    const withdrawReceipt = await contractWithAccount1.sendToken(L1_Chain, proxyToken, amount).then(_ => _.wait())
     for (let each of await provider.getLogs(withdrawReceipt)) {
       if (each.address === L2_Contract.target) await leader.processTokenSent(each)
     }
@@ -176,12 +173,12 @@ describe('Vault', () => {
     const chains = [33333, 10101, 10102, 10103, 10104, 10105]
     const amount = BigInt(1e+19)
     await createBridgeNodes(7)
-    const contracts = await deployVaultContractPerChainsOnNodes(chains, transfers)
+    const contracts = await deployVaultContractPerChainsOnNodes(chains, nodes)
 
     let ethBalanceOfTransferer = await provider.getBalance(owner)
     logger.log('b4 transfer', formatEther(ethBalanceOfTransferer))
     const balanceBeforeTransfer = ethBalanceOfTransferer
-    const txnReceipt = await contracts[0].sendNative(chains[1], {value: amount}).then(tx => tx.wait())
+    const txnReceipt = await contracts[0].sendNative(chains[1], {value: amount}).then(_ => _.wait())
     let tokenSentHash
     for (let each of await provider.getLogs(txnReceipt)) {
       tokenSentHash = await leader.processTokenSent(each)
@@ -207,7 +204,7 @@ describe('Vault', () => {
 
       const targetChainIdx = (i === chains.length - 1) ? 0 : (i + 1)
       const targetChain = chains[targetChainIdx]
-      const withdrawReceipt = await contracts[i].sendToken(targetChain, proxyToken, amount).then(tx => tx.wait())
+      const withdrawReceipt = await contracts[i].sendToken(targetChain, proxyToken, amount).then(_ => _.wait())
       for (let each of await provider.getLogs(withdrawReceipt)) {
         if (each.address === contracts[i].target) await leader.processTokenSent(each)
       }
@@ -231,13 +228,13 @@ describe('Vault', () => {
   it('multi-chain scenarios with ERC20 transfer on first chain', async () => {
     const chains = [33333, 10101, 10102, 10103, 10104]
     await createBridgeNodes(7)
-    const contracts = await deployVaultContractPerChainsOnNodes(chains, transfers)
+    const contracts = await deployVaultContractPerChainsOnNodes(chains, nodes)
     const proxy = await ERC20Proxy('L2Test', 'L2Test', 12, '0x0000000000000000000000000000000000000000', 1)
     await proxy.mint(owner, 1e3)
     logger.log('erc20Balance init', await proxy.balanceOf(owner))
     await proxy.approve(contracts[0].target, 1000000).then(_ => _.wait())
     const amount = 1000n
-    const txnReceipt = await contracts[0].sendToken(chains[1], proxy.target, amount).then(tx => tx.wait())
+    const txnReceipt = await contracts[0].sendToken(chains[1], proxy.target, amount).then(_ => _.wait())
     logger.log('erc20Balance after transfer', await proxy.balanceOf(owner))
     expect(await proxy.balanceOf(owner)).toEqual(0n)
 
@@ -255,7 +252,7 @@ describe('Vault', () => {
       const targetChainIdx = (i === chains.length - 1) ? 0 : (i + 1)
       const targetChain = chains[targetChainIdx]
       logger.log('Send Token from ', i, targetChainIdx, targetChain)
-      const withdrawReceipt = await contracts[i].sendToken(targetChain, proxyToken, amount).then(tx => tx.wait())
+      const withdrawReceipt = await contracts[i].sendToken(targetChain, proxyToken, amount).then(_ => _.wait())
       for (let each of await provider.getLogs(withdrawReceipt)) {
         if (each.address === contracts[i].target) await leader.processTokenSent(each)
       }

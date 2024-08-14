@@ -40,8 +40,7 @@ describe('TssNode', () => {
   }
 
   const setupMembersThreshold = async (members, threshold) => {
-    for (let each of members) each.generateVectors(threshold)
-    for (let each of members) await each.generateContribution()
+    for (let each of members) await each.generateVectorsAndContribution(threshold)
   }
 
   const createDkgMembers = async (memberIds, threshold = 4) => {

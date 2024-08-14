@@ -117,6 +117,11 @@ export class TssNode {
     if (Object.keys(this.vvecs).length === Object.keys(this.members).length) this.dkgDone()
   }
 
+  async generateVectorsAndContribution(threshold) {
+    this.generateVectors(threshold)
+    return this.generateContribution()
+  }
+
   generateVectors(threshold) {
     for (let i = 0; i < threshold; i++) {
       const sk = new SecretKey()
