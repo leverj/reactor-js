@@ -8,7 +8,7 @@ import {ITokenProxy} from "../ITokenProxy.sol";
 contract ERC20Proxy is ERC20, ERC165, ITokenProxy {
 
     struct Origin {
-        uint chain;
+        uint64 chain; // see: https://eips.ethereum.org/EIPS/eip-2294
         address token;
         uint8 decimals;
     }
@@ -18,8 +18,8 @@ contract ERC20Proxy is ERC20, ERC165, ITokenProxy {
 
     modifier isOwner { require(msg.sender == owner, "not an owner");  _; }
 
-    constructor(string memory name_, string memory symbol_, uint8 decimals_, address token_, uint chainId_) ERC20(name_, symbol_) {
-        origin = Origin(chainId_, token_, decimals_);
+    constructor(string memory name, string memory symbol, uint8 decimals_, address token_, uint64 chain_) ERC20(name, symbol) {
+        origin = Origin(chain_, token_, decimals_);
         owner = msg.sender;
     }
 
@@ -31,7 +31,7 @@ contract ERC20Proxy is ERC20, ERC165, ITokenProxy {
 
     function burn(address account, uint amount) public isOwner { _burn(account, amount); }
 
-    function chain() public view virtual returns (uint) { return origin.chain;  }
+    function chain() public view virtual returns (uint64) { return origin.chain;  }
 
     function token() public view virtual returns (address) { return origin.token; }
 

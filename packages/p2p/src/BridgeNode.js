@@ -63,7 +63,7 @@ export class BridgeNode {
     if (this.isLeader) {
     const {origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter} = iface.parseLog(log).args
       const sentHash = keccak256(AbiCoder.defaultAbiCoder().encode( // fixme: no need for decimals in hash
-      ['uint', 'address', 'uint', 'uint', 'address', 'uint', 'uint', 'uint'],
+      ['uint64', 'address', 'uint', 'uint', 'address', 'uint64', 'uint64', 'uint'],
       [origin, token, decimals, amount, owner, from, to, sendCounter]
     ))
       if (await this.contracts[from].outTransfers(sentHash)) {
@@ -84,8 +84,8 @@ export class BridgeNode {
       const toContract = this.contracts[to]
     //fixme: wouldn't there be a delay from outTransfers to tokenArrival?
     await toContract.tokenArrival(sig_ser, pubkey_ser, AbiCoder.defaultAbiCoder().encode(
-      ['uint', 'address', 'uint', 'uint', 'address', 'uint', 'uint', 'uint'],
-        [origin, token, decimals, amount, owner, from, to, sendCounter],
+      ['uint64', 'address', 'uint', 'uint', 'address', 'uint64', 'uint64', 'uint'],
+      [origin, token, decimals, amount, owner, from, to, sendCounter],
     ), name, symbol).then(_ => _.wait())
   }
   }
