@@ -39,10 +39,10 @@ describe('Vault', () => {
   const checkOutFromTo = async (from, to, amount, token) => {
     nodes = await createBridgeNodes(7), leader = nodes[0]
     const [fromVault, toVault] = await deployVaultPerChainOnNodes([from, to])
-    if (token) await token.connect(account).approve(fromVault.target, amount, {from: account.address}).then(_ => _.wait())
+    if (token) await token.connect(account).approve(fromVault.target, amount).then(_ => _.wait())
     const log = token ?
       await provider.getLogs(await fromVault.connect(account).checkOutToken(to, token.target, amount).then(_ => _.wait())).then(_ => _[1]) :
-      await provider.getLogs(await fromVault.checkOutNative(to, {value: amount}).then(_ => _.wait())).then(_ => _[0])
+      await provider.getLogs(await fromVault.checkOutNative(to, {value: amount}).then(_ => _.wait())).then(_ => _[0]) //fixme: why not connect?
     const transferHash = await leader.processTransfer(log)
     await setTimeout(100)
     return {toVault, transferHash, token}
@@ -169,7 +169,7 @@ describe('Vault', () => {
     const chains = [33333, 10101, 10102, 10103, 10104], amount = 1000n
     nodes = await createBridgeNodes(7), leader = nodes[0]
     const contracts = await deployVaultPerChainOnNodes(chains)
-    const proxy = await ERC20Proxy('L2Test', 'L2Test', 12, ETH, 1)
+    const proxy = await ERC20Proxy(1, ETH, 'L2Test', 'L2Test', 12)
     await proxy.mint(owner, 1e+3)
     logger.log('erc20Balance init', await proxy.balanceOf(owner))
     await proxy.approve(contracts[0].target, 1000000).then(_ => _.wait())

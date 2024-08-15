@@ -5,22 +5,22 @@
       "inputs": [
         {
           "internalType": "uint64",
-          "name": "chainId",
+          "name": "chainId_",
           "type": "uint64"
         },
         {
           "internalType": "string",
-          "name": "chainName",
+          "name": "chainName_",
           "type": "string"
         },
         {
           "internalType": "string",
-          "name": "nativeSymbol",
+          "name": "nativeSymbol_",
           "type": "string"
         },
         {
           "internalType": "uint8",
-          "name": "nativeDecimals",
+          "name": "nativeDecimals_",
           "type": "uint8"
         },
         {
@@ -137,6 +137,19 @@
           "internalType": "uint256",
           "name": "",
           "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "chainId",
+      "outputs": [
+        {
+          "internalType": "uint64",
+          "name": "",
+          "type": "uint64"
         }
       ],
       "stateMutability": "view",

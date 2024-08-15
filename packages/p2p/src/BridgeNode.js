@@ -62,15 +62,17 @@ export class BridgeNode {
     if (this.isLeader) {
       const {origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter} = iface.parseLog(log).args
       const transferHash = keccak256(AbiCoder.defaultAbiCoder().encode( // fixme: no need for decimals in hash?
+        // ['uint64', 'address', 'string', 'string', 'uint8', 'uint', 'address', 'uint64', 'uint64', 'uint'],
+        // [origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter]
         ['uint64', 'address', 'uint8', 'uint', 'address', 'uint64', 'uint64', 'uint'],
         [origin, token, decimals, amount, owner, from, to, sendCounter]
       ))
       if (await this.vaults[from].outTransfers(transferHash)) {
         await this.aggregateSignature(
           transferHash,
-          transferHash,
+          transferHash, //fixme: can we remove this duplication
           from,
-          this.transferPayloadVerified.bind(this, origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter),
+          async (signature) => this.transferPayloadVerified(origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter, signature),
         )
         return transferHash
       }
@@ -80,14 +82,12 @@ export class BridgeNode {
   async transferPayloadVerified(origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter, aggregateSignature) {
     // fixme: aggregateSignature is undefined
     if (aggregateSignature.verified) {
-      const signature = deserializeHexStrToSignature(aggregateSignature.groupSign)
-      const sig_ser = G1ToNumbers(signature)
-      const pubkeyHex = this.groupPublicKey.serializeToHexStr()
-      const pubkey = deserializeHexStrToPublicKey(pubkeyHex)
-      const pubkey_ser = G2ToNumbers(pubkey)
-        const toContract = this.vaults[to]
-      //fixme: wouldn't there be a delay from outTransfers to checkIn?
-      await toContract.checkIn(sig_ser, pubkey_ser, AbiCoder.defaultAbiCoder().encode(
+      const signature = G1ToNumbers(deserializeHexStrToSignature(aggregateSignature.groupSign))
+      const publicKey = G2ToNumbers(deserializeHexStrToPublicKey(this.groupPublicKey.serializeToHexStr()))
+      const toContract = this.vaults[to]
+      await toContract.checkIn(signature, publicKey, AbiCoder.defaultAbiCoder().encode(
+        // ['uint64', 'address', 'string', 'string', 'uint8', 'uint', 'address', 'uint64', 'uint64', 'uint'],
+        // [origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter],
         ['uint64', 'address', 'uint8', 'uint', 'address', 'uint64', 'uint64', 'uint'],
         [origin, token, decimals, amount, owner, from, to, sendCounter],
       ), name, symbol).then(_ => _.wait())
@@ -124,10 +124,9 @@ export class BridgeNode {
   async connect(peerId) { return this.network.connect(peerId) }
 
   async addLeader() {
-    //fixme: why not set leader at construction?
     this.leader = this.isLeader ? this.peerId : this.bootstrapNodes[0].split('/').pop()
     this.addPeersToWhiteList(this.leader)
-    if (!this.isLeader) await waitToSync([_ => this.peers.indexOf(this.leader) !== -1], -1)
+    if (!this.isLeader) await waitToSync([_ => this.peers.includes(this.leader)], -1)
   }
 
   addPeersToWhiteList(...peerIds) {
@@ -198,7 +197,7 @@ export class BridgeNode {
   async handleSignatureStart(peerId, data) {
     if (this.leader !== peerId) return logger.log('Ignoring signature start from non-leader', peerId, this.leader)
 
-    const {txnHash, message, chainId} = data
+    const {txnHash, message, chainId} = data //fixme: txnHash & message are probably a duplication here
     if (await this.verifyTransferHash(chainId, message)) {
       const signature = await this.tss.sign(message)
       logger.log(SIGNATURE_START, txnHash, message, signature.serializeToHexStr())

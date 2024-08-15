@@ -1,96 +1,109 @@
 import {ETH} from '@leverj/common/utils'
-import {ERC20, getContractAt, getSigners, provider, Vault} from '@leverj/reactor.chain/test'
+import * as chain from '@leverj/reactor.chain/contracts'
+import {G1ToNumbers, G2ToNumbers, newKeyPair, sign} from '@leverj/reactor.mcl'
+import {AbiCoder, Interface, keccak256} from 'ethers'
 import {expect} from 'expect'
-import {deserializeHexStrToPublicKey, G2ToNumbers} from '@leverj/reactor.mcl'
+import {ERC20, getContractAt, getSigners, provider, Vault} from './help/index.js'
 
-const [owner, account] = await getSigners()
-const network = await provider.getNetwork()
-const from = network.chainId, to = 10101, amount = 1000n
-// const publicKey = G2ToNumbers(deserializeHexStrToPublicKey('aaefd7f4788ba7f19e2d8be297f6ea91e04c850d16f80e08be4cb768d08f192a60afe4481f4f9cf8faac59ed801b1543ad491097be5d08235ea1298fed864720'))
-const publicKey = G2ToNumbers(deserializeHexStrToPublicKey('bcc7c1f8e2f35273c429092217c8ae5ab282ea27815a670c7c3160c8e5a60010ddc0c6b0c46288e77121e8b74a2d899f92929787400e12c8b483af3aa23e382a'))
+const iface = new Interface(chain.abi.Vault.abi)
+const [, account] = await getSigners()
 
-describe.skip('Vault', () => {
-  it('checkOutNative', async () => {
-    const fromVault = await Vault(from, publicKey)
-    const toVault = await Vault(to, publicKey)
+describe.only('Vault', () => {
+  const signer = newKeyPair()
+  const publicKey = G2ToNumbers(signer.pubkey)
+  const fromChainId = 10101n, toChainId = 98989n
+  const deposit = 1000n
 
-    await fromVault.checkOutNative(to, {value: amount}).then(_ => _.wait())
-    const transferHash = null
+  const toPayload = (origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter) => AbiCoder.defaultAbiCoder().encode(
+    // ['uint64', 'address', 'string', 'string', 'uint8', 'uint', 'address', 'uint64', 'uint64', 'uint'],
+    // [origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter]
+    ['uint64', 'address', 'uint8', 'uint', 'address', 'uint64', 'uint64', 'uint'],
+    [origin, token, decimals, amount, owner, from, to, sendCounter],
+  )
+  const computeHash = (origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter) => keccak256(toPayload(origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter))
+
+
+  it('checkOut - Native', async () => {
+    const vault = await Vault(fromChainId, publicKey)
+    const [chainId, chainName, nativeSymbol, nativeDecimals] = await vault.home()
+    const logs = await provider.getLogs(await vault.connect(account).checkOutNative(toChainId, {value: deposit}).then(_ => _.wait()))
+    const {origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter} = iface.parseLog(logs[0]).args
+    expect(chainId).toEqual(origin)
+    expect(await vault.NATIVE()).toEqual(token)
+    expect(chainName).toEqual(name)
+    expect(nativeSymbol).toEqual(symbol)
+    expect(nativeDecimals).toEqual(decimals)
+    expect(deposit).toEqual(amount)
+    expect(account.address).toEqual(owner)
+    expect(chainId).toEqual(from)
+    expect(toChainId).toEqual(to)
+    expect(await vault.sendCounter()).toEqual(sendCounter)
+
+    const transferHash = computeHash(origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter)
+    expect(await vault.outTransfers(transferHash)).toEqual(true)
+  })
+
+  it('checkOut - Token', async () => {
+    const vault = await Vault(fromChainId, publicKey)
+    const erc20 = await ERC20()
+    await erc20.mint(account, 1000000000n)
+    await erc20.connect(account).approve(vault.target, deposit).then(_ => _.wait())
+
+    const logs = await provider.getLogs(await vault.connect(account).checkOutToken(toChainId, erc20.target, deposit).then(_ => _.wait()))
+    const {origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter} = iface.parseLog(logs[1]).args
+    expect(fromChainId).toEqual(origin)
+    expect(erc20.target).toEqual(token)
+    expect(await erc20.name()).toEqual(name)
+    expect(await erc20.symbol()).toEqual(symbol)
+    expect(await erc20.decimals()).toEqual(decimals)
+    expect(deposit).toEqual(amount)
+    expect(account.address).toEqual(owner)
+    expect(fromChainId).toEqual(from)
+    expect(toChainId).toEqual(to)
+    expect(await vault.sendCounter()).toEqual(sendCounter)
+
+    const transferHash = computeHash(origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter)
+    expect(await vault.outTransfers(transferHash)).toEqual(true)
+  })
+
+  it('checkIn - Native', async () => {
+    const fromVault = await Vault(fromChainId, publicKey), toVault = await Vault(toChainId, publicKey)
+    const logs = await provider.getLogs(await fromVault.connect(account).checkOutNative(toChainId, {value: deposit}).then(_ => _.wait()))
+    const {origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter} = iface.parseLog(logs[0]).args
+    const transferHash = computeHash(origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter)
+    expect(fromChainId).toEqual(origin)
+
+    expect(await toVault.inTransfers(transferHash)).toEqual(false)
+    const signature = G1ToNumbers(sign(transferHash, signer.secret).signature)
+    const payload = toPayload(origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter)
+    await toVault.checkIn(signature, publicKey, payload, name, symbol).then(_ => _.wait())
     expect(await toVault.inTransfers(transferHash)).toEqual(true)
 
-    const proxyAddress = await toVault.proxies(L1, ETH)
+    const proxyAddress = await toVault.proxies(fromChainId, ETH)
     const proxy = await getContractAt('ERC20Proxy', proxyAddress)
-    expect(amount).toEqual(await proxy.balanceOf(owner.address))
+    expect(amount).toEqual(await proxy.balanceOf(owner))
     expect(await toVault.isCheckedIn(proxyAddress)).toEqual(true)
-
-    const receipt = await toVault.checkOutToken(L1, proxyAddress, amount).then(_ => _.wait())
-    expect(0n).toEqual(await proxy.balanceOf(owner.address))
-    // const log = await provider.getLogs(receipt).then(_ => _[1])
-    // await leader.processTransfer(log)
-    // await setTimeout(10)
-    // // fixme: make gas price 0 and test ETH balance
-    // // const after = await provider.getBalance(owner)
-    // // expect(before).toEqual(after)
   })
 
-  it('checkOutToken', async () => {
-    const [fromVault, toVault] = await deployVaultPerChainOnNodes([from, to])
+  it('checkIn - Token', async () => {
+    const fromVault = await Vault(fromChainId, publicKey), toVault = await Vault(toChainId, publicKey)
+    const erc20 = await ERC20()
+    await erc20.mint(account, 1000000000n)
+    await erc20.connect(account).approve(fromVault.target, deposit).then(_ => _.wait())
+    const logs = await provider.getLogs(await fromVault.connect(account).checkOutToken(toChainId, erc20.target, deposit).then(_ => _.wait()))
+    const {origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter} = iface.parseLog(logs[1]).args
+    const transferHash = computeHash(origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter)
+    expect(fromChainId).toEqual(origin)
 
-    const supply = 1000000000n
-    const token = await ERC20('USD_TETHER', 'USDT')
-    await token.mint(account, supply)
-    await token.connect(account).approve(fromVault.target, amount, {from: account.address}).then(_ => _.wait())
-    await fromVault.connect(account).checkOutToken(to, token.target, amount).then(_ => _.wait())
-    const transferHash = null
+    expect(await toVault.inTransfers(transferHash)).toEqual(false)
+    const signature = G1ToNumbers(sign(transferHash, signer.secret).signature)
+    const payload = toPayload(origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter)
+    await toVault.checkIn(signature, publicKey, payload, name, symbol).then(_ => _.wait()) //fixme: how to enforce only peers can checkIn ???
     expect(await toVault.inTransfers(transferHash)).toEqual(true)
 
-    const proxyToken = await toVault.proxies(from, token.target)
-    const proxy = await getContractAt('ERC20Proxy', proxyToken)
-    expect(amount).toEqual(await proxy.balanceOf(account))
-    expect(await token.balanceOf(account)).toEqual(supply - amount)
-
-    await proxy.approve(toVault.target, amount)
-    await toVault.connect(account).checkOutToken(from, proxyToken, amount).then(_ => _.wait())
-    // for (let each of await provider.getLogs(withdrawReceipt)) if (each.address === toVault.target) await leader.processTransfer(each)
-    expect(await token.balanceOf(account)).toEqual(supply)
-  })
-
-  it('checkIn', async () => {
-    // checkIn(uint[2] calldata signature, uint[4] calldata signerPublicKey, bytes calldata payload)
-  })
-
-  it('should mint token using fixture data', async () => {
-    const network = await provider.getNetwork()
-    const fixture = {
-      sig_ser: [
-        '17501379548414473118975493418296770409004790518587989275104077991423278766345',
-        '10573459840926036933226410278548182531900093958496894445083855256191507622572',
-      ],
-      pubkey_ser: [
-        '17952266123624120693867949189877327115939693121746953888788663343366186261263',
-        '3625386958213971493190482798835911536597490696820041295198885612842303573644',
-        '14209805107538060976447556508818330114663332071460618570948978043188559362801',
-        '6106226559240500500676195643085343038285250451936828952647773685858315556632',
-      ],
-      owner: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-      token: '0x0000000000000000000000000000000000000000',
-      decimals: 18n,
-      to: 10101n,
-      amount: 1000000n,
-    }
-    const {sig_ser, pubkey_ser, owner, token, decimals, to, amount} = fixture
-    const contract = await Vault(network.chainId, pubkey_ser)
-    // await contract.mint(sig_ser, pubkey_ser, AbiCoder.defaultAbiCoder().encode(
-    //   ['address', 'address', 'uint', 'uint', 'uint', 'uint', 'uint', 'string', 'string'],
-    //   [owner, token, BigInt(decimals), BigInt(network.chain), BigInt(to), BigInt(amount), BigInt(depositCounter), 'PROXY_NAME', 'PROXY_SYMBOL'],
-    // ))
-    // await setTimeout(1000)
-    // const depositHash = keccak256(owner, token, BigInt(decimals), BigInt(to), BigInt(amount), BigInt(depositCounter))
-    // const minted = await contract.minted(depositHash)
-    // expect(minted).toEqual(true)
-    //
-    // const proxyToken = await contract.proxies(BigInt(network.chain), token)
-    // const proxyBalanceOfDepositor = await contract.balanceOf(proxyToken, owner)
-    // expect(amount).toEqual(proxyBalanceOfDepositor)
+    const proxyAddress = await toVault.proxies(fromChainId, erc20.target)
+    const proxy = await getContractAt('ERC20Proxy', proxyAddress)
+    expect(amount).toEqual(await proxy.balanceOf(owner))
+    expect(await toVault.isCheckedIn(proxyAddress)).toEqual(true)
   })
 })

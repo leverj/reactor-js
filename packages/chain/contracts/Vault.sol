@@ -38,10 +38,12 @@ contract Vault {
     mapping(uint64 => mapping(address => address)) public proxies;
     mapping(address => bool) public isCheckedIn;
 
-    constructor(uint64 chainId, string memory chainName, string memory nativeSymbol, uint8 nativeDecimals, uint[4] memory publicKey_) {
-        home = Chain(chainId, chainName, nativeSymbol, nativeDecimals);
+    constructor(uint64 chainId_, string memory chainName_, string memory nativeSymbol_, uint8 nativeDecimals_, uint[4] memory publicKey_) {
+        home = Chain(chainId_, chainName_, nativeSymbol_, nativeDecimals_);
         publicKey = publicKey_;
     }
+
+    function chainId() external view returns (uint64) { return home.id; }
 
     function checkOutNative(uint64 to) external payable {
         balances[NATIVE] += msg.value;
@@ -63,6 +65,7 @@ contract Vault {
 
     function checkOut(uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner, uint64 from, uint64 to) private {
         sendCounter++;
+        //bytes32 hash = keccak256(abi.encode(origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter));
         bytes32 hash = keccak256(abi.encode(origin, token, decimals, amount, owner, from, to, sendCounter));
         outTransfers[hash] = true;
         emit Transfer(origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter);
@@ -72,26 +75,33 @@ contract Vault {
         for (uint8 i = 0; i < 4; i++) if (publicKey[i] != key[i]) revert InvalidPublicKey(i);
     }
 
+//    function getHash(bytes calldata payload) private pure returns (bytes32) {
+//        (uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner, uint64 from, uint64 to, uint counter) = abi.decode(payload, (uint64, address, string, string, uint8, uint, address, uint64, uint64, uint));
+//        return keccak256(abi.encode(origin, token, name, symbol, decimals, amount, owner, from, to, counter));
+//    }
+
     function checkIn(uint[2] calldata signature, uint[4] calldata signerPublicKey, bytes calldata payload, string calldata name, string calldata symbol) external {
+//    function checkIn(uint[2] calldata signature, uint[4] calldata signerPublicKey, bytes calldata payload) external {
         validatePublicKey(signerPublicKey);
         bytes32 hash = keccak256(payload);
         require(!inTransfers[hash], 'Token already checked-in');
         BnsVerifier.verify(signature, signerPublicKey, hash);
+        //(uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner, , ,) = abi.decode(payload, (uint64, address, string, string, uint8, uint, address, uint, uint, uint));
         (uint64 origin, address token, uint8 decimals, uint amount, address owner, , ,) = abi.decode(payload, (uint64, address, uint8, uint, address, uint, uint, uint));
         //fixme: can token be NATIVE?
-        mintOrDisburse(origin, token, decimals, amount, owner, name, symbol);
+        mintOrDisburse(origin, token, name, symbol, decimals, amount, owner);
         inTransfers[hash] = true;
     }
 
-    function mintOrDisburse(uint64 origin, address token, uint8 decimals, uint amount, address owner, string calldata name, string calldata symbol) private {
+    function mintOrDisburse(uint64 origin, address token, string calldata name, string calldata symbol, uint8 decimals, uint amount, address owner) private {
         home.id == origin ?                                             // if token is coming back home (to originating chain) ...
             disburse(token, address(this), owner, amount) :             // ... disburse amount back to the owner
-            mint(origin, token, decimals, amount, owner, name, symbol); // ... it's a foreign country, mint proxy for the owner
+            mint(origin, token, name, symbol, decimals, amount, owner); // ... it's a foreign country, mint proxy for the owner
     }
 
-    function mint(uint64 origin, address token, uint8 decimals, uint amount, address owner, string calldata name, string calldata symbol) private {
+    function mint(uint64 origin, address token, string calldata name, string calldata symbol, uint8 decimals, uint amount, address owner) private {
         if (proxies[origin][token] == address(0)) { // if proxy yet to exist
-            proxies[origin][token] = address(new ERC20Proxy(name, symbol, decimals, token, origin));
+            proxies[origin][token] = address(new ERC20Proxy(origin, token, name, symbol, decimals));
             isCheckedIn[proxies[origin][token]] = true;
         }
         ERC20Proxy(proxies[origin][token]).mint(owner, amount);
