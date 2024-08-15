@@ -18,7 +18,7 @@ contract ERC20Proxy is ERC20, ERC165, ITokenProxy {
 
     modifier isOwner { require(msg.sender == owner, "not an owner");  _; }
 
-    constructor(string memory name, string memory symbol, uint8 decimals_, address token_, uint64 chain_) ERC20(name, symbol) {
+    constructor(uint64 chain_, address token_, string memory name, string memory symbol, uint8 decimals_) ERC20(name, symbol) {
         origin = Origin(chain_, token_, decimals_);
         owner = msg.sender;
     }

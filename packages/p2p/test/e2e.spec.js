@@ -9,99 +9,96 @@ import path from 'path'
 import {tryAgainIfError, waitToSync} from '../src/utils/index.js'
 import {getBridgeInfos} from './help/fixtures.js'
 
-const childProcesses = {}
-
 const __dirname = process.cwd()
 const e2ePath = path.join(__dirname, '.e2e')
-const filePath = (i) => path.join(e2ePath, i.toString(), 'info.json')
-const dirPath = (i) => path.join(e2ePath, i.toString())
-
-const stop = async (...ports) => {
-  for (let each of ports) {
-    await childProcesses[each].kill()
-    delete childProcesses[each]
-  }
-  await setTimeout(10)
-}
-
-async function getBootstrapNodes() {
-  const getPeerId = (i) => JSON.parse(readFileSync(filePath(i)).toString()).p2p.id
-
-  const peerId = await tryAgainIfError(_ => getPeerId(0))
-  return [`/ip4/${config.externalIp}/tcp/10000/p2p/${peerId}`]
-}
-
-async function publishWhitelist(ports, total, available) {
-  await tryAgainIfError(_ => axios.post(`http://127.0.0.1:${ports[0]}/api/whitelist/publish`))
-  await waitForWhitelistSync(ports, total, available)
-}
-
-async function createFrom(ports, count) {
-  for (let each of ports) {
-    const index = each - 9000
-    const bootstrapNodes = index === 0 ? [] : await getBootstrapNodes()
-    childProcesses[each] = await createApiNode({
-      index,
-      isLeader: index === 0,
-      bootstrapNodes: JSON.stringify(bootstrapNodes),
-    })
-    await setTimeout(100)
-  }
-  await waitForBootstrapSync(ports, count)
-  return ports
-}
-
-async function createApiNodes(count, whitelist = true) {
-  const ports = new Array(count).fill(0).map((_, i) => 9000 + i)
-  await createFrom(ports)
-  if (whitelist) await publishWhitelist(ports)
-  return ports
-}
-
-async function createApiNode({index, isLeader = false, bootstrapNodes}) {
-  const env = Object.assign({}, process.env, {
-    PORT: 9000 + index,
-    BRIDGE_CONF_DIR: './.e2e/' + index,
-    BRIDGE_PORT: config.bridgeNode.port + index,
-    BRIDGE_IS_LEADER: isLeader,
-    BRIDGE_BOOTSTRAP_NODES: bootstrapNodes,
-    CONTRACT_TESTING: false,
-  })
-  mkdirSync(env.BRIDGE_CONF_DIR, {recursive: true})
-  return fork(`app.js`, [], {cwd: __dirname, env})
-}
-
-async function createInfo_json(count) {
-  const bridgeInfos = getBridgeInfos(count)
-  for (let i = 0; i < count; i++) {
-    const info = bridgeInfos[i]
-    mkdirSync(dirPath(i), {recursive: true})
-    writeFileSync(filePath(i), JSON.stringify(info, null, 2))
-  }
-}
-
-async function waitForBootstrapSync(ports, count = ports.length - 1) {
-  const fn = (port) => async () => {
-    const {data: peers} = await axios.get(`http://127.0.0.1:${port}/api/peer`)
-    return peers.length === count
-  }
-  await waitToSync(ports.map(fn))
-  logger.log('bootstrap synced...')
-}
-
-
-async function waitForWhitelistSync(ports, total = ports.length) {
-  const getWhitelist = async (port) => axios.get(`http://127.0.0.1:${port}/api/whitelist`).then(_ => _.data)
-  const fn = (port) => async () => getWhitelist(port).then(_ => _.length === total)
-  await waitToSync(ports.map(fn))
-  logger.log('whitelisted synced...')
-}
 
 describe('e2e', () => {
-  afterEach(async () => {
-    await stop(...Object.keys(childProcesses))
-    rmdirSync(e2ePath, {recursive: true, force: true})
-  })
+  const childProcesses = {}
+
+  afterEach(async () => await stop(...Object.keys(childProcesses)).then(_ => rmdirSync(e2ePath, {recursive: true, force: true})))
+
+  const dirPath = (i) => path.join(e2ePath, i.toString())
+  const filePath = (i) => path.join(dirPath(i), 'info.json')
+
+  const stop = async (...ports) => {
+    for (let each of ports) {
+      await childProcesses[each].kill()
+      delete childProcesses[each]
+    }
+    await setTimeout(10)
+  }
+
+  async function getBootstrapNodes() {
+    const getPeerId = (i) => JSON.parse(readFileSync(filePath(i)).toString()).p2p.id
+
+    const peerId = await tryAgainIfError(_ => getPeerId(0))
+    return [`/ip4/${config.externalIp}/tcp/10000/p2p/${peerId}`]
+  }
+
+  async function publishWhitelist(ports, total, available) {
+    await tryAgainIfError(_ => axios.post(`http://127.0.0.1:${ports[0]}/api/whitelist/publish`))
+    await waitForWhitelistSync(ports, total, available)
+  }
+
+  async function createFrom(ports, count) {
+    for (let each of ports) {
+      const index = each - 9000
+      const bootstrapNodes = index === 0 ? [] : await getBootstrapNodes()
+      childProcesses[each] = await createApiNode({
+        index,
+        isLeader: index === 0,
+        bootstrapNodes: JSON.stringify(bootstrapNodes),
+      })
+      await setTimeout(100)
+    }
+    await waitForBootstrapSync(ports, count)
+    return ports
+  }
+
+  async function createApiNodes(count, whitelist = true) {
+    const ports = new Array(count).fill(0).map((_, i) => 9000 + i)
+    await createFrom(ports)
+    if (whitelist) await publishWhitelist(ports)
+    return ports
+  }
+
+  async function createApiNode({index, isLeader = false, bootstrapNodes}) {
+    const env = Object.assign({}, process.env, {
+      PORT: 9000 + index,
+      BRIDGE_CONF_DIR: './.e2e/' + index,
+      BRIDGE_PORT: config.bridgeNode.port + index,
+      BRIDGE_IS_LEADER: isLeader,
+      BRIDGE_BOOTSTRAP_NODES: bootstrapNodes,
+      CONTRACT_TESTING: false,
+    })
+    mkdirSync(env.BRIDGE_CONF_DIR, {recursive: true})
+    return fork(`app.js`, [], {cwd: __dirname, env})
+  }
+
+  async function createInfo_json(count) {
+    const bridgeInfos = getBridgeInfos(count)
+    for (let i = 0; i < count; i++) {
+      const info = bridgeInfos[i]
+      mkdirSync(dirPath(i), {recursive: true})
+      writeFileSync(filePath(i), JSON.stringify(info, null, 2))
+    }
+  }
+
+  async function waitForBootstrapSync(ports, count = ports.length - 1) {
+    const fn = (port) => async () => {
+      const {data: peers} = await axios.get(`http://127.0.0.1:${port}/api/peer`)
+      return peers.length === count
+    }
+    await waitToSync(ports.map(fn))
+    logger.log('bootstrap synced...')
+  }
+
+  async function waitForWhitelistSync(ports, total = ports.length) {
+    const getWhitelist = async (port) => axios.get(`http://127.0.0.1:${port}/api/whitelist`).then(_ => _.data)
+    const fn = (port) => async () => getWhitelist(port).then(_ => _.length === total)
+    await waitToSync(ports.map(fn))
+    logger.log('whitelisted synced...')
+  }
 
   it('should create new nodes, connect and init DKG', async () => {
     const startDkg = async () => axios.post(`http://127.0.0.1:9000/api/dkg/start`)
