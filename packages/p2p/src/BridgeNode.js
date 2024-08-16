@@ -23,6 +23,11 @@ const DKG_INIT_THRESHOLD_VECTORS = 'DKG_INIT_THRESHOLD_VECTORS'
 const DKG_RECEIVE_KEY_SHARE = 'DKG_RECEIVE_KEY_SHARE'
 const meshProtocol = '/bridgeNode/0.0.1'
 
+const toPayload = (origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter) => AbiCoder.defaultAbiCoder().encode(
+  ['uint64', 'address', 'string', 'string', 'uint8', 'uint', 'address', 'uint64', 'uint64', 'uint'],
+  [origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter]
+)
+
 export class BridgeNode {
   static async from({ip = '0.0.0.0', port = 0, isLeader = false, json, bootstrapNodes}) {
     const network = await NetworkNode.from({ip, port, peerIdJson: json?.p2p, bootstrapNodes})
@@ -61,36 +66,26 @@ export class BridgeNode {
   async processTransfer(log) {
     if (this.isLeader) {
       const {origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter} = iface.parseLog(log).args
-      const transferHash = keccak256(AbiCoder.defaultAbiCoder().encode( // fixme: no need for decimals in hash?
-        // ['uint64', 'address', 'string', 'string', 'uint8', 'uint', 'address', 'uint64', 'uint64', 'uint'],
-        // [origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter]
-        ['uint64', 'address', 'uint8', 'uint', 'address', 'uint64', 'uint64', 'uint'],
-        [origin, token, decimals, amount, owner, from, to, sendCounter]
-      ))
+      const payload = toPayload(origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter)
+      const transferHash = keccak256(payload)
       if (await this.vaults[from].outTransfers(transferHash)) {
         await this.aggregateSignature(
           transferHash,
           transferHash, //fixme: can we remove this duplication
           from,
-          async (signature) => this.transferPayloadVerified(origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter, signature),
+          async (signature) => this.transferPayloadVerified(to, payload, signature),
         )
         return transferHash
       }
     }
   }
 
-  async transferPayloadVerified(origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter, aggregateSignature) {
-    // fixme: aggregateSignature is undefined
+  async transferPayloadVerified(to, payload, aggregateSignature) {
     if (aggregateSignature.verified) {
       const signature = G1ToNumbers(deserializeHexStrToSignature(aggregateSignature.groupSign))
       const publicKey = G2ToNumbers(deserializeHexStrToPublicKey(this.groupPublicKey.serializeToHexStr()))
       const toContract = this.vaults[to]
-      await toContract.checkIn(signature, publicKey, AbiCoder.defaultAbiCoder().encode(
-        // ['uint64', 'address', 'string', 'string', 'uint8', 'uint', 'address', 'uint64', 'uint64', 'uint'],
-        // [origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter],
-        ['uint64', 'address', 'uint8', 'uint', 'address', 'uint64', 'uint64', 'uint'],
-        [origin, token, decimals, amount, owner, from, to, sendCounter],
-      ), name, symbol).then(_ => _.wait())
+      await toContract.checkIn(signature, publicKey, payload).then(_ => _.wait())
     }
   }
 

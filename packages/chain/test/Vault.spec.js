@@ -15,10 +15,8 @@ describe.only('Vault', () => {
   const deposit = 1000n
 
   const toPayload = (origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter) => AbiCoder.defaultAbiCoder().encode(
-    // ['uint64', 'address', 'string', 'string', 'uint8', 'uint', 'address', 'uint64', 'uint64', 'uint'],
-    // [origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter]
-    ['uint64', 'address', 'uint8', 'uint', 'address', 'uint64', 'uint64', 'uint'],
-    [origin, token, decimals, amount, owner, from, to, sendCounter],
+    ['uint64', 'address', 'string', 'string', 'uint8', 'uint', 'address', 'uint64', 'uint64', 'uint'],
+    [origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter]
   )
   const computeHash = (origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter) => keccak256(toPayload(origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter))
 
@@ -76,7 +74,7 @@ describe.only('Vault', () => {
     expect(await toVault.inTransfers(transferHash)).toEqual(false)
     const signature = G1ToNumbers(sign(transferHash, signer.secret).signature)
     const payload = toPayload(origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter)
-    await toVault.checkIn(signature, publicKey, payload, name, symbol).then(_ => _.wait())
+    await toVault.checkIn(signature, publicKey, payload).then(_ => _.wait())
     expect(await toVault.inTransfers(transferHash)).toEqual(true)
 
     const proxyAddress = await toVault.proxies(fromChainId, ETH)
@@ -98,7 +96,7 @@ describe.only('Vault', () => {
     expect(await toVault.inTransfers(transferHash)).toEqual(false)
     const signature = G1ToNumbers(sign(transferHash, signer.secret).signature)
     const payload = toPayload(origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter)
-    await toVault.checkIn(signature, publicKey, payload, name, symbol).then(_ => _.wait()) //fixme: how to enforce only peers can checkIn ???
+    await toVault.checkIn(signature, publicKey, payload).then(_ => _.wait())
     expect(await toVault.inTransfers(transferHash)).toEqual(true)
 
     const proxyAddress = await toVault.proxies(fromChainId, erc20.target)

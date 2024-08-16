@@ -171,16 +171,6 @@
           "internalType": "bytes",
           "name": "payload",
           "type": "bytes"
-        },
-        {
-          "internalType": "string",
-          "name": "name",
-          "type": "string"
-        },
-        {
-          "internalType": "string",
-          "name": "symbol",
-          "type": "string"
         }
       ],
       "name": "checkIn",

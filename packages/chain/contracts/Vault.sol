@@ -65,8 +65,7 @@ contract Vault {
 
     function checkOut(uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner, uint64 from, uint64 to) private {
         sendCounter++;
-        //bytes32 hash = keccak256(abi.encode(origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter));
-        bytes32 hash = keccak256(abi.encode(origin, token, decimals, amount, owner, from, to, sendCounter));
+        bytes32 hash = keccak256(abi.encode(origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter));
         outTransfers[hash] = true;
         emit Transfer(origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter);
     }
@@ -80,26 +79,23 @@ contract Vault {
 //        return keccak256(abi.encode(origin, token, name, symbol, decimals, amount, owner, from, to, counter));
 //    }
 
-    function checkIn(uint[2] calldata signature, uint[4] calldata signerPublicKey, bytes calldata payload, string calldata name, string calldata symbol) external {
-//    function checkIn(uint[2] calldata signature, uint[4] calldata signerPublicKey, bytes calldata payload) external {
+    function checkIn(uint[2] calldata signature, uint[4] calldata signerPublicKey, bytes calldata payload) external {
         validatePublicKey(signerPublicKey);
         bytes32 hash = keccak256(payload);
         require(!inTransfers[hash], 'Token already checked-in');
         BnsVerifier.verify(signature, signerPublicKey, hash);
-        //(uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner, , ,) = abi.decode(payload, (uint64, address, string, string, uint8, uint, address, uint, uint, uint));
-        (uint64 origin, address token, uint8 decimals, uint amount, address owner, , ,) = abi.decode(payload, (uint64, address, uint8, uint, address, uint, uint, uint));
-        //fixme: can token be NATIVE?
+        (uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner, , ,) = abi.decode(payload, (uint64, address, string, string, uint8, uint, address, uint, uint, uint));
         mintOrDisburse(origin, token, name, symbol, decimals, amount, owner);
         inTransfers[hash] = true;
     }
 
-    function mintOrDisburse(uint64 origin, address token, string calldata name, string calldata symbol, uint8 decimals, uint amount, address owner) private {
+    function mintOrDisburse(uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner) private {
         home.id == origin ?                                             // if token is coming back home (to originating chain) ...
             disburse(token, address(this), owner, amount) :             // ... disburse amount back to the owner
             mint(origin, token, name, symbol, decimals, amount, owner); // ... it's a foreign country, mint proxy for the owner
     }
 
-    function mint(uint64 origin, address token, string calldata name, string calldata symbol, uint8 decimals, uint amount, address owner) private {
+    function mint(uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner) private {
         if (proxies[origin][token] == address(0)) { // if proxy yet to exist
             proxies[origin][token] = address(new ERC20Proxy(origin, token, name, symbol, decimals));
             isCheckedIn[proxies[origin][token]] = true;

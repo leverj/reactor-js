@@ -67,20 +67,6 @@ describe('Vault', () => {
     // const after = await provider.getBalance(owner)
     // expect(before).toEqual(after)
   })
-  //fixme: same as above
-  it.skip('should invoke Transfer workflow on receipt of message', async () => {
-    const {toVault, transferHash} = await checkOutNativeFromTo(L1, L2, amount)
-    expect(await toVault.inTransfers(transferHash)).toEqual(true)
-
-    const proxyAddress = await toVault.proxies(L1, ETH)
-    const proxy = await getContractAt('ERC20Proxy', proxyAddress)
-    expect(amount).toEqual(await proxy.balanceOf(owner.address))
-    expect(await toVault.isCheckedIn(proxyAddress)).toEqual(true)
-
-    // // fixme: ERC20Proxy test
-    // expect(await proxy.name()).toEqual('ETHER')
-    // expect(await proxy.symbol()).toEqual('ETH')
-  })
 
   it('should disburse ERC20 when proxy withdrawn from target chain', async () => {
     const {toVault, transferHash, token} = await checkOutTokenFromTo(L1, L2, amount)
@@ -96,22 +82,6 @@ describe('Vault', () => {
     for (let each of await provider.getLogs(withdrawReceipt)) if (each.address === toVault.target) await leader.processTransfer(each)
     await setTimeout(100)
     expect(await token.balanceOf(account)).toEqual(1000000000n)
-  })
-  //fixme: same as above
-  it.skip('should transfer ERC20 on source chain and mint on target chain', async () => {
-    const {toVault, transferHash, token} = await checkOutTokenFromTo(L1, L2, amount)
-    expect(await toVault.inTransfers(transferHash)).toEqual(true)
-
-    const proxyAddress = await toVault.proxies(L1, token.target)
-    const proxy = await getContractAt('ERC20Proxy', proxyAddress)
-    const proxyBalanceOfTransferer = await proxy.balanceOf(account)
-    expect(amount).toEqual(proxyBalanceOfTransferer)
-
-    // // fixme: ERC20Proxy test
-    // const proxyName = await proxy.name()
-    // const proxySymbol = await proxy.symbol()
-    // expect(proxyName).toEqual('USD_TETHER')
-    // expect(proxySymbol).toEqual('USDT')
   })
 
   it('multi-chain scenarios with ETH transfer on first chain', async () => {
