@@ -47,13 +47,19 @@
       "anonymous": false,
       "inputs": [
         {
-          "indexed": true,
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "hash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
           "internalType": "uint64",
           "name": "origin",
           "type": "uint64"
         },
         {
-          "indexed": true,
+          "indexed": false,
           "internalType": "address",
           "name": "token",
           "type": "address"
@@ -83,7 +89,7 @@
           "type": "uint256"
         },
         {
-          "indexed": true,
+          "indexed": false,
           "internalType": "address",
           "name": "owner",
           "type": "address"
@@ -103,7 +109,7 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "sendCounter",
+          "name": "tag",
           "type": "uint256"
         }
       ],
@@ -215,6 +221,57 @@
       "type": "function"
     },
     {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "checkins",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "checkoutCounter",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "checkouts",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "name": "home",
       "outputs": [
@@ -245,50 +302,12 @@
     {
       "inputs": [
         {
-          "internalType": "bytes32",
-          "name": "",
-          "type": "bytes32"
-        }
-      ],
-      "name": "inTransfers",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
           "internalType": "address",
           "name": "",
           "type": "address"
         }
       ],
       "name": "isCheckedIn",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes32",
-          "name": "",
-          "type": "bytes32"
-        }
-      ],
-      "name": "outTransfers",
       "outputs": [
         {
           "internalType": "bool",
@@ -332,19 +351,6 @@
         }
       ],
       "name": "publicKey",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "sendCounter",
       "outputs": [
         {
           "internalType": "uint256",

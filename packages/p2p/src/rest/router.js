@@ -27,7 +27,6 @@ async function startDkg(req, res) {
 }
 
 async function aggregateSignature(req, res) {
-  if (!node.isLeader) return
   const msg = req.body
   await node.aggregateSignature(msg.txnHash, msg.msg, -1, () => {
   })
@@ -43,7 +42,6 @@ async function getWhitelists(req, res) {
 }
 
 async function publishWhitelist(req, res) {
-  if (!node.isLeader) return
   await node.publishWhitelist()
   res.send('ok')
 }

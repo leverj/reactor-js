@@ -1,8 +1,9 @@
 export class Transfer {
-  static signature = 'Transfer(uint64,address,string,string,uint8,uint256,address,uint64,uint64,uint256)'
-  static topic = '0x99073eada924242ed3a1b5a4dafd3d70d1755a1b93a755fdfeb0f7b246a25050'
+  static signature = 'Transfer(bytes32,uint64,address,string,string,uint8,uint256,address,uint64,uint64,uint256)'
+  static topic = '0x225befdad5da5115af4962e80b572a17f383a2d8bd750c1edfd940806a518b02'
 
   /**
+   * @param {bytes32} hash
    * @param {uint64} origin
    * @param {address} token
    * @param {string} name
@@ -12,9 +13,10 @@ export class Transfer {
    * @param {address} owner
    * @param {uint64} from
    * @param {uint64} to
-   * @param {uint256} sendCounter
+   * @param {uint256} tag
    */
-  constructor(origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter) {
+  constructor(hash, origin, token, name, symbol, decimals, amount, owner, from, to, tag) {
+    this.hash = hash
     this.origin = origin
     this.token = token
     this.name = name
@@ -24,6 +26,6 @@ export class Transfer {
     this.owner = owner
     this.from = from
     this.to = to
-    this.sendCounter = sendCounter
+    this.tag = tag
   }
 }

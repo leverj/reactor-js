@@ -19,11 +19,13 @@ contract Vault {
 
     /**
      * Token transferred to another chain.
-     * The payload structure: <Origin: {chain, token, decimals}>, token-amount, owner-address, from-chain, to-chain, send-counter
+     * The payload structure: <Origin: {chain, token, decimals}>, token-amount, owner-address, from-chain, to-chain, tag
      * from-chain may seem redundant at first glance. however, consider the case where L[1] transfers Token to L[n] and L[m],
-     * and both L[n] and L[m] transfers it back to L[1], and both L[n] and L[m] could have the same counter, so another key in the form of from-chain is needed
+     * and both L[n] and L[m] transfers it back to L[1], and both L[n] and L[m] could have the same counter, so another key in the form of from-chain is needed.
+     *
+     * ... and the hash of the whole payload to precede it all.
      */
-    event Transfer(uint64 indexed origin, address indexed token, string name, string symbol, uint8 decimals, uint amount, address indexed owner, uint64 from, uint64 to, uint sendCounter);
+    event Transfer(bytes32 hash, uint64 origin, address token, string name, string symbol, uint8 decimals, uint amount, address owner, uint64 from, uint64 to, uint tag);
 
 
     /// key[index] is invalid
@@ -31,10 +33,10 @@ contract Vault {
 
     Chain public home;
     uint[4] public publicKey;
-    uint public sendCounter = 0;
+    uint public checkoutCounter = 0;
     mapping(address => uint) public balances;
-    mapping(bytes32 => bool) public outTransfers;
-    mapping(bytes32 => bool) public inTransfers;
+    mapping(bytes32 => bool) public checkouts;
+    mapping(bytes32 => bool) public checkins;
     mapping(uint64 => mapping(address => address)) public proxies;
     mapping(address => bool) public isCheckedIn;
 
@@ -64,29 +66,24 @@ contract Vault {
     }
 
     function checkOut(uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner, uint64 to) private {
-        sendCounter++;
-        bytes32 hash = keccak256(abi.encode(origin, token, name, symbol, decimals, amount, owner, home.id, to, sendCounter));
-        outTransfers[hash] = true;
-        emit Transfer(origin, token, name, symbol, decimals, amount, owner, home.id, to, sendCounter);
+        uint tag = ++checkoutCounter;
+        bytes32 hash = keccak256(abi.encode(origin, token, name, symbol, decimals, amount, owner, home.id, to, tag));
+        checkouts[hash] = true;
+        emit Transfer(hash, origin, token, name, symbol, decimals, amount, owner, home.id, to, tag);
     }
 
     function validatePublicKey(uint[4] calldata key) private view {
         for (uint8 i = 0; i < 4; i++) if (publicKey[i] != key[i]) revert InvalidPublicKey(i);
     }
 
-//    function getHash(bytes calldata payload) private pure returns (bytes32) {
-//        (uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner, uint64 from, uint64 to, uint counter) = abi.decode(payload, (uint64, address, string, string, uint8, uint, address, uint64, uint64, uint));
-//        return keccak256(abi.encode(origin, token, name, symbol, decimals, amount, owner, from, to, counter));
-//    }
-
     function checkIn(uint[2] calldata signature, uint[4] calldata signerPublicKey, bytes calldata payload) external {
         validatePublicKey(signerPublicKey);
         bytes32 hash = keccak256(payload);
-        require(!inTransfers[hash], 'Token already checked-in');
+        require(!checkins[hash], 'Token already checked-in');
         BnsVerifier.verify(signature, signerPublicKey, hash);
         (uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner, , ,) = abi.decode(payload, (uint64, address, string, string, uint8, uint, address, uint, uint, uint));
         mintOrDisburse(origin, token, name, symbol, decimals, amount, owner);
-        inTransfers[hash] = true;
+        checkins[hash] = true;
     }
 
     function mintOrDisburse(uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner) private {
