@@ -47,27 +47,27 @@ contract Vault {
 
     function checkOutNative(uint64 to) external payable {
         balances[NATIVE] += msg.value;
-        checkOut(home.id, NATIVE, home.name, home.symbol, home.decimals, msg.value, msg.sender, home.id, to);
+        checkOut(home.id, NATIVE, home.name, home.symbol, home.decimals, msg.value, msg.sender, to);
     }
 
     function checkOutToken(uint64 to, address token, uint amount) external {
         if (isCheckedIn[token]) {
             ERC20Proxy proxy = ERC20Proxy(token);
             proxy.burn(msg.sender, amount);
-            checkOut(proxy.chain(), proxy.token(), proxy.name(), proxy.symbol(), proxy.decimals(), amount, msg.sender, home.id, to);
+            checkOut(proxy.chain(), proxy.token(), proxy.name(), proxy.symbol(), proxy.decimals(), amount, msg.sender, to);
         } else {
             ERC20 erc20 = ERC20(token);
             disburseToken(token, msg.sender, address(this), amount);
             balances[token] += amount;
-            checkOut(home.id, token, erc20.name(), erc20.symbol(), erc20.decimals(), amount, msg.sender, home.id, to);
+            checkOut(home.id, token, erc20.name(), erc20.symbol(), erc20.decimals(), amount, msg.sender, to);
         }
     }
 
-    function checkOut(uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner, uint64 from, uint64 to) private {
+    function checkOut(uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner, uint64 to) private {
         sendCounter++;
-        bytes32 hash = keccak256(abi.encode(origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter));
+        bytes32 hash = keccak256(abi.encode(origin, token, name, symbol, decimals, amount, owner, home.id, to, sendCounter));
         outTransfers[hash] = true;
-        emit Transfer(origin, token, name, symbol, decimals, amount, owner, from, to, sendCounter);
+        emit Transfer(origin, token, name, symbol, decimals, amount, owner, home.id, to, sendCounter);
     }
 
     function validatePublicKey(uint[4] calldata key) private view {
