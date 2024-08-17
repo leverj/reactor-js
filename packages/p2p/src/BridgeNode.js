@@ -56,37 +56,6 @@ export class BridgeNode {
 
   setVaultForChain(chain, vault) { this.vaults[chain] = vault }
 
-  async processTransfer(log) { return this.leadership.processTransfer(log) }
-  async aggregateSignature(txnHash, message, chainId, transferCallback) { return this.leadership.aggregateSignature(txnHash, message, chainId, transferCallback) }
-  async publishWhitelist() { return this.leadership.publishWhitelist() }
-  async startDKG(threshold) { return this.leadership.startDKG(threshold) }
-
-  async handleWhitelistMessage(peerId, peerIds) {
-    if (this.leader !== peerId) return logger.log('ignoring whitelist from non-leader', peerId)
-
-    this.addPeersToWhiteList(...peerIds)
-  }
-
-  async handleSignatureStart(peerId, data) {
-    if (this.leader !== peerId) return logger.log('ignoring signature start from non-leader', peerId, this.leader)
-
-    // note: for local e2e testing, which will not  have any contracts or hardhat, till we expand the scope of e2e
-    const verifyTransferHash = async (chain, transferHash) => chain === -1 || this.vaults[chain].checkouts(transferHash)
-
-    const {txnHash, message, chainId} = data //fixme: txnHash & message are probably a duplication here
-    if (await verifyTransferHash(chainId, message)) {
-      const signature = await this.tss.sign(message)
-      logger.log(SIGNATURE_START, txnHash, message, signature.serializeToHexStr())
-      const signaturePayloadToLeader = {
-        topic: TSS_RECEIVE_SIGNATURE_SHARE,
-        signature: signature.serializeToHexStr(),
-        signer: this.tss.id.serializeToHexStr(),
-        txnHash,
-      }
-      await this.network.createAndSendMessage(peerId, meshProtocol, JSON.stringify(signaturePayloadToLeader), _ => logger.log('SignaruePayload Ack', _))
-    }
-  }
-
   print() { this.tss.print() }
 
   exportJson() {
@@ -97,6 +66,11 @@ export class BridgeNode {
       leader: this.leader,
     }
   }
+
+  async processTransfer(log) { return this.leadership.processTransfer(log) }
+  async aggregateSignature(txnHash, message, chainId, transferCallback) { return this.leadership.aggregateSignature(txnHash, message, chainId, transferCallback) }
+  async publishWhitelist() { return this.leadership.publishWhitelist() }
+  async startDKG(threshold) { return this.leadership.startDKG(threshold) }
 
   async start() {
     await this.network.start()
@@ -109,6 +83,15 @@ export class BridgeNode {
   async stop() { return this.network.stop() }
 
   async connect(peerId) { return this.network.connect(peerId) }
+
+  async ping() {
+    const peerIds = this.whitelist.get()
+    for (let each of peerIds) if (each !== this.peerId) {
+      this.monitor.updateLatency(each, await this.network.ping(each))
+      await setTimeout(100) // fixme: parameterize timeout?
+    }
+    setTimeout(1000).then(this.ping.bind(this)) // fixme: parameterize timeout?
+  }
 
   addPeersToWhiteList(...peerIds) {
     if (peerIds.length > 0) {
@@ -135,6 +118,32 @@ export class BridgeNode {
       case WHITELIST_TOPIC: return this.handleWhitelistMessage(peerId, JSON.parse(data))
       case SIGNATURE_START: return this.handleSignatureStart(peerId, JSON.parse(data))
       default: logger.log('Unknown topic', topic)
+    }
+  }
+
+  async handleWhitelistMessage(peerId, peerIds) {
+    if (this.leader !== peerId) return logger.log('ignoring whitelist from non-leader', peerId)
+
+    this.addPeersToWhiteList(...peerIds)
+  }
+
+  async handleSignatureStart(peerId, data) {
+    if (this.leader !== peerId) return logger.log('ignoring signature start from non-leader', peerId, this.leader)
+
+    // note: for local e2e testing, which will not  have any contracts or hardhat, till we expand the scope of e2e
+    const verifyTransferHash = async (chain, transferHash) => chain === -1 || this.vaults[chain].checkouts(transferHash)
+
+    const {txnHash, message, chainId} = data //fixme: txnHash & message are probably a duplication here
+    if (await verifyTransferHash(chainId, message)) {
+      const signature = await this.tss.sign(message)
+      logger.log(SIGNATURE_START, txnHash, message, signature.serializeToHexStr())
+      const signaturePayloadToLeader = {
+        topic: TSS_RECEIVE_SIGNATURE_SHARE,
+        signature: signature.serializeToHexStr(),
+        signer: this.tss.id.serializeToHexStr(),
+        txnHash,
+      }
+      await this.network.createAndSendMessage(peerId, meshProtocol, JSON.stringify(signaturePayloadToLeader), _ => logger.log('SignaruePayload Ack', _))
     }
   }
 
@@ -168,15 +177,6 @@ export class BridgeNode {
       default:
         logger.log('Unknown message', msg)
     }
-  }
-
-  async ping() {
-    const peerIds = this.whitelist.get()
-    for (let each of peerIds) if (each !== this.peerId) {
-      this.monitor.updateLatency(each, await this.network.ping(each))
-      await setTimeout(100) // fixme: parameterize timeout?
-    }
-    setTimeout(1000).then(this.ping.bind(this)) // fixme: parameterize timeout?
   }
 }
 

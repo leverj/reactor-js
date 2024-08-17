@@ -4,9 +4,11 @@ import path from 'path'
 import {BridgeNode} from '../BridgeNode.js'
 import {events, INFO_CHANGED} from '../utils/index.js'
 
+const {bridgeNode} = config
+
 class Info {
   constructor() {
-    this.filePath = path.join(config.bridgeNode.confDir, 'info.json')
+    this.filePath = path.join(bridgeNode.confDir, 'info.json')
     this.timer = null
     this.data = this.get()
     events.on(INFO_CHANGED, () => this.set())
@@ -33,11 +35,10 @@ class Info {
   }
 }
 
-
-const {bridgeNode: {port, isLeader, bootstrapNodes}} = config
+const {port, isLeader, bootstrapNodes} = bridgeNode
 const info = new Info()
-const node = await BridgeNode.from({port, isLeader, json: info.get(), bootstrapNodes})
-info.setNode(node)
-await node.start()
+const manager = await BridgeNode.from({port, isLeader, bootstrapNodes, json: info.get()})
+info.setNode(manager)
+await manager.start()
 
-export default node
+export default manager

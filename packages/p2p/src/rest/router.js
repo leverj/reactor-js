@@ -1,56 +1,52 @@
 import {peerIdFromString} from '@libp2p/peer-id'
 import config from 'config'
 import {Router} from 'express'
-import node from './manager.js'
+import manager from './manager.js'
 
-const multiaddr = `/ip4/${config.externalIp}/tcp/${config.bridgeNode.port}/p2p/${node.peerId}`
+const {bridgeNode, externalIp} = config
+const multiaddr = `/ip4/${externalIp}/tcp/${bridgeNode.port}/p2p/${manager.peerId}`
 
 async function getMultiaddrs(req, res) {
   res.send({multiaddr})
 }
 
 async function getAllMultiaddrs(req, res) {
-  res.send(node.multiaddrs)
+  res.send(manager.multiaddrs)
 }
 
 async function getPeers(req, res) {
-  res.send(node.peers)
+  res.send(manager.peers)
 }
 
 function getPeersStatus(req, res) {
-  res.send(node.monitor.getPeersStatus())
+  res.send(manager.monitor.getPeersStatus())
 }
 
 async function startDkg(req, res) {
-  await node.startDKG(config.bridgeNode.threshold)
-  res.send('ok')
+  await manager.startDKG(bridgeNode.threshold).then(_ => res.send('ok'))
 }
 
 async function aggregateSignature(req, res) {
-  const msg = req.body
-  await node.aggregateSignature(msg.txnHash, msg.msg, -1, () => {
-  })
-  res.send('ok')
+  const {txnHash, msg} = req.body
+  await manager.aggregateSignature(txnHash, msg, -1, () => {}).then(_ => res.send('ok'))
 }
 
 async function getAggregateSignature(req, res) {
-  res.send(node.getAggregateSignature(req.query.txnHash))
+  res.send(manager.getAggregateSignature(req.query.txnHash))
 }
 
 async function getWhitelists(req, res) {
-  res.send(node.whitelist.get())
+  res.send(manager.whitelist.get())
 }
 
 async function publishWhitelist(req, res) {
-  await node.publishWhitelist()
-  res.send('ok')
+  await manager.publishWhitelist().then(_ => res.send('ok'))
 }
 
 async function getBootstrapPeers(req, res) {
-  const peers = node.peers
-  const all = []
-  for (let each of peers) all.push(await node.network.p2p.peerRouting.findPeer(peerIdFromString(each)))
-  res.send(all)
+  const results = []
+  for (let each of manager.peers) results.push(await manager.network.p2p.peerRouting.findPeer(peerIdFromString(each)))
+  res.send(results)
 }
 
 const router = Router()
