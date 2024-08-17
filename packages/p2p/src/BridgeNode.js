@@ -27,7 +27,7 @@ export class BridgeNode {
   static async from({ip = '0.0.0.0', port = 0, isLeader = false, json, bootstrapNodes}) {
     const network = await NetworkNode.from({ip, port, peerIdJson: json?.p2p, bootstrapNodes})
     const tss = new TssNode(network.peerId, json?.tssNode)
-    tss.addMember(tss.id.serializeToHexStr(), tss.onDkgShare.bind(tss)) // making self dkg share
+    tss.addMember(tss.idHex, tss.onDkgShare.bind(tss)) // making self dkg share
     const whitelist = new Whitelist(json?.whitelist || [])
     return new this(network, tss, whitelist, json?.leader, isLeader)
   }
@@ -51,6 +51,7 @@ export class BridgeNode {
   get peers() { return this.network.peers }
   get secretKeyShare() { return this.tss.secretKeyShare }
   get groupPublicKey() { return this.tss.groupPublicKey }
+  get signer() { return this.tss.idHex }
 
   getAggregateSignature(txnHash) { return this.messageMap[txnHash] }
 
@@ -140,7 +141,7 @@ export class BridgeNode {
       const signaturePayloadToLeader = {
         topic: TSS_RECEIVE_SIGNATURE_SHARE,
         signature: signature.serializeToHexStr(),
-        signer: this.tss.id.serializeToHexStr(),
+        signer: this.signer,
         txnHash,
       }
       await this.network.createAndSendMessage(peerId, meshProtocol, JSON.stringify(signaturePayloadToLeader), _ => logger.log('SignaruePayload Ack', _))
@@ -167,7 +168,7 @@ export class BridgeNode {
         if (Object.keys(info.signatures).length === this.tss.threshold) {
           const groupSign = this.tss.groupSign(Object.values(info.signatures))
           info.groupSign = groupSign
-          info.verified = this.tss.verify(groupSign, info.signatures[this.tss.id.serializeToHexStr()].message)
+          info.verified = this.tss.verify(groupSign, info.signatures[this.signer].message)
           logger.log('Verified', txnHash, info.verified, groupSign)
           info.transferCallback(info)
         }
@@ -214,7 +215,7 @@ class Leader {
 
   async aggregateSignature(txnHash, message, chainId, transferCallback) {
     const signature = this.self.tss.sign(message).serializeToHexStr()
-    const signer = this.self.tss.id.serializeToHexStr()
+    const signer = this.self.signer
     this.self.messageMap[txnHash] = {
       signatures: {
         [signer]: {

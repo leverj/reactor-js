@@ -1,4 +1,3 @@
-import {peerIdFromString} from '@libp2p/peer-id'
 import config from 'config'
 import {Router} from 'express'
 import manager from './manager.js'
@@ -28,7 +27,7 @@ async function startDkg(req, res) {
 
 async function aggregateSignature(req, res) {
   const {txnHash, msg} = req.body
-  await manager.aggregateSignature(txnHash, msg, -1, () => {}).then(_ => res.send('ok'))
+  await manager.aggregateSignature(txnHash, msg, -1, _ => _).then(_ => res.send('ok'))
 }
 
 async function getAggregateSignature(req, res) {
@@ -45,7 +44,7 @@ async function publishWhitelist(req, res) {
 
 async function getBootstrapPeers(req, res) {
   const results = []
-  for (let each of manager.peers) results.push(await manager.network.p2p.peerRouting.findPeer(peerIdFromString(each)))
+  for (let each of manager.peers) results.push(await manager.network.findPeer(each))
   res.send(results)
 }
 

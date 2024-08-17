@@ -25,7 +25,7 @@ const addContributionShares = (secretKeyShares) => {
 
 /**
  * Verifies a contribution share
- * @param {Number} id - a pointer to the id of the member verifiing the contribution
+ * @param {Number} id - a pointer to the id of the member verifying the contribution
  * @param {Number} contribution - a pointer to the secret key contribution
  * @param {Array<Number>} vvec - an array of pointers to public keys which is
  * the verification vector of the sender of the contribution
@@ -42,16 +42,15 @@ const verifyContributionShare = (id, contribution, vvec) => {
 
 /**
  * Adds an array of verification vectors together to produce the groups verification vector
- * @param {Array<Array<Number>>} vvecs - an array containing all the groups verifciation vectors
+ * @param {Array<Array<Number>>} vvecs - an array containing all the groups verification vectors
  */
 const addVerificationVectors = (vvecs) => {
   const results = []
   vvecs.forEach(vvec => {
     vvec.forEach((pk2, i) => {
       const pk1 = results[i]
-      if (!pk1) {
-        results[i] = pk2
-      } else {
+      if (!pk1) results[i] = pk2
+      else {
         pk1.add(pk2)
         pk2.clear()
       }
@@ -60,15 +59,15 @@ const addVerificationVectors = (vvecs) => {
   return results
 }
 
-function getMemberContributions(recievedShares, vvecs) {
-  const ids = Object.keys(recievedShares).sort()
+function getMemberContributions(receivedShares, vvecs) {
+  const ids = Object.keys(receivedShares).sort()
   return {
-    recievedShares: ids.map(id => recievedShares[id]),
+    receivedShares: ids.map(id => receivedShares[id]),
     vvecs: ids.map(id => vvecs[id]),
   }
 }
 
-/* Threshold Signature Scheme */
+/*** Threshold Signature Scheme ***/
 export class TssNode {
   constructor(id, json) {
     affirm(typeof id === 'string', 'id must be a string')
@@ -81,11 +80,12 @@ export class TssNode {
   get threshold() { return this.vvec?.length }
   get groupPublicKey() { return this.vvec ? this.vvec[0] : null }
   get publicKey() { return new PublicKey().share(this.vvec, this.id) }
+  get idHex() { return this.id.serializeToHexStr() }
 
   reset() {
     this.secretVector = []
     this.verificationVector = []
-    this.recievedShares = {}
+    this.receivedShares = {}
     this.vvecs = {}
     this.secretKeyShare = null
     this.vvec = null
@@ -104,7 +104,7 @@ export class TssNode {
   reinitiate() {
     this.secretVector = []
     this.verificationVector = []
-    this.recievedShares = {}
+    this.receivedShares = {}
     this.vvecs = {}
   }
 
@@ -138,13 +138,13 @@ export class TssNode {
   verifyAndAddShare(id, receivedShare, verificationVector) {
     const verified = verifyContributionShare(this.id, receivedShare, verificationVector)
     if (!verified) throw Error('invalid share!')
-    this.recievedShares[id] = receivedShare
+    this.receivedShares[id] = receivedShare
   }
 
   async generateContributionForId(id, dkgHandler) {
     const result = new SecretKey().share(this.secretVector, SecretKey.from(id))
     const dkgSharePayload = {
-      id: this.id.serializeToHexStr(),
+      id: this.idHex,
       secretKeyContribution: result.serializeToHexStr(),
       verificationVector: this.verificationVector.map(_ => _.serializeToHexStr()),
     }
@@ -153,8 +153,8 @@ export class TssNode {
   }
 
   async dkgDone() {
-    const {recievedShares, vvecs} = getMemberContributions(this.recievedShares, this.vvecs)
-    this.secretKeyShare = addContributionShares(this.previouslyShared ? [this.secretKeyShare, ...recievedShares] : recievedShares)
+    const {receivedShares, vvecs} = getMemberContributions(this.receivedShares, this.vvecs)
+    this.secretKeyShare = addContributionShares(this.previouslyShared ? [this.secretKeyShare, ...receivedShares] : receivedShares)
     this.vvec = addVerificationVectors(this.previouslyShared ? [this.vvec, ...vvecs] : vvecs)
     this.previouslyShared = true
     events.emit(INFO_CHANGED)
@@ -163,8 +163,8 @@ export class TssNode {
   sign(message) { return this.secretKeyShare.sign(message) }
 
   groupSign(signatures) {
-    const signers = signatures.map(m => deserializeHexStrToSecretKey(m.signer))
-    const signs = signatures.map(m => deserializeHexStrToSignature(m.signature))
+    const signers = signatures.map(_ => deserializeHexStrToSecretKey(_.signer))
+    const signs = signatures.map(_ => deserializeHexStrToSignature(_.signature))
     const groupsSign = new Signature()
     groupsSign.recover(signs, signers)
     return groupsSign.serializeToHexStr()
@@ -181,7 +181,7 @@ export class TssNode {
   exportJson() {
     if (!this.previouslyShared) return
     return {
-      id: this.id.serializeToHexStr(),
+      id: this.idHex,
       secretKeyShare: this.secretKeyShare?.serializeToHexStr(),
       groupPublicKey: this.groupPublicKey?.serializeToHexStr(),
       verificationVector: this.verificationVector?.map(_ => _.serializeToHexStr()),

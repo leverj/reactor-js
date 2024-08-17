@@ -30,11 +30,11 @@ describe('TssNode', () => {
 
   const addMember = async (members, joiner) => {
     for (let each of members) {
-      await each.generateContributionForId(joiner.id.serializeToHexStr(), joiner.onDkgShare.bind(joiner))
-      each.addMember(joiner.id.serializeToHexStr(), joiner.onDkgShare.bind(joiner))
-      joiner.addMember(each.id.serializeToHexStr(), each.onDkgShare.bind(each))
+      await each.generateContributionForId(joiner.idHex, joiner.onDkgShare.bind(joiner))
+      each.addMember(joiner.idHex, joiner.onDkgShare.bind(joiner))
+      joiner.addMember(each.idHex, each.onDkgShare.bind(each))
     }
-    joiner.addMember(joiner.id.serializeToHexStr(), joiner.onDkgShare.bind(joiner))
+    joiner.addMember(joiner.idHex, joiner.onDkgShare.bind(joiner))
     joiner.dkgDone()
     members.push(joiner)
   }
@@ -47,7 +47,7 @@ describe('TssNode', () => {
     const members = memberIds.map(id => new TssNode(id.toString()))
     for (let member1 of members)
       for (let member2 of members)
-        member1.addMember(member2.id.serializeToHexStr(), member2.onDkgShare.bind(member2))
+        member1.addMember(member2.idHex, member2.onDkgShare.bind(member2))
     await setupMembersThreshold(members, threshold)
     expect(members.length).toBe(memberIds.length)
     return members

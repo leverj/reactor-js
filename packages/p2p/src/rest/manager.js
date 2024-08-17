@@ -14,9 +14,7 @@ class Info {
     events.on(INFO_CHANGED, () => this.set())
   }
 
-  setNode(node) {
-    this.node = node
-  }
+  setNode(node) { this.node = node }
 
   get() {
     if (this.data) return this.data
@@ -34,9 +32,9 @@ class Info {
     }, 10)
   }
 }
+const info = new Info()
 
 const {port, isLeader, bootstrapNodes} = bridgeNode
-const info = new Info()
 const manager = await BridgeNode.from({port, isLeader, bootstrapNodes, json: info.get()})
 info.setNode(manager)
 await manager.start()
