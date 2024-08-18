@@ -23,9 +23,7 @@ describe('TssNode', () => {
 
   const signAndVerify = async (members) => {
     const signature = new Signature().recover(...signMessage(members))
-    const verified = members[0].groupPublicKey.verify(signature, message)
-    signature.clear()
-    return verified
+    return members[0].groupPublicKey.verify(signature, message)
   }
 
   const addMember = async (members, joiner) => {
@@ -54,8 +52,9 @@ describe('TssNode', () => {
   }
 
   it('should be able to match member pub key derived from member pvt key', async () => {
-    const members = await createDkgMembers(memberIds)
-    members.forEach(_ => expect(_.publicKey.serializeToHexStr()).toEqual(_.secretKeyShare.getPublicKey().serializeToHexStr()))
+    for (let each of await createDkgMembers(memberIds)) {
+      expect(each.publicKey.serializeToHexStr()).toEqual(each.secretKeyShare.getPublicKey().serializeToHexStr())
+    }
   })
 
   it('signAndVerify', async () => {
@@ -93,7 +92,6 @@ describe('TssNode', () => {
     await addMember(members, new TssNode('100'))
     expect(members.length).toBe(8)
     members.forEach(_ => expect(_.groupPublicKey.serializeToHexStr()).toEqual(groupPublicKeyHex))
-
     for (let [start, total, expected] of [
       [0, 3, false],
       [0, 4, true],
@@ -163,7 +161,6 @@ describe('TssNode', () => {
     expect(members[0].groupPublicKey.verify(newGroupsSign, message)).toBe(true)
   })
 
-
   it('should be able to remove a member', async () => {
     const threshold = 4
     const members = await createDkgMembers(memberIds.concat(138473), threshold)
@@ -195,6 +192,7 @@ describe('TssNode', () => {
     expect(await signAndVerify(members.slice(0, 5))).toBe(true)
   })
 
+  //fixme: what are we testing here?
   it.skip('measurement matrix: takes a lot of time.', async () => {
     const times = []
     for (let length = 10; length <= 200; length = length + 10) {

@@ -152,7 +152,7 @@ export class TssNode {
     return result
   }
 
-  async dkgDone() {
+  dkgDone() {
     const {receivedShares, vvecs} = getMemberContributions(this.receivedShares, this.vvecs)
     this.secretKeyShare = addContributionShares(this.previouslyShared ? [this.secretKeyShare, ...receivedShares] : receivedShares)
     this.vvec = addVerificationVectors(this.previouslyShared ? [this.vvec, ...vvecs] : vvecs)
