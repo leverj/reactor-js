@@ -121,10 +121,10 @@ export class BridgeNode {
     }
   }
 
-  async handleWhitelistMessage(peerId, peerIds) {
-    if (this.leader !== peerId) return logger.log('ignoring whitelist from non-leader', peerId)
-
-    this.addPeersToWhiteList(...peerIds)
+  handleWhitelistMessage(peerId, peerIds) {
+    this.leader === peerId ?
+      this.addPeersToWhiteList(...peerIds) :
+      logger.log('ignoring whitelist from non-leader', peerId)
   }
 
   async handleSignatureStart(peerId, data) {

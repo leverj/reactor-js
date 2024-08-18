@@ -2,8 +2,8 @@ import config from 'config'
 import {Router} from 'express'
 import manager from './manager.js'
 
-const {bridgeNode, externalIp} = config
-const multiaddr = `/ip4/${externalIp}/tcp/${bridgeNode.port}/p2p/${manager.peerId}`
+const {bridgeNode: {port, threshold}, externalIp} = config
+const multiaddr = `/ip4/${externalIp}/tcp/${port}/p2p/${manager.peerId}`
 
 async function getMultiaddrs(req, res) {
   res.send({multiaddr})
@@ -22,7 +22,7 @@ function getPeersStatus(req, res) {
 }
 
 async function startDkg(req, res) {
-  await manager.startDKG(bridgeNode.threshold).then(_ => res.send('ok'))
+  await manager.startDKG(threshold).then(_ => res.send('ok'))
 }
 
 async function aggregateSignature(req, res) {

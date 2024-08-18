@@ -45,7 +45,7 @@ describe('Vault', () => {
 
   const processTransfer = async (receipt, vault) => {
     for (let each of await provider.getLogs(receipt)) if (each.address === vault.target) await leader.processTransfer(each)
-    await setTimeout(10)
+    await setTimeout(100)
   }
 
   describe('should disburse currency when transferred from originating chain', () => {
