@@ -78,7 +78,6 @@ export class BridgeNode {
     await this.leadership.addLeader()
     events.emit(INFO_CHANGED)
     this.ping()
-    return this
   }
 
   async stop() { return this.network.stop() }

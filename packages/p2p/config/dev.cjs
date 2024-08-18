@@ -1,5 +1,5 @@
 module.exports = {
   bridgeNode: {
-    isPublic: false,
+    bootstrapNodes: [],
   },
 }

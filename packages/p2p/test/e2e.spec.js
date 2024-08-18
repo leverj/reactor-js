@@ -9,30 +9,29 @@ import path from 'path'
 import {tryAgainIfError, waitToSync} from '../src/utils/index.js'
 import {getBridgeInfos} from './help/fixtures.js'
 
+const {bridgeNode, externalIp} = config
 const __dirname = process.cwd()
 const e2ePath = path.join(__dirname, '.e2e')
 
 describe('e2e', () => {
-  const childProcesses = {}
+  const processes = {}
 
-  afterEach(async () => await stop(...Object.keys(childProcesses)).then(_ => rmdirSync(e2ePath, {recursive: true, force: true})))
+  afterEach(async () => await stop(...Object.keys(processes)).then(_ => rmdirSync(e2ePath, {recursive: true, force: true})))
 
   const dirPath = (i) => path.join(e2ePath, i.toString())
   const filePath = (i) => path.join(dirPath(i), 'info.json')
 
   const stop = async (...ports) => {
     for (let each of ports) {
-      await childProcesses[each].kill()
-      delete childProcesses[each]
+      await processes[each].kill()
+      delete processes[each]
     }
     await setTimeout(10)
   }
 
   async function getBootstrapNodes() {
-    const getPeerId = (i) => JSON.parse(readFileSync(filePath(i)).toString()).p2p.id
-
-    const peerId = await tryAgainIfError(_ => getPeerId(0))
-    return [`/ip4/${config.externalIp}/tcp/10000/p2p/${peerId}`]
+    const leader = await tryAgainIfError(_ => JSON.parse(readFileSync(filePath(0)).toString()).p2p.id)
+    return [`/ip4/${externalIp}/tcp/10000/p2p/${leader}`]
   }
 
   async function publishWhitelist(ports, total, available) {
@@ -44,7 +43,7 @@ describe('e2e', () => {
     for (let each of ports) {
       const index = each - 9000
       const bootstrapNodes = index === 0 ? [] : await getBootstrapNodes()
-      childProcesses[each] = await createApiNode({
+      processes[each] = await createApiNode({
         index,
         isLeader: index === 0,
         bootstrapNodes: JSON.stringify(bootstrapNodes),
@@ -66,7 +65,7 @@ describe('e2e', () => {
     const env = Object.assign({}, process.env, {
       PORT: 9000 + index,
       BRIDGE_CONF_DIR: './.e2e/' + index,
-      BRIDGE_PORT: config.bridgeNode.port + index,
+      BRIDGE_PORT: bridgeNode.port + index,
       BRIDGE_IS_LEADER: isLeader,
       BRIDGE_BOOTSTRAP_NODES: bootstrapNodes,
       CONTRACT_TESTING: false,
@@ -76,9 +75,7 @@ describe('e2e', () => {
   }
 
   async function createInfo_json(count) {
-    const bridgeInfos = getBridgeInfos(count)
-    for (let i = 0; i < count; i++) {
-      const info = bridgeInfos[i]
+    for (let [i, info] of Object.entries(getBridgeInfos(count))) {
       mkdirSync(dirPath(i), {recursive: true})
       writeFileSync(filePath(i), JSON.stringify(info, null, 2))
     }

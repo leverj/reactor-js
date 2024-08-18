@@ -8,9 +8,11 @@ import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
 import {events, PEER_CONNECT, PEER_DISCOVERY, tryAgainIfError} from './utils/index.js'
 import {P2P} from './P2P.js'
 
+const {externalIp} = config
+
 export class NetworkNode {
   static async from({ip = '0.0.0.0', port = 0, peerIdJson, bootstrapNodes = []}) {
-    const p2p = await P2P(peerIdJson, ip, port, config.externalIp, bootstrapNodes)
+    const p2p = await P2P(peerIdJson, ip, port, externalIp, bootstrapNodes)
     return new this(port, bootstrapNodes, p2p)
   }
 

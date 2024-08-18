@@ -16,7 +16,7 @@ describe('Vault', () => {
     leader = nodes[0]
     await leader.publishWhitelist()
     await leader.startDKG(4)
-    await setTimeout(10)
+    await setTimeout(100)
   })
   afterEach(async () => { for (let each of nodes) await each.stop() })
 
