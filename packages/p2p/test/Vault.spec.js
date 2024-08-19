@@ -1,4 +1,4 @@
-import {ETH, logger} from '@leverj/common/utils'
+import {ETH} from '@leverj/common/utils'
 import {ERC20, ERC20Proxy, getContractAt, getSigners, provider, Vault} from '@leverj/reactor.chain/test'
 import {deserializeHexStrToPublicKey, G2ToNumbers} from '@leverj/reactor.mcl'
 import {expect} from 'expect'
@@ -55,18 +55,16 @@ describe('Vault', () => {
 
     it('Native', async () => {
       const before = await provider.getBalance(account)
-      logger.log('>>> before', before)
       await checkOutNativeFromTo(fromVault, toVault, amount)
       const proxy = await getContractAt('ERC20Proxy', await toVault.proxies(L1, ETH))
       expect(await proxy.balanceOf(account.address)).toEqual(amount)
-      // expect(await provider.getBalance(account)).toEqual(before - amount)
+      expect(await provider.getBalance(account)).toEqual(before - amount)
 
       const receipt = await toVault.connect(account).checkOutToken(L1, proxy.target, amount).then(_ => _.wait())
       expect(await proxy.balanceOf(account.address)).toEqual(0n)
 
       await processTransfer(receipt, toVault)
-      // expect(await provider.getBalance(account)).toEqual(before) //fixme: need to set gas price to 0
-      logger.log('<<< after', await provider.getBalance(account))
+      expect(await provider.getBalance(account)).toEqual(before)
     })
 
     it('Token', async () => {
@@ -96,7 +94,6 @@ describe('Vault', () => {
 
     it('Native', async () => {
       const before = await provider.getBalance(account)
-      logger.log('>>> before', before)
       const receipt = await vaults[0].connect(account).checkOutNative(chains[1], {value: amount}).then(_ => _.wait())
       await processTransfer(receipt, vaults[0])
       const proxies = {}
@@ -111,8 +108,7 @@ describe('Vault', () => {
         await processTransfer(receipt, vaults[i])
         expect(await proxies[chains[i]].balanceOf(account.address)).toEqual(0n)
       }
-      // expect(before).toEqual(await provider.getBalance(account)) //fixme: need to set gas price to 0
-      logger.log('<<< after', await provider.getBalance(account))
+      expect(before).toEqual(await provider.getBalance(account))
     })
 
     it('Native - proxy', async () => {
