@@ -163,11 +163,10 @@ export class TssNode {
   sign(message) { return this.secretKeyShare.sign(message) }
 
   groupSign(signatures) {
-    const signers = signatures.map(_ => deserializeHexStrToSecretKey(_.signer))
-    const signs = signatures.map(_ => deserializeHexStrToSignature(_.signature))
-    const groupsSign = new Signature()
-    groupsSign.recover(signs, signers)
-    return groupsSign.serializeToHexStr()
+    return new Signature().recover(
+      signatures.map(_ => deserializeHexStrToSignature(_.signature)),
+      signatures.map(_ => deserializeHexStrToSecretKey(_.signer))
+    ).serializeToHexStr()
   }
 
   verify(signature, message) {

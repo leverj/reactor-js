@@ -156,8 +156,8 @@ describe('TssNode', () => {
     members.forEach(_ => _.reinitiate())
     await setupMembersThreshold(members, threshold)
     members.forEach(_ => expect(_.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKey.serializeToHexStr()))
-    const [newSigns, newSigners] = signMessage(members)
-    const newGroupsSign = new Signature().recover(newSigns.slice(0, 4), newSigners.slice(0, 4))
+    const [newSignatures, newSigners] = signMessage(members)
+    const newGroupsSign = new Signature().recover(newSignatures.slice(0, 4), newSigners.slice(0, 4))
     expect(members[0].groupPublicKey.verify(newGroupsSign, message)).toBe(true)
   })
 
@@ -201,8 +201,8 @@ describe('TssNode', () => {
       const members = await createDkgMembers(Array(length).fill(0).map((_, i) => 10000 + i), threshold)
       time.dkg = (Date.now() - time.dkg) / 1000 + 's'
       time.sign = Date.now()
-      const [signs, signers] = signMessage(members.slice(0, threshold))
-      const groupsSign = new Signature().recover(signs, signers) // fixme: what's the point of doing this?
+      const [signatures, signers] = signMessage(members.slice(0, threshold))
+      const groupsSign = new Signature().recover(signatures, signers) // fixme: what's the point of doing this?
       time.sign = (Date.now() - time.sign) / 1000 + 's'
       logger.log('length', length, 'threshold', threshold, 'dkg', time.dkg, 'sign', time.sign)
       times.push(time)

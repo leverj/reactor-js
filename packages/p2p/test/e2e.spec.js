@@ -126,20 +126,13 @@ describe('e2e', () => {
   })
 
   it('aggregate signatures over pubsub topic', async () => {
-    const message = 'hello world'
     const allNodes = [9000, 9001, 9002, 9003]
     await createInfo_json(allNodes.length)
-
     await createApiNodes(allNodes.length)
-    const txnHash = 'hash123456'
-    await axios.post('http://127.0.0.1:9000/api/tss/aggregateSign', {txnHash, 'msg': message})
-    const fn = async () => {
-      const {data: {verified}} = await axios.get('http://127.0.0.1:9000/api/tss/aggregateSign?txnHash=' + txnHash)
-      return verified
-    }
-    await waitToSync([fn], 200)
-    const {data: {verified}} = await axios.get('http://127.0.0.1:9000/api/tss/aggregateSign?txnHash=' + txnHash)
-    expect(verified).toEqual(true)
+    const endpoint = 'http://127.0.0.1:9000/api/tss/aggregateSign', txnHash = 'hash123456'
+    await axios.post(endpoint, {msg: txnHash})
+    await setTimeout(10)
+    expect(await axios.get(`${endpoint}?txnHash=${txnHash}`).then(_ => _.data.verified)).toEqual(true)
   })
 
   describe('stability', () => {

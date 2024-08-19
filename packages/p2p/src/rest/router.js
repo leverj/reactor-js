@@ -26,8 +26,7 @@ async function startDkg(req, res) {
 }
 
 async function aggregateSignature(req, res) {
-  const {txnHash, msg} = req.body
-  await manager.aggregateSignature(txnHash, msg, -1, _ => _).then(_ => res.send('ok'))
+  await manager.aggregateSignature(req.body.msg, -1, _ => _).then(_ => res.send('ok'))
 }
 
 async function getAggregateSignature(req, res) {

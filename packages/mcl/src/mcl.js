@@ -245,8 +245,8 @@ mcl.G2.prototype.verify_slow = function (signature, message) {
 }
 
 export const Signature = mcl.G1
-mcl.G1.prototype.recover = function (signs, signers) {
-  this.setStr(mcl.recoverG1(signers, signs).getStr())
+mcl.G1.prototype.recover = function (signatures, signers) {
+  this.setStr(mcl.recoverG1(signers, signatures).getStr())
   return this
 }
 
