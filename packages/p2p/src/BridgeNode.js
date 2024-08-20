@@ -68,6 +68,7 @@ export class BridgeNode {
     }
   }
 
+  //fixme: what triggers calling this during normal operation?
   async processTransfer(log) { return this.leadership.processTransfer(log) }
   async aggregateSignature(message, chainId, transferCallback) { return this.leadership.aggregateSignature(message, chainId, transferCallback) }
   async publishWhitelist() { return this.leadership.publishWhitelist() }

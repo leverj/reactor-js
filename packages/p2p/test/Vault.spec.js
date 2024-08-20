@@ -1,11 +1,14 @@
 import {ETH} from '@leverj/common/utils'
+import * as chain from '@leverj/reactor.chain/contracts'
 import {ERC20, ERC20Proxy, getContractAt, getSigners, provider, Vault} from '@leverj/reactor.chain/test'
 import {deserializeHexStrToPublicKey, G2ToNumbers} from '@leverj/reactor.mcl'
 import {expect} from 'expect'
+import {Interface} from 'ethers'
 import {setTimeout} from 'node:timers/promises'
 import {createBridgeNodes} from './help/setup.js'
 
 const [, account] = await getSigners()
+const Transfer = new Interface(chain.abi.Vault.abi).getEvent('Transfer').topicHash
 
 describe('Vault', () => {
   const L1 = 10101n, L2 = 98989n, amount = 1000n
@@ -36,15 +39,14 @@ describe('Vault', () => {
   const checkOutFromTo = async (fromVault, toVault, amount, token) => {
     if (token) await token.connect(account).approve(fromVault.target, amount).then(_ => _.wait())
     const to = await toVault.chainId()
-    const receipt = token ?
+    token ?
       await fromVault.connect(account).checkOutToken(to, token.target, amount).then(_ => _.wait()) :
       await fromVault.connect(account).checkOutNative(to, {value: amount}).then(_ => _.wait())
-    await processTransfer(receipt, fromVault)
-    await setTimeout(100)
+    await processTransfer(fromVault)
   }
 
-  const processTransfer = async (receipt, vault) => {
-    for (let each of await provider.getLogs(receipt)) if (each.address === vault.target) await leader.processTransfer(each)
+  const processTransfer = async vault => {
+    await provider.getLogs({topics: [Transfer], address: vault.target}).then(_ => leader.processTransfer(_[0]))
     await setTimeout(100)
   }
 
@@ -60,10 +62,10 @@ describe('Vault', () => {
       expect(await proxy.balanceOf(account.address)).toEqual(amount)
       expect(await provider.getBalance(account)).toEqual(before - amount)
 
-      const receipt = await toVault.connect(account).checkOutToken(L1, proxy.target, amount).then(_ => _.wait())
+      await toVault.connect(account).checkOutToken(L1, proxy.target, amount).then(_ => _.wait())
       expect(await proxy.balanceOf(account.address)).toEqual(0n)
 
-      await processTransfer(receipt, toVault)
+      await processTransfer(toVault)
       expect(await provider.getBalance(account)).toEqual(before)
     })
 
@@ -78,10 +80,10 @@ describe('Vault', () => {
       expect(await proxy.balanceOf(account.address)).toEqual(amount)
       expect(await erc20.balanceOf(account.address)).toEqual(balance - amount)
 
-      const receipt = await toVault.connect(account).checkOutToken(L1, proxy.target, amount).then(_ => _.wait())
+      await toVault.connect(account).checkOutToken(L1, proxy.target, amount).then(_ => _.wait())
       expect(await proxy.balanceOf(account.address)).toEqual(0n)
 
-      await processTransfer(receipt, toVault)
+      await processTransfer(toVault)
       expect(await erc20.balanceOf(account.address)).toEqual(before)
     })
   })
@@ -94,8 +96,8 @@ describe('Vault', () => {
 
     it('Native', async () => {
       const before = await provider.getBalance(account)
-      const receipt = await vaults[0].connect(account).checkOutNative(chains[1], {value: amount}).then(_ => _.wait())
-      await processTransfer(receipt, vaults[0])
+      await vaults[0].connect(account).checkOutNative(chains[1], {value: amount}).then(_ => _.wait())
+      await processTransfer(vaults[0])
       const proxies = {}
       for (let i = 1; i < chains.length; i++) {
         const proxyAddress = await vaults[i].proxies(chains[0], ETH)
@@ -104,8 +106,8 @@ describe('Vault', () => {
 
         const targetChainIndex = (i === chains.length - 1) ? 0 : (i + 1)
         const targetChain = chains[targetChainIndex]
-        const receipt = await vaults[i].connect(account).checkOutToken(targetChain, proxyAddress, amount).then(_ => _.wait())
-        await processTransfer(receipt, vaults[i])
+        await vaults[i].connect(account).checkOutToken(targetChain, proxyAddress, amount).then(_ => _.wait())
+        await processTransfer(vaults[i])
         expect(await proxies[chains[i]].balanceOf(account.address)).toEqual(0n)
       }
       expect(before).toEqual(await provider.getBalance(account))
@@ -116,8 +118,8 @@ describe('Vault', () => {
       await proxy.mint(account.address, amount)
       await proxy.connect(account).approve(vaults[0].target, amount).then(_ => _.wait())
       const before = await proxy.balanceOf(account.address)
-      const receipt = await vaults[0].connect(account).checkOutToken(chains[1], proxy.target, amount).then(_ => _.wait())
-      await processTransfer(receipt, vaults[0])
+      await vaults[0].connect(account).checkOutToken(chains[1], proxy.target, amount).then(_ => _.wait())
+      await processTransfer(vaults[0])
       const proxies = {}
       for (let i = 1; i < chains.length; i++) {
         const proxyAddress = await vaults[i].proxies(chains[0], proxy.target)
@@ -126,8 +128,8 @@ describe('Vault', () => {
 
         const targetChainIndex = (i === chains.length - 1) ? 0 : (i + 1)
         const targetChain = chains[targetChainIndex]
-        const receipt = await vaults[i].connect(account).checkOutToken(targetChain, proxyAddress, amount).then(_ => _.wait())
-        await processTransfer(receipt, vaults[i])
+        await vaults[i].connect(account).checkOutToken(targetChain, proxyAddress, amount).then(_ => _.wait())
+        await processTransfer(vaults[i])
         expect(await proxies[chains[i]].balanceOf(account.address)).toEqual(0n)
       }
       for (let each of chains) if (proxies[each]) expect(await proxies[each].balanceOf(account.address)).toEqual(0n)
