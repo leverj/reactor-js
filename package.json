@@ -23,8 +23,8 @@
     "@istanbuljs/esm-loader-hook": "^0.2.0",
     "depcheck": "^1.4.7",
     "expect": "^29.7.0",
-    "lerna": "^8.1.7",
-    "mocha": "^10.7.0",
+    "lerna": "^8.1.8",
+    "mocha": "^10.7.3",
     "yargs": "^17.7.2"
   }
 }
