@@ -8,7 +8,8 @@ import {setTimeout} from 'node:timers/promises'
 import {createBridgeNodes} from './help/setup.js'
 
 const [, account] = await getSigners()
-const Transfer = new Interface(chain.abi.Vault.abi).getEvent('Transfer').topicHash
+const iface = new Interface(chain.abi.Vault.abi)
+const Transfer = iface.getEvent('Transfer').topicHash
 
 describe('Vault', () => {
   const L1 = 10101n, L2 = 98989n, amount = 1000n
@@ -46,7 +47,7 @@ describe('Vault', () => {
   }
 
   const processTransfer = async vault => {
-    await provider.getLogs({topics: [Transfer], address: vault.target}).then(_ => leader.processTransfer(_[0]))
+    await provider.getLogs({topics: [Transfer], address: vault.target}).then(_ => leader.processTransfer(iface.parseLog(_[0]).args))
     await setTimeout(100)
   }
 

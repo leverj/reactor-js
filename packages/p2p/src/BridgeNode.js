@@ -8,14 +8,12 @@ import {
   SecretKey,
 } from '@leverj/reactor.mcl'
 import config from 'config'
-import {Interface} from 'ethers'
 import {setTimeout} from 'node:timers/promises'
 import {NetworkNode} from './NetworkNode.js'
 import {TssNode} from './TssNode.js'
 import {events, INFO_CHANGED, PEER_DISCOVERY, waitToSync} from './utils/index.js'
 
 const {timeout} = config
-const iface = new Interface(chain.abi.Vault.abi)
 
 const TSS_RECEIVE_SIGNATURE_SHARE = 'TSS_RECEIVE_SIGNATURE_SHARE'
 const SIGNATURE_START = 'SIGNATURE_START'
@@ -70,7 +68,7 @@ export class BridgeNode {
     }
   }
 
-  async processTransfer(log) { return this.leadership.processTransfer(log) }
+  async processTransfer(args) { return this.leadership.processTransfer(args) }
   async aggregateSignature(message, chainId, transferCallback) { return this.leadership.aggregateSignature(message, chainId, transferCallback) }
   async publishWhitelist() { return this.leadership.publishWhitelist() }
   async startDKG(threshold) { return this.leadership.startDKG(threshold) }
@@ -192,7 +190,7 @@ class Leader {
 
   listenToPeerDiscovery() { events.on(PEER_DISCOVERY, _ => this.self.addPeersToWhiteList(_)) }
 
-  async processTransfer(log) {
+  async processTransfer(args) {
     const transferPayloadVerified = async (to, payload, aggregateSignature) => {
       if (aggregateSignature.verified) {
         const signature = G1ToNumbers(deserializeHexStrToSignature(aggregateSignature.groupSign))
@@ -201,7 +199,7 @@ class Leader {
         await toContract.checkIn(signature, publicKey, payload).then(_ => _.wait())
       }
     }
-    const {hash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = iface.parseLog(log).args
+    const {hash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = args
     const payload = chain.encodeTransfer(origin, token, name, symbol, decimals, amount, owner, from, to, tag)
     if (await this.self.vaults[from].checkouts(hash)) {
       await this.self.aggregateSignature(
