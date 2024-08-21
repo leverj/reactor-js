@@ -7,12 +7,14 @@ import {
   G2ToNumbers,
   SecretKey,
 } from '@leverj/reactor.mcl'
+import config from 'config'
 import {Interface} from 'ethers'
 import {setTimeout} from 'node:timers/promises'
 import {NetworkNode} from './NetworkNode.js'
 import {TssNode} from './TssNode.js'
 import {events, INFO_CHANGED, PEER_DISCOVERY, waitToSync} from './utils/index.js'
 
+const {timeout} = config
 const iface = new Interface(chain.abi.Vault.abi)
 
 const TSS_RECEIVE_SIGNATURE_SHARE = 'TSS_RECEIVE_SIGNATURE_SHARE'
@@ -88,9 +90,9 @@ export class BridgeNode {
     const peerIds = this.whitelist.get()
     for (let each of peerIds) if (each !== this.peerId) {
       this.monitor.updateLatency(each, await this.network.ping(each))
-      await setTimeout(100) // fixme:timeout: parameterize?
+      await setTimeout(timeout)
     }
-    setTimeout(1000).then(this.ping.bind(this)) // fixme:timeout: parameterize?
+    setTimeout(timeout).then(this.ping.bind(this))
   }
 
   addPeersToWhiteList(...peerIds) {
@@ -250,7 +252,7 @@ class Follower {
   constructor(self) { this.self = self}
 
   async addLeader() {
-    this.self.leader = this.self.network.bootstrapNodes[0].split('/').pop() //fixme:leader: this hack will break the moment we designate as leader anything but the first BridgeNode
+    this.self.leader = this.self.network.bootstrapNodes[0].split('/').pop()
     this.self.addPeersToWhiteList(this.self.leader)
     await waitToSync([_ => this.self.peers.includes(this.self.leader)], -1)
     await this.self.sendMessageToPeer(this.self.leader, WHITELIST_REQUEST, '')
