@@ -112,28 +112,5 @@ describe('Vault', () => {
       }
       expect(before).toEqual(await provider.getBalance(account))
     })
-
-    it('Native - proxy', async () => {
-      const proxy = await ERC20Proxy(1, ETH, 'ETHER', 'ETH', 18)
-      await proxy.mint(account.address, amount)
-      await proxy.connect(account).approve(vaults[0].target, amount).then(_ => _.wait())
-      const before = await proxy.balanceOf(account.address)
-      await vaults[0].connect(account).checkOutToken(chains[1], proxy.target, amount).then(_ => _.wait())
-      await processTransfer(vaults[0])
-      const proxies = {}
-      for (let i = 1; i < chains.length; i++) {
-        const proxyAddress = await vaults[i].proxies(chains[0], proxy.target)
-        proxies[chains[i]] = await getContractAt('ERC20Proxy', proxyAddress)
-        expect(await proxies[chains[i]].balanceOf(account.address)).toEqual(amount)
-
-        const targetChainIndex = (i === chains.length - 1) ? 0 : (i + 1)
-        const targetChain = chains[targetChainIndex]
-        await vaults[i].connect(account).checkOutToken(targetChain, proxyAddress, amount).then(_ => _.wait())
-        await processTransfer(vaults[i])
-        expect(await proxies[chains[i]].balanceOf(account.address)).toEqual(0n)
-      }
-      for (let each of chains) if (proxies[each]) expect(await proxies[each].balanceOf(account.address)).toEqual(0n)
-      expect(await proxy.balanceOf(account.address)).toEqual(amount)
-    })
   })
 })

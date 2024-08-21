@@ -192,7 +192,7 @@ describe('TssNode', () => {
     expect(await signAndVerify(members.slice(0, 5))).toBe(true)
   })
 
-  //fixme: what are we testing here?
+  //note: for capacity measurements
   it.skip('measurement matrix: takes a lot of time.', async () => {
     const times = []
     for (let length = 10; length <= 200; length = length + 10) {
@@ -202,7 +202,7 @@ describe('TssNode', () => {
       time.dkg = (Date.now() - time.dkg) / 1000 + 's'
       time.sign = Date.now()
       const [signatures, signers] = signMessage(members.slice(0, threshold))
-      const groupsSign = new Signature().recover(signatures, signers) // fixme: what's the point of doing this?
+      new Signature().recover(signatures, signers)
       time.sign = (Date.now() - time.sign) / 1000 + 's'
       logger.log('length', length, 'threshold', threshold, 'dkg', time.dkg, 'sign', time.sign)
       times.push(time)

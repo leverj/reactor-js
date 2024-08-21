@@ -68,7 +68,6 @@ export class BridgeNode {
     }
   }
 
-  //fixme: what triggers calling this during normal operation?
   async processTransfer(log) { return this.leadership.processTransfer(log) }
   async aggregateSignature(message, chainId, transferCallback) { return this.leadership.aggregateSignature(message, chainId, transferCallback) }
   async publishWhitelist() { return this.leadership.publishWhitelist() }
@@ -255,7 +254,6 @@ class Follower {
     this.self.addPeersToWhiteList(this.self.leader)
     await waitToSync([_ => this.self.peers.includes(this.self.leader)], -1)
     await this.self.sendMessageToPeer(this.self.leader, WHITELIST_REQUEST, '')
-
   }
   listenToPeerDiscovery() {}
   async processTransfer(log) {}
