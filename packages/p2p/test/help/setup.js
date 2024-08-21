@@ -7,7 +7,6 @@ export const createBridgeNodes = async (howMany) => {
   for (let i = 0; i < howMany; i++) {
     const node = await BridgeNode.from({
       port: 9000 + i,
-      isLeader: i === 0,
       json: {p2p: peerIdJsons[i]},
       bootstrapNodes: bootstraps,
     })

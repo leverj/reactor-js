@@ -9,7 +9,6 @@ module.exports = {
   bridgeNode: {
     confDir: path.join(__dirname, '..', 'data'),
     port: 10000,
-    isLeader: false,
     threshold: 4,
     bootstrapNodes: [],
   },

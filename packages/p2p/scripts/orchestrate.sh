@@ -16,11 +16,6 @@ function deployDocker() {
   for i in $(eval echo {$START..$END}); do
     local PORT=$i
     local BRIDGE_PORT=$(($i+1000))
-    if [ $i -eq 9000 ]; then
-      local BRIDGE_IS_LEADER=true
-    else
-      local BRIDGE_IS_LEADER=false
-    fi
     echo "Starting node... $PORT $BRIDGE_PORT"
 
     local DOCKER_COMMAND="docker run -d --name p2p-node-$PORT  \
@@ -28,10 +23,8 @@ function deployDocker() {
       -e EXTERNAL_IP=$EXTERNAL_IP \
       -e PORT=$PORT \
       -e BRIDGE_PORT=$BRIDGE_PORT \
-      -e BRIDGE_IS_LEADER=$BRIDGE_IS_LEADER \
       -e BRIDGE_THRESHOLD=$BRIDGE_THRESHOLD \
       -e BRIDGE_BOOTSTRAP_NODES=$BRIDGE_BOOTSTRAP_NODES \
-      -e COMPONENTS=[] \
       -e FAIL=true \
       -e TRY_COUNT=50 \
       -p $PORT:$PORT \

@@ -24,12 +24,12 @@ const DKG_RECEIVE_KEY_SHARE = 'DKG_RECEIVE_KEY_SHARE'
 const meshProtocol = '/bridgeNode/0.0.1'
 
 export class BridgeNode {
-  static async from({ip = '0.0.0.0', port = 0, isLeader = false, json, bootstrapNodes}) {
+  static async from({ip = '0.0.0.0', port = 0, json, bootstrapNodes}) {
     const network = await NetworkNode.from({ip, port, peerIdJson: json?.p2p, bootstrapNodes})
     const tss = new TssNode(network.peerId, json?.tssNode)
     tss.addMember(tss.idHex, tss.onDkgShare.bind(tss)) // making self dkg share
     const whitelist = new Whitelist(json?.whitelist || [])
-    return new this(network, tss, whitelist, json?.leader, isLeader)
+    return new this(network, tss, whitelist, json?.leader, bootstrapNodes.length === 0)
   }
 
   constructor(network, tss, whitelist, leader, isLeader) {

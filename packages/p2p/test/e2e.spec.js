@@ -45,7 +45,6 @@ describe('e2e', () => {
       const bootstrapNodes = index === 0 ? [] : await getBootstrapNodes()
       processes[each] = await createApiNode({
         index,
-        isLeader: index === 0,
         bootstrapNodes: JSON.stringify(bootstrapNodes),
       })
       await setTimeout(100)
@@ -61,14 +60,12 @@ describe('e2e', () => {
     return ports
   }
 
-  async function createApiNode({index, isLeader = false, bootstrapNodes}) {
+  async function createApiNode({index, bootstrapNodes}) {
     const env = Object.assign({}, process.env, {
       PORT: 9000 + index,
       BRIDGE_CONF_DIR: './.e2e/' + index,
       BRIDGE_PORT: bridgeNode.port + index,
-      BRIDGE_IS_LEADER: isLeader,
       BRIDGE_BOOTSTRAP_NODES: bootstrapNodes,
-      CONTRACT_TESTING: false,
     })
     mkdirSync(env.BRIDGE_CONF_DIR, {recursive: true})
     return fork(`app.js`, [], {cwd: __dirname, env})
@@ -131,7 +128,7 @@ describe('e2e', () => {
     await createApiNodes(allNodes.length)
     const endpoint = 'http://127.0.0.1:9000/api/tss/aggregateSign', txnHash = 'hash123456'
     await axios.post(endpoint, {msg: txnHash})
-    await setTimeout(10)
+    await setTimeout(100)
     expect(await axios.get(`${endpoint}?txnHash=${txnHash}`).then(_ => _.data.verified)).toEqual(true)
   })
 

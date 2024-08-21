@@ -4,7 +4,7 @@ import path from 'path'
 import {BridgeNode} from '../BridgeNode.js'
 import {events, INFO_CHANGED} from '../utils/index.js'
 
-const {bridgeNode: {confDir, port, isLeader, bootstrapNodes}} = config
+const {bridgeNode: {confDir, port, bootstrapNodes}} = config
 const infoFile = path.join(confDir, 'info.json')
 const json = existsSync(infoFile) ? JSON.parse(readFileSync(infoFile, 'utf8')) : undefined
 
@@ -28,7 +28,7 @@ class Info {
   }
 }
 
-const manager = await BridgeNode.from({port, isLeader, bootstrapNodes, json})
+const manager = await BridgeNode.from({port, bootstrapNodes, json})
 new Info(manager, json)
 await manager.start()
 
