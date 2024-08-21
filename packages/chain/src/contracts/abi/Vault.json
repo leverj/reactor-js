@@ -4,9 +4,24 @@
     {
       "inputs": [
         {
-          "internalType": "uint256",
+          "internalType": "uint64",
           "name": "chainId_",
-          "type": "uint256"
+          "type": "uint64"
+        },
+        {
+          "internalType": "string",
+          "name": "chainName_",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "nativeSymbol_",
+          "type": "string"
+        },
+        {
+          "internalType": "uint8",
+          "name": "nativeDecimals_",
+          "type": "uint8"
         },
         {
           "internalType": "uint256[4]",
@@ -18,37 +33,54 @@
       "type": "constructor"
     },
     {
+      "inputs": [
+        {
+          "internalType": "uint8",
+          "name": "index",
+          "type": "uint8"
+        }
+      ],
+      "name": "InvalidPublicKey",
+      "type": "error"
+    },
+    {
       "anonymous": false,
       "inputs": [
         {
-          "indexed": true,
-          "internalType": "uint256",
-          "name": "originatingChain",
-          "type": "uint256"
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "hash",
+          "type": "bytes32"
         },
         {
-          "indexed": true,
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "origin",
+          "type": "uint64"
+        },
+        {
+          "indexed": false,
           "internalType": "address",
-          "name": "originatingToken",
+          "name": "token",
           "type": "address"
         },
         {
           "indexed": false,
           "internalType": "string",
-          "name": "originatingName",
+          "name": "name",
           "type": "string"
         },
         {
           "indexed": false,
           "internalType": "string",
-          "name": "originatingSymbol",
+          "name": "symbol",
           "type": "string"
         },
         {
           "indexed": false,
-          "internalType": "uint256",
+          "internalType": "uint8",
           "name": "decimals",
-          "type": "uint256"
+          "type": "uint8"
         },
         {
           "indexed": false,
@@ -57,31 +89,31 @@
           "type": "uint256"
         },
         {
-          "indexed": true,
+          "indexed": false,
           "internalType": "address",
-          "name": "vaultUser",
+          "name": "owner",
           "type": "address"
         },
         {
           "indexed": false,
-          "internalType": "uint256",
-          "name": "fromChain",
-          "type": "uint256"
+          "internalType": "uint64",
+          "name": "from",
+          "type": "uint64"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "to",
+          "type": "uint64"
         },
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "toChain",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "sendCounter",
+          "name": "tag",
           "type": "uint256"
         }
       ],
-      "name": "TokenSent",
+      "name": "Transfer",
       "type": "event"
     },
     {
@@ -98,8 +130,118 @@
       "type": "function"
     },
     {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "balances",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "name": "chainId",
+      "outputs": [
+        {
+          "internalType": "uint64",
+          "name": "",
+          "type": "uint64"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256[2]",
+          "name": "signature",
+          "type": "uint256[2]"
+        },
+        {
+          "internalType": "uint256[4]",
+          "name": "signerPublicKey",
+          "type": "uint256[4]"
+        },
+        {
+          "internalType": "bytes",
+          "name": "payload",
+          "type": "bytes"
+        }
+      ],
+      "name": "checkIn",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint64",
+          "name": "to",
+          "type": "uint64"
+        }
+      ],
+      "name": "checkOutNative",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint64",
+          "name": "to",
+          "type": "uint64"
+        },
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "checkOutToken",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "checkins",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "checkoutCounter",
       "outputs": [
         {
           "internalType": "uint256",
@@ -113,12 +255,59 @@
     {
       "inputs": [
         {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "checkouts",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "home",
+      "outputs": [
+        {
+          "internalType": "uint64",
+          "name": "id",
+          "type": "uint64"
+        },
+        {
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "symbol",
+          "type": "string"
+        },
+        {
+          "internalType": "uint8",
+          "name": "decimals",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "address",
           "name": "",
           "type": "address"
         }
       ],
-      "name": "isProxyMapping",
+      "name": "isCheckedIn",
       "outputs": [
         {
           "internalType": "bool",
@@ -132,82 +321,9 @@
     {
       "inputs": [
         {
-          "internalType": "uint256",
-          "name": "originatingChain",
-          "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "originatingToken",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "decimals",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "vaultUser",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "fromChain",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "toChain",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "counter",
-          "type": "uint256"
-        }
-      ],
-      "name": "payloadHash",
-      "outputs": [
-        {
-          "internalType": "bytes32",
+          "internalType": "uint64",
           "name": "",
-          "type": "bytes32"
-        }
-      ],
-      "stateMutability": "pure",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "name": "pool",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
+          "type": "uint64"
         },
         {
           "internalType": "address",
@@ -215,7 +331,7 @@
           "type": "address"
         }
       ],
-      "name": "proxyMapping",
+      "name": "proxies",
       "outputs": [
         {
           "internalType": "address",
@@ -240,139 +356,6 @@
           "internalType": "uint256",
           "name": "",
           "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "sendCounter",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "toChainId",
-          "type": "uint256"
-        }
-      ],
-      "name": "sendNative",
-      "outputs": [],
-      "stateMutability": "payable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "toChainId",
-          "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "token",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "sendToken",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256[2]",
-          "name": "signature",
-          "type": "uint256[2]"
-        },
-        {
-          "internalType": "uint256[4]",
-          "name": "signerKey",
-          "type": "uint256[4]"
-        },
-        {
-          "internalType": "bytes",
-          "name": "tokenSendPayload",
-          "type": "bytes"
-        },
-        {
-          "internalType": "string",
-          "name": "name",
-          "type": "string"
-        },
-        {
-          "internalType": "string",
-          "name": "symbol",
-          "type": "string"
-        }
-      ],
-      "name": "tokenArrival",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes32",
-          "name": "",
-          "type": "bytes32"
-        }
-      ],
-      "name": "tokenArrived",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes32",
-          "name": "",
-          "type": "bytes32"
-        }
-      ],
-      "name": "tokenSent",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "verifier",
-      "outputs": [
-        {
-          "internalType": "contract BlsVerify",
-          "name": "",
-          "type": "address"
         }
       ],
       "stateMutability": "view",

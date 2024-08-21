@@ -7,7 +7,7 @@ async function tryFor(fn, errorCode, tryCount = config.tryCount) {
     return await fn()
   } catch (e) {
     if (e.code === errorCode || (Array.isArray(errorCode) && errorCode.includes(e.code))) {
-      await setTimeout(tryCount)
+      await setTimeout(config.timeout)
       return tryFor(fn, errorCode, tryCount - 1)
     }
     throw e

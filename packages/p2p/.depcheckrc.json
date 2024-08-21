@@ -1,6 +1,5 @@
 {
   "ignore-patterns": [
-    "hardhat.config.cjs",
     "config",
     "test"
   ],

@@ -4,8 +4,8 @@ import {tryAgainIfConnectionError} from './try.js'
 
 export async function waitToSync(fns, tryCount = config.tryCount) {
   if (tryCount === 0) throw Error('Sync failed')
-  for (const fn of fns) {
-    const result = await tryAgainIfConnectionError(fn)
+  for (let each of fns) {
+    const result = await tryAgainIfConnectionError(each)
     if (result) continue
     else {
       await setTimeout(config.timeout)

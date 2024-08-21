@@ -9,6 +9,11 @@ process.on('SIGTERM', () => {
   process.exit()
 })
 
+// enable in case you start getting unhandled rejections
+// process.on('unhandledRejection', (reason, promise) => {
+//   logger.error('Unhandled Rejection caught at:', promise, 'reason:', reason)
+// })
+
 // note: used when stress testing ...
 if (process.env.FAIL) {
   const minute = 60000

@@ -2,8 +2,6 @@ import {ETH} from '@leverj/common/utils'
 import {ethers, network, web3} from '@leverj/chain-deployment'
 
 export {network} from '@leverj/chain-deployment'
-
-
 export const chainId = network.config.chainId
 export const provider = ethers.provider
 

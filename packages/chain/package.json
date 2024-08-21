@@ -11,13 +11,13 @@
     "test": "yarn contracts:compile && npx mocha",
     "dependency:check": "npx depcheck",
     "contracts:compile": "npx hardhat compile",
-    "contracts:generate:exports": "rm -rf src/contracts/abi && mkdir -p src/contracts/abi && npx hardhat compile && node scripts/generate-contract-exports"
+    "contracts:generate:exports": "rm -rf src/contracts/abi && mkdir -p src/contracts/abi && yarn contracts:compile && node scripts/generate-contract-exports"
   },
   "dependencies": {
     "ethers": "^6.13.2"
   },
   "devDependencies": {
-    "@leverj/chain-deployment": "1.1.0",
+    "@leverj/chain-deployment": "1.1.1",
     "@openzeppelin/contracts": "^5.0.2"
   }
 }

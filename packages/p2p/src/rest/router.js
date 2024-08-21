@@ -1,60 +1,53 @@
-import {peerIdFromString} from '@libp2p/peer-id'
 import config from 'config'
 import {Router} from 'express'
-import bridgeNode from './manager.js'
+import manager from './manager.js'
 
-const multiaddr = `/ip4/${config.externalIp}/tcp/${config.bridgeNode.port}/p2p/${bridgeNode.peerId}`
+const {bridgeNode: {port, threshold}, externalIp} = config
+const multiaddr = `/ip4/${externalIp}/tcp/${port}/p2p/${manager.peerId}`
 
 async function getMultiaddrs(req, res) {
   res.send({multiaddr})
 }
 
 async function getAllMultiaddrs(req, res) {
-  res.send(bridgeNode.multiaddrs)
+  res.send(manager.multiaddrs)
 }
 
 async function getPeers(req, res) {
-  res.send(bridgeNode.peers)
+  res.send(manager.peers)
 }
 
 function getPeersStatus(req, res) {
-  res.send(bridgeNode.monitor.getPeersStatus())
+  res.send(manager.monitor.getPeersStatus())
 }
 
 async function startDkg(req, res) {
-  await bridgeNode.startDKG(config.bridgeNode.threshold)
-  res.send('ok')
+  await manager.startDKG(threshold).then(_ => res.send('ok'))
 }
 
 async function aggregateSignature(req, res) {
-  if (!bridgeNode.isLeader) return
-  const msg = req.body
-  await bridgeNode.aggregateSignature(msg.txnHash, msg.msg, -1, () => {
-  })
-  res.send('ok')
+  await manager.aggregateSignature(req.body.msg, -1, _ => _).then(_ => res.send('ok'))
 }
 
 async function getAggregateSignature(req, res) {
-  res.send(bridgeNode.getAggregateSignature(req.query.txnHash))
+  res.send(manager.getAggregateSignature(req.query.txnHash))
+}
+
+async function getWhitelists(req, res) {
+  res.send(manager.whitelist.get())
 }
 
 async function publishWhitelist(req, res) {
-  if (!bridgeNode.isLeader) return
-  await bridgeNode.publishWhitelist()
-  res.send('ok')
+  await manager.publishWhitelist().then(_ => res.send('ok'))
 }
 
 async function getBootstrapPeers(req, res) {
-  const peers = bridgeNode.peers
-  const all = []
-  for (const peer of peers) {
-    const info = await bridgeNode.p2p.peerRouting.findPeer(peerIdFromString(peer))
-    all.push(info)
-  }
-  res.send(all)
+  const results = []
+  for (let each of manager.peers) results.push(await manager.network.findPeer(each))
+  res.send(results)
 }
 
-export const router = Router()
+const router = Router()
 router.get('/fixme/bridge/multiaddr', getMultiaddrs)
 router.get('/fixme/bridge/multiaddr/all', getAllMultiaddrs)
 router.get('/peer', getPeers)
@@ -63,5 +56,7 @@ router.get('/peer/bootstrapped', getBootstrapPeers)
 router.post('/tss/aggregateSign', aggregateSignature)
 router.get('/tss/aggregateSign', getAggregateSignature)
 router.post('/dkg/start', startDkg)
-router.post('/publish/whitelist', publishWhitelist)
+router.get('/whitelist', getWhitelists)
+router.post('/whitelist/publish', publishWhitelist)
+
 export default router

@@ -9,24 +9,7 @@ module.exports = {
   bridgeNode: {
     confDir: path.join(__dirname, '..', 'data'),
     port: 10000,
-    isLeader: false,
     threshold: 4,
-    isPublic: true,
     bootstrapNodes: [],
-    contractAddress: '',
-    providerUrl: '',
   },
-
-  depositWithdraw: {
-    contractAddress1: {
-      chainId: 1,
-      providerUrl: '',
-    },
-    contractAddress2: {
-      chainId: 2,
-      providerUrl: '',
-    },
-  },
-  components: ['DEPOSIT_WITHDRAW'],
-
 }
