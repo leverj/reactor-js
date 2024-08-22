@@ -26,8 +26,7 @@ const meshProtocol = '/bridgeNode/0.0.1'
 export class BridgeNode {
   static async from(port, bootstrapNodes, info = {}) {
     const {p2p, tssNode, whitelist, leader} = info
-    const ip = '0.0.0.0'
-    const network = await NetworkNode.from({ip, port, peerIdJson: p2p, bootstrapNodes})
+    const network = await NetworkNode.from(port, p2p, bootstrapNodes)
     const tss = new TssNode(network.peerId, tssNode)
     tss.addMember(tss.idHex, tss.onDkgShare.bind(tss)) // making self dkg share
     return new this(network, tss,  new Whitelist(whitelist || []), leader, bootstrapNodes.length === 0)

@@ -25,13 +25,13 @@ class Info {
       if (this.data === this.node.info()) return
       this.data = this.node.info()
       writeFileSync(infoFile, JSON.stringify(this.data))
-      // store.set(0, this.data)
+      // store.set(port, this.data)
     }, 10)
   }
 }
 
 const data = existsSync(infoFile) ? JSON.parse(readFileSync(infoFile, 'utf8')) : undefined
-// const data = store.get(0)
+// const data = store.get(port)
 const manager = await BridgeNode.from(port, bootstrapNodes, data)
 new Info(manager, data)
 await manager.start()
