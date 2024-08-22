@@ -1,12 +1,13 @@
 import config from 'config'
-import {existsSync, readFileSync, writeFileSync} from 'node:fs'
-import path from 'path'
+import JSONStore from 'json-store'
+import {existsSync, readFileSync, writeFileSync, mkdirSync} from 'node:fs'
 import {BridgeNode} from '../BridgeNode.js'
 import {events, INFO_CHANGED} from '../utils/index.js'
 
 const {bridgeNode: {confDir, port, bootstrapNodes}} = config
-const infoFile = path.join(confDir, 'info.json')
-const json = existsSync(infoFile) ? JSON.parse(readFileSync(infoFile, 'utf8')) : undefined
+mkdirSync(confDir, {recursive: true})
+const infoFile = `${confDir}/info.json`
+const store = JSONStore(infoFile)
 
 class Info {
   constructor(node, data) {
@@ -21,15 +22,18 @@ class Info {
   set() {
     if (this.timer) clearTimeout(this.timer)
     this.timer = setTimeout(() => {
-      if (this.data === this.node.exportJson()) return
-      this.data = this.node.exportJson()
-      writeFileSync(infoFile, JSON.stringify(this.data, null, 2), 'utf8')
+      if (this.data === this.node.info()) return
+      this.data = this.node.info()
+      writeFileSync(infoFile, JSON.stringify(this.data))
+      // store.set(0, this.data)
     }, 10)
   }
 }
 
-const manager = await BridgeNode.from({port, bootstrapNodes, json})
-new Info(manager, json)
+const data = existsSync(infoFile) ? JSON.parse(readFileSync(infoFile, 'utf8')) : undefined
+// const data = store.get(0)
+const manager = await BridgeNode.from(port, bootstrapNodes, data)
+new Info(manager, data)
 await manager.start()
 
 export default manager

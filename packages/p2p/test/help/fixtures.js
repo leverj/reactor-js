@@ -81,7 +81,7 @@ const vvec = [
     '0c758e267d03aafe9f45c18e445493ae17286edfbfc3e513c6060a2c963e080ced381df3edf4a8ccbffa1969283a083f913cec8196db8360f7a15683d0adc494',
     'ae15947fdc0856a8f124ca8d9806e2daca74ec2851459da6b4a6a572c1a1e0091a32232b55e7171f6763c003fe6b7ee13c982159e8b66e8f460aa5461f411613',
   ]
-  export const bridgeInfos = [
+  export const nodeInfos = [
   {
     p2p: {
       privKey: 'CAESQLg1OCjW/sQevFwyknIEEA3Jl6zDhVygpT9KtRnEMUfUu+OmkkJn2hBZR7jKJINWUL9mz5DYO7LzBRQOlBtGRfc',
@@ -224,9 +224,9 @@ const vvec = [
   },
 ]
 
-export function getBridgeInfos(count) {
-  const infos = cloneDeep(bridgeInfos).splice(0, count)
-  const peers = infos.map(info => info.p2p.id)
-  infos.forEach(info => info.whitelist = peers)
+export function getNodeInfos(howMany) {
+  const infos = cloneDeep(nodeInfos).splice(0, howMany)
+  const peers = infos.map(_ => _.p2p.id)
+  infos.forEach(_ => _.whitelist = peers)
   return infos
 }

@@ -177,7 +177,7 @@ export class TssNode {
     logger.log([this.id, this.secretKeyShare, this.groupPublicKey].map(_ => _?.serializeToHexStr()).join('\n\t'))
   }
 
-  exportJson() {
+  info() {
     if (!this.previouslyShared) return
     return {
       id: this.idHex,

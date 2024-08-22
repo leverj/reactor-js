@@ -15,7 +15,7 @@ const iface = new Interface(abi.Vault.abi)
 export class TrackerMarker {
   static of(dataDir, chainId) {
     mkdirSync(dataDir, {recursive: true})
-    const store = new JSONStore(`${dataDir}/markers.json`)
+    const store = JSONStore(`${dataDir}/markers.json`)
     const {block, logIndex, blockWasProcessed} = store.get(chainId) || {block: 0, logIndex: -1, blockWasProcessed: false}
     return new this(store, chainId, block, logIndex, blockWasProcessed)
 

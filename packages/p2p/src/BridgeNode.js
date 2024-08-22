@@ -24,12 +24,13 @@ const DKG_RECEIVE_KEY_SHARE = 'DKG_RECEIVE_KEY_SHARE'
 const meshProtocol = '/bridgeNode/0.0.1'
 
 export class BridgeNode {
-  static async from({ip = '0.0.0.0', port = 0, json, bootstrapNodes}) {
-    const network = await NetworkNode.from({ip, port, peerIdJson: json?.p2p, bootstrapNodes})
-    const tss = new TssNode(network.peerId, json?.tssNode)
+  static async from(port, bootstrapNodes, info = {}) {
+    const {p2p, tssNode, whitelist, leader} = info
+    const ip = '0.0.0.0'
+    const network = await NetworkNode.from({ip, port, peerIdJson: p2p, bootstrapNodes})
+    const tss = new TssNode(network.peerId, tssNode)
     tss.addMember(tss.idHex, tss.onDkgShare.bind(tss)) // making self dkg share
-    const whitelist = new Whitelist(json?.whitelist || [])
-    return new this(network, tss, whitelist, json?.leader, bootstrapNodes.length === 0)
+    return new this(network, tss,  new Whitelist(whitelist || []), leader, bootstrapNodes.length === 0)
   }
 
   constructor(network, tss, whitelist, leader, isLeader) {
@@ -59,10 +60,10 @@ export class BridgeNode {
 
   print() { this.tss.print() }
 
-  exportJson() {
+  info() {
     return {
-      p2p: this.network.exportJson(),
-      tssNode: this.tss.exportJson(),
+      p2p: this.network.info(),
+      tssNode: this.tss.info(),
       whitelist: this.whitelist.get(),
       leader: this.leader,
     }

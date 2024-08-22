@@ -3,16 +3,14 @@ import {peerIdJsons} from './fixtures.js'
 
 export const createBridgeNodes = async (howMany) => {
   const results = []
-  const bootstraps = []
+  const bootstrapNodes = []
   for (let i = 0; i < howMany; i++) {
-    const node = await BridgeNode.from({
-      port: 9000 + i,
-      json: {p2p: peerIdJsons[i]},
-      bootstrapNodes: bootstraps,
-    })
+    const data = {p2p: peerIdJsons[i]}
+    const port = 9000 + i
+    const node = await BridgeNode.from(port, bootstrapNodes, data)
     results.push(node)
     await node.start()
-    if (i === 0) bootstraps.push(node.multiaddrs[0])
+    if (i === 0) bootstrapNodes.push(node.multiaddrs[0])
   }
   return results
 }
