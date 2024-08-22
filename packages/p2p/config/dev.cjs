@@ -1,5 +1,2 @@
 module.exports = {
-  bridgeNode: {
-    bootstrapNodes: [],
-  },
 }

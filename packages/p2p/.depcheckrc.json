@@ -6,9 +6,6 @@
   "ignores": [
     "@noble/curves",
     "aes-encryption",
-    "axios",
-    "dkg",
-    "lodash-es",
-    "multiaddr"
+    "axios"
   ]
 }

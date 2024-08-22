@@ -12,4 +12,10 @@ module.exports = {
     threshold: 4,
     bootstrapNodes: [],
   },
+  chain: {
+    polling: {
+      interval: 15 /* seconds */ * 1000,
+      attempts: 5,
+    },
+  }
 }

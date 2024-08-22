@@ -5,21 +5,19 @@ import config from 'config'
 import {expect} from 'expect'
 import {mkdirSync, readFileSync, rmdirSync, writeFileSync} from 'node:fs'
 import {setTimeout} from 'node:timers/promises'
-import path from 'path'
 import {tryAgainIfError, waitToSync} from '../src/utils/index.js'
 import {getBridgeInfos} from './help/fixtures.js'
 
 const {bridgeNode, externalIp} = config
-const __dirname = process.cwd()
-const e2ePath = path.join(__dirname, '.e2e')
+const e2ePath = `${process.cwd()}/.e2e`
 
 describe('e2e', () => {
   const processes = {}
 
   afterEach(async () => await stop(...Object.keys(processes)).then(_ => rmdirSync(e2ePath, {recursive: true, force: true})))
 
-  const dirPath = (i) => path.join(e2ePath, i.toString())
-  const filePath = (i) => path.join(dirPath(i), 'info.json')
+  const dirPath = (i) => `${e2ePath}/${i}`
+  const filePath = (i) => `${dirPath(i)}/info.json`
 
   const stop = async (...ports) => {
     for (let each of ports) {
@@ -68,7 +66,7 @@ describe('e2e', () => {
       BRIDGE_BOOTSTRAP_NODES: bootstrapNodes,
     })
     mkdirSync(env.BRIDGE_CONF_DIR, {recursive: true})
-    return fork(`app.js`, [], {cwd: __dirname, env})
+    return fork(`app.js`, [], {cwd: process.cwd(), env})
   }
 
   async function createInfo_json(count) {

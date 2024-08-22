@@ -11,4 +11,11 @@ module.exports = {
     threshold: {__name: 'BRIDGE_THRESHOLD', __format: 'number'},
     bootstrapNodes: {__name: 'BRIDGE_BOOTSTRAP_NODES', __format: 'json'},
   },
+  chain: {
+    polling: {
+      interval: {__name: 'CHAIN_POLLING_INTERVAL', __format: 'number'},
+      attempts: {__name: 'CHAIN_POLLING_ATTEMPTS', __format: 'number '},
+    },
+  }
 }
+

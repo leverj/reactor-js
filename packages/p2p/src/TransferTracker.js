@@ -4,41 +4,54 @@ import exitHook from 'async-exit-hook'
 import config from 'config'
 import {Interface} from 'ethers'
 import {List} from 'immutable'
+import JSONStore from 'json-store'
+import {max} from 'lodash-es'
+import {mkdirSync} from 'node:fs'
 
 const {polling} = config
-const iface = new Interface(chain.abi.Vault.abi)
-const Transfer = iface.getEvent('Transfer').topicHash
-const topics = [Transfer]
+const {abi, stubs} = chain
+const iface = new Interface(abi.Vault.abi)
 
-class TrackerMarker {
-  constructor(node, chainId, block = 0, logIndex = -1, blockWasProcessed = false) {
-    this.node = node
+export class TrackerMarker {
+  static of(dataDir, chainId) {
+    mkdirSync(dataDir, {recursive: true})
+    const store = new JSONStore(`${dataDir}/markers.json`)
+    const {block, logIndex, blockWasProcessed} = store.get(chainId) || {block: 0, logIndex: -1, blockWasProcessed: false}
+    return new this(store, chainId, block, logIndex, blockWasProcessed)
+
+  }
+  constructor(store, chainId, block, logIndex, blockWasProcessed) {
+    this.store = store
     this.chainId = chainId
     this.block = block
     this.logIndex = logIndex
     this.blockWasProcessed = blockWasProcessed
   }
+
+  async update(state) {
+    Object.assign(this, state)
+    const {chainId, block, logIndex, blockWasProcessed} = this
+    this.store.set(chainId, {block, logIndex, blockWasProcessed})
+  }
 }
 
 /**
- * a TransferTracker connects to a dedicated chain and tracks Transfer events of the Vault of said chain
+ * a TransferTracker connects to a Vault and tracks its Transfer events
  */
 export class TransferTracker {
-  static of(provider, chainId, startBlock) {
-    const marker = new TrackerMarker(chainId, startBlock)
-    return new this(provider, chainId, marker)
+  static async of(node, address, provider, dataDir = `${process.cwd()}/../../data`) {
+    const vault = stubs.Vault(address, provider)
+    const marker = TrackerMarker.of(dataDir, await provider.getNetwork().then(_ => _.chainId))
+    return new this(node, vault, marker)
   }
 
-  constructor(provider, chainId, marker) {
-    this.contract = {}
-    this.provider = provider
-    this.chainId = chainId
+  constructor(node, vault, marker) {
+    this.node = node
+    this.vault = vault
     this.marker = marker
     this.isRunning = false
     exitHook(() => this.stop())
   }
-
-  trackingInfo() { return `chain[${this.chainId}]` }
 
   async start() {
     if (!this.isRunning) {
@@ -63,7 +76,7 @@ export class TransferTracker {
     try {
       await this.poll()
     } catch (e) {
-      if (attempts === 1) logger.error(`tracker [${this.trackingInfo()}] failed during polling for events`, e, e.cause || '')
+      if (attempts === 1) logger.error(`tracker [${this.marker.chainId}:${this.vault.target}] failed during polling for events`, e, e.cause || '')
       return attempts === polling.attempts ? this.fail(e) : this.pollForEvents(attempts + 1)
     }
     if (this.isRunning) this.pollingTimer = setTimeout(this.pollForEvents.bind(this), polling.interval)
@@ -71,40 +84,30 @@ export class TransferTracker {
 
   async poll() {
     const fromBlock = this.marker.block + (this.marker.blockWasProcessed ? 1 : 0)
-    const toBlock = await this.provider.getBlockNumber()
-    if (fromBlock <= toBlock) await this.processLogs(fromBlock, toBlock)
+    if (fromBlock <= await this.vault.provider.getBlockNumber()) await this.processLogs(fromBlock)
   }
 
-  async processLogs(fromBlock, toBlock) {
-    const filter = {fromBlock, toBlock, topics, address: this.contract}
-    let logs = await this.provider.getLogs(filter).then(_ => _.filter(_ => !_.removed))
+  async processLogs(fromBlock) {
+    const logs = await this.vault.queryFilter('Transfer', fromBlock).then(_ => _.filter(_ => !_.removed))
     const {block, logIndex, blockWasProcessed} = this.marker
     const logsPerBlock = List(logs).
       groupBy(_ => parseInt(_.blockNumber)). //fixme: do we need parseInt ?
-      filter((_, key) => key >= filter.fromBlock).
+      filter((_, key) => key >= fromBlock).
       map((value, key) => key === block && !blockWasProcessed ? value.filter(_ => _.logIndex > logIndex) : value).
       map((value, _) => value.sortBy(_ => _.logIndex).toArray()).
       toKeyedSeq()
+    // const toBlock = max(logs.map(_ => _.blockNumber))
+    const toBlock = max(Object.keys(logsPerBlock))
     for (let [block, blockLogs] of logsPerBlock) await this.onNewBlock(block, blockLogs)
-    if (this.marker.block < toBlock) {
-      this.marker.blockWasProcessed = true
-      this.marker.block = toBlock
-    }
+    if (this.marker.block < toBlock) this.marker.update({block: toBlock, blockWasProcessed: true})
   }
 
-  update(state) { for (let [key, value] of Object.entries(state)) this.marker[key] = value }
-
   async onNewBlock(block, logs) {
-    this.marker.blockWasProcessed = false
-    if (this.marker.block < block) {
-      this.marker.block = block
-      this.marker.logIndex = -1
-    }
-    this.update(block > this.marker.block ? {block, logIndex: -1, blockWasProcessed: false} : {blockWasProcessed: false})
+    this.marker.update(block > this.marker.block ? {block, logIndex: -1, blockWasProcessed: false} : {blockWasProcessed: false})
     for (let each of logs) {
       await this.node.processTransfer(iface.parseLog(each).args)
-      this.marker.logIndex = each.logIndex
+      this.marker.update({logIndex: each.logIndex})
     }
-    this.marker.blockWasProcessed = true
+    this.marker.update({blockWasProcessed: true})
   }
 }

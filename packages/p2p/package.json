@@ -33,17 +33,18 @@
     "config": "^3.3.12",
     "ethers": "^6.13.2",
     "express": "^4.19.2",
+    "fs-json-store": "^8.0.1",
     "it-map": "^3.1.1",
     "it-pipe": "^3.0.1",
+    "json-store": "^1.0.0",
     "libp2p": "^1.9.2",
+    "lodash-es": "^4.17.21",
+    "rocket-store": "^0.10.16",
     "uint8arrays": "^5.1.0"
   },
   "devDependencies": {
     "@noble/curves": "^1.5.0",
     "aes-encryption": "^1.0.4",
-    "axios": "^1.7.4",
-    "dkg": "^0.0.3",
-    "lodash-es": "^4.17.21",
-    "multiaddr": "^10.0.1"
+    "axios": "^1.7.4"
   }
 }

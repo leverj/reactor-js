@@ -6,9 +6,10 @@ import {expect} from 'expect'
 import {ERC20, getContractAt, getSigners, provider, Vault} from './help/index.js'
 
 const [, account] = await getSigners()
-const iface = new Interface(chain.abi.Vault.abi)
-const Transfer = iface.getEvent('Transfer').topicHash
-const getTransferEvent = async () => provider.getLogs({topics: [Transfer]}).then(_ => iface.parseLog(_[0]).args)
+const {abi, events} = chain
+const iface = new Interface(abi.Vault.abi)
+const topics = [events.Vault.Transfer.topic]
+const getTransferEvent = async () => provider.getLogs({topics}).then(_ => iface.parseLog(_[0]).args)
 
 describe('Vault', () => {
   const signer = newKeyPair()
