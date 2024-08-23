@@ -12,12 +12,12 @@ const {bridgeNode, externalIp} = config
 const e2ePath = `${process.cwd()}/../../data/.e2e`
 const leaderPort = config.port
 
-const dirPath = (port) => `${e2ePath}/${port}`
-const filePath = (port) => `${dirPath(port)}/info.json`
+const dirPath = `${e2ePath}/info`
+const filePath = (port) => `${dirPath}/${port}.json`
 const getInfo = (port) => JSON.parse(readFileSync(filePath(port)).toString())
 const setInfo = (port, info) => {
-  if (!existsSync(dirPath(port))) mkdirSync(dirPath(port), {recursive: true})
-  writeFileSync(filePath(port), JSON.stringify(info))
+  if (!existsSync(dirPath)) mkdirSync(dirPath, {recursive: true})
+  writeFileSync(filePath(port), JSON.stringify(info, null, 2))
 }
 
 const GET = (port, endpoint) => axios.get(`http://127.0.0.1:${port}/api/${endpoint}`).then(_ => _.data)
@@ -33,7 +33,7 @@ const publishWhitelist = async (ports, total, available) =>
 
 const createNodeInfos = (howMany) => getNodeInfos(howMany).forEach((info, i) => setInfo(leaderPort + i, info))
 
-describe.only('e2e', () => {
+describe('e2e', () => {
   const processes = {}
 
   beforeEach(async () => {

@@ -3,15 +3,14 @@ import {existsSync, readFileSync, writeFileSync, mkdirSync} from 'node:fs'
 import {BridgeNode} from '../BridgeNode.js'
 import {events, INFO_CHANGED} from '../utils/index.js'
 
-const {bridgeNode: {port, bootstrapNodes}} = config
+const {bridgeNode, port} = config
 
-const e2ePath = `${process.cwd()}/../../data/.e2e`
-const dirPath = (port) => `${e2ePath}/${port}`
-const filePath = (port) => `${dirPath(port)}/info.json`
+const dirPath = `${process.cwd()}/../../data/.e2e/info`
+const filePath = (port) => `${dirPath}/${port}.json`
 const getInfo = (port) => existsSync(filePath(port)) ? JSON.parse(readFileSync(filePath(port)).toString()) : undefined
 const setInfo = (port, info) => {
-  if (!existsSync(dirPath(port))) mkdirSync(dirPath(port), {recursive: true})
-  writeFileSync(filePath(port), JSON.stringify(info))
+  if (!existsSync(dirPath)) mkdirSync(dirPath, {recursive: true})
+  writeFileSync(filePath(port), JSON.stringify(info, null, 2))
 }
 
 class Info {
@@ -29,13 +28,13 @@ class Info {
     this.timer = setTimeout(() => {
       if (this.data === this.node.info()) return
       this.data = this.node.info()
-      setInfo(config.port, this.data)
+      setInfo(port, this.data)
     }, 10)
   }
 }
 
-const data = getInfo(config.port)
-const manager = await BridgeNode.from(port, bootstrapNodes, data)
+const data = getInfo(port)
+const manager = await BridgeNode.from(bridgeNode.port, bridgeNode.bootstrapNodes, data)
 new Info(manager, data)
 await manager.start()
 
