@@ -3,7 +3,7 @@ import axios from 'axios'
 import {fork} from 'child_process'
 import config from 'config'
 import {expect} from 'expect'
-import {existsSync, mkdirSync, readFileSync, rmdirSync, writeFileSync} from 'node:fs'
+import {existsSync, mkdirSync, readFileSync, rmSync, writeFileSync} from 'node:fs'
 import {setTimeout} from 'node:timers/promises'
 import {tryAgainIfError, waitToSync} from '../src/utils/index.js'
 import {getNodeInfos} from './help/fixtures.js'
@@ -41,7 +41,7 @@ describe('e2e', () => {
   })
   afterEach(async () => {
     await stop()
-    rmdirSync(e2ePath, {recursive: true, force: true})
+    rmSync(e2ePath, {recursive: true, force: true})
   })
 
   async function stop(ports = Array.from(Object.keys(processes))) {
