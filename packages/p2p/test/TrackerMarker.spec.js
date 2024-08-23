@@ -1,15 +1,20 @@
+import config from 'config'
 import {expect} from 'expect'
-import {rmdirSync} from 'node:fs'
+import {rmSync} from 'node:fs'
 import {TrackerMarker} from '../src/TransferTracker.js'
+import {KeyvJsonStore} from '../src/utils/index.js'
 
-const dataDir = `${process.cwd()}/../../data`
+const {bridgeNode: {confDir}} = config
 
 describe('TrackerMarker', () => {
-  afterEach(() => rmdirSync(dataDir, {recursive: true, force: true}))
+  const store = new KeyvJsonStore(confDir, 'TrackerMarker')
+
+  beforeEach(() => store.clear())
+  after(() => rmSync(confDir, {recursive: true, force: true}))
 
   it('can get and update a marker', () => {
     {
-      const marker = TrackerMarker.of(dataDir, 10101)
+      const marker = TrackerMarker.of(store, 10101)
       expect(marker).toMatchObject({block: 0, logIndex: -1, blockWasProcessed: false})
 
       marker.update({block: 11, blockWasProcessed: true})
@@ -18,7 +23,7 @@ describe('TrackerMarker', () => {
       marker.update({block: 22, logIndex: 4})
     }
     {
-      const marker = TrackerMarker.of(dataDir, 21212)
+      const marker = TrackerMarker.of(store, 21212)
       expect(marker).toMatchObject({block: 0, logIndex: -1, blockWasProcessed: false})
 
       marker.update({block: 3})
@@ -28,7 +33,7 @@ describe('TrackerMarker', () => {
 
       marker.update({logIndex: 9})
     }
-    expect(TrackerMarker.of(dataDir, 10101)).toMatchObject({block: 22, logIndex: 4, blockWasProcessed: true})
-    expect(TrackerMarker.of(dataDir, 21212)).toMatchObject({block: 3, logIndex: 9, blockWasProcessed: true})
+    expect(TrackerMarker.of(store, 10101)).toMatchObject({block: 22, logIndex: 4, blockWasProcessed: true})
+    expect(TrackerMarker.of(store, 21212)).toMatchObject({block: 3, logIndex: 9, blockWasProcessed: true})
   })
 })

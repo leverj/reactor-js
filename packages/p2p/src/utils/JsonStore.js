@@ -1,15 +1,26 @@
-import {existsSync, mkdirSync, readFileSync, rmSync, rmdirSync, writeFileSync} from 'node:fs'
+import {existsSync, mkdirSync, readFileSync, rmSync, writeFileSync} from 'node:fs'
+import {KeyvFile} from 'keyv-file'
+
+export class KeyvJsonStore extends KeyvFile {
+  constructor(path, type, options = {writeDelay: 100}) {
+    super(Object.assign({filename: `${path}/${type}.json`}, options))
+  }
+}
 
 export class JsonStore {
   constructor(path, type) {
     this.path = `${path}/${type}`
     this.create()
   }
-  file(key) { return `${this.path}/${key}.json` }
-  get(key) { return existsSync(this.file(key)) ? JSON.parse(readFileSync(this.file(key)).toString()) : undefined }
-  set(key, value) { writeFileSync(this.file(key), JSON.stringify(value, null, 2)) }
-  delete(key) { if (existsSync(this.file(key))) rmSync(this.file(key), {force: true}) }
+
+  location(key) { return `${this.path}/${key}.json` }
+  has(key) { return existsSync(this.location(key)) }
+  get(key, force = false) { return force || this.has(key) ? JSON.parse(readFileSync(this.location(key)).toString()) : undefined }
+  set(key, value) {
+    if (!existsSync(this.path)) mkdirSync(this.path, {recursive: true})
+    writeFileSync(this.location(key), JSON.stringify(value, null, 2))
+  }
   create() {  if (!existsSync(this.path)) mkdirSync(this.path, {recursive: true}) }
   destroy() { rmSync(this.path, {recursive: true, force: true}) }
-  clean() { this.destroy(); this.create() }
+  clear() { this.destroy(); this.create() }
 }

@@ -924,13 +924,11 @@ __metadata:
     config: "npm:^3.3.12"
     ethers: "npm:^6.13.2"
     express: "npm:^4.19.2"
-    fs-json-store: "npm:^8.0.1"
     it-map: "npm:^3.1.1"
     it-pipe: "npm:^3.0.1"
-    json-store: "npm:^1.0.0"
+    keyv-file: "npm:^0.3.3"
     libp2p: "npm:^1.9.2"
     lodash-es: "npm:^4.17.21"
-    rocket-store: "npm:^0.10.16"
     uint8arrays: "npm:^5.1.0"
   languageName: unknown
   linkType: soft
@@ -3729,16 +3727,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"combine-errors@npm:^3.0.3":
-  version: 3.0.3
-  resolution: "combine-errors@npm:3.0.3"
-  dependencies:
-    custom-error-instance: "npm:2.1.1"
-    lodash.uniqby: "npm:4.5.0"
-  checksum: 6e7c04102596dfc43ddb252c8390e869e358fb6df3b027567b33f5d998fdb2ad84573ce30a3861feb84fdee1fc3da3c465d68e23f7ab39f98bbe846ca9f70c6d
-  languageName: node
-  linkType: hard
-
 "combined-stream@npm:^1.0.8":
   version: 1.0.8
   resolution: "combined-stream@npm:1.0.8"
@@ -4039,13 +4027,6 @@ __metadata:
   bin:
     cssesc: bin/cssesc
   checksum: 6bcfd898662671be15ae7827120472c5667afb3d7429f1f917737f3bf84c4176003228131b643ae74543f17a394446247df090c597bb9a728cce298606ed0aa7
-  languageName: node
-  linkType: hard
-
-"custom-error-instance@npm:2.1.1":
-  version: 2.1.1
-  resolution: "custom-error-instance@npm:2.1.1"
-  checksum: c4f68550ae88426c49810846c62651438f04a10462c4d8667c089fb9264bcf1723c9b188e3f1d7791d727b0e5aa48ed1de0415eef50d43ea078517844296b85e
   languageName: node
   linkType: hard
 
@@ -5128,6 +5109,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fs-extra@npm:^4.0.1":
+  version: 4.0.3
+  resolution: "fs-extra@npm:4.0.3"
+  dependencies:
+    graceful-fs: "npm:^4.1.2"
+    jsonfile: "npm:^4.0.0"
+    universalify: "npm:^0.1.0"
+  checksum: b34344de77adaccb294e6dc116e8b247ae0a4da45b79749814893549e6f15e3baace2998db06a966a9f8d5a39b6b2d8e51543bd0a565a8927c37d6373dfd20b9
+  languageName: node
+  linkType: hard
+
 "fs-extra@npm:^7.0.1":
   version: 7.0.1
   resolution: "fs-extra@npm:7.0.1"
@@ -5150,21 +5142,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fs-json-store@npm:^8.0.1":
-  version: 8.0.1
-  resolution: "fs-json-store@npm:8.0.1"
-  dependencies:
-    combine-errors: "npm:^3.0.3"
-    fs-no-eperm-anymore: "npm:^5.0.0"
-    imurmurhash: "npm:^0.1.4"
-    kind-of: "npm:^6.0.3"
-    proper-lockfile: "npm:^4.1.2"
-    signal-exit: "npm:^3.0.4"
-    tslib: "npm:^2.3.1"
-  checksum: 1bfb4ffd3b9ad6e2ffa09ad905c31065af7601efcba68f610e6098caf430e7c8f9f579b5f6585404d08a61c7931b8fe10860462004937d27ed5d1b7556830687
-  languageName: node
-  linkType: hard
-
 "fs-minipass@npm:^2.0.0":
   version: 2.1.0
   resolution: "fs-minipass@npm:2.1.0"
@@ -5180,15 +5157,6 @@ __metadata:
   dependencies:
     minipass: "npm:^7.0.3"
   checksum: 63e80da2ff9b621e2cb1596abcb9207f1cf82b968b116ccd7b959e3323144cce7fb141462200971c38bbf2ecca51695069db45265705bed09a7cd93ae5b89f94
-  languageName: node
-  linkType: hard
-
-"fs-no-eperm-anymore@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "fs-no-eperm-anymore@npm:5.0.0"
-  dependencies:
-    tslib: "npm:^2.3.1"
-  checksum: 6b661032ec00d47783e24bd9e7b30e9f7d7e2adf84b403c4c6421d42c2214d0059be7608a3b9f17f3da5e24a2ff0ad0e45c90de065cae7d5dd9fe309e68deee6
   languageName: node
   linkType: hard
 
@@ -5394,13 +5362,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"glob-to-regexp@npm:>0.4.0":
-  version: 0.4.1
-  resolution: "glob-to-regexp@npm:0.4.1"
-  checksum: 0486925072d7a916f052842772b61c3e86247f0a80cc0deb9b5a3e8a1a9faad5b04fb6f58986a09f34d3e96cd2a22a24b7e9882fb1cf904c31e9a310de96c429
-  languageName: node
-  linkType: hard
-
 "glob@npm:7.2.0":
   version: 7.2.0
   resolution: "glob@npm:7.2.0"
@@ -5589,7 +5550,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graceful-fs@npm:4.2.11, graceful-fs@npm:^4.1.11, graceful-fs@npm:^4.1.15, graceful-fs@npm:^4.1.2, graceful-fs@npm:^4.1.6, graceful-fs@npm:^4.2.0, graceful-fs@npm:^4.2.4, graceful-fs@npm:^4.2.6, graceful-fs@npm:^4.2.9":
+"graceful-fs@npm:4.2.11, graceful-fs@npm:^4.1.11, graceful-fs@npm:^4.1.15, graceful-fs@npm:^4.1.2, graceful-fs@npm:^4.1.6, graceful-fs@npm:^4.2.0, graceful-fs@npm:^4.2.6, graceful-fs@npm:^4.2.9":
   version: 4.2.11
   resolution: "graceful-fs@npm:4.2.11"
   checksum: 386d011a553e02bc594ac2ca0bd6d9e4c22d7fa8cfbfc448a6d148c59ea881b092db9dbe3547ae4b88e55f1b01f7c4a2ecc53b310c042793e63aa44cf6c257f2
@@ -6777,13 +6738,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"json-store@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "json-store@npm:1.0.0"
-  checksum: 0bec9b2da3747959a6d9b8580f25679fcb2f7eb61828ff396b340fead65c84615dd87f10a138e07517148b9143b5d81ac2f710c599c29d372ff9a966cee912ac
-  languageName: node
-  linkType: hard
-
 "json-stringify-nice@npm:^1.1.4":
   version: 1.1.4
   resolution: "json-stringify-nice@npm:1.1.4"
@@ -6876,6 +6830,18 @@ __metadata:
     node-gyp-build: "npm:^4.2.0"
     readable-stream: "npm:^3.6.0"
   checksum: 153525c1c1f770beadb8f8897dec2f1d2dcbee11d063fe5f61957a5b236bfd3d2a111ae2727e443aa6a848df5edb98b9ef237c78d56df49087b0ca8a232ca9cd
+  languageName: node
+  linkType: hard
+
+"keyv-file@npm:^0.3.3":
+  version: 0.3.3
+  resolution: "keyv-file@npm:0.3.3"
+  dependencies:
+    debug: "npm:^4.1.1"
+    fs-extra: "npm:^4.0.1"
+    tslib: "npm:^1.14.1"
+    typescript: "npm:^5.5.4"
+  checksum: fc1fe0bca0c27ea9f0ff47179326c0351f314e8faa1f0fff051b3ca68364a74e607211ae7e133d384ab112c047bb3fd67960ffdbb32680008f4c047f2db7daa2
   languageName: node
   linkType: hard
 
@@ -7120,55 +7086,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash._baseiteratee@npm:~4.7.0":
-  version: 4.7.0
-  resolution: "lodash._baseiteratee@npm:4.7.0"
-  dependencies:
-    lodash._stringtopath: "npm:~4.8.0"
-  checksum: 67f80e6878444e44e3cc6e779941c78da2bfa02413e305b5bfbe612e6ddedbbb05bda025e673014d734b79d69db911c7cfaf25dbc05abc56356eccc90e1e59e3
-  languageName: node
-  linkType: hard
-
-"lodash._basetostring@npm:~4.12.0":
-  version: 4.12.0
-  resolution: "lodash._basetostring@npm:4.12.0"
-  checksum: 08d4f8affb3cfed7cc50bbe35d35605597bd72c05e6ed0696122b0a4da242de1b5f5396e986645f46a97e976d6f7b4943a001b002a4e2b3b8ea087949dc9eb98
-  languageName: node
-  linkType: hard
-
-"lodash._baseuniq@npm:~4.6.0":
-  version: 4.6.0
-  resolution: "lodash._baseuniq@npm:4.6.0"
-  dependencies:
-    lodash._createset: "npm:~4.0.0"
-    lodash._root: "npm:~3.0.0"
-  checksum: 07e2ac63efde634685ed12b16664ee04931b258cd2511b703fddd9ddfc624a85542e3f03a6c2fdac369c00559296198daa8efffaf90d71c7a35f5c89f94ebb14
-  languageName: node
-  linkType: hard
-
-"lodash._createset@npm:~4.0.0":
-  version: 4.0.3
-  resolution: "lodash._createset@npm:4.0.3"
-  checksum: 6144f59a63cedb8bf2840970579dc7dfdad55970741a80f9a6e5c6b29b629fc204c846e54e29266ec24b41e3f680bcbeb9fe9332fb9f2bab71eb9c70cacd26d8
-  languageName: node
-  linkType: hard
-
-"lodash._root@npm:~3.0.0":
-  version: 3.0.1
-  resolution: "lodash._root@npm:3.0.1"
-  checksum: 679c8a570381795b6953ec8c680442acb5472c5b399263ed4ea6839630cf4dd5d65aa8c2a0f6934507fc5bc70f2af20bc430cbd847728b8c1672db95555edb51
-  languageName: node
-  linkType: hard
-
-"lodash._stringtopath@npm:~4.8.0":
-  version: 4.8.0
-  resolution: "lodash._stringtopath@npm:4.8.0"
-  dependencies:
-    lodash._basetostring: "npm:~4.12.0"
-  checksum: 5e3a58a97b481a9069fc43ca6ddeace83891e3d9cff8d36400064c85977c225621a9c52131224d64632a054a7c19d8ca7b2f0f5bfc983402564bd2a5e49d8672
-  languageName: node
-  linkType: hard
-
 "lodash.ismatch@npm:^4.4.0":
   version: 4.4.0
   resolution: "lodash.ismatch@npm:4.4.0"
@@ -7180,16 +7097,6 @@ __metadata:
   version: 4.4.2
   resolution: "lodash.truncate@npm:4.4.2"
   checksum: 4e870d54e8a6c86c8687e057cec4069d2e941446ccab7f40b4d9555fa5872d917d0b6aa73bece7765500a3123f1723bcdba9ae881b679ef120bba9e1a0b0ed70
-  languageName: node
-  linkType: hard
-
-"lodash.uniqby@npm:4.5.0":
-  version: 4.5.0
-  resolution: "lodash.uniqby@npm:4.5.0"
-  dependencies:
-    lodash._baseiteratee: "npm:~4.7.0"
-    lodash._baseuniq: "npm:~4.6.0"
-  checksum: 4f479ec2dd92825c2a308986d3613e32fe02b13dffc5d0998cbb1ef4eeee56835f13a88e093c7a88473fa72cf5ffd37f807f5ae2d9496e738d776c1911fdabc8
   languageName: node
   linkType: hard
 
@@ -8854,17 +8761,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"proper-lockfile@npm:^4.1.2":
-  version: 4.1.2
-  resolution: "proper-lockfile@npm:4.1.2"
-  dependencies:
-    graceful-fs: "npm:^4.2.4"
-    retry: "npm:^0.12.0"
-    signal-exit: "npm:^3.0.2"
-  checksum: 2f265dbad15897a43110a02dae55105c04d356ec4ed560723dcb9f0d34bc4fb2f13f79bb930e7561be10278e2314db5aca2527d5d3dcbbdee5e6b331d1571f6d
-  languageName: node
-  linkType: hard
-
 "protocols@npm:^2.0.0, protocols@npm:^2.0.1":
   version: 2.0.1
   resolution: "protocols@npm:2.0.1"
@@ -9309,17 +9205,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rocket-store@npm:^0.10.16":
-  version: 0.10.16
-  resolution: "rocket-store@npm:0.10.16"
-  dependencies:
-    glob-to-regexp: "npm:>0.4.0"
-  peerDependencies:
-    rollup: ">=0.66.0 <2"
-  checksum: e1d39d2ab34116dc24a811dc73a659b50f0d7962f834113c2b33023c572266f879515d19044da566abdd9c3b9badbc36127b5573df0de189baae6e8f936cfabd
-  languageName: node
-  linkType: hard
-
 "run-async@npm:^2.4.0":
   version: 2.4.1
   resolution: "run-async@npm:2.4.1"
@@ -9592,7 +9477,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"signal-exit@npm:3.0.7, signal-exit@npm:^3.0.2, signal-exit@npm:^3.0.3, signal-exit@npm:^3.0.4":
+"signal-exit@npm:3.0.7, signal-exit@npm:^3.0.2, signal-exit@npm:^3.0.3":
   version: 3.0.7
   resolution: "signal-exit@npm:3.0.7"
   checksum: 25d272fa73e146048565e08f3309d5b942c1979a6f4a58a8c59d5fa299728e9c2fcd1a759ec870863b1fd38653670240cd420dad2ad9330c71f36608a6a1c912
@@ -10214,14 +10099,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^1.9.3":
+"tslib@npm:^1.14.1, tslib@npm:^1.9.3":
   version: 1.14.1
   resolution: "tslib@npm:1.14.1"
   checksum: 69ae09c49eea644bc5ebe1bca4fa4cc2c82b7b3e02f43b84bd891504edf66dbc6b2ec0eef31a957042de2269139e4acff911e6d186a258fb14069cd7f6febce2
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.1.0, tslib@npm:^2.3.0, tslib@npm:^2.3.1, tslib@npm:^2.4.0, tslib@npm:^2.6.1":
+"tslib@npm:^2.1.0, tslib@npm:^2.3.0, tslib@npm:^2.4.0, tslib@npm:^2.6.1":
   version: 2.6.3
   resolution: "tslib@npm:2.6.3"
   checksum: 2598aef53d9dbe711af75522464b2104724d6467b26a60f2bdac8297d2b5f1f6b86a71f61717384aa8fd897240467aaa7bcc36a0700a0faf751293d1331db39a
@@ -10335,7 +10220,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:>=3 < 6":
+"typescript@npm:>=3 < 6, typescript@npm:^5.5.4":
   version: 5.5.4
   resolution: "typescript@npm:5.5.4"
   bin:
@@ -10345,7 +10230,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A>=3 < 6#optional!builtin<compat/typescript>":
+"typescript@patch:typescript@npm%3A>=3 < 6#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^5.5.4#optional!builtin<compat/typescript>":
   version: 5.5.4
   resolution: "typescript@patch:typescript@npm%3A5.5.4#optional!builtin<compat/typescript>::version=5.5.4&hash=e012d7"
   bin:

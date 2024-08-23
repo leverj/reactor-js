@@ -3,52 +3,23 @@ import axios from 'axios'
 import {fork} from 'child_process'
 import config from 'config'
 import {expect} from 'expect'
-import {existsSync, mkdirSync, readFileSync, rmSync, writeFileSync} from 'node:fs'
+import {rmSync} from 'node:fs'
 import {setTimeout} from 'node:timers/promises'
-import {tryAgainIfError, waitToSync} from '../src/utils/index.js'
+import {JsonStore, tryAgainIfError, waitToSync} from '../src/utils/index.js'
 import {getNodeInfos} from './help/fixtures.js'
 
-const {bridgeNode, externalIp} = config
-const e2ePath = `${process.cwd()}/../../data/.e2e`
-const leaderPort = config.port
-
-const dirPath = `${e2ePath}/info`
-const filePath = (port) => `${dirPath}/${port}.json`
-const getInfo = (port) => JSON.parse(readFileSync(filePath(port)).toString())
-const setInfo = (port, info) => {
-  if (!existsSync(dirPath)) mkdirSync(dirPath, {recursive: true})
-  writeFileSync(filePath(port), JSON.stringify(info, null, 2))
-}
-
-const GET = (port, endpoint) => axios.get(`http://127.0.0.1:${port}/api/${endpoint}`).then(_ => _.data)
-const POST = (port, endpoint, payload) => axios.post(`http://127.0.0.1:${port}/api/${endpoint}`, payload || {})
-
-async function waitForWhitelistSync(ports, howMany = ports.length) {
-  await waitToSync(ports.map(_ => async () => GET(_, 'whitelist').then(_ => _.length === howMany)))
-  logger.log('whitelisted synced...')
-}
-
-const publishWhitelist = async (ports, total, available) =>
-  tryAgainIfError(_ => POST(leaderPort, 'whitelist/publish')).then(_ => waitForWhitelistSync(ports, total, available))
-
-const createNodeInfos = (howMany) => getNodeInfos(howMany).forEach((info, i) => setInfo(leaderPort + i, info))
+const {bridgeNode, externalIp, port: leaderPort} = config
 
 describe('e2e', () => {
+  const store = new JsonStore(bridgeNode.confDir, 'Info')
   const processes = {}
 
-  beforeEach(async () => {
-    mkdirSync(e2ePath, {recursive: true})
-  })
-  afterEach(async () => {
-    await stop()
-    rmSync(e2ePath, {recursive: true, force: true})
-  })
+  beforeEach(() => store.clear())
+  afterEach(async () => await stop())
+  after(() => rmSync(bridgeNode.confDir, {recursive: true, force: true}))
 
   async function stop(ports = Array.from(Object.keys(processes))) {
-    for (let each of ports) {
-      processes[each].kill()
-      delete processes[each]
-    }
+    ports.forEach(_ => { processes[_].kill(); delete processes[_]})
     await setTimeout(100)
   }
 
@@ -57,10 +28,11 @@ describe('e2e', () => {
       const index = port - leaderPort
       const bootstrapNodes = port === leaderPort ?
         [] :
-        await tryAgainIfError(_ => getInfo(leaderPort).p2p.id).then(leader => [`/ip4/${externalIp}/tcp/${bridgeNode.port}/p2p/${leader}`])
+        await tryAgainIfError(_ => store.get(leaderPort, true).p2p.id).then(leader => [`/ip4/${externalIp}/tcp/${bridgeNode.port}/p2p/${leader}`])
       const env = Object.assign({}, process.env, {
         PORT: port,
         BRIDGE_PORT: bridgeNode.port + index,
+        BRIDGE_CONF_DIR: bridgeNode.confDir,
         BRIDGE_BOOTSTRAP_NODES: JSON.stringify(bootstrapNodes),
       })
       return fork('app.js', [], {cwd: process.cwd(), env})
@@ -68,7 +40,7 @@ describe('e2e', () => {
 
     for (let each of ports) {
       processes[each] = await createApiNode(each)
-      await setTimeout(10)
+      await setTimeout(100)
     }
     await waitToSync(ports.map(_ => async () => GET(_, 'peer').then(_ => _.length === howMany)))
     logger.log('bootstrap synced...')
@@ -82,11 +54,24 @@ describe('e2e', () => {
     return ports
   }
 
+  const createNodeInfos = (howMany) => getNodeInfos(howMany).forEach((info, i) => store.set(leaderPort + i, info))
+
+  const GET = (port, endpoint) => axios.get(`http://127.0.0.1:${port}/api/${endpoint}`).then(_ => _.data)
+  const POST = (port, endpoint, payload) => axios.post(`http://127.0.0.1:${port}/api/${endpoint}`, payload || {})
+
+  async function waitForWhitelistSync(ports, howMany = ports.length) {
+    await waitToSync(ports.map(_ => async () => GET(_, 'whitelist').then(_ => _.length === howMany)))
+    logger.log('whitelisted synced...')
+  }
+
+  const publishWhitelist = async (ports, total, available) =>
+    tryAgainIfError(_ => POST(leaderPort, 'whitelist/publish')).then(_ => waitForWhitelistSync(ports, total, available))
+
   it('should create new nodes, connect and init DKG', async () => {
     const ports = await createApiNodes(2)
     await POST(leaderPort, 'dkg/start')
     await setTimeout(100)
-    const publicKeys = ports.map(_ => getInfo(_).tssNode.groupPublicKey)
+    const publicKeys = ports.map(_ => store.get(_).tssNode.groupPublicKey)
     for (let each of publicKeys) {
       expect(each).not.toBeNull()
       expect(each).toEqual(publicKeys[0])
@@ -97,7 +82,7 @@ describe('e2e', () => {
     await createNodeInfos(3)
     const infos = getNodeInfos(3)
     const ports = await createApiNodes(3)
-    for (let [i, port] of ports.entries()) expect(getInfo(port)).toEqual(infos[i])
+    for (let [i, port] of ports.entries()) expect(store.get(port)).toEqual(infos[i])
   })
 
   it('aggregate signatures over pubsub topic', async () => {
@@ -114,16 +99,16 @@ describe('e2e', () => {
     await GET(leaderPort + 1, 'peer/bootstrapped')
     await stop(ports.slice(2))
     await publishWhitelist(ports.slice(0, 2), 4)
-    expect(getInfo(ports[0]).whitelist).toHaveLength(4)
-    expect(getInfo(ports[1]).whitelist).toHaveLength(4)
-    expect(getInfo(ports[2]).whitelist).toHaveLength(1)
-    expect(getInfo(ports[3]).whitelist).toHaveLength(1)
+    expect(store.get(ports[0]).whitelist).toHaveLength(4)
+    expect(store.get(ports[1]).whitelist).toHaveLength(4)
+    expect(store.get(ports[2]).whitelist).toHaveLength(1)
+    expect(store.get(ports[3]).whitelist).toHaveLength(1)
 
     await createApiNodesFrom(ports.slice(2), 3)
     await waitForWhitelistSync(ports)
-    expect(getInfo(ports[0]).whitelist).toHaveLength(4)
-    expect(getInfo(ports[1]).whitelist).toHaveLength(4)
-    expect(getInfo(ports[2]).whitelist).toHaveLength(4)
-    expect(getInfo(ports[3]).whitelist).toHaveLength(4)
+    expect(store.get(ports[0]).whitelist).toHaveLength(4)
+    expect(store.get(ports[1]).whitelist).toHaveLength(4)
+    expect(store.get(ports[2]).whitelist).toHaveLength(4)
+    expect(store.get(ports[3]).whitelist).toHaveLength(4)
   })
 })

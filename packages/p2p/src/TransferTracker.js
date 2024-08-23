@@ -4,21 +4,17 @@ import exitHook from 'async-exit-hook'
 import config from 'config'
 import {Interface} from 'ethers'
 import {List} from 'immutable'
-import JSONStore from 'json-store'
 import {max} from 'lodash-es'
-import {mkdirSync} from 'node:fs'
+import {JsonStore} from './utils/index.js'
 
-const {polling} = config
+const {bridgeNode, polling} = config
 const {abi, stubs} = chain
 const iface = new Interface(abi.Vault.abi)
 
 export class TrackerMarker {
-  static of(dataDir, chainId) {
-    mkdirSync(dataDir, {recursive: true})
-    const store = JSONStore(`${dataDir}/markers.json`)
-    const {block, logIndex, blockWasProcessed} = store.get(chainId) || {block: 0, logIndex: -1, blockWasProcessed: false}
+  static of(store, chainId) {
+    const {block, logIndex, blockWasProcessed} = store.get(chainId, {block: 0, logIndex: -1, blockWasProcessed: false})
     return new this(store, chainId, block, logIndex, blockWasProcessed)
-
   }
   constructor(store, chainId, block, logIndex, blockWasProcessed) {
     this.store = store
@@ -39,9 +35,10 @@ export class TrackerMarker {
  * a TransferTracker connects to a Vault and tracks its Transfer events
  */
 export class TransferTracker {
-  static async of(node, address, provider, dataDir = `${process.cwd()}/../../data`) {
+  static async of(node, address, provider, store) {
+    if (!store) store = new JsonStore(`${bridgeNode.confDir}/tracker-marker`) //fixme: temporary
     const vault = stubs.Vault(address, provider)
-    const marker = TrackerMarker.of(dataDir, await provider.getNetwork().then(_ => _.chainId))
+    const marker = TrackerMarker.of(store, await provider.getNetwork().then(_ => _.chainId))
     return new this(node, vault, marker)
   }
 
