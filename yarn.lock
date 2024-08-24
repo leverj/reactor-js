@@ -879,8 +879,12 @@ __metadata:
   resolution: "@leverj/reactor.chain@workspace:packages/chain"
   dependencies:
     "@leverj/chain-deployment": "npm:1.1.1"
+    "@leverj/common": "npm:^1.1.1"
     "@openzeppelin/contracts": "npm:^5.0.2"
+    async-exit-hook: "npm:^2.0.1"
     ethers: "npm:^6.13.2"
+    immutable: "npm:^5.0.0-rc.1"
+    lodash-es: "npm:^4.17.21"
   languageName: unknown
   linkType: soft
 
@@ -894,7 +898,6 @@ __metadata:
     "@ethersproject/sha2": "npm:^5.7.0"
     "@leverj/common": "npm:^1.1.1"
     bls-wasm: "npm:^1.1.1"
-    ethers: "npm:^6.13.2"
     mcl-wasm: "npm:^1.5.0"
   languageName: unknown
   linkType: soft
@@ -918,17 +921,14 @@ __metadata:
     "@libp2p/tcp": "npm:^9.1.5"
     "@noble/curves": "npm:^1.5.0"
     aes-encryption: "npm:^1.0.4"
-    async-exit-hook: "npm:^2.0.1"
     axios: "npm:^1.7.4"
     body-parser: "npm:^1.20.2"
     config: "npm:^3.3.12"
-    ethers: "npm:^6.13.2"
     express: "npm:^4.19.2"
     it-map: "npm:^3.1.1"
     it-pipe: "npm:^3.0.1"
     keyv-file: "npm:^0.3.3"
     libp2p: "npm:^1.9.2"
-    lodash-es: "npm:^4.17.21"
     uint8arrays: "npm:^5.1.0"
   languageName: unknown
   linkType: soft

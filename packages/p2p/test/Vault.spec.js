@@ -1,5 +1,5 @@
 import {ETH} from '@leverj/common/utils'
-import * as chain from '@leverj/reactor.chain/contracts'
+import {abi, events} from '@leverj/reactor.chain/contracts'
 import {ERC20, ERC20Proxy, getContractAt, getSigners, provider, Vault} from '@leverj/reactor.chain/test'
 import {deserializeHexStrToPublicKey, G2ToNumbers} from '@leverj/reactor.mcl'
 import {expect} from 'expect'
@@ -8,7 +8,6 @@ import {setTimeout} from 'node:timers/promises'
 import {createBridgeNodes} from './help/setup.js'
 
 const [, account] = await getSigners()
-const {abi, events} = chain
 const iface = new Interface(abi.Vault.abi)
 const topics = [events.Vault.Transfer.topic]
 

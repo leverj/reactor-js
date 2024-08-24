@@ -1,7 +1,7 @@
+import {TrackerMarker} from '@leverj/reactor.chain/tracking'
 import config from 'config'
 import {expect} from 'expect'
 import {rmSync} from 'node:fs'
-import {TrackerMarker} from '../src/TransferTracker.js'
 import {KeyvJsonStore} from '../src/utils/index.js'
 
 const {bridgeNode: {confDir}} = config

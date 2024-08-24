@@ -1,5 +1,5 @@
 import {affirm, logger} from '@leverj/common/utils'
-import * as chain from '@leverj/reactor.chain/contracts'
+import {encodeTransfer} from '@leverj/reactor.chain/contracts'
 import {
   deserializeHexStrToPublicKey,
   deserializeHexStrToSignature,
@@ -200,7 +200,7 @@ class Leader {
       }
     }
     const {hash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = args
-    const payload = chain.encodeTransfer(origin, token, name, symbol, decimals, amount, owner, from, to, tag)
+    const payload = encodeTransfer(origin, token, name, symbol, decimals, amount, owner, from, to, tag)
     if (await this.self.vaults[from].checkouts(hash)) {
       await this.self.aggregateSignature(
         hash,

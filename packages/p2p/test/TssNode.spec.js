@@ -187,7 +187,7 @@ describe('TssNode', () => {
     await setupMembersThreshold(members, threshold - 1)
     members.forEach(_ => expect(_.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKey.serializeToHexStr()))
     expect(await signAndVerify(members.slice(0, 3))).toBe(false)
-    // fixme: test fails here
+    //fixme: test fails here
     expect(await signAndVerify(members.slice(0, 4))).toBe(true)
     expect(await signAndVerify(members.slice(0, 5))).toBe(true)
   })

@@ -47,7 +47,7 @@ export class NetworkNode {
 
   peerDiscovered(event) { events.emit(PEER_DISCOVERY, event.detail.id.toString()) }
 
-  // fixme: remove this peer from the network
+  //fixme: remove this peer from the network
   peerConnected(event) {
     const peerId = event.detail.toString()
     // if (!this.knownPeers[peerId]) {
@@ -59,7 +59,7 @@ export class NetworkNode {
   async connectPubSub(peerId, handler) {
     this.p2p.services.pubsub.addEventListener('message', message => {
       const {from: peerId, topic, data, signature} = message.detail
-      // fixme: signature verification
+      //fixme: signature verification
       handler({peerId: peerId.toString(), topic, data: new TextDecoder().decode(data)})
     })
     await this.p2p.services.pubsub.connect(peerId)

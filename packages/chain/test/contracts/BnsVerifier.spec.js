@@ -1,7 +1,7 @@
-import {BnsVerifier} from '@leverj/reactor.chain/test'
 import {G1ToNumbers, G2ToNumbers, newKeyPair, sign} from '@leverj/reactor.mcl'
 import {AbiCoder, keccak256} from 'ethers'
 import {expect} from 'expect'
+import {BnsVerifier} from './help/index.js'
 
 describe('BnsVerifier', () => {
   const message = keccak256(AbiCoder.defaultAbiCoder().encode(['string'], ['hello world']))

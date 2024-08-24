@@ -128,7 +128,7 @@ describe('NetworkNode', () => {
     // await setTimeout(10)
   })
 
-  // fixme: to be implemented
+  //fixme: to be implemented
   it.skip('should not allow to connect a node if not approved', async () => {
     const [node1, node2] = await startNetworkNodes(2)
     node1.connect(node2.peerId)
