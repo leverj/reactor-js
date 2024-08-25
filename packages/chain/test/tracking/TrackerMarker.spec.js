@@ -3,11 +3,8 @@ import {expect} from 'expect'
 import {InMemoryStore} from './help.js'
 
 describe('TrackerMarker', () => {
-  const store = new InMemoryStore()
-
-  beforeEach(() => store.clear())
-
   it('can get and update', () => {
+    const store = new InMemoryStore()
     {
       const marker = TrackerMarker.of(store, 10101)
       expect(marker).toMatchObject({block: 0, logIndex: -1, blockWasProcessed: false})
