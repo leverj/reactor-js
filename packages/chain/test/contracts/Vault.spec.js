@@ -1,9 +1,9 @@
 import {ETH} from '@leverj/common/utils'
 import {abi, encodeTransfer, events} from '@leverj/reactor.chain/contracts'
-import {G1ToNumbers, G2ToNumbers, newKeyPair, sign} from '@leverj/reactor.mcl'
+import {ERC20, getContractAt, getSigners, provider, Vault} from '@leverj/reactor.chain/test'
 import {Interface} from 'ethers'
 import {expect} from 'expect'
-import {ERC20, getContractAt, getSigners, provider, Vault} from './help/index.js'
+import {publicKey, signedBy, signer} from '../help.js'
 
 const [, account] = await getSigners()
 const iface = new Interface(abi.Vault.abi)
@@ -11,8 +11,6 @@ const topics = [events.Vault.Transfer.topic]
 const getTransferEvent = async () => provider.getLogs({topics}).then(_ => iface.parseLog(_[0]).args)
 
 describe('Vault', () => {
-  const signer = newKeyPair()
-  const publicKey = G2ToNumbers(signer.pubkey)
   const fromChainId = 10101n, toChainId = 98989n
   const deposit = 1000n
 
@@ -65,7 +63,7 @@ describe('Vault', () => {
       expect(fromChainId).toEqual(origin)
 
       expect(await toVault.checkins(hash)).toEqual(false)
-      const signature = G1ToNumbers(sign(hash, signer.secret).signature)
+      const signature = signedBy(hash, signer)
       const payload = encodeTransfer(origin, token, name, symbol, decimals, amount, owner, from, to, tag)
       await toVault.checkIn(signature, publicKey, payload).then(_ => _.wait())
       expect(await toVault.checkins(hash)).toEqual(true)
@@ -86,7 +84,7 @@ describe('Vault', () => {
       expect(fromChainId).toEqual(origin)
 
       expect(await toVault.checkins(hash)).toEqual(false)
-      const signature = G1ToNumbers(sign(hash, signer.secret).signature)
+      const signature = signedBy(hash, signer)
       const payload = encodeTransfer(origin, token, name, symbol, decimals, amount, owner, from, to, tag)
       await toVault.checkIn(signature, publicKey, payload).then(_ => _.wait())
       expect(await toVault.checkins(hash)).toEqual(true)

@@ -2,7 +2,7 @@ import {ERC20, ethers, evm, getSigners} from '@leverj/reactor.chain/test'
 import {Tracker, TrackerMarker} from '@leverj/reactor.chain/tracking'
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
-import {InMemoryStore} from './help.js'
+import {InMemoryStore} from '../help.js'
 
 const [deployer, account] = await getSigners()
 
