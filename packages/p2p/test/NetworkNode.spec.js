@@ -9,7 +9,7 @@ import {setTimeout} from 'node:timers/promises'
 import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
 import {NetworkNode} from '../src/NetworkNode.js'
 import {waitToSync} from '../src/utils/index.js'
-import {peerIdJsons} from './help/fixtures.js'
+import {peerIdJsons} from './fixtures.js'
 
 describe('NetworkNode', () => {
   const meshProtocol = '/mesh/1.0.0'

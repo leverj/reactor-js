@@ -1,15 +1,10 @@
 import {ETH} from '@leverj/common/utils'
-import {abi, events} from '@leverj/reactor.chain/contracts'
 import {ERC20, ERC20Proxy, getContractAt, getSigners, provider, Vault} from '@leverj/reactor.chain/test'
-import {deserializeHexStrToPublicKey, G2ToNumbers} from '@leverj/reactor.mcl'
 import {expect} from 'expect'
-import {Interface} from 'ethers'
 import {setTimeout} from 'node:timers/promises'
-import {createBridgeNodes} from './help/setup.js'
+import {createBridgeNodes} from './help.js'
 
 const [, account] = await getSigners()
-const iface = new Interface(abi.Vault.abi)
-const topics = [events.Vault.Transfer.topic]
 
 describe('Vault', () => {
   const L1 = 10101n, L2 = 98989n, amount = 1000n
@@ -25,7 +20,7 @@ describe('Vault', () => {
   afterEach(async () => { for (let each of nodes) await each.stop() })
 
   const deployVaultPerChainOnNodes = async (chains) => {
-    const publicKey = G2ToNumbers(deserializeHexStrToPublicKey(leader.groupPublicKey.serializeToHexStr()))
+    const publicKey = leader.publicKey
     const vaults = []
     for (let each of chains) {
       const vault = await Vault(each, publicKey)
@@ -46,10 +41,9 @@ describe('Vault', () => {
     await processTransfer(fromVault)
   }
 
-  const processTransfer = async vault => {
-    await provider.getLogs({topics, address: vault.target}).then(_ => leader.processTransfer(iface.parseLog(_[0]).args))
-    await setTimeout(100)
-  }
+  const processTransfer = async (vault) => vault.queryFilter('Transfer').
+    then(_ => leader.processTransfer(vault.interface.parseLog(_[0]).args)).
+    then(_ => setTimeout(100))
 
   describe('should disburse currency when transferred from originating chain', () => {
     let fromVault, toVault

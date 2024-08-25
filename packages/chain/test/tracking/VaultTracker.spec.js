@@ -39,7 +39,7 @@ describe('VaultTracker', () => {
     const afterCheckingOut = await provider.getBalance(account)
     expect(afterCheckingOut).toEqual(before - amount)
 
-    await setTimeout(1000)
+    await setTimeout(100)
     const proxyAddress = await toVault.proxies(fromChainId, ETH)
     const proxy = await getContractAt('ERC20Proxy', proxyAddress)
     expect(await proxy.balanceOf(account.address)).toEqual(amount)

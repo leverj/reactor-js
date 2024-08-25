@@ -11,4 +11,5 @@ export class VaultTracker extends Tracker {
   constructor(contract, polling, marker, processLog) {
     super(contract, Transfer, polling, marker, processLog)
   }
+  get vault() { return this.contract }
 }

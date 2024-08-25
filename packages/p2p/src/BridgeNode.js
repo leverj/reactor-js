@@ -40,6 +40,7 @@ export class BridgeNode {
     this.leadership = isLeader ? new Leader(this) : new Follower(this)
     this.messageMap = {}
     this.vaults = {}
+    this.trackers = {}
     this.monitor = new Monitor()
     this.network.registerStreamHandler(meshProtocol, this.onStreamMessage.bind(this))
     this.addPeersToWhiteList(...this.whitelist.initial)
@@ -49,13 +50,12 @@ export class BridgeNode {
   get multiaddrs() { return this.network.multiaddrs }
   get peerId() { return this.network.peerId }
   get peers() { return this.network.peers }
-  get secretKeyShare() { return this.tss.secretKeyShare }
-  get groupPublicKey() { return this.tss.groupPublicKey }
   get signer() { return this.tss.idHex }
+  get secretKeyShare() { return this.tss.secretKeyShare.serializeToHexStr() }
+  get groupPublicKey() { return this.tss.groupPublicKey.serializeToHexStr() }
+  get publicKey() { return G2ToNumbers(deserializeHexStrToPublicKey(this.groupPublicKey)) }
 
   getAggregateSignature(txnHash) { return this.messageMap[txnHash] }
-
-  setVaultForChain(chain, vault) { this.vaults[chain] = vault }
 
   print() { this.tss.print() }
 
@@ -66,6 +66,15 @@ export class BridgeNode {
       whitelist: this.whitelist.get(),
       leader: this.leader,
     }
+  }
+
+  trackChain(tracker) { //fixme: tracker
+    this.trackers[tracker.chainId] = tracker
+    this.vaults[tracker.chainId] = tracker.vault
+  }
+
+  setVaultForChain(chainId, vault) {
+    this.vaults[chainId] = vault
   }
 
   async processTransfer(args) { return this.leadership.processTransfer(args) }
@@ -130,18 +139,18 @@ export class BridgeNode {
   async handleSignatureStart(peerId, data) {
     if (this.leader !== peerId) return logger.log('ignoring signature start from non-leader', peerId, this.leader)
 
-    // note: for local e2e testing, which will not  have any contracts or hardhat, till we expand the scope of e2e
-    const verifyTransferHash = async (chain, transferHash) => chain === -1 || this.vaults[chain].checkouts(transferHash)
+    //fixme: note: for local e2e testing, which will not have any contracts or hardhat, till we expand the scope of e2e
+    const verifyTransferHash = async (chainId, transferHash) => chainId === -1 || this.vaults[chainId].checkouts(transferHash)
 
-    const {message, chainId} = data
-    if (await verifyTransferHash(chainId, message)) {
-      const signature = await this.tss.sign(message)
-      logger.log(SIGNATURE_START, message, signature.serializeToHexStr())
+    const {message: hash, chainId} = data
+    if (await verifyTransferHash(chainId, hash)) {
+      const signature = this.tss.sign(hash).serializeToHexStr()
+      logger.log(SIGNATURE_START, hash, signature)
       const signaturePayloadToLeader = {
         topic: TSS_RECEIVE_SIGNATURE_SHARE,
-        signature: signature.serializeToHexStr(),
+        signature,
         signer: this.signer,
-        txnHash: message,
+        txnHash: hash,
       }
       await this.network.createAndSendMessage(peerId, meshProtocol, JSON.stringify(signaturePayloadToLeader), _ => logger.log('SignaruePayload Ack', _))
     }
@@ -194,7 +203,7 @@ class Leader {
     const transferPayloadVerified = async (to, payload, aggregateSignature) => {
       if (aggregateSignature.verified) {
         const signature = G1ToNumbers(deserializeHexStrToSignature(aggregateSignature.groupSign))
-        const publicKey = G2ToNumbers(deserializeHexStrToPublicKey(this.self.groupPublicKey.serializeToHexStr()))
+        const publicKey = this.self.publicKey
         const toContract = this.self.vaults[to]
         await toContract.checkIn(signature, publicKey, payload).then(_ => _.wait())
       }

@@ -17,6 +17,7 @@ export class Tracker {
   get interface() { return this.contract.interface }
   get provider() { return this.contract.runner.provider }
   get target() { return this.contract.target }
+  get chainId() { return this.marker.chainId }
 
   async start() {
     if (!this.isRunning) {

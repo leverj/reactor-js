@@ -6,7 +6,7 @@ import {expect} from 'expect'
 import {rmSync} from 'node:fs'
 import {setTimeout} from 'node:timers/promises'
 import {JsonStore, tryAgainIfError, waitToSync} from '../src/utils/index.js'
-import {getNodeInfos} from './help/fixtures.js'
+import {getNodeInfos} from './fixtures.js'
 
 const {bridgeNode, externalIp, port: leaderPort} = config
 
