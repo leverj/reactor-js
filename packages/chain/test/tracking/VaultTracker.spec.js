@@ -1,7 +1,7 @@
 import {ETH} from '@leverj/common/utils'
 import {encodeTransfer} from '@leverj/reactor.chain/contracts'
 import {evm, getContractAt, getSigners, provider, Vault} from '@leverj/reactor.chain/test'
-import {TrackerMarker, VaultTracker} from '@leverj/reactor.chain/tracking'
+import {VaultTracker} from '@leverj/reactor.chain/tracking'
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
 import {InMemoryStore, publicKey, signedBy, signer} from '../help.js'
@@ -16,7 +16,6 @@ describe('VaultTracker', () => {
   beforeEach(async () => {
     fromVault = await Vault(fromChainId, publicKey), toVault = await Vault(toChainId, publicKey)
     const polling = {interval: 10, attempts: 5}
-    const marker = TrackerMarker.of(new InMemoryStore(), evm.chainId)
     const node = {
       processTransfer: async _ => {
         const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = _
@@ -25,7 +24,7 @@ describe('VaultTracker', () => {
         await toVault.checkIn(signature, publicKey, payload).then(_ => _.wait())
       }
     }
-    tracker = await VaultTracker.of(fromVault, polling, marker, node)
+    tracker = VaultTracker(new InMemoryStore(), evm.chainId, fromVault, polling, node)
     await tracker.start()
   })
   afterEach(() => {

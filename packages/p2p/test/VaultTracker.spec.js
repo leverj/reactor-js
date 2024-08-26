@@ -6,7 +6,8 @@ import config from 'config'
 import {expect} from 'expect'
 import {rmSync} from 'node:fs'
 import {setTimeout} from 'node:timers/promises'
-import {newTrackerMarker, publicKey, signedBy, signer} from './help.js'
+import {KeyvJsonStore} from '../src/utils/index.js'
+import {publicKey, signedBy, signer} from './help.js'
 
 const [, account] = await getSigners()
 const {bridgeNode: {confDir}, chain: {polling}} = config
@@ -17,8 +18,8 @@ describe.skip('VaultTracker', () => {
   let fromVault, toVault, tracker
 
   beforeEach(async () => {
+    const store = new KeyvJsonStore(confDir, TrackerMarker)
     fromVault = await Vault(fromChainId, publicKey), toVault = await Vault(toChainId, publicKey)
-    const marker = newTrackerMarker(fromChainId)
     const node = {
       processTransfer: async _ => {
         const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = _
@@ -27,7 +28,7 @@ describe.skip('VaultTracker', () => {
         await toVault.checkIn(signature, publicKey, payload).then(_ => _.wait())
       }
     }
-    tracker = await VaultTracker.of(fromVault, polling, marker, node)
+    tracker = VaultTracker(store, fromChainId, fromVault, polling, node)
     await tracker.start()
   })
   afterEach(() => {

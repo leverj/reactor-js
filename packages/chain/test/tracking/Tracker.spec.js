@@ -1,5 +1,5 @@
 import {ERC20, ethers, evm, getSigners} from '@leverj/reactor.chain/test'
-import {Tracker, TrackerMarker} from '@leverj/reactor.chain/tracking'
+import {Tracker} from '@leverj/reactor.chain/tracking'
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
 import {InMemoryStore} from '../help.js'
@@ -16,9 +16,8 @@ describe('Tracker', () => {
     const Transfer = contract.filters.Transfer().fragment.topicHash
     const topics = [Approval, Transfer]
     const polling = {interval: 10, attempts: 5}
-    const marker = TrackerMarker.of(new InMemoryStore(), evm.chainId)
     const processLog = _ => logs.push(_)
-    tracker = new Tracker(contract, topics, polling, marker, processLog)
+    tracker = new Tracker(new InMemoryStore(), evm.chainId, contract, topics, polling, processLog)
   })
   afterEach(() => tracker.stop())
 

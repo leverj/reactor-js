@@ -5,11 +5,28 @@ import {max} from 'lodash-es'
 
 /** a Tracker connects to a contract and tracks its events **/
 export class Tracker {
-  constructor(contract, topics, polling, marker, processLog = async _ => logger.log(_)) {
+  static Marker = class {
+    constructor(store, chainId) {
+      const {block, logIndex, blockWasProcessed} = store.get(chainId, {block: 0, logIndex: -1, blockWasProcessed: false})
+      this.store = store
+      this.chainId = chainId
+      this.block = block
+      this.logIndex = logIndex
+      this.blockWasProcessed = blockWasProcessed
+    }
+
+    async update(state) {
+      Object.assign(this, state)
+      const {chainId, block, logIndex, blockWasProcessed} = this
+      this.store.set(chainId, {block, logIndex, blockWasProcessed})
+    }
+  }
+
+  constructor(store, chainId, contract, topics, polling, processLog = async _ => logger.log(_)) {
+    this.marker = new Tracker.Marker(store, chainId)
     this.contract = contract
     this.topics = [topics]
     this.polling = polling
-    this.marker = marker
     this.processLog = processLog
     this.isRunning = false
     exitHook(() => this.stop())
