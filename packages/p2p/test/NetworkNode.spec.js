@@ -64,7 +64,7 @@ describe('NetworkNode', () => {
   })
 
   it('it should send data using gossipsub', async () => {
-    const transferReceipts = {} // each node will just save the hash and ack. later children will sign and attest point to point
+    const transferReceipts = {} // each node will just save the transferHash and ack. later children will sign and attest point to point
     await startNetworkNodes(4, true)
     const [leader, node2, node3, node4] = nodes
     for (let each of [node2, node3, node4]) {
@@ -81,7 +81,7 @@ describe('NetworkNode', () => {
     expect(leader.peers.length).toEqual(3)
     for (let each of leader.peers) expect(transferReceipts[each]).toEqual(transferHash)
 
-    await leader.publish('TransferHash', transferHash + transferHash)
+    await leader.publish('TransferHash', transferHash + transferHash) //fixme: reason for duplication?
     await setTimeout(10)
     expect(leader.peers.length).toEqual(3)
     for (let each of leader.peers) expect(transferReceipts[each]).toEqual(transferHash + transferHash)
@@ -110,7 +110,7 @@ describe('NetworkNode', () => {
     for (let each of nodes) logger.log('Peers of Node', each.peers.length)
     for (let each of nodes) {
       await each.registerStreamHandler(meshProtocol, function (stream, peerId, msgStr) {
-        logger.log(each.peerId, 'Recd stream msg from', peerId, msgStr)
+        logger.log(each.peerId, 'Recd stream message from', peerId, msgStr)
       })
     }
     const sender = nodes[0]
@@ -124,7 +124,7 @@ describe('NetworkNode', () => {
     const peerInfo = await nodes[0].findPeer(peerId)
     const peerAddress = peerInfo.multiaddrs[0]
     const addressToSend = peerAddress + '/p2p/' + peerId
-    await nodes[0].createAndSendMessage(addressToSend, meshProtocol, "HI", (msg) => {logger.log("ACK RESP", msg)})*/
+    await nodes[0].createAndSendMessage(addressToSend, meshProtocol, "HI", (message) => {logger.log("ACK RESP", message)})*/
     // await setTimeout(10)
   })
 

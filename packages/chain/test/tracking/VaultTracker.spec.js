@@ -19,9 +19,9 @@ describe('VaultTracker', () => {
     const marker = TrackerMarker.of(new InMemoryStore(), evm.chainId)
     const node = {
       processTransfer: async _ => {
-        const {hash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = _
+        const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = _
         const payload = encodeTransfer(origin, token, name, symbol, decimals, amount, owner, from, to, tag)
-        const signature = signedBy(hash, signer)
+        const signature = signedBy(transferHash, signer)
         await toVault.checkIn(signature, publicKey, payload).then(_ => _.wait())
       }
     }

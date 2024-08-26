@@ -26,11 +26,11 @@ async function startDkg(req, res) {
 }
 
 async function aggregateSignature(req, res) {
-  await manager.aggregateSignature(req.body.msg, -1, _ => _).then(_ => res.send('ok'))
+  await manager.aggregateSignature(req.body.message, -1, _ => _).then(_ => res.send('ok'))
 }
 
 async function getAggregateSignature(req, res) {
-  res.send(manager.getAggregateSignature(req.query.txnHash))
+  res.send(manager.getAggregateSignature(req.query.transferHash))
 }
 
 async function getWhitelists(req, res) {

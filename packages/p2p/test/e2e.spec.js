@@ -88,10 +88,10 @@ describe('e2e', () => {
   it('aggregate signatures over pubsub topic', async () => {
     await createNodeInfos(4)
     await createApiNodes(4)
-    const txnHash = 'hash123456'
-    await POST(leaderPort, 'tss/aggregateSign', {msg: txnHash})
+    const message = 'hash123456'
+    await POST(leaderPort, 'tss/aggregateSign', {message})
     await setTimeout(100)
-    expect(await GET(leaderPort, `tss/aggregateSign?txnHash=${txnHash}`).then(_ => _.verified)).toEqual(true)
+    expect(await GET(leaderPort, `tss/aggregateSign?transferHash=${message}`).then(_ => _.verified)).toEqual(true)
   })
 
   it('whitelist', async () => {

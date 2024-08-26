@@ -55,7 +55,7 @@ export class BridgeNode {
   get groupPublicKey() { return this.tss.groupPublicKey.serializeToHexStr() }
   get publicKey() { return G2ToNumbers(deserializeHexStrToPublicKey(this.groupPublicKey)) }
 
-  getAggregateSignature(txnHash) { return this.messageMap[txnHash] }
+  getAggregateSignature(transferHash) { return this.messageMap[transferHash] }
 
   print() { this.tss.print() }
 
@@ -142,49 +142,49 @@ export class BridgeNode {
     //fixme: note: for local e2e testing, which will not have any contracts or hardhat, till we expand the scope of e2e
     const verifyTransferHash = async (chainId, transferHash) => chainId === -1 || this.vaults[chainId].checkouts(transferHash)
 
-    const {message: hash, chainId} = data
-    if (await verifyTransferHash(chainId, hash)) {
-      const signature = this.tss.sign(hash).serializeToHexStr()
-      logger.log(SIGNATURE_START, hash, signature)
+    const {message: transferHash, chainId} = data
+    if (await verifyTransferHash(chainId, transferHash)) {
+      const signature = this.tss.sign(transferHash).serializeToHexStr()
+      logger.log(SIGNATURE_START, transferHash, signature)
       const signaturePayloadToLeader = {
         topic: TSS_RECEIVE_SIGNATURE_SHARE,
         signature,
         signer: this.signer,
-        txnHash: hash,
+        transferHash,
       }
       await this.network.createAndSendMessage(peerId, meshProtocol, JSON.stringify(signaturePayloadToLeader), _ => logger.log('SignaruePayload Ack', _))
     }
   }
 
   async onStreamMessage(stream, peerId, msgStr) {
-    const msg = JSON.parse(msgStr)
+    const message = JSON.parse(msgStr)
     affirm(this.whitelist.exists(peerId, `Unknown peer ${peerId}`))
-    switch (msg.topic) {
+    switch (message.topic) {
       case WHITELIST_REQUEST:
         return this.whitelist.canPublish ? this.sendMessageToPeer(peerId, WHITELIST_TOPIC, this.whitelist.get()) : {}
       case WHITELIST_TOPIC:
-        return this.handleWhitelistMessage(peerId, msg.message)
+        return this.handleWhitelistMessage(peerId, message.message)
       case DKG_INIT_THRESHOLD_VECTORS:
-        return this.tss.generateVectorsAndContribution(msg.threshold)
+        return this.tss.generateVectorsAndContribution(message.threshold)
       case DKG_RECEIVE_KEY_SHARE:
-        return this.tss.onDkgShare(msg.message)
+        return this.tss.onDkgShare(message.message)
       case TSS_RECEIVE_SIGNATURE_SHARE:
-        const {txnHash, signature, signer} = msg
-        const info = this.messageMap[txnHash]
+        const {transferHash, signature, signer} = message
+        const info = this.messageMap[transferHash]
         info.signatures[signer] = {signature, signer}
-        logger.log('Received signature', txnHash, signature)
+        logger.log('Received signature', transferHash, signature)
         if (Object.keys(info.signatures).length === this.tss.threshold) {
           const groupSign = this.tss.groupSign(Object.values(info.signatures))
           info.groupSign = groupSign
           info.verified = this.tss.verify(groupSign, info.signatures[this.signer].message)
-          logger.log('Verified', txnHash, info.verified, groupSign)
+          logger.log('Verified', transferHash, info.verified, groupSign)
           info.transferCallback(info)
         }
         return
       case SIGNATURE_START:
-        return this.handleSignatureStart(peerId, JSON.parse(msg.message))
+        return this.handleSignatureStart(peerId, JSON.parse(message.message))
       default:
-        logger.log('Unknown message', msg)
+        logger.log('Unknown message', message)
     }
   }
 }
@@ -208,15 +208,15 @@ class Leader {
         await toContract.checkIn(signature, publicKey, payload).then(_ => _.wait())
       }
     }
-    const {hash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = args
+    const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = args
     const payload = encodeTransfer(origin, token, name, symbol, decimals, amount, owner, from, to, tag)
-    if (await this.self.vaults[from].checkouts(hash)) {
+    if (await this.self.vaults[from].checkouts(transferHash)) {
       await this.self.aggregateSignature(
-        hash,
+        transferHash,
         from,
         async (signature) => transferPayloadVerified(to, payload, signature),
       )
-      return hash
+      return transferHash
     }
   }
 
@@ -246,7 +246,7 @@ class Leader {
   }
 
   async startDKG(threshold) {
-    const responseHandler = (msg) => logger.log('dkg received', msg)
+    const responseHandler = (message) => logger.log('dkg received', message)
     for (let each of this.self.whitelist.get()) if (each !== this.self.peerId) {
       const message = JSON.stringify({topic: DKG_INIT_THRESHOLD_VECTORS, threshold})
       await this.self.network.createAndSendMessage(each, meshProtocol, message, responseHandler)

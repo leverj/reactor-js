@@ -143,23 +143,23 @@ function local_sign() {
     curl --location --request POST 'http://localhost:9000/api/tss/aggregateSign' \
     --header 'Content-Type: application/json' \
     --data '{
-        "txnHash": "hash123456",
-        "msg": "hello world"
+        "transferHash": "hash123456",
+        "message": "hello world"
     }'
     sleep 5
-    curl http://localhost:9000/api/tss/aggregateSign?txnHash=hash123456
+    curl http://localhost:9000/api/tss/aggregateSign?transferHash=hash123456
 }
 function remote_sign() {
     echo "Remote sign"
     curl --location --request POST $(remote_leader)/api/tss/aggregateSign \
     --header 'Content-Type: application/json' \
     --data '{
-        "txnHash": "hash123456",
-        "msg": "hello world"
+        "transferHash": "hash123456",
+        "message": "hello world"
     }'
     echo
     sleep 5
-    curl $(remote_leader)/api/tss/aggregateSign?txnHash=hash123456
+    curl $(remote_leader)/api/tss/aggregateSign?transferHash=hash123456
     echo
 }
 
