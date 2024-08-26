@@ -6,11 +6,8 @@
   "license": "UNLICENSED",
   "main": "app.js",
   "scripts": {
-    "test": "yarn contracts:copy && yarn contracts:compile && npx mocha && yarn contracts:delete",
+    "test": "npx hardhat compile && npx mocha",
     "dependency:check": "npx depcheck",
-    "contracts:copy": "cp -R ../chain/contracts .",
-    "contracts:compile": "npx hardhat compile",
-    "contracts:delete": "rm -rf artifacts cache contracts",
     "start": "node app.js",
     "docker:build": "./scripts/docker-build.sh"
   },

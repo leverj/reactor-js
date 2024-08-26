@@ -1,9 +1,17 @@
 import {ETH} from '@leverj/common/utils'
 import {abi, encodeTransfer, events} from '@leverj/reactor.chain/contracts'
-import {ERC20, getContractAt, getSigners, provider, Vault} from '@leverj/reactor.chain/test'
+import {
+  ERC20,
+  getContractAt,
+  getSigners,
+  provider,
+  publicKey,
+  signedBy,
+  signer,
+  Vault,
+} from '@leverj/reactor.chain/test'
 import {Interface} from 'ethers'
 import {expect} from 'expect'
-import {publicKey, signedBy, signer} from '../help.js'
 
 const [, account] = await getSigners()
 const iface = new Interface(abi.Vault.abi)

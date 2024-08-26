@@ -27,7 +27,6 @@ contract Vault {
      */
     event Transfer(bytes32 transferHash, uint64 origin, address token, string name, string symbol, uint8 decimals, uint amount, address owner, uint64 from, uint64 to, uint tag);
 
-
     /// key[index] is invalid
     error InvalidPublicKey(uint8 index);
 

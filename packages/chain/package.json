@@ -5,14 +5,12 @@
   "type": "module",
   "exports": {
     "./contracts": "./src/contracts/index.js",
-    "./tracking": "./src/tracking/index.js",
     "./test": "./test/contracts/help/index.js"
   },
   "scripts": {
-    "test": "yarn contracts:compile && npx mocha",
+    "test": "npx hardhat compile && npx mocha",
     "dependency:check": "npx depcheck",
-    "contracts:compile": "npx hardhat compile",
-    "contracts:generate:exports": "rm -rf src/contracts/abi && mkdir -p src/contracts/abi && yarn contracts:compile && node scripts/generate-contract-exports"
+    "contracts:generate:exports": "npx hardhat compile && node scripts/generate-contract-exports"
   },
   "dependencies": {
     "@leverj/common": "^1.1.1",
