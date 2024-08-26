@@ -1,12 +1,11 @@
 {
   "ignore-patterns": [
     "hardhat.config.cjs",
-    "scripts",
     "test"
   ],
   "ignores": [
-    "@leverj/chain-deployment",
     "@leverj/common",
-    "@openzeppelin/contracts"
+    "@nomiclabs/hardhat-ethers",
+    "hardhat"
   ]
 }

@@ -1,9 +1,11 @@
-import {ERC20, ethers, evm, getSigners} from '@leverj/reactor.chain/test'
-import {Tracker} from '@leverj/reactor.chain/tracking'
+import {logger} from '@leverj/common/utils'
+import {Tracker} from '@leverj/chain-tracking'
 import {expect} from 'expect'
+import * as hardhat from 'hardhat'
 import {setTimeout} from 'node:timers/promises'
-import {InMemoryStore} from '../help.js'
+import {InMemoryStore} from './help.js'
 
+const {ethers: {deployContract, getSigners, ZeroAddress}, network: {config: {chainId}}} = hardhat.default
 const [deployer, account] = await getSigners()
 
 describe('Tracker', () => {
@@ -11,13 +13,13 @@ describe('Tracker', () => {
 
   beforeEach(async () => {
     logs = []
-    contract = await ERC20()
+    contract = await deployContract('ERC20Mock')
     const Approval = contract.filters.Approval().fragment.topicHash
     const Transfer = contract.filters.Transfer().fragment.topicHash
     const topics = [Approval, Transfer]
     const polling = {interval: 10, attempts: 5}
     const processLog = _ => logs.push(_)
-    tracker = new Tracker(new InMemoryStore(), evm.chainId, contract, topics, polling, processLog)
+    tracker = new Tracker(new InMemoryStore(), chainId, contract, topics, polling, processLog, logger)
   })
   afterEach(() => tracker.stop())
 
@@ -30,7 +32,7 @@ describe('Tracker', () => {
     {
       const {name, args: {from, to, value}} = logs[0]
       expect(name).toEqual('Transfer')
-      expect({from, to, value}).toMatchObject({from: ethers.ZeroAddress, to: account.address, value: 1000n})
+      expect({from, to, value}).toMatchObject({from: ZeroAddress, to: account.address, value: 1000n})
     }
 
     await contract.mint(account.address, 2000n) // => Transfer(from, to, value)
@@ -40,7 +42,7 @@ describe('Tracker', () => {
     {
       const {name, args: {from, to, value}} = logs[1]
       expect(name).toEqual('Transfer')
-      expect({from, to, value}).toMatchObject({from: ethers.ZeroAddress, to: account.address, value: 2000n})
+      expect({from, to, value}).toMatchObject({from: ZeroAddress, to: account.address, value: 2000n})
     }
     {
       const {name, args: {owner, spender, value}} = logs[2]
@@ -59,7 +61,7 @@ describe('Tracker', () => {
     {
       const {name, args: {from, to, value}} = logs[0]
       expect(name).toEqual('Transfer')
-      expect({from, to, value}).toMatchObject({from: ethers.ZeroAddress, to: account.address, value: 1000n})
+      expect({from, to, value}).toMatchObject({from: ZeroAddress, to: account.address, value: 1000n})
     }
     {
       const {name, args: {owner, spender, value}} = logs[1]
@@ -69,7 +71,7 @@ describe('Tracker', () => {
     {
       const {name, args: {from, to, value}} = logs[2]
       expect(name).toEqual('Transfer')
-      expect({from, to, value}).toMatchObject({from: ethers.ZeroAddress, to: account.address, value: 2000n})
+      expect({from, to, value}).toMatchObject({from: ZeroAddress, to: account.address, value: 2000n})
     }
   })
 })

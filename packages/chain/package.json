@@ -13,14 +13,11 @@
     "contracts:generate:exports": "npx hardhat compile && node scripts/generate-contract-exports"
   },
   "dependencies": {
-    "@leverj/common": "^1.1.1",
-    "async-exit-hook": "^2.0.1",
-    "ethers": "^6.13.2",
-    "immutable": "^5.0.0-rc.1",
-    "lodash-es": "^4.17.21"
+    "ethers": "^6.13.2"
   },
   "devDependencies": {
     "@leverj/chain-deployment": "1.1.1",
+    "@leverj/common": "^1.1.1",
     "@openzeppelin/contracts": "^5.0.2"
   }
 }

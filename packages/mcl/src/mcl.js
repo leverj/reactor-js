@@ -249,4 +249,3 @@ mcl.G1.prototype.recover = function (signatures, signers) {
   this.setStr(mcl.recoverG1(signers, signatures).getStr())
   return this
 }
-

@@ -1,6 +1,6 @@
-import {Tracker} from '@leverj/reactor.chain/tracking'
+import {Tracker} from '@leverj/chain-tracking'
 import {expect} from 'expect'
-import {InMemoryStore} from '../help.js'
+import {InMemoryStore} from './help.js'
 
 describe('Tracker.Marker', () => {
   it('can get and update', () => {

@@ -3,9 +3,7 @@
   "version": "0.1.0",
   "type": "module",
   "license": "UNLICENSED",
-  "exports": {
-    ".": "./src/mcl.js"
-  },
+  "main": "./src/mcl.js",
   "scripts": {
     "test": "npx mocha",
     "dependency:check": "npx depcheck"

@@ -1,24 +1,23 @@
 import {ETH} from '@leverj/common/utils'
 import {encodeTransfer} from '@leverj/reactor.chain/contracts'
-import {evm, getContractAt, getSigners, provider, Vault} from '@leverj/reactor.chain/test'
-import {VaultTracker} from '@leverj/reactor.chain/tracking'
+import {evm, getContractAt, getSigners, provider, publicKey, signedBy, signer, Vault} from '@leverj/reactor.chain/test'
 import config from 'config'
 import {expect} from 'expect'
 import {rmSync} from 'node:fs'
 import {setTimeout} from 'node:timers/promises'
+import {VaultTracker} from '../src/VaultTracker.js'
 import {KeyvJsonStore} from '../src/utils/index.js'
-import {publicKey, signedBy, signer} from './help.js'
 
 const [, account] = await getSigners()
 const {bridgeNode: {confDir}, chain: {polling}} = config
 
-describe.skip('VaultTracker', () => {
+describe('VaultTracker', () => {
   const amount = 1000n
   const fromChainId = evm.chainId, toChainId = 98989n
   let fromVault, toVault, tracker
 
   beforeEach(async () => {
-    const store = new KeyvJsonStore(confDir, TrackerMarker)
+    const store = new KeyvJsonStore(confDir, 'TrackerMarker')
     fromVault = await Vault(fromChainId, publicKey), toVault = await Vault(toChainId, publicKey)
     const node = {
       processTransfer: async _ => {
@@ -37,7 +36,7 @@ describe.skip('VaultTracker', () => {
   })
   after(() => rmSync(confDir, {recursive: true, force: true}))
 
-  it('should disburse Native currency when transferred from originating chain', async () => {
+  it('should respond on Transfer event', async () => {
     const before = await provider.getBalance(account)
     await fromVault.connect(account).checkOutNative(toChainId, {value: amount}).then(_ => _.wait())
     const afterCheckingOut = await provider.getBalance(account)
@@ -45,7 +44,6 @@ describe.skip('VaultTracker', () => {
 
     await setTimeout(100)
     const proxyAddress = await toVault.proxies(fromChainId, ETH)
-    console.log('>'.repeat(50), proxyAddress)
     const proxy = await getContractAt('ERC20Proxy', proxyAddress)
     expect(await proxy.balanceOf(account.address)).toEqual(amount)
   })

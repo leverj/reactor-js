@@ -859,7 +859,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@leverj/chain-tracking@workspace:packages/chain-tracking":
+"@leverj/chain-tracking@npm:0.1.0, @leverj/chain-tracking@workspace:packages/chain-tracking":
   version: 0.0.0-use.local
   resolution: "@leverj/chain-tracking@workspace:packages/chain-tracking"
   dependencies:
@@ -894,10 +894,7 @@ __metadata:
     "@leverj/chain-deployment": "npm:1.1.1"
     "@leverj/common": "npm:^1.1.1"
     "@openzeppelin/contracts": "npm:^5.0.2"
-    async-exit-hook: "npm:^2.0.1"
     ethers: "npm:^6.13.2"
-    immutable: "npm:^5.0.0-rc.1"
-    lodash-es: "npm:^4.17.21"
   languageName: unknown
   linkType: soft
 
@@ -922,6 +919,7 @@ __metadata:
     "@chainsafe/libp2p-gossipsub": "npm:13.2.0"
     "@chainsafe/libp2p-noise": "npm:^15.1.1"
     "@chainsafe/libp2p-yamux": "npm:^6.0.2"
+    "@leverj/chain-tracking": "npm:0.1.0"
     "@leverj/common": "npm:^1.1.1"
     "@leverj/reactor.chain": "npm:0.1.0"
     "@leverj/reactor.mcl": "npm:0.1.0"

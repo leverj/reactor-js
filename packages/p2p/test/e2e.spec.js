@@ -90,7 +90,7 @@ describe('e2e', () => {
     await createApiNodes(4)
     const message = 'hash123456'
     await POST(leaderPort, 'tss/aggregateSign', {message})
-    await setTimeout(100)
+    await setTimeout(200)
     expect(await GET(leaderPort, `tss/aggregateSign?transferHash=${message}`).then(_ => _.verified)).toEqual(true)
   })
 

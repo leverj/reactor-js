@@ -15,6 +15,7 @@
     "@chainsafe/libp2p-gossipsub": "13.2.0",
     "@chainsafe/libp2p-noise": "^15.1.1",
     "@chainsafe/libp2p-yamux": "^6.0.2",
+    "@leverj/chain-tracking": "0.1.0",
     "@leverj/common": "^1.1.1",
     "@leverj/reactor.chain": "0.1.0",
     "@leverj/reactor.mcl": "0.1.0",
