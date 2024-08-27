@@ -2,18 +2,23 @@ import exitHook from 'async-exit-hook'
 import {List} from 'immutable'
 
 /**
- * each Tracker connects to a dedicated Ethereum network (i.e.: Ethereum Homestead) and tracks events of interest
- * for either a specific contract (i.e: a XXX:fixme:), or a set of specific same-class contracts  (i.e: ERC20).
+ * a MultiTracker connects to multiple contracts deployed in an Ethereum-like chain and tracks their respective events
  */
 export class MultiTracker {
-  constructor(provider, marker, polling, processLog = async _ => console.log(_), logger) {
-    this.contracts = {}
-    this.interfaces = {}
-    this.topics = []
-    this.provider = provider
+  static async from(factory, provider, polling, processLog = async _ => console.log(_), logger = console) {
+    const marker = await factory.create()
+    return new this(marker, provider, polling, processLog, logger)
+  }
+
+  constructor(marker, provider, polling, processLog, logger) {
     this.marker = marker
+    this.provider = provider
     this.polling = polling
     this.processLog = processLog
+    this.contracts = {}
+    this.interfaces = {}
+    this.topicsByKind = {}
+    this.topics = [[]]
     this.logger = logger
     this.isRunning = false
     exitHook(() => this.stop())
@@ -22,10 +27,15 @@ export class MultiTracker {
   get chainId() { return this.marker.chainId }
   get info() { return `tracker [${this.chainId}]` }
 
-  setContracts(contracts) { contracts.forEach((contract, kind) => this.addContract(contract, kind)) }
   addContract(contract, kind) {
-    this.contracts[contract.target] = kind
-    this.interfaces[kind] = contract.interface
+    if (contract.runner.provider !== this.provider) throw Error(`contract @ ${contract.target} has incompatible provider`)
+    if (!this.contracts[contract.target]) this.contracts[contract.target] = kind
+    if (!this.interfaces[kind]) this.interfaces[kind] = contract.interface
+    if (!this.topicsByKind[kind]) {
+      const topics = contract.interface.fragments.filter(_ => _.type === 'event').map(_ => _.topicHash)
+      this.topicsByKind[kind] = topics
+      this.topics = [Array.from(new Set(this.topics[0].concat(topics)))]
+    }
   }
 
   async start() {
@@ -40,14 +50,6 @@ export class MultiTracker {
     // telegram.post(`starting ${this.info}`)
     this.logger.log(`starting ${this.info}`)
   }
-
-  // //fixme: subclass
-  // async beforeStart() {
-  //   await super.beforeStart()
-  //   const collections = await Collection.find({chainId: this.chainId}).lean()
-  //   for (let {address, specialized: {kind}} of collections) this.addContract(address, kind)
-  //   return this
-  // }
 
   stop() {
     if (this.isRunning) {
@@ -73,7 +75,7 @@ export class MultiTracker {
       await this.poll()
     } catch (e) {
       if (attempts === 1) this.logger.error(`${this.info} failed during polling for events`, e, e.cause || '')
-      this.marker.reload() // refresh the marker
+      await this.marker.reload() // refresh the marker
       return attempts === this.polling.attempts ? this.fail(e) : this.pollForEvents(attempts + 1)
     }
     if (this.isRunning) this.pollingTimer = setTimeout(_ => this.pollForEvents(_), this.polling.interval)
@@ -86,7 +88,7 @@ export class MultiTracker {
   }
 
   async processLogs(fromBlock, toBlock) {
-    const logs = await this.getLogsFor(fromBlock, toBlock, this.topics)
+    const logs = await this.getLogsFor(fromBlock, toBlock, this.topics) // fixme: flatten topics
     const {block, logIndex, blockWasProcessed} = this.marker
     const logsPerBlock = List(logs).
       groupBy(_ => _.blockNumber).
@@ -95,7 +97,7 @@ export class MultiTracker {
       map((value, _) => value.sortBy(_ => _.logIndex).toArray()).
       toKeyedSeq()
     for (let [block, blockLogs] of logsPerBlock) await this.onNewBlock(block, blockLogs)
-    if (this.lastBlock < toBlock) this.marker.update({block: toBlock, blockWasProcessed: true})
+    if (this.lastBlock < toBlock) await this.marker.update({block: toBlock, blockWasProcessed: true})
   }
 
   async getLogsFor(fromBlock, toBlock, topics) {
@@ -127,18 +129,18 @@ export class MultiTracker {
   }
 
   async onNewBlock(block, logs) {
-    this.marker.update(block > this.lastBlock ? {block, logIndex: -1, blockWasProcessed: false} : {blockWasProcessed: false})
+    await this.marker.update(block > this.lastBlock ? {block, logIndex: -1, blockWasProcessed: false} : {blockWasProcessed: false})
     for (let each of logs) {
       const log = this.parseLog(each)
-      if (log) await this.processLog(log)
-      this.marker.update({logIndex: each.logIndex})
+      await this.processLog(log)
+      await this.marker.update({logIndex: each.logIndex})
     }
-    this.marker.update({blockWasProcessed: true})
+    await this.marker.update({blockWasProcessed: true})
   }
 
   parseLog(log) {
     const kind = this.contracts[log.address]
-    return kind ? this.interfaces[kind].parseLog(log) : null
+    return kind ? Object.assign(this.interfaces[kind].parseLog(log), {kind}) : null
   }
 }
 

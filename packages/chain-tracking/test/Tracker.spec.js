@@ -1,5 +1,5 @@
 import {logger} from '@leverj/common/utils'
-import {Tracker} from '@leverj/chain-tracking'
+import {Tracker, TrackerMarkerFactory} from '@leverj/chain-tracking'
 import {expect} from 'expect'
 import * as hardhat from 'hardhat'
 import {setTimeout} from 'node:timers/promises'
@@ -13,13 +13,14 @@ describe('Tracker', () => {
 
   beforeEach(async () => {
     logs = []
-    contract = await deployContract('ERC20Mock')
+    const factory = TrackerMarkerFactory(new InMemoryStore(), chainId)
+    contract = await deployContract('ERC20Mock', ["Crap", "CRAP"])
     const Approval = contract.filters.Approval().fragment.topicHash
     const Transfer = contract.filters.Transfer().fragment.topicHash
     const topics = [Approval, Transfer]
     const polling = {interval: 10, attempts: 5}
     const processLog = _ => logs.push(_)
-    tracker = new Tracker(new InMemoryStore(), chainId, contract, topics, polling, processLog, logger)
+    tracker = await Tracker.from(factory, contract, topics, polling, processLog, logger)
   })
   afterEach(() => tracker.stop())
 

@@ -1,34 +1,19 @@
 import exitHook from 'async-exit-hook'
 import {List} from 'immutable'
 
-/** a Tracker connects to a contract and tracks its events **/
+/**
+ * a Tracker connects to a contract deployed in an Ethereum-like chain and tracks its events
+ */
 export class Tracker {
-  static Marker = class {
-    constructor(store, chainId) {
-      this.store = store
-      this.chainId = chainId
-      this.reload()
-    }
-
-    reload() {
-      const {block, logIndex, blockWasProcessed} = this.store.get(this.chainId, {block: 0, logIndex: -1, blockWasProcessed: false})
-      this.block = block
-      this.logIndex = logIndex
-      this.blockWasProcessed = blockWasProcessed
-    }
-
-    update(state) {
-      Object.assign(this, state)
-      const {chainId, block, logIndex, blockWasProcessed} = this
-      this.store.set(chainId, {block, logIndex, blockWasProcessed})
-    }
+  static async from(factory, contract, topics, polling, processLog = async _ => console.log(_), logger = console) {
+    const marker = await factory.create()
+    return new this(marker, contract, topics, polling, processLog, logger)
   }
 
-  //fixme: pass a MarkerFactory
-  constructor(store, chainId, contract, topics, polling, processLog = async _ => console.log(_), logger = console) {
+  constructor(marker, contract, topics, polling, processLog, logger) {
+    this.marker = marker
     this.contract = contract
     this.topics = [topics]
-    this.marker = new Tracker.Marker(store, chainId)
     this.polling = polling
     this.processLog = processLog
     this.logger = logger
@@ -77,7 +62,7 @@ export class Tracker {
       await this.poll()
     } catch (e) {
       if (attempts === 1) this.logger.error(`${this.info} failed during polling for events`, e, e.cause || '')
-      this.marker.reload() // refresh the marker
+      await this.marker.reload() // refresh the marker
       return attempts === this.polling.attempts ? this.fail(e) : this.pollForEvents(attempts + 1)
     }
     if (this.isRunning) this.pollingTimer = setTimeout(_ => this.pollForEvents(_), this.polling.interval)
@@ -99,7 +84,7 @@ export class Tracker {
       map((value, _) => value.sortBy(_ => _.logIndex).toArray()).
       toKeyedSeq()
     for (let [block, blockLogs] of logsPerBlock) await this.onNewBlock(block, blockLogs)
-    if (this.lastBlock < toBlock) this.marker.update({block: toBlock, blockWasProcessed: true})
+    if (this.lastBlock < toBlock) await this.marker.update({block: toBlock, blockWasProcessed: true})
   }
 
   async getLogsFor(fromBlock, toBlock, topics) {
@@ -111,13 +96,13 @@ export class Tracker {
   }
 
   async onNewBlock(block, logs) {
-    this.marker.update(block > this.lastBlock ? {block, logIndex: -1, blockWasProcessed: false} : {blockWasProcessed: false})
+    await this.marker.update(block > this.lastBlock ? {block, logIndex: -1, blockWasProcessed: false} : {blockWasProcessed: false})
     for (let each of logs) {
       const log = this.parseLog(each)
       await this.processLog(log)
-      this.marker.update({logIndex: each.logIndex})
+      await this.marker.update({logIndex: each.logIndex})
     }
-    this.marker.update({blockWasProcessed: true})
+    await this.marker.update({blockWasProcessed: true})
   }
 
   parseLog(log) {

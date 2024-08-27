@@ -6,6 +6,7 @@
   "ignores": [
     "@leverj/common",
     "@nomiclabs/hardhat-ethers",
+    "@openzeppelin/contracts",
     "hardhat"
   ]
 }
