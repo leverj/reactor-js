@@ -1,6 +1,5 @@
-import {TrackerMarkerFactory} from '@leverj/chain-tracking'
+import {InMemoryStore, TrackerMarkerFactory} from '@leverj/chain-tracking'
 import {expect} from 'expect'
-import {InMemoryStore} from './help.js'
 
 describe('TrackerMarker', () => {
   it('can get and update', async () => {

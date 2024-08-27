@@ -124,7 +124,7 @@ describe('NetworkNode', () => {
     const peerInfo = await nodes[0].findPeer(peerId)
     const peerAddress = peerInfo.multiaddrs[0]
     const addressToSend = peerAddress + '/p2p/' + peerId
-    await nodes[0].createAndSendMessage(addressToSend, meshProtocol, "HI", (message) => {logger.log("ACK RESP", message)})*/
+    await nodes[0].createAndSendMessage(addressToSend, meshProtocol, 'HI', (message) => {logger.log('ACK RESP', message)})*/
     // await setTimeout(10)
   })
 

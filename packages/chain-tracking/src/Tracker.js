@@ -5,17 +5,17 @@ import {List} from 'immutable'
  * a Tracker connects to a contract deployed in an Ethereum-like chain and tracks its events
  */
 export class Tracker {
-  static async from(factory, contract, topics, polling, processLog = async _ => console.log(_), logger = console) {
+  static async from(factory, contract, topics, polling, processEvent = async _ => console.log(_), logger = console) {
     const marker = await factory.create()
-    return new this(marker, contract, topics, polling, processLog, logger)
+    return new this(marker, contract, topics, polling, processEvent, logger)
   }
 
-  constructor(marker, contract, topics, polling, processLog, logger) {
+  constructor(marker, contract, topics, polling, processEvent, logger) {
     this.marker = marker
     this.contract = contract
     this.topics = [topics]
     this.polling = polling
-    this.processLog = processLog
+    this.processEvent = processEvent
     this.logger = logger
     this.isRunning = false
     exitHook(() => this.stop())
@@ -29,27 +29,18 @@ export class Tracker {
 
   async start() {
     if (!this.isRunning) {
-      await this.beforeStart()
+      await this.logger.log(`starting ${this.info}`)
       this.isRunning = true
       await this.pollForEvents()
     }
   }
 
-  async beforeStart() {
-    this.logger.log(`starting ${this.info}`)
-  }
-
-
   stop() {
     if (this.isRunning) {
-      this.beforeStop()
+      this.logger.log(`stopping ${this.info}`)
       this.isRunning = false
       if (this.pollingTimer) clearTimeout(this.pollingTimer)
     }
-  }
-
-  beforeStop() {
-    this.logger.log(`stopping ${this.info}`)
   }
 
   fail(e) {
@@ -98,14 +89,14 @@ export class Tracker {
   async onNewBlock(block, logs) {
     await this.marker.update(block > this.lastBlock ? {block, logIndex: -1, blockWasProcessed: false} : {blockWasProcessed: false})
     for (let each of logs) {
-      const event = this.parseLog(each)
-      await this.processLog(event)
+      const event = this.toEvent(each)
+      await this.processEvent(event)
       await this.marker.update({logIndex: each.logIndex})
     }
     await this.marker.update({blockWasProcessed: true})
   }
 
-  parseLog(log) {
+  toEvent(log) {
     const address = this.contract.target
     const {name, args} = this.interface.parseLog(log)
     return {address, name, args}
