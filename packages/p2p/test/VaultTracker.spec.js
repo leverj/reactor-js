@@ -1,6 +1,16 @@
 import {ETH} from '@leverj/common/utils'
+import {TrackerMarkerFactory} from '@leverj/chain-tracking'
 import {encodeTransfer} from '@leverj/reactor.chain/contracts'
-import {evm, getContractAt, getSigners, provider, publicKey, signedBy, signer, Vault} from '@leverj/reactor.chain/test'
+import {
+  chainId,
+  getContractAt,
+  getSigners,
+  provider,
+  publicKey,
+  signedBy,
+  signer,
+  Vault,
+} from '@leverj/reactor.chain/test'
 import config from 'config'
 import {expect} from 'expect'
 import {rmSync} from 'node:fs'
@@ -13,11 +23,10 @@ const {bridgeNode: {confDir}, chain: {polling}} = config
 
 describe('VaultTracker', () => {
   const amount = 1000n
-  const fromChainId = evm.chainId, toChainId = 98989n
+  const fromChainId = chainId, toChainId = 98989n
   let fromVault, toVault, tracker
 
   beforeEach(async () => {
-    const store = new KeyvJsonStore(confDir, 'TrackerMarker')
     fromVault = await Vault(fromChainId, publicKey), toVault = await Vault(toChainId, publicKey)
     const node = {
       processTransfer: async _ => {
@@ -27,7 +36,9 @@ describe('VaultTracker', () => {
         await toVault.checkIn(signature, publicKey, payload).then(_ => _.wait())
       }
     }
-    tracker = VaultTracker(store, fromChainId, fromVault, polling, node)
+    const store = new KeyvJsonStore(confDir, 'TrackerMarker')
+    const factory = TrackerMarkerFactory(store, fromChainId)
+    tracker = await VaultTracker(factory, fromVault, polling, node)
     await tracker.start()
   })
   afterEach(() => {

@@ -870,6 +870,7 @@ __metadata:
     ethers: "npm:^6.13.2"
     hardhat: "npm:^2.22.6"
     immutable: "npm:^5.0.0-rc.1"
+    lodash-es: "npm:^4.17.21"
   languageName: unknown
   linkType: soft
 

@@ -1,59 +1,102 @@
 import exitHook from 'async-exit-hook'
 import {Contract} from 'ethers'
-import {List} from 'immutable'
-import {Tracker} from './Tracker.js'
-import {TrackerMarkerFactory} from './TrackerMarker.js'
+import {List, Map} from 'immutable'
+import {merge} from 'lodash-es'
 import {InMemoryStore} from './InMemoryStore.js'
+import {Tracker} from './Tracker.js'
 
 /**
  * a MultiTracker connects to multiple contracts deployed in an Ethereum-like chain and tracks their respective events
  */
 export class MultiTracker {
-  static async from(factory, provider, polling, processEvent = async _ => console.log(_), logger = console) {
-    const marker = await factory.create()
-    return new this(marker, provider, polling, processEvent, logger)
+  static defaults() {
+    return {
+      marker: {block: 0, logIndex: -1, blockWasProcessed: false},
+      abis: [],
+      contracts: [],
+      toOnboard: [],
+    }
   }
 
-  constructor(marker, provider, polling, processEvent, logger) {
-    this.marker = marker
+  static from(store, chainId, provider, polling, processEvent = logger.log, logger = console) {
+    const key = [chainId]
+    store.update(key, this.defaults())
+    return new this(store, chainId, provider, polling, processEvent, logger)
+  }
+
+  constructor(store, chainId, provider, polling, processEvent, logger) {
+    this.store = store
+    this.chainId = chainId
+    this.key = [chainId]
     this.provider = provider
-    this.polling = polling
     this.processEvent = processEvent
+    this.polling = polling
+    this.logger = logger
+    this.isRunning = false
+    this.load()
+    exitHook(() => this.stop())
+  }
+  get lastBlock() { return this.marker.block }
+  get info() { return `tracker [${this.key}]` }
+
+  load() {
+    const {marker, toOnboard, abis, contracts} = this.store.get(this.key)
+    this.marker = marker
+    this.toOnboard = toOnboard
     this.contracts = {}
     this.interfaces = {}
     this.topicsByKind = {}
     this.topics = [[]]
-    this.toOnboard = []
-    this.logger = logger
-    this.isRunning = false
-    exitHook(() => this.stop())
+    const ifaces = Map(abis).toObject()
+    Map(contracts).forEach((kind, address) => {
+      const contract = new Contract(address, ifaces[kind], this.provider)
+      this._addContract_(contract, kind)
+    })
   }
-  get lastBlock() { return this.marker.block }
-  get chainId() { return this.marker.chainId }
-  get info() { return `tracker [${this.chainId}]` }
 
-  async addContract(contract, kind) {
-    if (contract.runner.provider !== this.provider) throw Error(`contract @ ${contract.target} has incompatible provider`)
-    if (!this.contracts[contract.target]) this.contracts[contract.target] = kind
-    if (!this.interfaces[kind]) this.interfaces[kind] = contract.interface
+  update(state) { this.store.update(this.key, state) }
+  updateMarker(state) { this.update({marker: merge(this.marker, state)}) }
+
+  _addContract_(contract, kind) {
+    const {runner: {provider}, target: address, interface: iface} = contract
+    if (provider !== this.provider) throw Error(`contract @ ${address} has incompatible provider`)
+    if (!this.contracts[address]) this.contracts[address] = kind
+    if (!this.interfaces[kind]) this.interfaces[kind] = iface
     if (!this.topicsByKind[kind]) {
-      const topics = contract.interface.fragments.filter(_ => _.type === 'event').map(_ => _.topicHash)
+      const topics = iface.fragments.filter(_ => _.type === 'event').map(_ => _.topicHash)
       this.topicsByKind[kind] = topics
       this.topics = [Array.from(new Set(this.topics[0].concat(topics)))]
     }
-    this.isRunning ? await this.onboard(contract, kind) : this.toOnboard.push({address: contract.target, kind})
+  }
+
+  async addContract(contract, kind) {
+    this._addContract_(contract, kind)
+    this.isRunning ?
+      await this.onboard(contract, kind) :
+      this.scheduleToOnboard(contract.target, kind)
+  }
+
+  scheduleToOnboard(address, kind) {
+    this.toOnboard.push({address, kind})
+    this.update({toOnboard: this.toOnboard})
   }
 
   async onboard(contract, kind) {
-    const {chainId, polling, processEvent, logger, lastBlock} = this
-    const factory = TrackerMarkerFactory(new InMemoryStore(), chainId)
+    const {chainId, provider, polling, processEvent, logger, lastBlock} = this
     const topics = this.topicsByKind[kind]
-    await Tracker.from(factory, contract, topics, polling, processEvent, logger).then(_ => _.processLogs(0, lastBlock))
+    const defaults = {contract, topics}
+    const address = contract.target
+    const tracker = Tracker.from(new InMemoryStore(), chainId, address, provider, defaults, polling, processEvent, logger)
+    await tracker.processLogs(0, lastBlock) //fixme: can we get the contract construction block-number?
+    this.update({
+      contracts: Map(this.contracts).toArray(),
+      abis: Map(this.interfaces).map(_ => _.format()).toArray(),
+    })
   }
 
   async start() {
     if (!this.isRunning) {
-      await this.logger.log(`starting ${this.info}`)
+      this.logger.log(`starting ${this.info}`)
       while (this.toOnboard.length > 0)  {
         const {address, kind} = this.toOnboard.shift()
         const contract = new Contract(address, this.interfaces[kind], this.provider)
@@ -82,7 +125,6 @@ export class MultiTracker {
       await this.poll()
     } catch (e) {
       if (attempts === 1) this.logger.error(`${this.info} failed during polling for events`, e, e.cause || '')
-      await this.marker.reload() // refresh the marker
       return attempts === this.polling.attempts ? this.fail(e) : this.pollForEvents(attempts + 1)
     }
     if (this.isRunning) this.pollingTimer = setTimeout(_ => this.pollForEvents(_), this.polling.interval)
@@ -104,7 +146,7 @@ export class MultiTracker {
       map((value, _) => value.sortBy(_ => _.logIndex).toArray()).
       toKeyedSeq()
     for (let [block, blockLogs] of logsPerBlock) await this.onNewBlock(block, blockLogs)
-    if (this.lastBlock < toBlock) await this.marker.update({block: toBlock, blockWasProcessed: true})
+    if (this.lastBlock < toBlock) this.updateMarker({block: toBlock, blockWasProcessed: true})
   }
 
   async getLogsFor(fromBlock, toBlock, topics) {
@@ -136,13 +178,13 @@ export class MultiTracker {
   }
 
   async onNewBlock(block, logs) {
-    await this.marker.update(block > this.lastBlock ? {block, logIndex: -1, blockWasProcessed: false} : {blockWasProcessed: false})
+    this.updateMarker(block > this.lastBlock ? {block, logIndex: -1, blockWasProcessed: false} : {blockWasProcessed: false})
     for (let each of logs) if (this.contracts[each.address]) {
       const event = this.toEvent(each)
       await this.processEvent(event)
-      await this.marker.update({logIndex: each.logIndex})
+      this.updateMarker({logIndex: each.logIndex})
     }
-    await this.marker.update({blockWasProcessed: true})
+    this.updateMarker({blockWasProcessed: true})
   }
 
   toEvent(log) {
