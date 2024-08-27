@@ -98,14 +98,16 @@ export class Tracker {
   async onNewBlock(block, logs) {
     await this.marker.update(block > this.lastBlock ? {block, logIndex: -1, blockWasProcessed: false} : {blockWasProcessed: false})
     for (let each of logs) {
-      const log = this.parseLog(each)
-      await this.processLog(log)
+      const event = this.parseLog(each)
+      await this.processLog(event)
       await this.marker.update({logIndex: each.logIndex})
     }
     await this.marker.update({blockWasProcessed: true})
   }
 
   parseLog(log) {
-    return this.interface.parseLog(log)
+    const address = this.contract.target
+    const {name, args} = this.interface.parseLog(log)
+    return {address, name, args}
   }
 }

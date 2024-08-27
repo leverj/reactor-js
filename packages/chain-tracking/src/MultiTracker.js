@@ -139,8 +139,12 @@ export class MultiTracker {
   }
 
   parseLog(log) {
-    const kind = this.contracts[log.address]
-    return kind ? Object.assign(this.interfaces[kind].parseLog(log), {kind}) : null
+    const {address} = log
+    const kind = this.contracts[address]
+    if (!kind) return null
+
+    const {name, args} = this.interfaces[kind].parseLog(log)
+    return {address, name, args}
   }
 }
 
