@@ -2,6 +2,7 @@ import exitHook from 'async-exit-hook'
 import {Contract} from 'ethers'
 import {List, Map} from 'immutable'
 import {merge} from 'lodash-es'
+import {getCreationBlock} from './evm.js'
 import {InMemoryStore} from './InMemoryStore.js'
 import {Tracker} from './Tracker.js'
 
@@ -87,7 +88,8 @@ export class MultiTracker {
     const defaults = {contract, topics}
     const address = contract.target
     const tracker = Tracker.from(new InMemoryStore(), chainId, address, provider, defaults, polling, processEvent, logger)
-    await tracker.processLogs(0, lastBlock) //fixme: can we get the contract construction block-number?
+    const creationBlock = await getCreationBlock(provider, address).catch(_ => 0)
+    await tracker.processLogs(creationBlock, lastBlock)
     this.update({
       contracts: Map(this.contracts).toArray(),
       abis: Map(this.interfaces).map(_ => _.format()).toArray(),
