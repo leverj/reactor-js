@@ -1,4 +1,4 @@
-import {InMemoryStore, MultiTracker} from '@leverj/chain-tracking'
+import {InMemoryStore, MultiContractTracker} from '@leverj/chain-tracking'
 import {
   chainId,
   ERC20,
@@ -13,13 +13,13 @@ import {setTimeout} from 'node:timers/promises'
 
 const [deployer, account] = await getSigners()
 
-describe('MultiTracker', () => {
+describe('MultiContractTracker', () => {
   let tracker, events
 
   beforeEach(async () => {
     events = []
     const polling = {interval: 10, attempts: 5}
-    tracker = MultiTracker.from(new InMemoryStore(), chainId, provider, polling, _ => events.push(_), logger)
+    tracker = MultiContractTracker.from(new InMemoryStore(), chainId, provider, polling, _ => events.push(_), logger)
   })
   afterEach(() => tracker.stop())
 

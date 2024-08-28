@@ -1,4 +1,4 @@
-import {InMemoryStore, MultiTracker, Tracker} from '@leverj/chain-tracking'
+import {InMemoryStore, MultiContractTracker, ContractTracker} from '@leverj/chain-tracking'
 import {chainId, ERC20, ERC721, getSigners, provider} from '@leverj/chain-tracking/test'
 import {logger} from '@leverj/common/utils'
 import {cloneDeep} from 'lodash-es'
@@ -7,20 +7,20 @@ import {expect} from 'expect'
 
 const [_, account] = await getSigners()
 
-describe('Tracker / Store interaction', () => {
+describe('ContractTracker / Store interaction', () => {
   const polling = {interval: 10, attempts: 5}
   let tracker
 
   afterEach(() => tracker.stop())
 
-  it('maintain state for Tracker', async () => {
+  it('maintain state for ContractTracker', async () => {
     const contract = await ERC20()
     const {target: address, interface: iface} = contract
 
     const topics = iface.fragments.filter(_ => _.type === 'event').map(_ => _.topicHash)
     const defaults = {contract, topics}
     const store = new InMemoryStore()
-    tracker = Tracker.from(store, chainId, address, provider, defaults, polling, _ => _, logger)
+    tracker = ContractTracker.from(store, chainId, address, provider, defaults, polling, _ => _, logger)
     const key = [chainId, address]
     const before = cloneDeep(store.get(key))
     expect(tracker.marker).toEqual(before.marker)
@@ -44,13 +44,13 @@ describe('Tracker / Store interaction', () => {
     expect(after.topics).toMatchObject(before.topics)
   })
 
-  it('maintain state for MultiTracker', async () => {
+  it('maintain state for MultiContractTracker', async () => {
     const contract1 = await ERC20('One', '111')
     const contract2 = await ERC20('Two', '222')
     const contract3 = await ERC721('Three', '333')
 
     const store = new InMemoryStore()
-    tracker = MultiTracker.from(store, chainId, provider, polling, _ => _, logger)
+    tracker = MultiContractTracker.from(store, chainId, provider, polling, _ => _, logger)
     const key = [chainId]
     const before = cloneDeep(store.get(key))
     expect(before.abis).toHaveLength(0)

@@ -4,12 +4,12 @@ import {List, Map} from 'immutable'
 import {merge} from 'lodash-es'
 import {getCreationBlock} from './evm.js'
 import {InMemoryStore} from './InMemoryStore.js'
-import {Tracker} from './Tracker.js'
+import {ContractTracker} from './ContractTracker.js'
 
 /**
- * a MultiTracker connects to multiple contracts deployed in an Ethereum-like chain and tracks their respective events
+ * a MultiContractTracker connects to multiple contracts deployed in an Ethereum-like chain and tracks their respective events
  */
-export class MultiTracker {
+export class MultiContractTracker {
   static defaults() {
     return {
       marker: {block: 0, logIndex: -1, blockWasProcessed: false},
@@ -87,7 +87,7 @@ export class MultiTracker {
     const topics = this.topicsByKind[kind]
     const defaults = {contract, topics}
     const address = contract.target
-    const tracker = Tracker.from(new InMemoryStore(), chainId, address, provider, defaults, polling, processEvent, logger)
+    const tracker = ContractTracker.from(new InMemoryStore(), chainId, address, provider, defaults, polling, processEvent, logger)
     const creationBlock = await getCreationBlock(provider, address).catch(_ => 0)
     await tracker.processLogs(creationBlock, lastBlock)
     this.update({

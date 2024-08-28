@@ -4,9 +4,9 @@ import {List} from 'immutable'
 import {merge} from 'lodash-es'
 
 /**
- * a Tracker connects to a contract deployed in an Ethereum-like chain and tracks its events
+ * a ContractTracker connects to a contract deployed in an Ethereum-like chain and tracks its events
  */
-export class Tracker {
+export class ContractTracker {
   static defaults({contract, topics}) {
     const result = {marker: {block: 0, logIndex: -1, blockWasProcessed: false}}
     if (contract) result.abi = contract.interface.format()

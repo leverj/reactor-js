@@ -1,11 +1,11 @@
-import {InMemoryStore, Tracker} from '@leverj/chain-tracking'
+import {InMemoryStore, ContractTracker} from '@leverj/chain-tracking'
 import {chainId, ERC20, expectEventsToMatch, getSigners, ZeroAddress} from '@leverj/chain-tracking/test'
 import {logger} from '@leverj/common/utils'
 import {setTimeout} from 'node:timers/promises'
 
 const [deployer, account] = await getSigners()
 
-describe('Tracker', () => {
+describe('ContractTracker', () => {
   let contract, tracker, events
 
   beforeEach(async () => {
@@ -15,7 +15,7 @@ describe('Tracker', () => {
     const topics = [filters.Approval().fragment.topicHash, filters.Transfer().fragment.topicHash]
     const defaults = {contract, topics}
     const polling = {interval: 10, attempts: 5}
-    tracker = Tracker.from(new InMemoryStore(), chainId, address, provider, defaults, polling, _ => _, logger)
+    tracker = ContractTracker.from(new InMemoryStore(), chainId, address, provider, defaults, polling, _ => _, logger)
   })
   afterEach(() => tracker.stop())
 
