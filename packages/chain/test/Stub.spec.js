@@ -3,11 +3,10 @@ import {accounts, chainId, provider, publicKey, Vault} from '@leverj/reactor.cha
 import {expect} from 'expect'
 
 const {Transfer} = events.Vault
-const [, account] = accounts
 
 describe('Contract stub', () => {
-  const fromChainId = chainId, toChainId = 98989n
-  const deposit = 1000n
+  const [, account] = accounts
+  const fromChainId = chainId, toChainId = 98989n, deposit = 1000n
   let stub
 
   beforeEach(async () => {

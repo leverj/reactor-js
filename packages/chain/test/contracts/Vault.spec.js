@@ -4,14 +4,13 @@ import {accounts, ERC20, getContractAt, provider, publicKey, signedBy, signer, V
 import {Interface} from 'ethers'
 import {expect} from 'expect'
 
-const [, account] = accounts
 const iface = new Interface(abi.Vault.abi)
 const topics = [events.Vault.Transfer.topic]
 const getTransferEvent = async () => provider.getLogs({topics}).then(_ => iface.parseLog(_[0]).args)
 
 describe('Vault', () => {
-  const fromChainId = 10101n, toChainId = 98989n
-  const deposit = 1000n
+  const [, account] = accounts
+  const fromChainId = 10101n, toChainId = 98989n, deposit = 1000n
 
   describe('checkOut', () => {
     it('Native', async () => {

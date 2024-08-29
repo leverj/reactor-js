@@ -1,19 +1,18 @@
 import {InMemoryStore, MultiContractTracker} from '@leverj/chain-tracking'
 import {
+  accounts,
   chainId,
   ERC20,
   ERC721,
   expectEventsToMatch,
-  getSigners,
   provider,
   ZeroAddress,
 } from '@leverj/chain-tracking/test'
 import {logger} from '@leverj/common/utils'
 import {setTimeout} from 'node:timers/promises'
 
-const [deployer, account] = await getSigners()
-
 describe('MultiContractTracker', () => {
+  const [deployer, account] = accounts
   let tracker, events
 
   beforeEach(async () => {

@@ -1,9 +1,9 @@
 import {ETH} from '@leverj/common/utils'
 import {encodeTransfer} from '@leverj/reactor.chain/contracts'
 import {
+  accounts,
   chainId,
   getContractAt,
-  getSigners,
   provider,
   publicKey,
   signedBy,
@@ -17,12 +17,11 @@ import {setTimeout} from 'node:timers/promises'
 import {VaultTracker} from '../src/VaultTracker.js'
 import {KeyvJsonStore} from '../src/utils/index.js'
 
-const [, account] = await getSigners()
 const {bridgeNode: {confDir}, chain: {polling}} = config
 
 describe('VaultTracker', () => {
-  const amount = 1000n
-  const fromChainId = chainId, toChainId = 98989n
+  const [, account] = accounts
+  const fromChainId = chainId, toChainId = 98989n, amount = 1000n
   let fromVault, toVault, tracker
 
   beforeEach(async () => {

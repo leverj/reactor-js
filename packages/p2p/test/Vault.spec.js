@@ -1,12 +1,11 @@
 import {ETH} from '@leverj/common/utils'
-import {ERC20, ERC20Proxy, getContractAt, getSigners, provider, Vault} from '@leverj/reactor.chain/test'
+import {accounts, ERC20, ERC20Proxy, getContractAt, provider, Vault} from '@leverj/reactor.chain/test'
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
 import {createBridgeNodes} from './help.js'
 
-const [, account] = await getSigners()
-
 describe('Vault', () => {
+  const [, account] = accounts
   const L1 = 10101n, L2 = 98989n, amount = 1000n
   let nodes, leader
 

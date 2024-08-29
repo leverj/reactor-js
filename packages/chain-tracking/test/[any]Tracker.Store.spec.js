@@ -1,13 +1,12 @@
-import {InMemoryStore, MultiContractTracker, ContractTracker} from '@leverj/chain-tracking'
-import {chainId, ERC20, ERC721, getSigners, provider} from '@leverj/chain-tracking/test'
+import {ContractTracker, InMemoryStore, MultiContractTracker} from '@leverj/chain-tracking'
+import {accounts, chainId, ERC20, ERC721, provider} from '@leverj/chain-tracking/test'
 import {logger} from '@leverj/common/utils'
 import {cloneDeep} from 'lodash-es'
 import {setTimeout} from 'node:timers/promises'
 import {expect} from 'expect'
 
-const [_, account] = await getSigners()
-
 describe('ContractTracker / Store interaction', () => {
+  const [_, account] = accounts
   const polling = {interval: 10, attempts: 5}
   let tracker
 

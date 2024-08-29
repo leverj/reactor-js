@@ -1,10 +1,9 @@
 import {MultiChainContractCoordinator} from '@leverj/chain-tracking'
-import {chainId, ERC20, getSigners, provider} from '@leverj/chain-tracking/test'
+import {accounts, chainId, ERC20, provider} from '@leverj/chain-tracking/test'
 import {expect} from 'expect'
 
-const [deployer, account] = await getSigners()
-
 describe('MultiChainContractCoordinator', () => {
+  const [deployer, account] = accounts
   const coordinator = new MultiChainContractCoordinator()
 
   beforeEach(() => coordinator.start())

@@ -1,11 +1,10 @@
-import {InMemoryStore, ContractTracker} from '@leverj/chain-tracking'
-import {chainId, ERC20, expectEventsToMatch, getSigners, ZeroAddress} from '@leverj/chain-tracking/test'
+import {ContractTracker, InMemoryStore} from '@leverj/chain-tracking'
+import {accounts, chainId, ERC20, expectEventsToMatch, ZeroAddress} from '@leverj/chain-tracking/test'
 import {logger} from '@leverj/common/utils'
 import {setTimeout} from 'node:timers/promises'
 
-const [deployer, account] = await getSigners()
-
 describe('ContractTracker', () => {
+  const [deployer, account] = accounts
   let contract, tracker, events
 
   beforeEach(async () => {
