@@ -6,7 +6,6 @@ module.exports = Object.assign(require('@leverj/chain-deployment/hardhat.config.
     },
   },
   paths: {
-    cache: "../chain/cache",
-    artifacts: "../chain/artifacts"
+    root: '../chain',
   },
 })

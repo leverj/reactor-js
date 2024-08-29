@@ -8,9 +8,9 @@
     "./test": "./test/contracts/help/index.js"
   },
   "scripts": {
-    "test": "npx hardhat compile && NODE_OPTIONS='--no-warnings=ExperimentalWarning' npx mocha",
+    "test": "npx mocha",
     "dependency:check": "npx depcheck",
-    "contracts:generate:exports": "npx hardhat compile && NODE_OPTIONS='--no-warnings=ExperimentalWarning' node scripts/generate-contract-exports"
+    "contracts:generate:exports": "node scripts/generate-contract-exports"
   },
   "dependencies": {
     "ethers": "^6.13.2"

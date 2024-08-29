@@ -9,7 +9,7 @@
     "./test": "./test/help/index.js"
   },
   "scripts": {
-    "test": "npx hardhat compile && npx mocha",
+    "test": "npx mocha",
     "dependency:check": "npx depcheck"
   },
   "dependencies": {
