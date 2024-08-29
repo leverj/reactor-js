@@ -849,7 +849,6 @@ __metadata:
   resolution: "@leverj/chain-deployment@workspace:packages/chain-deployment"
   dependencies:
     "@nomicfoundation/hardhat-ethers": "npm:^3.0.7"
-    "@nomiclabs/hardhat-ethers": "npm:^3.0.0-beta.0"
     "@nomiclabs/hardhat-etherscan": "npm:^3.1.8"
     ethers: "npm:^6.13.2"
     glob: "npm:^11.0.0"
@@ -1736,16 +1735,6 @@ __metadata:
     "@nomicfoundation/solidity-analyzer-win32-x64-msvc":
       optional: true
   checksum: e4f503e9287e18967535af669ca7e26e2682203c45a34ea85da53122da1dee1278f2b8c76c20c67fadd7c1b1a98eeecffd2cbc136860665e3afa133817c0de54
-  languageName: node
-  linkType: hard
-
-"@nomiclabs/hardhat-ethers@npm:^3.0.0-beta.0":
-  version: 3.0.0-beta.0
-  resolution: "@nomiclabs/hardhat-ethers@npm:3.0.0-beta.0"
-  peerDependencies:
-    ethers: ^6.1.0
-    hardhat: ^2.0.0
-  checksum: 88bae08b9961d645d7cf18709e3320187c655fb834241d3a4c82c1be713bec04eaf453875c7819c02083d31934ec8f71dde61b061ad2ef0934b041d13b942cd1
   languageName: node
   linkType: hard
 

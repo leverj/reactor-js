@@ -1,6 +1,6 @@
 import {execSync} from 'child_process'
 import {JsonRpcProvider} from 'ethers'
-import fs from 'fs'
+import {existsSync, writeFileSync} from 'node:fs'
 import {Deployment} from './Deployment.js'
 import {loadJson} from './load-json.js'
 import {Sourcer} from './Sourcer.js'
@@ -65,8 +65,8 @@ class DeploymentStore {
   get network() { return this.config.network }
   get networks() { return this.config.networks }
 
-  load() { this.contents = fs.existsSync(this.file) ? loadJson(this.file) : this.networks }
-  save() { fs.writeFileSync(this.file, JSON.stringify(this.contents, null, 2)) }
+  load() { this.contents = existsSync(this.file) ? loadJson(this.file) : this.networks }
+  save() { writeFileSync(this.file, JSON.stringify(this.contents, null, 2)) }
   establishBlock(block) { if (!this.contents[this.network].block) this.contents[this.network].block = block }
   get contracts() { return this.contents[this.network].contracts }
   has(contract) { return !!this.contracts[contract] }

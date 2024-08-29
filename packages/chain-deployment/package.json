@@ -6,7 +6,6 @@
   "main": "./src/index.js",
   "dependencies": {
     "@nomicfoundation/hardhat-ethers": "^3.0.7",
-    "@nomiclabs/hardhat-ethers": "^3.0.0-beta.0",
     "@nomiclabs/hardhat-etherscan": "^3.1.8",
     "ethers": "^6.13.2",
     "glob": "^11.0.0",

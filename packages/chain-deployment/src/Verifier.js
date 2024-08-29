@@ -1,9 +1,7 @@
+import solc from '@nomiclabs/hardhat-etherscan/dist/src/solc/version.js' //fixme: can we get solc from elsewhere?
 import axios from 'axios'
 import {setTimeout as sleep} from 'node:timers/promises'
-import solc from '@nomiclabs/hardhat-etherscan/dist/src/solc/version.js'
-import changeNetwork from './change-network.js'
 import {config, hardhat} from './hardhat.js'
-
 
 export class Verifier {
   constructor(config, logger = console) {
@@ -18,7 +16,7 @@ export class Verifier {
       }
     }
     config.etherscan = {apiKey: networks[network].apiKey, customChains: []}
-    changeNetwork(hardhat, network)
+    hardhat.switchNetwork(network)
   }
 
   async compilerVersion() {
