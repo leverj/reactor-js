@@ -1,19 +1,10 @@
 import {ETH} from '@leverj/common/utils'
 import {abi, encodeTransfer, events} from '@leverj/reactor.chain/contracts'
-import {
-  ERC20,
-  getContractAt,
-  getSigners,
-  provider,
-  publicKey,
-  signedBy,
-  signer,
-  Vault,
-} from '@leverj/reactor.chain/test'
+import {accounts, ERC20, getContractAt, provider, publicKey, signedBy, signer, Vault} from '@leverj/reactor.chain/test'
 import {Interface} from 'ethers'
 import {expect} from 'expect'
 
-const [, account] = await getSigners()
+const [, account] = accounts
 const iface = new Interface(abi.Vault.abi)
 const topics = [events.Vault.Transfer.topic]
 const getTransferEvent = async () => provider.getLogs({topics}).then(_ => iface.parseLog(_[0]).args)
@@ -25,19 +16,19 @@ describe('Vault', () => {
   describe('checkOut', () => {
     it('Native', async () => {
       const vault = await Vault(fromChainId, publicKey)
-      const [chainId, chainName, nativeSymbol, nativeDecimals] = await vault.home()
+      const [chainId, chainName, nativeSymbol, nativeDecimals] = await vault.home(), NATIVE = await vault.NATIVE()
       await vault.connect(account).checkOutNative(toChainId, {value: deposit}).then(_ => _.wait())
       const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = await getTransferEvent()
-      expect(chainId).toEqual(origin)
-      expect(await vault.NATIVE()).toEqual(token)
-      expect(chainName).toEqual(name)
-      expect(nativeSymbol).toEqual(symbol)
-      expect(nativeDecimals).toEqual(decimals)
-      expect(deposit).toEqual(amount)
-      expect(account.address).toEqual(owner)
-      expect(chainId).toEqual(from)
-      expect(toChainId).toEqual(to)
-      expect(await vault.checkoutCounter()).toEqual(tag)
+      expect(origin).toEqual(chainId)
+      expect(token).toEqual(NATIVE)
+      expect(name).toEqual(chainName)
+      expect(symbol).toEqual(nativeSymbol)
+      expect(decimals).toEqual(nativeDecimals)
+      expect(amount).toEqual(deposit)
+      expect(owner).toEqual(account.address)
+      expect(from).toEqual(chainId)
+      expect(to).toEqual(toChainId)
+      expect(tag).toEqual(await vault.checkoutCounter())
       expect(await vault.checkouts(transferHash)).toEqual(true)
     })
 
@@ -49,16 +40,16 @@ describe('Vault', () => {
 
       await vault.connect(account).checkOutToken(toChainId, erc20.target, deposit).then(_ => _.wait())
       const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = await getTransferEvent()
-      expect(fromChainId).toEqual(origin)
-      expect(erc20.target).toEqual(token)
-      expect(await erc20.name()).toEqual(name)
-      expect(await erc20.symbol()).toEqual(symbol)
-      expect(await erc20.decimals()).toEqual(decimals)
-      expect(deposit).toEqual(amount)
-      expect(account.address).toEqual(owner)
-      expect(fromChainId).toEqual(from)
-      expect(toChainId).toEqual(to)
-      expect(await vault.checkoutCounter()).toEqual(tag)
+      expect(origin).toEqual(fromChainId)
+      expect(token).toEqual(erc20.target)
+      expect(name).toEqual(await erc20.name())
+      expect(symbol).toEqual(await erc20.symbol())
+      expect(decimals).toEqual(await erc20.decimals())
+      expect(amount).toEqual(deposit)
+      expect(owner).toEqual(account.address)
+      expect(from).toEqual(fromChainId)
+      expect(to).toEqual(toChainId)
+      expect(tag).toEqual(await vault.checkoutCounter())
       expect(await vault.checkouts(transferHash)).toEqual(true)
     })
   })
@@ -68,7 +59,7 @@ describe('Vault', () => {
       const fromVault = await Vault(fromChainId, publicKey), toVault = await Vault(toChainId, publicKey)
       await fromVault.connect(account).checkOutNative(toChainId, {value: deposit}).then(_ => _.wait())
       const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = await getTransferEvent()
-      expect(fromChainId).toEqual(origin)
+      expect(origin).toEqual(fromChainId)
 
       expect(await toVault.checkins(transferHash)).toEqual(false)
       const signature = signedBy(transferHash, signer)
@@ -89,7 +80,7 @@ describe('Vault', () => {
       await erc20.connect(account).approve(fromVault.target, deposit).then(_ => _.wait())
       await fromVault.connect(account).checkOutToken(toChainId, erc20.target, deposit).then(_ => _.wait())
       const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = await getTransferEvent()
-      expect(fromChainId).toEqual(origin)
+      expect(origin).toEqual(fromChainId)
 
       expect(await toVault.checkins(transferHash)).toEqual(false)
       const signature = signedBy(transferHash, signer)
@@ -99,7 +90,7 @@ describe('Vault', () => {
 
       const proxyAddress = await toVault.proxies(fromChainId, erc20.target)
       const proxy = await getContractAt('ERC20Proxy', proxyAddress)
-      expect(amount).toEqual(await proxy.balanceOf(owner))
+      expect(await proxy.balanceOf(owner)).toEqual(amount)
       expect(await toVault.isCheckedIn(proxyAddress)).toEqual(true)
     })
   })
