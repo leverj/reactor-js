@@ -6,35 +6,36 @@ import {loadJson} from './load-json.js'
 import {Sourcer} from './Sourcer.js'
 import {Verifier} from './Verifier.js'
 
-
 export class Deploy {
-  constructor(projectDir, config, options = {reset: false, skipVerify: true}) {
+  constructor(projectDir, config, options = {reset: false, skipVerify: true, logger: console}) {
+    this.logger = options.logger
     if (options.network) config.network = options.network
     const {deployer, network, networks, contracts} = config
     this.contracts = contracts
     this.config = config
-    this.sourcer = new Sourcer(projectDir, contracts, config)
+    this.sourcer = new Sourcer(projectDir, contracts, config, this.logger)
     this.store = new DeploymentStore(config, options.reset)
     this.provider = options.provider || new JsonRpcProvider(networks[network].providerURL)
-    this.deployment = new Deployment(this.provider, deployer.privateKey, options.skipVerify ? null : new Verifier(config))
+    const verifier = options.skipVerify ? null : new Verifier(config, this.logger)
+    this.deployment = new Deployment(this.provider, deployer.privateKey, verifier, this.logger)
   }
 
   async run() {
-    console.log(`${'*'.repeat(30)} starting deploying contracts `.padEnd(120, '*'))
-    console.log(`${'-'.repeat(60)} config `.padEnd(120, '-'))
+    this.logger.log(`${'*'.repeat(30)} starting deploying contracts `.padEnd(120, '*'))
+    this.logger.log(`${'-'.repeat(60)} config `.padEnd(120, '-'))
     const {deployer, verifyApiKey, networks, owners_, ...secureConfig} = this.config
-    console.log(JSON.stringify(secureConfig))
-    console.log('-'.repeat(120))
+    this.logger.log(JSON.stringify(secureConfig))
+    this.logger.log('-'.repeat(120))
     await this.sourcer.sourceContracts()
     await this.deployContracts()
-    console.log(`${'*'.repeat(30)} finished deploying contracts `.padEnd(120, '*'))
+    this.logger.log(`${'*'.repeat(30)} finished deploying contracts `.padEnd(120, '*'))
   }
 
   async deployContracts() {
     const translateAddresses = (params = []) => params.map(_ => Array.isArray(_) ? translateAddresses(_) : this.store.get(_) || _)
     const translateLibraries = (names = []) => names.reduce((result, _) => Object.assign(result, ({[_]: this.store.get(_)})), {})
 
-    console.log(`deploying contracts: [${Object.keys(this.contracts)}] `.padEnd(120, '.'))
+    this.logger.log(`deploying contracts: [${Object.keys(this.contracts)}] `.padEnd(120, '.'))
     const block = await this.provider.getBlockNumber()
     this.store.establishBlock(block)
     for (let [name, {libraries, params}] of Object.entries(this.contracts)) {

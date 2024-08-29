@@ -4,18 +4,19 @@ import {loadJson} from './load-json.js'
 
 
 export class Sourcer {
-  constructor(projectDir, contracts, config) {
+  constructor(projectDir, contracts, config, logger = console) {
     this.contracts = contracts
     this.buildDir = `${projectDir}/artifacts`
     this.sourceDir = `${projectDir}/contracts`
     this.targetDir = `${config.deploymentDir}/contracts`
+    this.logger = logger
   }
 
   getJson(contract) { return loadJson(`${this.targetDir}/${contract}.json`) }
   getSourcePath(contract) { return `${this.targetDir}/${contract}.sol` }
 
   async sourceContracts() {
-    console.log(`compiling contracts `.padEnd(120, '.'))
+    this.logger.log(`compiling contracts `.padEnd(120, '.'))
     execSync(`rm -rf ${this.targetDir} && mkdir -p ${this.targetDir}`)
     execSync(`npx hardhat compile --quiet --config ${process.env.PWD}/hardhat.config.cjs`)
     const artifacts = glob.sync(`${this.buildDir}/**/*.sol`)

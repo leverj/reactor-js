@@ -3,12 +3,12 @@ import hardhat from './hardhat.cjs'
 
 const {Contract, deployContract, Wallet} = hardhat.ethers
 
-
 export class Deployment {
-  constructor(provider, privateKey, verifier) {
+  constructor(provider, privateKey, verifier, logger = console) {
     this.provider = provider
     this.wallet = new Wallet(privateKey, provider)
     this.verifier = verifier
+    this.logger = logger
   }
 
   async getContract({name, json, sourcePath, address}, libraries, params) {
@@ -19,9 +19,9 @@ export class Deployment {
 
   async deployContract(json, sourcePath, libraries, params) {
     const {contractName, bytecode} = json
-    console.log(`deploying ${contractName} contract `.padEnd(120, '.'))
+    this.logger.log(`deploying ${contractName} contract `.padEnd(120, '.'))
     const contract = await deployContract(contractName, params, {libraries, signer: this.wallet})
-    console.log({
+    this.logger.log({
       contractName: contractName,
       address: await contract.getAddress(),
     })

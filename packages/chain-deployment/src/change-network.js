@@ -1,7 +1,6 @@
 import {createProvider} from 'hardhat/internal/core/providers/construction.js'
 import {EthersProviderWrapper} from '@nomiclabs/hardhat-ethers/internal/ethers-provider-wrapper.js'
 
-
 const providers = {}
 
 export default async function (hardhat, networkName) {

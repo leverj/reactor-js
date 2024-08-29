@@ -1,20 +1,19 @@
-import {execSync} from 'child_process'
-import fs from 'fs'
-import * as glob from 'glob'
 import {Interface} from 'ethers'
+import * as glob from 'glob'
+import {mkdirSync, rmSync, writeFileSync} from 'node:fs'
 import {loadJson} from './load-json.js'
 
-
 function establishCleanDir(dir) {
-  execSync(`rm -rf ${dir}`)
-  execSync(`mkdir -p ${dir}`)
+  rmSync(dir, {recursive: true, force: true})
+  mkdirSync(dir, {recursive: true})
   return dir
 }
 
 export class ExportsGenerator {
-  constructor(projectDir, contracts) {
+  constructor(projectDir, contracts, logger = console) {
     this.projectDir = projectDir
     this.contracts = contracts
+    this.logger = logger
   }
 
   async generate() {
@@ -24,22 +23,22 @@ export class ExportsGenerator {
   }
 
   exportAbi() {
-    console.log(`${'-'.repeat(30)} generating contracts abi exports `.padEnd(120, '-'))
+    this.logger.log(`${'-'.repeat(30)} generating contracts abi exports `.padEnd(120, '-'))
     const targetDir = establishCleanDir(`${this.projectDir}/src/contracts/abi`)
     const dirs = glob.sync(`${this.projectDir}/artifacts/contracts/**/*.sol`)
     for (let name of this.contracts) {
       const path = dirs.find(_ => _.endsWith(`/${name}.sol`))
       const contract = loadJson(`${path}/${name}.json`)
       const contractWithJustAbi = {contractName: contract.contractName, abi: contract.abi}
-      fs.writeFileSync(`${targetDir}/${name}.json`, JSON.stringify(contractWithJustAbi, null, 2))
-      console.log(`extracted abi for: ${contract.contractName} `.padEnd(120, '.'))
+      writeFileSync(`${targetDir}/${name}.json`, JSON.stringify(contractWithJustAbi, null, 2))
+      this.logger.log(`extracted abi for: ${contract.contractName} `.padEnd(120, '.'))
     }
     const source = this.contracts.map(_ => `export const ${_} = (await import('./${_}.json', {assert: {type: 'json'}})).default`).join('\n')
-    fs.writeFileSync(`${targetDir}/index.js`, source)
+    writeFileSync(`${targetDir}/index.js`, source)
   }
 
   async exportEvents() {
-    console.log(`${'-'.repeat(30)} generating contracts event exports `.padEnd(120, '-'))
+    this.logger.log(`${'-'.repeat(30)} generating contracts event exports `.padEnd(120, '-'))
     const targetDir = establishCleanDir(`${this.projectDir}/src/contracts/events`)
     const contracts = await import(`${this.projectDir}/src/contracts/abi/index.js`)
     for (let {contractName, abi} of Object.values(contracts)) {
@@ -65,20 +64,20 @@ export class ExportsGenerator {
         return source
       })
       const source = `${classes.join('\n\n')}`
-      fs.writeFileSync(`${targetDir}/${contractName}.js`, source)
-      console.log(`extracted events for: ${contractName} `.padEnd(120, '.'))
+      writeFileSync(`${targetDir}/${contractName}.js`, source)
+      this.logger.log(`extracted events for: ${contractName} `.padEnd(120, '.'))
     }
     const exports = this.contracts.map(_ => `export * as ${_} from './${_}.js'`).join('\n')
-    fs.writeFileSync(`${targetDir}/index.js`, exports)
+    writeFileSync(`${targetDir}/index.js`, exports)
   }
 
   exportStubs() {
-    console.log(`${'-'.repeat(30)} generating contracts stub exports `.padEnd(120, '-'))
+    this.logger.log(`${'-'.repeat(30)} generating contracts stub exports `.padEnd(120, '-'))
     const exports = this.contracts.map(_ => `export const ${_} = (address, signer) => new Contract(address, abi.${_}.abi, signer)`).join('\n')
     const source = `import {Contract} from 'ethers'
 import * as abi from './abi/index.js'
 
 ${exports}`
-    fs.writeFileSync(`${this.projectDir}/src/contracts/stubs.js`, source)
+    writeFileSync(`${this.projectDir}/src/contracts/stubs.js`, source)
   }
 }

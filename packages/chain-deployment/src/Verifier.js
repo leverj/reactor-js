@@ -6,7 +6,8 @@ import * as hardhat from './hardhat.cjs'
 
 
 export class Verifier {
-  constructor(config) {
+  constructor(config, logger = console) {
+    this.logger = logger
     const {deployer, network, networks} = config
     this.designatedNetwork = networks[network]
     hardhat.config.networks = {
@@ -29,11 +30,11 @@ export class Verifier {
       await this.waitUntilContractVisible(contractAddress)
       await this.verify(contractName, contractAddress, constructorArguments)
     } catch (e) {
-      console.error(e)
-      console.log('.'.repeat(120))
-      console.log(`!!! cannot verify contract on ${this.designatedNetwork.name} !!! `.padEnd(120, '.'))
-      console.log(`you will have to verify manually on ${this.designatedNetwork.browserURL}/verifyContract using the following data:`)
-      console.log({
+      this.logger.error(e)
+      this.logger.log('.'.repeat(120))
+      this.logger.log(`!!! cannot verify contract on ${this.designatedNetwork.name} !!! `.padEnd(120, '.'))
+      this.logger.log(`you will have to verify manually on ${this.designatedNetwork.browserURL}/verifyContract using the following data:`)
+      this.logger.log({
         contractName,
         contractAddress,
         compilerType: 'Solidity (Single File)',
@@ -47,10 +48,10 @@ export class Verifier {
   }
 
   async verify(contractName, address, constructorArguments, maxAttempts = 3, attempt = 1) {
-    console.log(`verifying ${contractName} contract `.padEnd(120, '.'))
+    this.logger.log(`verifying ${contractName} contract `.padEnd(120, '.'))
     try {
       await hardhat.run('verify:verify', {address, constructorArguments})
-      console.log(`verified ${contractName} contract `.padEnd(120, '.'))
+      this.logger.log(`verified ${contractName} contract `.padEnd(120, '.'))
     } catch (e) {
       if (e.message.endsWith('Reason: Already Verified')) return
       if (attempt === maxAttempts) {
@@ -75,7 +76,7 @@ export class Verifier {
     const {data: {status, message}} = await axios.get(url)
     if (status !== '0') return /* success */
 
-    console.log(`[attempt ${attempt}] - Contract ${address} is still not visible`)
+    this.logger.log(`[attempt ${attempt}] - Contract ${address} is still not visible`)
     if (attempt < maxAttempts) {
       await sleep(attempt * 10 * 1000)
       await this.waitUntilContractVisible(address, maxAttempts, attempt + 1)
