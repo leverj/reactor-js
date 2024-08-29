@@ -20,7 +20,7 @@ export class MultiContractTracker {
   }
 
   static from(store, chainId, provider, polling, processEvent = logger.log, logger = console) {
-    const key = [chainId]
+    const key = chainId
     store.update(key, this.defaults())
     return new this(store, chainId, provider, polling, processEvent, logger)
   }
@@ -28,7 +28,6 @@ export class MultiContractTracker {
   constructor(store, chainId, provider, polling, processEvent, logger) {
     this.store = store
     this.chainId = chainId
-    this.key = [chainId]
     this.provider = provider
     this.processEvent = processEvent
     this.polling = polling
@@ -37,8 +36,8 @@ export class MultiContractTracker {
     this.load()
     exitHook(() => this.stop())
   }
+  get key() { return this.chainId }
   get lastBlock() { return this.marker.block }
-  get info() { return `tracker [${this.key}]` }
 
   load() {
     const {marker, toOnboard, abis, contracts} = this.store.get(this.key)
@@ -98,7 +97,7 @@ export class MultiContractTracker {
 
   async start() {
     if (!this.isRunning) {
-      this.logger.log(`starting ${this.info}`)
+      this.logger.log(`starting tracker [${this.key}]`)
       while (this.toOnboard.length > 0)  {
         const {address, kind} = this.toOnboard.shift()
         const contract = new Contract(address, this.interfaces[kind], this.provider)
@@ -111,7 +110,7 @@ export class MultiContractTracker {
 
   stop() {
     if (this.isRunning) {
-      this.logger.log(`stopping ${this.info}`)
+      this.logger.log(`stopping tracker [${this.key}]`)
       this.isRunning = false
       if (this.pollingTimer) clearTimeout(this.pollingTimer)
     }
@@ -126,7 +125,7 @@ export class MultiContractTracker {
     try {
       await this.poll()
     } catch (e) {
-      if (attempts === 1) this.logger.error(`${this.info} failed during polling for events`, e, e.cause || '')
+      if (attempts === 1) this.logger.error(`tracker [${this.key}] failed during polling for events`, e, e.cause || '')
       return attempts === this.polling.attempts ? this.fail(e) : this.pollForEvents(attempts + 1)
     }
     if (this.isRunning) this.pollingTimer = setTimeout(_ => this.pollForEvents(_), this.polling.interval)

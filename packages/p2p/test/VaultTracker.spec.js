@@ -1,5 +1,4 @@
 import {ETH} from '@leverj/common/utils'
-import {TrackerMarkerFactory} from '@leverj/chain-tracking'
 import {encodeTransfer} from '@leverj/reactor.chain/contracts'
 import {
   chainId,
@@ -37,13 +36,12 @@ describe('VaultTracker', () => {
       }
     }
     const store = new KeyvJsonStore(confDir, 'TrackerMarker')
-    const factory = TrackerMarkerFactory(store, fromChainId)
-    tracker = await VaultTracker(factory, fromVault, polling, node)
+    tracker = await VaultTracker(store, fromChainId, fromVault, polling, node)
     await tracker.start()
   })
   afterEach(() => {
     tracker.stop()
-    tracker.marker.store.clear()
+    tracker.store.clear()
   })
   after(() => rmSync(confDir, {recursive: true, force: true}))
 

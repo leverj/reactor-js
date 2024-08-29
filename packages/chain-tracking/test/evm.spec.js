@@ -1,6 +1,6 @@
+import {getCreationBlock} from '@leverj/chain-tracking'
 import {ERC20, provider} from '@leverj/chain-tracking/test'
 import {expect} from 'expect'
-import {getCreationBlock} from '../src/evm.js'
 
 describe('evm', () => {
   it('getCreationBlock', async () => {

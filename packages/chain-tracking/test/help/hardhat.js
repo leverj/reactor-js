@@ -1,5 +1,5 @@
 import * as hardhat from 'hardhat'
 
-export const {ethers, network} = hardhat.default
+export const {ethers} = hardhat.default
 export const {deployContract, getContractFactory, getSigners, provider, getContractAt, ZeroAddress} = ethers
-export const {config: {chainId}} = network
+export const chainId = await provider.getNetwork().then(_ => _.chainId)
