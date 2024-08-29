@@ -1,6 +1,8 @@
 require('@nomiclabs/hardhat-ethers')
 require('@nomiclabs/hardhat-etherscan')
 require('hardhat-gas-reporter')
+require('hardhat-switch-network')
+require('xdeployer')
 
 module.exports = {
   solidity: {

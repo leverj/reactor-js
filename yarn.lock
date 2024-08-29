@@ -848,13 +848,16 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@leverj/chain-deployment@workspace:packages/chain-deployment"
   dependencies:
+    "@nomicfoundation/hardhat-ethers": "npm:^3.0.7"
     "@nomiclabs/hardhat-ethers": "npm:^3.0.0-beta.0"
     "@nomiclabs/hardhat-etherscan": "npm:^3.1.8"
-    ethers: "npm:^6.13.1"
+    ethers: "npm:^6.13.2"
     glob: "npm:^11.0.0"
-    hardhat: "npm:^2.22.6"
-    hardhat-gas-reporter: "npm:^2.2.0"
-    solidity-coverage: "npm:^0.8.12"
+    hardhat: "npm:^2.22.9"
+    hardhat-gas-reporter: "npm:^2.2.1"
+    hardhat-switch-network: "npm:^1.1.0"
+    solidity-coverage: "npm:^0.8.13"
+    xdeployer: "npm:^3.0.16"
   languageName: unknown
   linkType: soft
 
@@ -862,12 +865,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@leverj/chain-tracking@workspace:packages/chain-tracking"
   dependencies:
+    "@leverj/chain-deployment": "npm:0.1.0"
     "@leverj/common": "npm:^1.1.1"
-    "@nomiclabs/hardhat-ethers": "npm:^3.0.0-beta.0"
     "@openzeppelin/contracts": "npm:^5.0.2"
     async-exit-hook: "npm:^2.0.1"
     ethers: "npm:^6.13.2"
-    hardhat: "npm:^2.22.6"
     immutable: "npm:^5.0.0-rc.1"
     lodash-es: "npm:^4.17.21"
   languageName: unknown
@@ -1642,6 +1644,19 @@ __metadata:
     c-kzg:
       optional: true
   checksum: 228e8cb018ce6b487a0eb65c585d692b56bb306a26df3f6f063cdf87feea6174b005b25f2dc4547b940f76d0d6c4bcaa8ffbbcce482091168cdf3c6fe2f8b5da
+  languageName: node
+  linkType: hard
+
+"@nomicfoundation/hardhat-ethers@npm:^3.0.7":
+  version: 3.0.7
+  resolution: "@nomicfoundation/hardhat-ethers@npm:3.0.7"
+  dependencies:
+    debug: "npm:^4.1.1"
+    lodash.isequal: "npm:^4.5.0"
+  peerDependencies:
+    ethers: ^6.1.0
+    hardhat: "*"
+  checksum: 623efffe17fd770bf71ebf8692141d534b88a71e7a2dbaae020e3a3f4528cebb65acf485ab456da6ec80f5d61a4e973fef2803f988e01e9385fe050e7111dab9
   languageName: node
   linkType: hard
 
@@ -5595,7 +5610,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hardhat-gas-reporter@npm:^2.2.0":
+"hardhat-gas-reporter@npm:^2.2.1":
   version: 2.2.1
   resolution: "hardhat-gas-reporter@npm:2.2.1"
   dependencies:
@@ -5620,9 +5635,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hardhat@npm:^2.22.6":
-  version: 2.22.8
-  resolution: "hardhat@npm:2.22.8"
+"hardhat-switch-network@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "hardhat-switch-network@npm:1.1.0"
+  peerDependencies:
+    hardhat: ^2.22.0
+  checksum: d7aafe202c76045463a5d2de882e5269a2739d454fe3265899aa10bd878a6d687708cd90345cf720c8223a1cdadf4f702dc4aee84c642d5f32f7c9837defd5a7
+  languageName: node
+  linkType: hard
+
+"hardhat@npm:^2.22.9":
+  version: 2.22.9
+  resolution: "hardhat@npm:2.22.9"
   dependencies:
     "@ethersproject/abi": "npm:^5.1.2"
     "@metamask/eth-sig-util": "npm:^4.0.0"
@@ -5677,7 +5701,7 @@ __metadata:
       optional: true
   bin:
     hardhat: internal/cli/bootstrap.js
-  checksum: 0df99b42efba6942f30f3ef1e3b46012a8ff745fbf5a946dc7611690f9c13d29b79aff4ce71369911b610a31e84e7ac93fa797be25dc4a0f26dfc5cd94643f92
+  checksum: 172a0ecab081c76b6da68f84297ccf24e5ad9e9ba3372b5c456d848f3de96d92ecbae7d0e80d9dfeca9a17773e30dc208ea45d5855594605db42bf915b749174
   languageName: node
   linkType: hard
 
@@ -7096,6 +7120,13 @@ __metadata:
   version: 4.17.21
   resolution: "lodash-es@npm:4.17.21"
   checksum: fb407355f7e6cd523a9383e76e6b455321f0f153a6c9625e21a8827d10c54c2a2341bd2ae8d034358b60e07325e1330c14c224ff582d04612a46a4f0479ff2f2
+  languageName: node
+  linkType: hard
+
+"lodash.isequal@npm:^4.5.0":
+  version: 4.5.0
+  resolution: "lodash.isequal@npm:4.5.0"
+  checksum: dfdb2356db19631a4b445d5f37868a095e2402292d59539a987f134a8778c62a2810c2452d11ae9e6dcac71fc9de40a6fedcb20e2952a15b431ad8b29e50e28f
   languageName: node
   linkType: hard
 
@@ -9603,9 +9634,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"solidity-coverage@npm:^0.8.12":
-  version: 0.8.12
-  resolution: "solidity-coverage@npm:0.8.12"
+"solidity-coverage@npm:^0.8.13":
+  version: 0.8.13
+  resolution: "solidity-coverage@npm:0.8.13"
   dependencies:
     "@ethersproject/abi": "npm:^5.0.9"
     "@solidity-parser/parser": "npm:^0.18.0"
@@ -9630,7 +9661,7 @@ __metadata:
     hardhat: ^2.11.0
   bin:
     solidity-coverage: plugins/bin.js
-  checksum: 500de00ca5d0ff9531bcfc54040591e90bb281714c5ad810bc6aa77bb6ab696f15a141f6bcb1a47547dca68d10e717e1705741d4cf660d7dce8700fa97e6bfaf
+  checksum: 9a7312c05a347c8717367405543b5d854dd82df0f398ff1cb31d2c45d1a7756d0b3798877b86a6b6a5ae29b34f33baf90846ceeca155d5936ce3caf63720b860
   languageName: node
   linkType: hard
 
@@ -10725,6 +10756,17 @@ __metadata:
     utf-8-validate:
       optional: true
   checksum: bd7d5f4aaf04fae7960c23dcb6c6375d525e00f795dd20b9385902bd008c40a94d3db3ce97d878acc7573df852056ca546328b27b39f47609f80fb22a0a9b61d
+  languageName: node
+  linkType: hard
+
+"xdeployer@npm:^3.0.16":
+  version: 3.0.16
+  resolution: "xdeployer@npm:3.0.16"
+  peerDependencies:
+    "@nomicfoundation/hardhat-ethers": ^3.0.7
+    ethers: ^6.13.2
+    hardhat: ^2.22.9
+  checksum: 2088fbca7ddd10cdb09b3921b5f4a60b6acbd9dc070daab4d64c0ee61cad785fe82427cb74d20b67912f1db93a391e06699ee8214f09adbe17e48e69b8a2f323
   languageName: node
   linkType: hard
 

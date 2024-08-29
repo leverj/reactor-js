@@ -19,9 +19,8 @@
     "lodash-es": "^4.17.21"
   },
   "devDependencies": {
+    "@leverj/chain-deployment": "0.1.0",
     "@leverj/common": "^1.1.1",
-    "@nomiclabs/hardhat-ethers": "^3.0.0-beta.0",
-    "@openzeppelin/contracts": "^5.0.2",
-    "hardhat": "^2.22.6"
+    "@openzeppelin/contracts": "^5.0.2"
   }
 }
