@@ -8,7 +8,7 @@ import {Verifier} from './Verifier.js'
 
 export class Deploy {
   constructor(projectDir, config, options = {reset: false, skipVerify: true, logger: console}) {
-    this.logger = options.logger
+    this.logger = options.logger || console
     if (options.network) config.network = options.network
     const {deployer, network, networks, contracts} = config
     this.contracts = contracts

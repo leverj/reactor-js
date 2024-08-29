@@ -2,7 +2,7 @@ import axios from 'axios'
 import {setTimeout as sleep} from 'node:timers/promises'
 import solc from '@nomiclabs/hardhat-etherscan/dist/src/solc/version.js'
 import changeNetwork from './change-network.js'
-import {hre} from './hardhat.js'
+import {config, hardhat} from './hardhat.js'
 
 
 export class Verifier {
@@ -10,19 +10,19 @@ export class Verifier {
     this.logger = logger
     const {deployer, network, networks} = config
     this.designatedNetwork = networks[network]
-    hre.config.networks = {
+    config.networks = {
       [network]: {
         url: networks[network].providerURL || 'some url',
         chainId: networks[network].chainId,
         accounts: [`0x${deployer.privateKey}`]
       }
     }
-    hre.config.etherscan = {apiKey: networks[network].apiKey, customChains: []}
+    config.etherscan = {apiKey: networks[network].apiKey, customChains: []}
     changeNetwork(hardhat, network)
   }
 
   async compilerVersion() {
-    return solc.getLongVersion(hre.config.solidity.compilers[0].version)
+    return solc.getLongVersion(config.solidity.compilers[0].version)
   }
 
   async verifyCode(contractName, contractAddress, sourcePath, constructor, constructorArguments) {
@@ -50,7 +50,7 @@ export class Verifier {
   async verify(contractName, address, constructorArguments, maxAttempts = 3, attempt = 1) {
     this.logger.log(`verifying ${contractName} contract `.padEnd(120, '.'))
     try {
-      await hre.run('verify:verify', {address, constructorArguments})
+      await hardhat.run('verify:verify', {address, constructorArguments})
       this.logger.log(`verified ${contractName} contract `.padEnd(120, '.'))
     } catch (e) {
       if (e.message.endsWith('Reason: Already Verified')) return

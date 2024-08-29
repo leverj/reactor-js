@@ -1,4 +1,4 @@
-import * as hardhat from 'hardhat'
+export {default as hardhat} from 'hardhat'
+import {default as hardhat} from 'hardhat'
 
-export const hre = hardhat.default
-export const {ethers, network, config} = hre
+export const {config, ethers, network} = hardhat
