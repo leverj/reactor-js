@@ -1,6 +1,20 @@
+import {Deploy} from '@leverj/chain-deployment'
+import {logger} from '@leverj/common/utils'
 import {Map} from 'immutable'
 import {Chain} from './evm.js'
 import {Contract} from 'ethers'
+
+const config = {
+  deployer: '',
+  networks: '',
+  contracts: '',
+}
+const options = {
+  reset: true,
+  skipVerify: true,
+  network: 'hardhat',
+  logger,
+}
 
 export class MultiChainContractCoordinator {
   constructor() {
@@ -18,6 +32,15 @@ export class MultiChainContractCoordinator {
   }
 
   joinContract(chainId, address, abi) {
+    const contract = new Contract(address, abi, this.provider(chainId))
+    this.contracts.setIn([chainId, address], contract)
+    return contract
+  }
+
+  async deployContract(chainId, address, abi) {
+    //fixme facilitate deploy single contract
+    await new Deploy(process.env.PWD, config, options).run().catch(logger.error)
+
     const contract = new Contract(address, abi, this.provider(chainId))
     this.contracts.setIn([chainId, address], contract)
     return contract
