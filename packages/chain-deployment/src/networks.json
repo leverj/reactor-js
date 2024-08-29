@@ -1,0 +1,91 @@
+{
+  "ethereum-mainnet": {
+    "chainId": 1,
+    "name": "Ethereum Mainnet",
+    "apiURL": "https://api.etherscan.io/api",
+    "browserURL": "https://etherscan.io"
+  },
+  "ethereum-rinkeby": {
+    "chainId": 4,
+    "name": "Rinkeby Testnet",
+    "apiURL": "https://api-rinkeby.etherscan.io/api",
+    "browserURL": "https://rinkeby.etherscan.io"
+  },
+  "ethereum-sepolia": {
+    "chainId": 11155111,
+    "name": "Sepolia Testnet",
+    "apiURL": "https://api-sepolia.etherscan.io/api",
+    "browserURL": "https://sepolia.etherscan.io"
+  },
+
+  "binance-mainnet": {
+    "chainId": 56,
+    "name": "BSC Mainnet",
+    "apiURL": "https://api.bscscan.com/api",
+    "browserURL": "https://bscscan.com"
+  },
+  "binance-testnet": {
+    "chainId": 97,
+    "name": "BSC Testnet",
+    "apiURL": "https://api-testnet.bscscan.com/api",
+    "browserURL": "https://testnet.bscscan.com"
+  },
+
+  "huobi-mainnet": {
+    "chainId": 128,
+    "name": "Huobi Mainnet",
+    "apiURL": "https://api.hecoinfo.com/api",
+    "browserURL": "https://hecoinfo.com"
+  },
+  "huobi-testnet": {
+    "chainId": 256,
+    "name": "Huobi Testnet",
+    "apiURL": "https://api-testnet.hecoinfo.com/api",
+    "browserURL": "https://testnet.hecoinfo.com"
+  },
+
+  "fantom-mainnet": {
+    "chainId": 250,
+    "name": "Fantom Mainnet",
+    "apiURL": "https://api.ftmscan.com/api",
+    "browserURL": "https://ftmscan.com"
+  },
+  "fantom-testnet": {
+    "chainId": 4002,
+    "name": "Fantom Testnet",
+    "apiURL": "https://api-testnet.ftmscan.com/api",
+    "browserURL": "https://testnet.ftmscan.com"
+  },
+
+  "matic-mainnet": {
+    "chainId": 137,
+    "name": "Polygon Mainnet",
+    "apiURL": "https://api.polygonscan.com/api",
+    "browserURL": "https://polygonscan.com"
+  },
+  "matic-mumbai": {
+    "chainId": 80001,
+    "name": "Mumbai Testnet",
+    "apiURL": "https://api-testnet.polygonscan.com/api",
+    "browserURL": "https://mumbai.polygonscan.com/"
+  },
+
+  "arbitrum-mainnet": {
+    "chainId": 42161,
+    "name": "Arbitrum Mainnet",
+    "apiURL": "https://api.arbiscan.io/api",
+    "browserURL": "https://arbiscan.io/"
+  },
+  "arbitrum-testnet": {
+    "chainId": 421611,
+    "name": "Arbitrum Rinkeby",
+    "apiURL": "https://api-testnet.arbiscan.io/api",
+    "browserURL": "https://testnet.arbiscan.io/"
+  },
+
+  "localhost": {
+    "chainId": 31337,
+    "name": "localhost",
+    "browserURL": "http://localhost:8545/"
+  }
+}
