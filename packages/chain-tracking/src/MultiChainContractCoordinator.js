@@ -10,7 +10,7 @@ export class MultiChainContractCoordinator {
 
   chain(chainId) { return this.chains.get(chainId) }
   provider(chainId) { return this.chain(chainId).provider }
-  contract(chainId) { return this.contracts.get(chainId) }
+  contract(chainId, address) { return this.contracts.getIn([chainId, address]) }
 
   async joinChain(provider) {
     const chain = await Chain.from(provider)
@@ -19,7 +19,7 @@ export class MultiChainContractCoordinator {
 
   joinContract(chainId, address, abi) {
     const contract = new Contract(address, abi, this.provider(chainId))
-    this.contracts.set(address, contract)
+    this.contracts.setIn([chainId, address], contract)
     return contract
   }
 

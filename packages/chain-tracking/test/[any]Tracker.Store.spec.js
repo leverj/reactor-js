@@ -21,7 +21,7 @@ describe('ContractTracker / Store interaction', () => {
     const defaults = {contract, topics}
     const store = new InMemoryStore()
     tracker = ContractTracker.from(store, chainId, address, provider, defaults, polling, _ => _, logger)
-    const key = [chainId, address]
+    const key = [chainId, address].join(':')
     const before = cloneDeep(store.get(key))
     expect(tracker.marker).toEqual(before.marker)
     expect(tracker.marker.block).toEqual(0)
@@ -51,7 +51,7 @@ describe('ContractTracker / Store interaction', () => {
 
     const store = new InMemoryStore()
     tracker = MultiContractTracker.from(store, chainId, provider, polling, _ => _, logger)
-    const key = [chainId]
+    const key = chainId
     const before = cloneDeep(store.get(key))
     expect(before.abis).toHaveLength(0)
     expect(before.contracts).toHaveLength(0)

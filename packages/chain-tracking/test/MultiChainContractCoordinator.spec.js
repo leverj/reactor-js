@@ -22,8 +22,15 @@ describe('MultiChainContractCoordinator', () => {
     const contract = await ERC20()
     const {runner: {provider}, target: address, interface: iface} = contract
     await coordinator.joinChain(provider)
-    const deployed = coordinator.joinContract((await provider.getNetwork()).chainId, address, iface.format())
-    console.log('>'.repeat(5), deployed.target)
-    // expect(deployed).toEqual(contract)
+    {
+      const chainId = await provider.getNetwork().then(_ => _.chainId)
+      const deployed = coordinator.joinContract(chainId, address, iface.format())
+      expect(deployed).toBe(coordinator.contract(chainId, address))
+
+      // prove deployed is the original contract
+      expect(await contract.balanceOf(account.address)).toEqual(0n)
+      await deployed.connect(deployer).mint(account.address, 999n)
+      expect(await contract.balanceOf(account.address)).toEqual(999n)
+    }
   })
 })

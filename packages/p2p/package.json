@@ -33,6 +33,7 @@
     "it-pipe": "^3.0.1",
     "keyv-file": "^0.3.3",
     "libp2p": "^1.9.2",
+    "lodash-es": "^4.17.21",
     "uint8arrays": "^5.1.0"
   },
   "devDependencies": {
