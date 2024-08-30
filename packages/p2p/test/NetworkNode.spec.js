@@ -10,6 +10,9 @@ import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
 import {NetworkNode} from '../src/NetworkNode.js'
 import {waitToSync} from '../src/utils.js'
 import {peerIdJsons} from './fixtures.js'
+import config from 'config'
+
+const {timeout, tryCount} = config
 
 describe('NetworkNode', () => {
   const meshProtocol = '/mesh/1.0.0'
@@ -28,7 +31,7 @@ describe('NetworkNode', () => {
       nodes.push(node)
       if (i === 0) bootstrapNodes = node.multiaddrs
     }
-    await waitToSync([_ => nodes[count - 1].peers.length === nodes.length - 1])
+    await waitToSync([_ => nodes[count - 1].peers.length === nodes.length - 1], tryCount, timeout)
   }
 
   it('should be able to ping a node', async () => {

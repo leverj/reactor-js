@@ -8,7 +8,7 @@ import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
 import {events, PEER_CONNECT, PEER_DISCOVERY, tryAgainIfError} from './utils.js'
 import {P2P} from './P2P.js'
 
-const {externalIp} = config
+const {externalIp, tryCount, timeout} = config
 
 export class NetworkNode {
   static async from(port, peerIdJson, bootstrapNodes) {
@@ -82,7 +82,9 @@ export class NetworkNode {
     }
   }
 
-  async createStream(peerId, protocol) { return tryAgainIfError(_ => this.p2p.dialProtocol(peerIdFromString(peerId), protocol)) }
+  async createStream(peerId, protocol) {
+    return tryAgainIfError(_ => this.p2p.dialProtocol(peerIdFromString(peerId), protocol), tryCount, timeout)
+  }
 
   async sendMessageOnStream(stream, message) { return stream.sink([uint8ArrayFromString(message)]) }
 
