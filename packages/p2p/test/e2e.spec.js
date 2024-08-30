@@ -11,8 +11,8 @@ import {getNodeInfos} from './fixtures.js'
 
 const {bridgeNode, externalIp, port: leaderPort} = config
 
-const store = await Store.JsonDir(bridgeNode.confDir, 'Info')
 describe('e2e', () => {
+  const store = Store.JsonDir(bridgeNode.confDir, 'Info')
   const processes = {}
 
   beforeEach(async () => await store.clear())
@@ -29,9 +29,15 @@ describe('e2e', () => {
       const index = port - leaderPort
       const bootstrapNodes = port === leaderPort ?
         [] :
-        await tryAgainIfError(_ => store.get(leaderPort, true)).
-          then(_ => _.p2p.id).
-          then(leader => [`/ip4/${externalIp}/tcp/${bridgeNode.port}/p2p/${leader}`])
+        await tryAgainIfError(async _ => {
+          const leader = (await store.get(leaderPort))?.p2p.id
+          if (leader) return [`/ip4/${externalIp}/tcp/${bridgeNode.port}/p2p/${leader}`]
+          else {
+            const e = Error(`no leader found @ port ${leaderPort}`)
+            e.code = 'ENOENT' //fixme: what is the expected error code / failure here?
+            throw e
+          }
+        })
       const env = Object.assign({}, process.env, {
         PORT: port,
         BRIDGE_PORT: bridgeNode.port + index,

@@ -1,12 +1,12 @@
 import {InMemoryStore} from './InMemoryStore.js'
 import {JsonDirStore} from './JsonDirStore.js'
-import {KeyvStore} from './KeyvStore.js'
+import {JsonStore} from './JsonStore.js'
 import {LevelStore} from './LevelStore.js'
 
 export const Store = {
   InMemory: () => new InMemoryStore(),
   JsonDir: (path, type) => new JsonDirStore(path, type),
-  Json: (path, type, options) => new KeyvStore(path, type, options),
+  Json: (path, type, options) => new JsonStore(path, type, options),
   Level: (path, type, options) => new LevelStore(path, type, options),
 
   /**   Store api:

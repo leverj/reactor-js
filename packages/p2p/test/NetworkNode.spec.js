@@ -65,7 +65,7 @@ describe('NetworkNode', () => {
 
   it('it should send data using gossipsub', async () => {
     const transferReceipts = {} // each node will just save the transferHash and ack. later children will sign and attest point to point
-    await startNetworkNodes(4, true)
+    await startNetworkNodes(4)
     const [leader, node2, node3, node4] = nodes
     for (let each of [node2, node3, node4]) {
       await each.connectPubSub(

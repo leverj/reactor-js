@@ -12,15 +12,15 @@ export class JsonDirStore {
   _create() { if (!existsSync(this.path)) mkdirSync(this.path, {recursive: true}) }
   _destroy() { rmSync(this.path, {recursive: true, force: true}) }
 
-  async get(key, force = false) { return force || await this.has(key) ? this._get(key) : undefined } //fixme: remove the need for 'force'
+  async get(key) { return await this.has(key) ? this._get(key) : undefined }
   // async getMany(keys) { return [] }
   async set(key, value) {
     if (!existsSync(this.path)) mkdirSync(this.path, {recursive: true})
     writeFileSync(this._file(key), JSON.stringify(value, null, 2))
   }
   async update(key, value) {
-    const update = merge(await super.get(key) || {}, value)
-    return this.set(key, update)
+    const updated = merge(await super.get(key) || {}, value)
+    return this.set(key, updated)
   }
   async delete(key) { if (existsSync(this._file(key))) rmSync(this._file(key))}
   // async deleteMany(keys) { }
