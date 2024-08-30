@@ -10,7 +10,7 @@ export class JsonDirStore {
   _file(key) { return `${this.path}/${key}.json` }
   _get(key) { return JSON.parse(readFileSync(this._file(key)).toString()) }
   async has(key) { return existsSync(this._file(key)) }
-  async get(key, force = false) { return force || await this.has(key) ?this._get(key) : undefined }
+  async get(key, force = false) { return force || await this.has(key) ? this._get(key) : undefined } //fixme: remove the need for 'force'
   async set(key, value) {
     if (!existsSync(this.path)) mkdirSync(this.path, {recursive: true})
     writeFileSync(this._file(key), JSON.stringify(value, null, 2))

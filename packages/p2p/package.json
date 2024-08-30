@@ -31,11 +31,9 @@
     "express": "^4.19.2",
     "it-map": "^3.1.1",
     "it-pipe": "^3.0.1",
-    "keyv-file": "^5.0.0",
     "level": "^8.0.1",
     "libp2p": "^1.9.2",
     "lodash-es": "^4.17.21",
-    "lowdb": "^7.0.1",
     "uint8arrays": "^5.1.0"
   },
   "devDependencies": {

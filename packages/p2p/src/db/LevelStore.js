@@ -3,7 +3,7 @@ import {merge} from 'lodash-es'
 
 export class LevelStore {
   static from(path, type) {
-    const db = new Level(`${path}/${type}-db.json`, {valueEncoding: 'json'})
+    const db = new Level(`${path}/${type}.json`, {valueEncoding: 'json'})
     return new this(db)
   }
   constructor(db) { this.db = db }

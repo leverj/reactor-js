@@ -23,7 +23,7 @@ const {bridgeNode: {confDir}, chain: {polling}} = config
 describe('VaultTracker', () => {
   const [, account] = accounts
   const fromChainId = chainId, toChainId = 98989n, amount = 1000n
-  let fromVault, toVault, tracker
+  let fromVault, toVault, tracker, store
 
   beforeEach(async () => {
     fromVault = await Vault(fromChainId, publicKey), toVault = await Vault(toChainId, publicKey)
@@ -35,15 +35,18 @@ describe('VaultTracker', () => {
         await toVault.checkIn(signature, publicKey, payload).then(_ => _.wait())
       }
     }
-    const store = Store.Keyv(confDir, 'TrackerMarker')
+    store = await Store.Level(confDir, 'TrackerMarker')
     tracker = await VaultTracker(store, fromChainId, fromVault, polling, node)
     await tracker.start()
   })
   afterEach(async () => {
     tracker.stop()
-    await tracker.store.clear()
+    await store.clear()
   })
-  after(() => rmSync(confDir, {recursive: true, force: true}))
+  after(async () => {
+    await store.close()
+    rmSync(confDir, {recursive: true, force: true})
+  })
 
   it('should respond on Transfer event', async () => {
     const before = await provider.getBalance(account)

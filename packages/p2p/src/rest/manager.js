@@ -5,7 +5,7 @@ import {events, INFO_CHANGED} from '../utils.js'
 
 const {bridgeNode, port} = config
 
-const store = Store.Json(bridgeNode.confDir, 'Info')
+const store = await Store.Json(bridgeNode.confDir, 'Info')
 
 class Info {
   constructor(node, data) {
