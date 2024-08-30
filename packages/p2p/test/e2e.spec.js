@@ -11,7 +11,7 @@ import {getNodeInfos} from './fixtures.js'
 
 const {bridgeNode, externalIp, port: leaderPort} = config
 
-const store = await Store.Json(bridgeNode.confDir, 'Info')
+const store = await Store.JsonDir(bridgeNode.confDir, 'Info')
 describe('e2e', () => {
   const processes = {}
 
