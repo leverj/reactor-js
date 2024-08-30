@@ -19,10 +19,12 @@ export class MultiContractTracker {
     }
   }
 
-  static from(store, chainId, provider, polling, processEvent = logger.log, logger = console) {
+  static async from(store, chainId, provider, polling, processEvent = logger.log, logger = console) {
     const key = chainId
-    store.update(key, this.defaults())
-    return new this(store, chainId, provider, polling, processEvent, logger)
+    await store.update(key, this.defaults())
+    const instance = new this(store, chainId, provider, polling, processEvent, logger)
+    await instance.load()
+    return instance
   }
 
   constructor(store, chainId, provider, polling, processEvent, logger) {
@@ -33,14 +35,13 @@ export class MultiContractTracker {
     this.polling = polling
     this.logger = logger
     this.isRunning = false
-    this.load()
     exitHook(() => this.stop())
   }
   get key() { return this.chainId }
   get lastBlock() { return this.marker.block }
 
-  load() {
-    const {marker, toOnboard, abis, contracts} = this.store.get(this.key)
+  async load() {
+    const {marker, toOnboard, abis, contracts} = await this.store.get(this.key)
     this.marker = marker
     this.toOnboard = toOnboard
     this.contracts = {}
@@ -54,8 +55,8 @@ export class MultiContractTracker {
     })
   }
 
-  update(state) { this.store.update(this.key, state) }
-  updateMarker(state) { this.update({marker: merge(this.marker, state)}) }
+  async update(state) { return this.store.update(this.key, state) }
+  async updateMarker(state) { return this.update({marker: merge(this.marker, state)}) }
 
   _addContract_(contract, kind) {
     const {runner: {provider}, target: address, interface: iface} = contract
@@ -71,14 +72,14 @@ export class MultiContractTracker {
 
   async addContract(contract, kind) {
     this._addContract_(contract, kind)
-    this.isRunning ?
-      await this.onboard(contract, kind) :
+    return this.isRunning ?
+      this.onboard(contract, kind) :
       this.scheduleToOnboard(contract.target, kind)
   }
 
-  scheduleToOnboard(address, kind) {
+  async scheduleToOnboard(address, kind) {
     this.toOnboard.push({address, kind})
-    this.update({toOnboard: this.toOnboard})
+    await this.update({toOnboard: this.toOnboard})
   }
 
   async onboard(contract, kind) {
@@ -86,10 +87,10 @@ export class MultiContractTracker {
     const topics = this.topicsByKind[kind]
     const defaults = {contract, topics}
     const address = contract.target
-    const tracker = ContractTracker.from(new InMemoryStore(), chainId, address, provider, defaults, polling, processEvent, logger)
+    const tracker = await ContractTracker.from(new InMemoryStore(), chainId, address, provider, defaults, polling, processEvent, logger)
     const creationBlock = await getCreationBlock(provider, address).catch(_ => 0)
     await tracker.processLogs(creationBlock, lastBlock)
-    this.update({
+    await this.update({
       contracts: Map(this.contracts).toArray(),
       abis: Map(this.interfaces).map(_ => _.format()).toArray(),
     })
@@ -147,7 +148,7 @@ export class MultiContractTracker {
       map((value, _) => value.sortBy(_ => _.logIndex).toArray()).
       toKeyedSeq()
     for (let [block, blockLogs] of logsPerBlock) await this.onNewBlock(block, blockLogs)
-    if (this.lastBlock < toBlock) this.updateMarker({block: toBlock, blockWasProcessed: true})
+    if (this.lastBlock < toBlock) await this.updateMarker({block: toBlock, blockWasProcessed: true})
   }
 
   async getLogsFor(fromBlock, toBlock, topics) {
@@ -179,13 +180,13 @@ export class MultiContractTracker {
   }
 
   async onNewBlock(block, logs) {
-    this.updateMarker(block > this.lastBlock ? {block, logIndex: -1, blockWasProcessed: false} : {blockWasProcessed: false})
+    await this.updateMarker(block > this.lastBlock ? {block, logIndex: -1, blockWasProcessed: false} : {blockWasProcessed: false})
     for (let each of logs) if (this.contracts[each.address]) {
       const event = this.toEvent(each)
       await this.processEvent(event)
-      this.updateMarker({logIndex: each.logIndex})
+      await this.updateMarker({logIndex: each.logIndex})
     }
-    this.updateMarker({blockWasProcessed: true})
+    await this.updateMarker({blockWasProcessed: true})
   }
 
   toEvent(log) {

@@ -5,16 +5,17 @@ import config from 'config'
 import {expect} from 'expect'
 import {rmSync} from 'node:fs'
 import {setTimeout} from 'node:timers/promises'
-import {JsonStore, tryAgainIfError, waitToSync} from '../src/utils/index.js'
+import {tryAgainIfError, waitToSync} from '../src/utils.js'
+import {Store} from '../src/db/Store.js'
 import {getNodeInfos} from './fixtures.js'
 
 const {bridgeNode, externalIp, port: leaderPort} = config
 
 describe('e2e', () => {
-  const store = new JsonStore(bridgeNode.confDir, 'Info')
+  const store = Store.Json(bridgeNode.confDir, 'Info')
   const processes = {}
 
-  beforeEach(() => store.clear())
+  beforeEach(async () => await store.clear())
   afterEach(async () => await stop())
   after(() => rmSync(bridgeNode.confDir, {recursive: true, force: true}))
 
@@ -28,7 +29,9 @@ describe('e2e', () => {
       const index = port - leaderPort
       const bootstrapNodes = port === leaderPort ?
         [] :
-        await tryAgainIfError(_ => store.get(leaderPort, true).p2p.id).then(leader => [`/ip4/${externalIp}/tcp/${bridgeNode.port}/p2p/${leader}`])
+        await tryAgainIfError(_ => store.get(leaderPort, true)).
+          then(_ => _.p2p.id).
+          then(leader => [`/ip4/${externalIp}/tcp/${bridgeNode.port}/p2p/${leader}`])
       const env = Object.assign({}, process.env, {
         PORT: port,
         BRIDGE_PORT: bridgeNode.port + index,
@@ -54,8 +57,9 @@ describe('e2e', () => {
     return ports
   }
 
-  const createNodeInfos = (howMany) => getNodeInfos(howMany).forEach((info, i) => store.set(leaderPort + i, info))
-
+  const createNodeInfos = async (howMany) => {
+    for (let [i, info] of getNodeInfos(howMany).entries()) await store.set(leaderPort + i, info)
+  }
   const GET = (port, endpoint) => axios.get(`http://127.0.0.1:${port}/api/${endpoint}`).then(_ => _.data)
   const POST = (port, endpoint, payload) => axios.post(`http://127.0.0.1:${port}/api/${endpoint}`, payload || {})
 
@@ -71,7 +75,8 @@ describe('e2e', () => {
     const ports = await createApiNodes(2)
     await POST(leaderPort, 'dkg/start')
     await setTimeout(100)
-    const publicKeys = ports.map(_ => store.get(_).tssNode.groupPublicKey)
+    const nodes = await Promise.all(ports.map(_ => store.get(_)))
+    const publicKeys = nodes.map(_ => _.tssNode.groupPublicKey)
     for (let each of publicKeys) {
       expect(each).not.toBeNull()
       expect(each).toEqual(publicKeys[0])
@@ -82,7 +87,7 @@ describe('e2e', () => {
     await createNodeInfos(3)
     const infos = getNodeInfos(3)
     const ports = await createApiNodes(3)
-    for (let [i, port] of ports.entries()) expect(store.get(port)).toEqual(infos[i])
+    for (let [i, port] of ports.entries()) expect(await store.get(port)).toEqual(infos[i])
   })
 
   it('aggregate signatures over pubsub topic', async () => {
@@ -99,16 +104,16 @@ describe('e2e', () => {
     await GET(leaderPort + 1, 'peer/bootstrapped')
     await stop(ports.slice(2))
     await publishWhitelist(ports.slice(0, 2), 4)
-    expect(store.get(ports[0]).whitelist).toHaveLength(4)
-    expect(store.get(ports[1]).whitelist).toHaveLength(4)
-    expect(store.get(ports[2]).whitelist).toHaveLength(1)
-    expect(store.get(ports[3]).whitelist).toHaveLength(1)
+    expect((await store.get(ports[0])).whitelist).toHaveLength(4)
+    expect((await store.get(ports[1])).whitelist).toHaveLength(4)
+    expect((await store.get(ports[2])).whitelist).toHaveLength(1)
+    expect((await store.get(ports[3])).whitelist).toHaveLength(1)
 
     await createApiNodesFrom(ports.slice(2), 3)
     await waitForWhitelistSync(ports)
-    expect(store.get(ports[0]).whitelist).toHaveLength(4)
-    expect(store.get(ports[1]).whitelist).toHaveLength(4)
-    expect(store.get(ports[2]).whitelist).toHaveLength(4)
-    expect(store.get(ports[3]).whitelist).toHaveLength(4)
+    expect((await store.get(ports[0])).whitelist).toHaveLength(4)
+    expect((await store.get(ports[1])).whitelist).toHaveLength(4)
+    expect((await store.get(ports[2])).whitelist).toHaveLength(4)
+    expect((await store.get(ports[3])).whitelist).toHaveLength(4)
   })
 })

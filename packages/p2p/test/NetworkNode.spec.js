@@ -8,7 +8,7 @@ import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
 import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
 import {NetworkNode} from '../src/NetworkNode.js'
-import {waitToSync} from '../src/utils/index.js'
+import {waitToSync} from '../src/utils.js'
 import {peerIdJsons} from './fixtures.js'
 
 describe('NetworkNode', () => {

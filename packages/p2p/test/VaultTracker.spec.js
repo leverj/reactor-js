@@ -1,21 +1,22 @@
-import {ETH} from '@leverj/common/utils'
 import {encodeTransfer} from '@leverj/reactor.chain/contracts'
 import {
   accounts,
   chainId,
+  ETH,
   getContractAt,
   provider,
   publicKey,
   signedBy,
   signer,
   Vault,
+  ZeroAddress,
 } from '@leverj/reactor.chain/test'
 import config from 'config'
 import {expect} from 'expect'
 import {rmSync} from 'node:fs'
 import {setTimeout} from 'node:timers/promises'
 import {VaultTracker} from '../src/VaultTracker.js'
-import {KeyvJsonStore} from '../src/utils/index.js'
+import {Store} from '../src/db/Store.js'
 
 const {bridgeNode: {confDir}, chain: {polling}} = config
 
@@ -34,13 +35,13 @@ describe('VaultTracker', () => {
         await toVault.checkIn(signature, publicKey, payload).then(_ => _.wait())
       }
     }
-    const store = new KeyvJsonStore(confDir, 'TrackerMarker')
+    const store = Store.Keyv(confDir, 'TrackerMarker')
     tracker = await VaultTracker(store, fromChainId, fromVault, polling, node)
     await tracker.start()
   })
-  afterEach(() => {
+  afterEach(async () => {
     tracker.stop()
-    tracker.store.clear()
+    await tracker.store.clear()
   })
   after(() => rmSync(confDir, {recursive: true, force: true}))
 
@@ -50,8 +51,9 @@ describe('VaultTracker', () => {
     const afterCheckingOut = await provider.getBalance(account)
     expect(afterCheckingOut).toEqual(before - amount)
 
-    await setTimeout(100)
+    await setTimeout(200)
     const proxyAddress = await toVault.proxies(fromChainId, ETH)
+    expect(proxyAddress).not.toEqual(ZeroAddress)
     const proxy = await getContractAt('ERC20Proxy', proxyAddress)
     expect(await proxy.balanceOf(account.address)).toEqual(amount)
   })

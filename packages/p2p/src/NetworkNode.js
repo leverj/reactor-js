@@ -5,7 +5,7 @@ import config from 'config'
 import {pipe} from 'it-pipe'
 import {fromString as uint8ArrayFromString} from 'uint8arrays/from-string'
 import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
-import {events, PEER_CONNECT, PEER_DISCOVERY, tryAgainIfError} from './utils/index.js'
+import {events, PEER_CONNECT, PEER_DISCOVERY, tryAgainIfError} from './utils.js'
 import {P2P} from './P2P.js'
 
 const {externalIp} = config

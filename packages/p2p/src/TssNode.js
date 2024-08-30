@@ -7,7 +7,7 @@ import {
   SecretKey,
   Signature,
 } from '@leverj/reactor.mcl'
-import {events, INFO_CHANGED} from './utils/index.js'
+import {events, INFO_CHANGED} from './utils.js'
 
 /**
  * Adds secret key contribution together to produce a single secret key

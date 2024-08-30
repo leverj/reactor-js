@@ -11,7 +11,7 @@ import config from 'config'
 import {setTimeout} from 'node:timers/promises'
 import {NetworkNode} from './NetworkNode.js'
 import {TssNode} from './TssNode.js'
-import {events, INFO_CHANGED, PEER_DISCOVERY, waitToSync} from './utils/index.js'
+import {events, INFO_CHANGED, PEER_DISCOVERY, waitToSync} from './utils.js'
 
 const {timeout} = config
 

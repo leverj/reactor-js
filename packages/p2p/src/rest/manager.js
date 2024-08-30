@@ -1,10 +1,11 @@
 import config from 'config'
 import {BridgeNode} from '../BridgeNode.js'
-import {events, INFO_CHANGED, JsonStore} from '../utils/index.js'
+import {Store} from '../db/Store.js'
+import {events, INFO_CHANGED} from '../utils.js'
 
 const {bridgeNode, port} = config
 
-const store = new JsonStore(bridgeNode.confDir, 'Info')
+const store = Store.Json(bridgeNode.confDir, 'Info')
 
 class Info {
   constructor(node, data) {
@@ -18,15 +19,15 @@ class Info {
 
   set() {
     if (this.timer) clearTimeout(this.timer)
-    this.timer = setTimeout(() => {
+    this.timer = setTimeout(async () => {
       if (this.data === this.node.info()) return
       this.data = this.node.info()
-    store.set(port, this.data)
+      await store.set(port, this.data)
     }, 10)
   }
 }
 
-const data = store.get(port)
+const data = await store.get(port)
 const manager = await BridgeNode.from(bridgeNode.port, bridgeNode.bootstrapNodes, data)
 new Info(manager, data)
 await manager.start()

@@ -18,7 +18,7 @@ describe('MultiContractTracker', () => {
   beforeEach(async () => {
     events = []
     const polling = {interval: 10, attempts: 5}
-    tracker = MultiContractTracker.from(new InMemoryStore(), chainId, provider, polling, _ => events.push(_), logger)
+    tracker = await MultiContractTracker.from(new InMemoryStore(), chainId, provider, polling, _ => events.push(_), logger)
   })
   afterEach(() => tracker.stop())
 
