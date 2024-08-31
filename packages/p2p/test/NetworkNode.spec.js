@@ -12,7 +12,7 @@ import {waitToSync} from '../src/utils.js'
 import {peerIdJsons} from './fixtures.js'
 import config from 'config'
 
-const {timeout, tryCount} = config
+const {timeout, tryCount, port} = config
 
 describe('NetworkNode', () => {
   const meshProtocol = '/mesh/1.0.0'
@@ -31,7 +31,7 @@ describe('NetworkNode', () => {
       nodes.push(node)
       if (i === 0) bootstrapNodes = node.multiaddrs
     }
-    await waitToSync([_ => nodes[count - 1].peers.length === nodes.length - 1], tryCount, timeout)
+    await waitToSync([_ => nodes[count - 1].peers.length === nodes.length - 1], tryCount, timeout, port)
   }
 
   it('should be able to ping a node', async () => {

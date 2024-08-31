@@ -13,7 +13,7 @@ import {NetworkNode} from './NetworkNode.js'
 import {TssNode} from './TssNode.js'
 import {events, INFO_CHANGED, PEER_DISCOVERY, waitToSync} from './utils.js'
 
-const {timeout, tryCount} = config
+const {timeout, port} = config
 
 const TSS_RECEIVE_SIGNATURE_SHARE = 'TSS_RECEIVE_SIGNATURE_SHARE'
 const SIGNATURE_START = 'SIGNATURE_START'
@@ -261,7 +261,7 @@ class Follower {
   async addLeader() {
     this.self.leader = this.self.network.bootstrapNodes[0].split('/').pop()
     this.self.addPeersToWhiteList(this.self.leader)
-    await waitToSync([_ => this.self.peers.includes(this.self.leader)], -1, timeout)
+    await waitToSync([_ => this.self.peers.includes(this.self.leader)], -1, timeout, port)
     await this.self.sendMessageToPeer(this.self.leader, WHITELIST_REQUEST, '')
   }
   listenToPeerDiscovery() {}

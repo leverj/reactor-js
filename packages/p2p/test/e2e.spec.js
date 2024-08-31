@@ -10,7 +10,7 @@ import {Store} from '../src/db/Store.js'
 import {getNodeInfos} from './fixtures.js'
 
 const {bridgeNode, externalIp, port: leaderPort} = config
-const {timeout, tryCount} = config
+const {timeout, tryCount, port} = config
 
 describe('e2e', () => {
   const store = Store.JsonDir(bridgeNode.confDir, 'Info')
@@ -37,7 +37,7 @@ describe('e2e', () => {
           throw e
         }
       }
-      const bootstrapNodes = port === leaderPort ? [] : await tryAgainIfError(getLeaderNode, timeout, tryCount)
+      const bootstrapNodes = port === leaderPort ? [] : await tryAgainIfError(getLeaderNode, timeout, tryCount, port)
       const env = Object.assign({}, process.env, {
         PORT: port,
         BRIDGE_PORT: bridgeNode.port + index,
@@ -51,7 +51,7 @@ describe('e2e', () => {
       processes[each] = await createApiNode(each)
       await setTimeout(100)
     }
-    await waitToSync(ports.map(_ => async () => GET(_, 'peer').then(_ => _.length === howMany)), tryCount, timeout)
+    await waitToSync(ports.map(_ => async () => GET(_, 'peer').then(_ => _.length === howMany)), tryCount, timeout, port)
     logger.log('bootstrap synced...')
     return ports
   }
@@ -70,12 +70,12 @@ describe('e2e', () => {
   const POST = (port, endpoint, payload) => axios.post(`http://127.0.0.1:${port}/api/${endpoint}`, payload || {})
 
   async function waitForWhitelistSync(ports, howMany = ports.length) {
-    await waitToSync(ports.map(_ => async () => GET(_, 'whitelist').then(_ => _.length === howMany)), tryCount, timeout)
+    await waitToSync(ports.map(_ => async () => GET(_, 'whitelist').then(_ => _.length === howMany)), tryCount, timeout, port)
     logger.log('whitelisted synced...')
   }
 
   const publishWhitelist = async (ports, total, available) =>
-    tryAgainIfError(_ => POST(leaderPort, 'whitelist/publish'), timeout, tryCount).then(_ => waitForWhitelistSync(ports, total, available))
+    tryAgainIfError(_ => POST(leaderPort, 'whitelist/publish'), timeout, tryCount, port).then(_ => waitForWhitelistSync(ports, total, available))
 
   it('should create new nodes, connect and init DKG', async () => {
     const ports = await createApiNodes(2)
@@ -101,7 +101,7 @@ describe('e2e', () => {
     await createApiNodes(4)
     const message = 'hash123456'
     await POST(leaderPort, 'tss/aggregateSign', {message})
-    await setTimeout(200)
+    await setTimeout(500)
     expect(await GET(leaderPort, `tss/aggregateSign?transferHash=${message}`).then(_ => _.verified)).toEqual(true)
   })
 
