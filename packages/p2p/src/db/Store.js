@@ -19,7 +19,6 @@ export const Store = {
     deleteMany(keys: string[])
     has(key: string)
     iterator()
-    iterator()
     keys()
     values()
     clear()
