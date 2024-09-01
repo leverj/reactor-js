@@ -1,0 +1,8 @@
+{
+  "ignore-patterns": [
+    "test"
+  ],
+  "ignores": [
+    "randomhex"
+  ]
+}
