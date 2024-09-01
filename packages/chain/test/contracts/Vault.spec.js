@@ -1,4 +1,4 @@
-import {ETH} from '@leverj/common/utils'
+import {ETH} from '@leverj/common'
 import {abi, encodeTransfer, events} from '@leverj/reactor.chain/contracts'
 import {accounts, ERC20, getContractAt, provider, publicKey, signedBy, signer, Vault} from '@leverj/reactor.chain/test'
 import {Interface} from 'ethers'

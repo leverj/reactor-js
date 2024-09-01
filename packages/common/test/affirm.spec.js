@@ -1,5 +1,5 @@
 import {expect} from 'expect'
-import {affirm, affirmExists} from '@leverj/common/utils'
+import {affirm, affirmExists} from '@leverj/common'
 
 
 describe('affirm', () => {

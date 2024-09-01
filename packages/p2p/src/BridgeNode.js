@@ -1,4 +1,4 @@
-import {affirm, logger} from '@leverj/common/utils'
+import {affirm, logger} from '@leverj/common'
 import {encodeTransfer} from '@leverj/reactor.chain/contracts'
 import {
   deserializeHexStrToPublicKey,

@@ -8,7 +8,7 @@ import {
   provider,
   ZeroAddress,
 } from '@leverj/chain-tracking/test'
-import {logger} from '@leverj/common/utils'
+import {logger} from '@leverj/common'
 import {setTimeout} from 'node:timers/promises'
 
 describe('MultiContractTracker', () => {

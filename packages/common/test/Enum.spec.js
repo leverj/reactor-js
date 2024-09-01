@@ -1,6 +1,6 @@
 import {expect} from 'expect'
 import randomhex from 'randomhex'
-import {Enum} from '@leverj/common/utils'
+import {Enum} from '@leverj/common'
 
 
 describe('Enum', () => {

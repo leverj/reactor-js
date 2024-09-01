@@ -1,4 +1,4 @@
-import {affirm, logger} from '@leverj/common/utils'
+import {affirm, logger} from '@leverj/common'
 import {
   deserializeHexStrToPublicKey,
   deserializeHexStrToSecretKey,

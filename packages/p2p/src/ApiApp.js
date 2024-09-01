@@ -1,4 +1,4 @@
-import {logger} from '@leverj/common/utils'
+import {logger} from '@leverj/common'
 import config from 'config'
 import {createServer} from 'http'
 import app from './rest/app.js'

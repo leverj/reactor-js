@@ -1,5 +1,5 @@
+import {JsonStore} from '@leverj/common'
 import {execSync} from 'child_process'
-import {existsSync, readFileSync} from 'node:fs'
 import {fileURLToPath} from 'url'
 import yargs from 'yargs/yargs'
 
@@ -7,19 +7,18 @@ import yargs from 'yargs/yargs'
 const {keepLogs} = yargs(process.argv.slice(2)).usage('Usage: $0 --keep-logs').argv
 const root = fileURLToPath(new URL('..', import.meta.url))
 const lockDir = `${root}/.lock`
-const lockFile = `${lockDir}/processes.json`
+const storage = new JsonStore(lockDir, 'processes')
 
-if (existsSync(lockFile)) {
-  const processes = JSON.parse(readFileSync(lockFile).toString())
+if (storage.exists) {
   console.log('🛑 stopping servers ...')
-  for (let [name, pid] of Object.entries(processes)) {
+  for (let [name, pid] of storage.entries()) {
     const pids = getAssociatedPids(pid)
     console.log(`${name} @ ${pid} 🧨 killing associated processes [${pids}]`)
     for (const pid of pids) kill(pid)
   }
   execSync('sleep 1') // give killed processes time to die ...
 }
-execSync(`rm -rf ${keepLogs ? lockFile : lockDir}`)
+execSync(`rm -rf ${keepLogs ? storage.file : lockDir}`)
 
 function kill(pid) {
   try {

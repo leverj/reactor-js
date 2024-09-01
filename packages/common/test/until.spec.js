@@ -1,5 +1,5 @@
 import {expect} from 'expect'
-import {until} from '@leverj/common/utils'
+import {until} from '@leverj/common'
 
 
 describe('until', () => {

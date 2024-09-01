@@ -1,5 +1,5 @@
 import {Deploy} from '@leverj/chain-deployment'
-import {logger} from '@leverj/common/utils'
+import {logger} from '@leverj/common'
 import {Map} from 'immutable'
 import {Chain} from './evm.js'
 import {Contract} from 'ethers'

@@ -1,6 +1,6 @@
 import {ContractTracker, InMemoryStore} from '@leverj/chain-tracking'
 import {accounts, chainId, ERC20, expectEventsToMatch, ZeroAddress} from '@leverj/chain-tracking/test'
-import {logger} from '@leverj/common/utils'
+import {logger} from '@leverj/common'
 import {setTimeout} from 'node:timers/promises'
 
 describe('ContractTracker', () => {

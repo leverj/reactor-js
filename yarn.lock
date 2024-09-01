@@ -1476,7 +1476,7 @@ __metadata:
   resolution: "@leverj/chain-tracking@workspace:packages/chain-tracking"
   dependencies:
     "@leverj/chain-deployment": "npm:0.1.0"
-    "@leverj/common": "npm:^1.1.1"
+    "@leverj/common": "npm:0.1.0"
     "@openzeppelin/contracts": "npm:^5.0.2"
     async-exit-hook: "npm:^2.0.1"
     ethers: "npm:^6.13.2"
@@ -1485,27 +1485,24 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@leverj/common@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "@leverj/common@npm:1.1.1"
+"@leverj/common@npm:0.1.0, @leverj/common@workspace:packages/common":
+  version: 0.0.0-use.local
+  resolution: "@leverj/common@workspace:packages/common"
   dependencies:
-    axios: "npm:^1.7.2"
-    ephemeral-cache: "npm:^1.1.0"
     ethers: "npm:^6.13.1"
     immutable: "npm:^5.0.0-rc.1"
     lodash-es: "npm:^4.17.21"
-    socket.io-client: "npm:^4.7.5"
+    randomhex: "npm:^0.1.5"
     uuid: "npm:^10.0.0"
-  checksum: c860a970d6a62f67b40957f334107b6fff98fd612baeadc52a25de868edf7c6b3c4f598cd44f3e9175fe390bdb1d3a4f7a29ee3bb014958727d51a9edc67bd00
-  languageName: node
-  linkType: hard
+  languageName: unknown
+  linkType: soft
 
 "@leverj/reactor.chain@npm:0.1.0, @leverj/reactor.chain@workspace:packages/chain":
   version: 0.0.0-use.local
   resolution: "@leverj/reactor.chain@workspace:packages/chain"
   dependencies:
     "@leverj/chain-deployment": "npm:0.1.0"
-    "@leverj/common": "npm:^1.1.1"
+    "@leverj/common": "npm:0.1.0"
     "@openzeppelin/contracts": "npm:^5.0.2"
     ethers: "npm:^6.13.2"
   languageName: unknown
@@ -1519,7 +1516,7 @@ __metadata:
     "@ethersproject/bytes": "npm:^5.7.0"
     "@ethersproject/random": "npm:^5.7.0"
     "@ethersproject/sha2": "npm:^5.7.0"
-    "@leverj/common": "npm:^1.1.1"
+    "@leverj/common": "npm:0.1.0"
     bls-wasm: "npm:^1.1.1"
     mcl-wasm: "npm:^1.5.0"
   languageName: unknown
@@ -1533,7 +1530,7 @@ __metadata:
     "@chainsafe/libp2p-noise": "npm:^15.1.1"
     "@chainsafe/libp2p-yamux": "npm:^6.0.2"
     "@leverj/chain-tracking": "npm:0.1.0"
-    "@leverj/common": "npm:^1.1.1"
+    "@leverj/common": "npm:0.1.0"
     "@leverj/reactor.chain": "npm:0.1.0"
     "@leverj/reactor.mcl": "npm:0.1.0"
     "@libp2p/bootstrap": "npm:10.1.5"
@@ -3935,13 +3932,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@socket.io/component-emitter@npm:~3.1.0":
-  version: 3.1.2
-  resolution: "@socket.io/component-emitter@npm:3.1.2"
-  checksum: c4242bad66f67e6f7b712733d25b43cbb9e19a595c8701c3ad99cbeb5901555f78b095e24852f862fffb43e96f1d8552e62def885ca82ae1bb05da3668fd87d7
-  languageName: node
-  linkType: hard
-
 "@solidity-parser/parser@npm:^0.18.0":
   version: 0.18.0
   resolution: "@solidity-parser/parser@npm:0.18.0"
@@ -5822,7 +5812,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"debug@npm:4, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.4, debug@npm:^4.3.5, debug@npm:~4.3.1, debug@npm:~4.3.2":
+"debug@npm:4, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.4, debug@npm:^4.3.5":
   version: 4.3.6
   resolution: "debug@npm:4.3.6"
   dependencies:
@@ -6174,26 +6164,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"engine.io-client@npm:~6.5.2":
-  version: 6.5.4
-  resolution: "engine.io-client@npm:6.5.4"
-  dependencies:
-    "@socket.io/component-emitter": "npm:~3.1.0"
-    debug: "npm:~4.3.1"
-    engine.io-parser: "npm:~5.2.1"
-    ws: "npm:~8.17.1"
-    xmlhttprequest-ssl: "npm:~2.0.0"
-  checksum: ef220f9875d6a43bade906bd9b61118e812474bbe46e80f38c92dca238484170daf92d51e58bbade6433c29ffb5ba329f4864c5609f2e33c5e31041b1f8ad672
-  languageName: node
-  linkType: hard
-
-"engine.io-parser@npm:~5.2.1":
-  version: 5.2.3
-  resolution: "engine.io-parser@npm:5.2.3"
-  checksum: ed4900d8dbef470ab3839ccf3bfa79ee518ea8277c7f1f2759e8c22a48f64e687ea5e474291394d0c94f84054749fd93f3ef0acb51fa2f5f234cc9d9d8e7c536
-  languageName: node
-  linkType: hard
-
 "enquirer@npm:^2.3.0":
   version: 2.4.1
   resolution: "enquirer@npm:2.4.1"
@@ -6233,15 +6203,6 @@ __metadata:
   bin:
     envinfo: dist/cli.js
   checksum: 9c279213cbbb353b3171e8e333fd2ed564054abade08ab3d735fe136e10a0e14e0588e1ce77e6f01285f2462eaca945d64f0778be5ae3d9e82804943e36a4411
-  languageName: node
-  linkType: hard
-
-"ephemeral-cache@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "ephemeral-cache@npm:1.1.0"
-  dependencies:
-    expect.js: "npm:^0.3.1"
-  checksum: 1447f721fed19b2be1aa3042ab5613f0d94db5c8a58c349790aed31e0cc121d611cd5dca4d5be90bc429f03d2e6d05df062097fa16c703228a348442992cf2b1
   languageName: node
   linkType: hard
 
@@ -6601,13 +6562,6 @@ __metadata:
   dependencies:
     homedir-polyfill: "npm:^1.0.1"
   checksum: 205a60497422746d1c3acbc1d65bd609b945066f239a2b785e69a7a651ac4cbeb4e08555b1ea0023abbe855e6fcb5bbf27d0b371367fdccd303d4fb2b4d66845
-  languageName: node
-  linkType: hard
-
-"expect.js@npm:^0.3.1":
-  version: 0.3.1
-  resolution: "expect.js@npm:0.3.1"
-  checksum: a2afc1513180ed5ea964ef81c7c7bfaf61fc23a7811a71c718013c1a2133a6db03b67cd002068cf96fae4b66df744d9f07d42ca95f5f4529433ffd306057b3e6
   languageName: node
   linkType: hard
 
@@ -11041,6 +10995,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"randomhex@npm:^0.1.5":
+  version: 0.1.5
+  resolution: "randomhex@npm:0.1.5"
+  checksum: 8ee035261404f849811ab090912e4c50e6b0822d65b0bd3e3f85969bc24c752ecfbdeeb527765e9080baf4223c537e59c8a518275f8afcdde1ffc7329809eb2b
+  languageName: node
+  linkType: hard
+
 "range-parser@npm:~1.2.1":
   version: 1.2.1
   resolution: "range-parser@npm:1.2.1"
@@ -11822,28 +11783,6 @@ __metadata:
   dependencies:
     ws: "npm:^8.8.1"
   checksum: fa439bebfe0d0d46e4da342a313d0653fd56557b6459b5ba3db1fd6bcfb345e9d9577c27e1f6692e67dec0206addb95de6b594c17041729f5689b4b123974495
-  languageName: node
-  linkType: hard
-
-"socket.io-client@npm:^4.7.5":
-  version: 4.7.5
-  resolution: "socket.io-client@npm:4.7.5"
-  dependencies:
-    "@socket.io/component-emitter": "npm:~3.1.0"
-    debug: "npm:~4.3.2"
-    engine.io-client: "npm:~6.5.2"
-    socket.io-parser: "npm:~4.2.4"
-  checksum: d5dc90ee63755fbbb0a1cb3faf575c9ce20d98e809a43a4c9c3ce03a56b8810335ae38e678ceb0650ac434d55e72ea6449c2e5d6db8bc7258f7c529148fac99d
-  languageName: node
-  linkType: hard
-
-"socket.io-parser@npm:~4.2.4":
-  version: 4.2.4
-  resolution: "socket.io-parser@npm:4.2.4"
-  dependencies:
-    "@socket.io/component-emitter": "npm:~3.1.0"
-    debug: "npm:~4.3.1"
-  checksum: 9383b30358fde4a801ea4ec5e6860915c0389a091321f1c1f41506618b5cf7cd685d0a31c587467a0c4ee99ef98c2b99fb87911f9dfb329716c43b587f29ca48
   languageName: node
   linkType: hard
 
@@ -13340,7 +13279,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ws@npm:8.17.1, ws@npm:~8.17.1":
+"ws@npm:8.17.1":
   version: 8.17.1
   resolution: "ws@npm:8.17.1"
   peerDependencies:
@@ -13393,13 +13332,6 @@ __metadata:
     ethers: ^6.13.2
     hardhat: ^2.22.9
   checksum: 2088fbca7ddd10cdb09b3921b5f4a60b6acbd9dc070daab4d64c0ee61cad785fe82427cb74d20b67912f1db93a391e06699ee8214f09adbe17e48e69b8a2f323
-  languageName: node
-  linkType: hard
-
-"xmlhttprequest-ssl@npm:~2.0.0":
-  version: 2.0.0
-  resolution: "xmlhttprequest-ssl@npm:2.0.0"
-  checksum: b64ab371459bd5e3a4827e3c7535759047d285fd310aea6fd028973d547133f3be0d473c1fdae9f14d89bf509267759198ae1fbe89802079a7e217ddd990d734
   languageName: node
   linkType: hard
 

@@ -1,4 +1,4 @@
-import {logger} from '@leverj/common/utils'
+import {logger} from '@leverj/common'
 import {BnsVerifier} from '@leverj/reactor.chain/test'
 import {
   deserializeHexStrToPublicKey,

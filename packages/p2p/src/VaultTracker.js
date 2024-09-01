@@ -1,5 +1,5 @@
 import {ContractTracker} from '@leverj/chain-tracking'
-import {logger} from '@leverj/common/utils'
+import {logger} from '@leverj/common'
 import {events} from '@leverj/reactor.chain/contracts'
 
 const Transfer = events.Vault.Transfer.topic

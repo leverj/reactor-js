@@ -1,3 +1,4 @@
+import {InMemoryStore} from '@leverj/common'
 import {encodeTransfer} from '@leverj/reactor.chain/contracts'
 import {
   accounts,
@@ -15,7 +16,6 @@ import config from 'config'
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
 import {VaultTracker} from '../src/VaultTracker.js'
-import {Store} from '../src/db/Store.js'
 
 const {chain: {polling}} = config
 
@@ -34,7 +34,7 @@ describe('VaultTracker', () => {
         await toVault.checkIn(signature, publicKey, payload).then(_ => _.wait())
       }
     }
-    tracker = await VaultTracker(Store.InMemory(), fromChainId, fromVault, polling, node)
+    tracker = await VaultTracker(new InMemoryStore(), fromChainId, fromVault, polling, node)
     await tracker.start()
   })
   afterEach(async () => tracker.stop())

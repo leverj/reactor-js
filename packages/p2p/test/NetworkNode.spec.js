@@ -1,4 +1,4 @@
-import {logger} from '@leverj/common/utils'
+import {logger} from '@leverj/common'
 import {unmarshalPrivateKey, unmarshalPublicKey} from '@libp2p/crypto/keys'
 import {peerIdFromString} from '@libp2p/peer-id'
 import {createFromJSON} from '@libp2p/peer-id-factory'

@@ -1,5 +1,5 @@
 import {expect} from 'expect'
-import {Mutex} from '@leverj/common/utils'
+import {Mutex} from '@leverj/common'
 import {CapturingLogger} from './CapturingLogger.js'
 
 

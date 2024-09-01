@@ -1,5 +1,5 @@
 import {expect} from 'expect'
-import {Crypto, ETH, uint} from '@leverj/common/utils'
+import {Crypto, ETH, uint} from '@leverj/common'
 
 
 describe('Crypto', () => {

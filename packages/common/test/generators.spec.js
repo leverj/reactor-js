@@ -1,5 +1,5 @@
 import {expect} from 'expect'
-import {MicrosecondsTimestampGenerator, UuidGenerator} from '@leverj/common/utils'
+import {MicrosecondsTimestampGenerator, UuidGenerator} from '@leverj/common'
 
 
 describe('generators', () => {

@@ -1,5 +1,5 @@
 import {Deploy} from '@leverj/chain-deployment'
-import {logger} from '@leverj/common/utils'
+import {logger} from '@leverj/common'
 import yargs from 'yargs/yargs'
 // import config from 'config' //fixme: how should this be configured?
 const config = {deployer: '', network: '', networks: '', contracts: ''}

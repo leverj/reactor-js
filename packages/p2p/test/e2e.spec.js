@@ -1,4 +1,4 @@
-import {logger} from '@leverj/common/utils'
+import {logger} from '@leverj/common'
 import axios from 'axios'
 import {fork} from 'child_process'
 import config from 'config'
