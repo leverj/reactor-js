@@ -3,7 +3,7 @@ require('@nomicfoundation/hardhat-ignition')
 module.exports = Object.assign(require('@leverj/chain-deployment/hardhat.config.cjs'), {
   solidity: '0.8.17',
 
-  defaultNetwork: "buildbear",
+  defaultNetwork: 'buildbear',
 
   networks: {
     hardhat: {
@@ -11,7 +11,7 @@ module.exports = Object.assign(require('@leverj/chain-deployment/hardhat.config.
       initialBaseFeePerGas: 0,
     },
     buildbear: {
-      url: "https://rpc.buildbear.io/allied-drax-414ed846",
+      url: 'https://rpc.buildbear.io/allied-drax-414ed846',
     },
   },
 })

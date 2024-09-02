@@ -1,0 +1,10 @@
+{
+  "network": "Polygon Amoy",
+  "forkingChainId": 80002,
+  "chainId": 19952,
+  "testnetId": "hon-psylocke-1258c104",
+  "rpcUrl": "https://rpc.buildbear.io/hon-psylocke-1258c104",
+  "faucetUrl": "https://faucet.buildbear.io/hon-psylocke-1258c104",
+  "explorerUrl": "https://explorer.buildbear.io/hon-psylocke-1258c104",
+  "verificationUrl": "https://api.buildbear.io/v1/api/verify/etherscan/hon-psylocke-1258c104"
+}

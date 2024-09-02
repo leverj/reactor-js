@@ -1,0 +1,10 @@
+{
+  "network": "BSC Testnet",
+  "forkingChainId": 97,
+  "chainId": 19951,
+  "testnetId": "allied-drax-d0056c5d",
+  "rpcUrl": "https://rpc.buildbear.io/allied-drax-d0056c5d",
+  "faucetUrl": "https://faucet.buildbear.io/allied-drax-d0056c5d",
+  "explorerUrl": "https://explorer.buildbear.io/allied-drax-d0056c5d",
+  "verificationUrl": "https://api.buildbear.io/v1/api/verify/etherscan/allied-drax-d0056c5d"
+}
