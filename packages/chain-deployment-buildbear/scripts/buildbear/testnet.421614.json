@@ -1,0 +1,10 @@
+{
+  "network": "Arbitrum Sepolia",
+  "forkingChainId": 421614,
+  "chainId": 19954,
+  "testnetId": "decent-colossus-3b74ee7a",
+  "rpcUrl": "https://rpc.buildbear.io/decent-colossus-3b74ee7a",
+  "faucetUrl": "https://faucet.buildbear.io/decent-colossus-3b74ee7a",
+  "explorerUrl": "https://explorer.buildbear.io/decent-colossus-3b74ee7a",
+  "verificationUrl": "https://api.buildbear.io/v1/api/verify/etherscan/decent-colossus-3b74ee7a"
+}

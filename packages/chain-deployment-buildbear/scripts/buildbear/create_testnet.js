@@ -2,8 +2,8 @@ import {JsonRpcProvider} from 'ethers'
 import inquirer from 'inquirer'
 import ora from 'ora'
 import {writeFileSync} from 'node:fs'
-import {createSandbox, getSandbox} from './buildbear-api.js'
-import networks from './buildbear-networks.json' assert {type: 'json'}
+import {createSandbox, getSandbox} from './api.js'
+import networks from './networks.json' assert {type: 'json'}
 
 async function getBlockNumber(rpc) {
   const provider = new JsonRpcProvider(rpc)
@@ -71,7 +71,7 @@ async function run() {
       console.log(node)
       await(async function (node) {
         await waitForLiveNode(node)
-        const file = `./testnet.${node.forkingChainId}.json`
+        const file = `${import.meta.dirname}/testnet.${node.forkingChainId}.json`
         writeFileSync(file, JSON.stringify(node, null, 2))
         console.log(`Testnet details stored in ${file}`)
       })(node)

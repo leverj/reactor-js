@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "test": "npx hardhat test",
-    "create:testnet": "node scripts/create_testnet.js",
-    "create:networks": "node scripts/create_networks.js",
+    "buildbear:create:testnet": "node scripts/buildbear/create_testnet.js",
+    "buildbear:save:networks": "node scripts/buildbear/save_networks.js",
     "deploy": "node scripts/deploy-greeter.js"
   },
   "dependencies": {
