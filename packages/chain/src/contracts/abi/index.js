@@ -1,1 +1,1 @@
-export const Vault = (await import('./Vault.json', {assert: {type: 'json'}})).default
+export const {default: Vault} = await import('./Vault.json', {assert: {type: 'json'}})

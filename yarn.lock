@@ -1357,6 +1357,7 @@ __metadata:
     hardhat-gas-reporter: "npm:^2.2.1"
     hardhat-switch-network: "npm:^1.1.0"
     solidity-coverage: "npm:^0.8.13"
+    viem: "npm:^2.21.1"
     xdeployer: "npm:^3.0.16"
   languageName: unknown
   linkType: soft
@@ -16073,7 +16074,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"viem@npm:^2.1.1":
+"viem@npm:^2.1.1, viem@npm:^2.21.1":
   version: 2.21.1
   resolution: "viem@npm:2.21.1"
   dependencies:

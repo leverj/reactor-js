@@ -1,6 +1,6 @@
 import {execSync} from 'child_process'
 import * as glob from 'glob'
-import {loadJson} from './load-json.js'
+import {loadJson} from './load-json.js' //fixme:json
 
 
 export class Sourcer {
@@ -12,6 +12,7 @@ export class Sourcer {
     this.logger = logger
   }
 
+  // getJson(contract) { return (await import(`./${this.file}.json`, {assert: {type: 'json'}})).default }
   getJson(contract) { return loadJson(`${this.targetDir}/${contract}.json`) }
   getSourcePath(contract) { return `${this.targetDir}/${contract}.sol` }
 

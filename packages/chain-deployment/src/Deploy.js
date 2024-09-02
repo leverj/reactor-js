@@ -2,7 +2,7 @@ import {execSync} from 'child_process'
 import {JsonRpcProvider} from 'ethers'
 import {existsSync, writeFileSync} from 'node:fs'
 import {Deployment} from './Deployment.js'
-import {loadJson} from './load-json.js'
+import {loadJson} from './load-json.js' //fixme:json
 import {Sourcer} from './Sourcer.js'
 import {Verifier} from './Verifier.js'
 
@@ -51,7 +51,6 @@ export class Deploy {
   }
 }
 
-
 class DeploymentStore {
   constructor(config, reset = false) {
     this.config = config
@@ -65,6 +64,7 @@ class DeploymentStore {
   get network() { return this.config.network }
   get networks() { return this.config.networks }
 
+  // load() { this.contents = existsSync(this.file) ? (await import(`./${this.file}.json`, {assert: {type: 'json'}})).default : this.networks }
   load() { this.contents = existsSync(this.file) ? loadJson(this.file) : this.networks }
   save() { writeFileSync(this.file, JSON.stringify(this.contents, null, 2)) }
   establishBlock(block) { if (!this.contents[this.network].block) this.contents[this.network].block = block }

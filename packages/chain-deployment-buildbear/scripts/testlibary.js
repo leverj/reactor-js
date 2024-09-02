@@ -14,9 +14,7 @@ const {chains, provider, webSocketProvider} = configureChains(
 
 // Deploy function
 async function deploy() {
-  const ERC20ABI = (await import('./ERC20ABI.json', {assert: {type: 'json'}})).default
-  // const ERC20ABI = JSON.parse(readFileSync(new URL('./ERC20ABI.json', import.meta.url)))
-
+  const {default: ERC20ABI} = await import('./ERC20ABI.json', {assert: {type: 'json'}})
 //     const provider = new Web3.providers.HttpProvider("https://rpc.dev.buildbear.io/spiritual-wicket-systri-warrick-f9c2771d");
 //   const web3 = new Web3(provider);
 // const blockNumber = await web3.eth.getBlockNumber();

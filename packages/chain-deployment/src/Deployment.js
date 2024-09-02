@@ -1,7 +1,6 @@
 import {setTimeout as sleep} from 'node:timers/promises'
-import {ethers} from './hardhat.js'
-
-const {Contract, deployContract, Wallet} = ethers
+import {Contract, Wallet} from 'ethers'
+import {deployContract} from './hardhat.js'
 
 export class Deployment {
   constructor(provider, privateKey, verifier, logger = console) {

@@ -19,6 +19,7 @@
     "hardhat-gas-reporter": "^2.2.1",
     "hardhat-switch-network": "^1.1.0",
     "solidity-coverage": "^0.8.13",
+    "viem": "^2.21.1",
     "xdeployer": "^3.0.16"
   }
 }

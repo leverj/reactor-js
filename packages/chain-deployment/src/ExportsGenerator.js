@@ -1,7 +1,6 @@
 import {Interface} from 'ethers'
 import * as glob from 'glob'
 import {mkdirSync, rmSync, writeFileSync} from 'node:fs'
-import {loadJson} from './load-json.js'
 
 function establishCleanDir(dir) {
   rmSync(dir, {recursive: true, force: true})
@@ -17,23 +16,23 @@ export class ExportsGenerator {
   }
 
   async generate() {
-    this.exportAbi()
+    await this.exportAbi()
     await this.exportEvents()
     this.exportStubs()
   }
 
-  exportAbi() {
+  async exportAbi() {
     this.logger.log(`${'-'.repeat(30)} generating contracts abi exports `.padEnd(120, '-'))
     const targetDir = establishCleanDir(`${this.projectDir}/src/contracts/abi`)
     const dirs = glob.sync(`${this.projectDir}/artifacts/contracts/**/*.sol`)
     for (let name of this.contracts) {
       const path = dirs.find(_ => _.endsWith(`/${name}.sol`))
-      const contract = loadJson(`${path}/${name}.json`)
+      const {default: contract} = await import(`${path}/${name}.json`, {assert: {type: 'json'}})
       const contractWithJustAbi = {contractName: contract.contractName, abi: contract.abi}
       writeFileSync(`${targetDir}/${name}.json`, JSON.stringify(contractWithJustAbi, null, 2))
       this.logger.log(`extracted abi for: ${contract.contractName} `.padEnd(120, '.'))
     }
-    const source = this.contracts.map(_ => `export const ${_} = (await import('./${_}.json', {assert: {type: 'json'}})).default`).join('\n')
+    const source = this.contracts.map(_ => `export const {default: ${_}} = await import('./${_}.json', {assert: {type: 'json'}})`).join('\n')
     writeFileSync(`${targetDir}/index.js`, source)
   }
 

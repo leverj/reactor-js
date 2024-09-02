@@ -6,7 +6,7 @@ export const BnsVerifier = async () => {
   const verifier = await deployContract('BnsVerifier', [])
   return deployContract('BnsVerifierMock', [], {libraries: {BnsVerifier: verifier.target}})
 }
-export const Vault = async (chain, publicKey) => {
+export const Vault = async (chainId, publicKey, chainName = 'ETHER', nativeSymbol = 'ETH', nativeDecimals = 18) => {
   const verifier = await deployContract('BnsVerifier', [])
-  return deployContract('Vault', [chain, 'ETHER', 'ETH', 18, publicKey], {libraries: {BnsVerifier: verifier.target}})
+  return deployContract('Vault', [chainId, chainName, nativeSymbol, nativeDecimals, publicKey], {libraries: {BnsVerifier: verifier.target}})
 }
