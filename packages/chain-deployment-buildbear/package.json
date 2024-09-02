@@ -1,0 +1,15 @@
+{
+  "name": "@leverj/chain-deployment-buildbear",
+  "version": "0.1.0",
+  "license": "UNLICENSED",
+  "type": "module",
+  "scripts": {
+    "test": "npx hardhat test"
+  },
+  "dependencies": {
+    "wagmi": "^1.4.5"
+  },
+  "devDependencies": {
+    "@leverj/chain-deployment": "0.1.0"
+  }
+}
