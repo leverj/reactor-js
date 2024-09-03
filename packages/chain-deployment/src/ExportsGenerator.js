@@ -27,10 +27,9 @@ export class ExportsGenerator {
     const dirs = glob.sync(`${this.projectDir}/artifacts/contracts/**/*.sol`)
     for (let name of this.contracts) {
       const path = dirs.find(_ => _.endsWith(`/${name}.sol`))
-      const {default: contract} = await import(`${path}/${name}.json`, {assert: {type: 'json'}})
-      const contractWithJustAbi = {contractName: contract.contractName, abi: contract.abi}
-      writeFileSync(`${targetDir}/${name}.json`, JSON.stringify(contractWithJustAbi, null, 2))
-      this.logger.log(`extracted abi for: ${contract.contractName} `.padEnd(120, '.'))
+      const {default: {contractName, abi}} = await import(`${path}/${name}.json`, {assert: {type: 'json'}})
+      writeFileSync(`${targetDir}/${name}.json`, JSON.stringify({contractName, abi}, null, 2))
+      this.logger.log(`extracted abi for: ${contractName} `.padEnd(120, '.'))
     }
     const source = this.contracts.map(_ => `export const {default: ${_}} = await import('./${_}.json', {assert: {type: 'json'}})`).join('\n')
     writeFileSync(`${targetDir}/index.js`, source)

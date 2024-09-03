@@ -39,7 +39,7 @@ export class MultiChainContractCoordinator {
 
   async deployContract(chainId, address, abi) {
     //fixme facilitate deploy single contract
-    await new Deploy(process.env.PWD, config, options).run().catch(logger.error)
+    await Deploy.from(process.env.PWD, config, options).run().catch(logger.error)
 
     const contract = new Contract(address, abi, this.provider(chainId))
     this.contracts.setIn([chainId, address], contract)

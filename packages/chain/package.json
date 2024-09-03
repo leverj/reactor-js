@@ -10,8 +10,8 @@
   "scripts": {
     "test": "npx mocha",
     "dependency:check": "npx depcheck",
-    "contracts:generate:exports": "NODE_OPTIONS='--no-warnings=ExperimentalWarning' node scripts/generate-contract-exports",
-    "deploy": "node scripts/deploy",
+    "contracts:generate:exports": "NODE_NO_WARNINGS=1 node scripts/generate-contract-exports",
+    "deploy": "NODE_NO_WARNINGS=1 node scripts/deploy",
     "deploy:local:chain": "yarn deploy --reset --skip-verify --network=localhost",
     "start:local:chain": "npx hardhat node"
   },

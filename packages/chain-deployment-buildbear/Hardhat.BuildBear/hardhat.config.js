@@ -2,11 +2,7 @@ require('@nomiclabs/hardhat-ethers')
 require('@nomiclabs/hardhat-etherscan')
 require('@nomicfoundation/hardhat-chai-matchers')
 
-let testnet = null
-try {
-  testnet = (await import('./testnet.json', {assert: {type: 'json'}})).default
-} catch (e) {
-}
+const testnet = require('./testnet.json') || null
 
 module.exports = {
   solidity: '0.8.17',

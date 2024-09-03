@@ -1,9 +1,9 @@
+import {networks} from '@leverj/chain-deployment'
 import {JsonRpcProvider} from 'ethers'
 import inquirer from 'inquirer'
 import ora from 'ora'
 import {writeFileSync} from 'node:fs'
 import {createSandbox, getSandbox} from './api.js'
-import networks from './networks.json' assert {type: 'json'}
 
 async function getBlockNumber(rpc) {
   const provider = new JsonRpcProvider(rpc)

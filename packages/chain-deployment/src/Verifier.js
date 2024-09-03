@@ -1,21 +1,23 @@
 import solc from '@nomiclabs/hardhat-etherscan/dist/src/solc/version.js' //fixme: can we get solc from elsewhere?
 import axios from 'axios'
+import {cloneDeep} from 'lodash-es'
 import {setTimeout as sleep} from 'node:timers/promises'
 import {config, hardhat} from './hardhat.js'
 
 export class Verifier {
   constructor(config, logger = console) {
+    this.config = cloneDeep(config)
     this.logger = logger
-    const {deployer, network, networks} = config
+    const {deployer, network, networks} = this.config
     this.designatedNetwork = networks[network]
-    config.networks = {
+    this.config.networks = {
       [network]: {
         url: networks[network].providerURL || 'some url',
-        chainId: networks[network].chainId,
+        chainId: networks[network].id,
         accounts: [`0x${deployer.privateKey}`]
       }
     }
-    config.etherscan = {apiKey: networks[network].apiKey, customChains: []}
+    this.config.etherscan = {apiKey: networks[network].apiKey, customChains: []}
     hardhat.switchNetwork(network)
   }
 

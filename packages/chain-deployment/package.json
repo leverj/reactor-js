@@ -4,6 +4,9 @@
   "license": "UNLICENSED",
   "type": "module",
   "main": "./src/index.js",
+  "scripts": {
+    "generate:networks": "node scripts/generate-networks.js"
+  },
   "dependencies": {
     "@nomicfoundation/hardhat-ethers": "^3.0.7",
     "@nomicfoundation/hardhat-ignition": "^0.4.0",
