@@ -2,7 +2,6 @@ import {networks} from '@leverj/chain-deployment'
 import {G2ToNumbers, PublicKey} from '@leverj/reactor.mcl'
 import convict from 'convict'
 // import {expand} from '@dotenvx/dotenvx'
-import {Contract, Wallet} from 'ethers'
 import {Map, Set} from 'immutable'
 import {existsSync} from 'node:fs'
 import 'dotenv/config'
@@ -61,7 +60,10 @@ async function override(fileName, config) {
   config.load(override || {})
 }
 
-const configureContracts = (network, publicKey) => {
+//fixme: do this per each of networks
+function configureContracts(config) {
+  const {networks, chain, vault: {publicKey}} = config
+  const network = networks[chain]
   const {id, nativeCurrency: {name, symbol, decimals}} = network
   return {
     BnsVerifier: {},
@@ -72,19 +74,20 @@ const configureContracts = (network, publicKey) => {
   }
 }
 
-async function configure(config) {
+function postLoad(config) {
   const chains = Set(config.chains)
   config.networks = Map(networks).filter(_ => chains.has(_.label)).toJS()
-  config.contracts = configureContracts(config.networks[config.chain], config.vault.publicKey)
-  config.deployer.address = await new Wallet(config.deployer.privateKey).getAddress()
+  config.contracts = configureContracts(config)
   return config
 }
 
-export default async function (options = {}) {
+ async function configure(options = {}) {
   const config = convict(schema, options)
   const env = config.get('env')
   await override(`${env}.js`, config)
   await override(`local-${env}.js`, config)
   config.validate({allowed: 'strict'})
-  return configure(config.getProperties())
+  return postLoad(config.getProperties())
 }
+
+export default await configure()

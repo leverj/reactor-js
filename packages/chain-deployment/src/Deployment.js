@@ -10,26 +10,24 @@ export class Deployment {
     this.logger = logger
   }
 
-  async getContract({name, json, sourcePath, address}, libraries, params) {
-    return address ?
-      new Contract(address, json.abi, this.wallet) :
-      await this.deployContract(json, sourcePath, libraries, params)
+  async getContract(json, sourcePath, libraries, params) {
+    return this.deployContract(json, sourcePath, libraries, params)
   }
 
   async deployContract(json, sourcePath, libraries, params) {
     const {contractName, bytecode} = json
     this.logger.log(`deploying ${contractName} contract `.padEnd(120, '.'))
     const contract = await deployContract(contractName, params, {libraries, signer: this.wallet})
-    this.logger.log({
-      contractName: contractName,
-      address: await contract.getAddress(),
-    })
+    const result = {
+      address: contract.target,
+      blockCreated: await this.provider.getTransactionReceipt(contract.deploymentTransaction().hash).then(_ => _.blockNumber),
+    }
+    this.logger.log(contractName, result)
     await sleep(500) // note: must wait a bit to avoid "Nonce too low" error
     if (!!this.verifier) {
-      const deploymentTransaction = contract.deploymentTransaction()
-      const constructor = deploymentTransaction.data.substring(bytecode.length)
-      await this.verifier.verifyCode(contractName, await contract.getAddress(), sourcePath, constructor, params)
+      const constructor = contract.deploymentTransaction().data.substring(bytecode.length)
+      await this.verifier.verifyCode(contractName, contract.target, sourcePath, constructor, params)
     }
-    return contract
+    return result
   }
 }

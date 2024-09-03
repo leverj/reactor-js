@@ -13,6 +13,7 @@ export class InMemoryStore {
   keys() { return this.map.keys() }
   values() { return this.map.values() }
   clear() { this.map.clear() }
+  toObject() { return this.map.toJS() }
 }
 
 export class JsonStore {
@@ -25,13 +26,13 @@ export class JsonStore {
   }
   get exists() { return existsSync(this.file) }
   get(key, defaults) { return this.cache.get(key, defaults) }
-  set(key, value) { this.cache.set(key, value); this._save_() }
-  update(key, value) { this.cache.update(key, value) }
-  delete(key) { this.cache.delete(key); this._save_() }
+  set(key, value) { this.cache.set(key, value); this.save() }
+  update(key, value) { this.cache.update(key, value); this.save() }
+  delete(key) { this.cache.delete(key); this.save() }
   has(key) { return this.cache.has(key) }
   entries() { return this.cache.entries() }
   keys() { return this.cache.keys() }
   values() { return this.cache.values() }
-  clear() { this.cache.clear(); this._save_() }
-  _save_() { writeFileSync(this.file, JSON.stringify(this.cache.toJS(), null, 2)) }
+  clear() { this.cache.clear(); this.save() }
+  save() { writeFileSync(this.file, JSON.stringify(this.cache.toObject(), null, 2)) }
 }

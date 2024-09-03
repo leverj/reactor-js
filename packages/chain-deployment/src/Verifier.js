@@ -2,8 +2,9 @@ import solc from '@nomiclabs/hardhat-etherscan/dist/src/solc/version.js' //fixme
 import axios from 'axios'
 import {cloneDeep} from 'lodash-es'
 import {setTimeout as sleep} from 'node:timers/promises'
-import {config, hardhat} from './hardhat.js'
+import {default as hardhat} from 'hardhat'
 
+//fixme: verify by other means
 export class Verifier {
   constructor(config, logger = console) {
     this.config = cloneDeep(config)
@@ -22,7 +23,7 @@ export class Verifier {
   }
 
   async compilerVersion() {
-    return solc.getLongVersion(config.solidity.compilers[0].version)
+    return solc.getLongVersion(hardhat.config.solidity.compilers[0].version)
   }
 
   async verifyCode(contractName, contractAddress, sourcePath, constructor, constructorArguments) {
