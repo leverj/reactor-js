@@ -15,9 +15,10 @@ describe('BridgeNode', () => {
     nodes.forEach(_ => expect(_.whitelist.get().length).toEqual(howMany))
 
     await leader.startDKG(4)
-    const leaderSecretKey = leader.secretKeyShare
     const leaderGroupKey = leader.groupPublicKey
+    const leaderSecretKey = leader.secretKeyShare
     await setTimeout(10)
+    console.log('>'.repeat(50), leader.publicKey)
     for (let each of nodes) {
       each.print()
       if (leader.peerId === each.peerId) continue

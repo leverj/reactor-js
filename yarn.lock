@@ -457,6 +457,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@dotenvx/dotenvx@npm:^1.13.2":
+  version: 1.13.2
+  resolution: "@dotenvx/dotenvx@npm:1.13.2"
+  dependencies:
+    commander: "npm:^11.1.0"
+    dotenv: "npm:^16.4.5"
+    eciesjs: "npm:^0.4.6"
+    execa: "npm:^5.1.1"
+    fdir: "npm:^6.2.0"
+    ignore: "npm:^5.3.0"
+    object-treeify: "npm:1.1.33"
+    picomatch: "npm:^4.0.2"
+    which: "npm:^4.0.0"
+  bin:
+    dotenvx: src/cli/dotenvx.js
+    git-dotenvx: src/cli/dotenvx.js
+  checksum: 775c796c4d1cc34177155cdd514fb71c84271baf80a28bebec7f3cc125e32daa54e17b538db20443ddd894fe676cfcf7c364ed57493e4a05a26d59a0ca2dc633
+  languageName: node
+  linkType: hard
+
 "@emnapi/core@npm:^1.1.0":
   version: 1.2.0
   resolution: "@emnapi/core@npm:1.2.0"
@@ -1392,10 +1412,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@leverj/reactor.chain@workspace:packages/chain"
   dependencies:
+    "@dotenvx/dotenvx": "npm:^1.13.2"
     "@leverj/chain-deployment": "npm:0.1.0"
     "@leverj/common": "npm:0.1.0"
     "@openzeppelin/contracts": "npm:^5.0.2"
+    convict: "npm:^6.2.4"
+    dotenv: "npm:^16.4.5"
     ethers: "npm:^6.13.2"
+    immutable: "npm:^5.0.0-rc.1"
   languageName: unknown
   linkType: soft
 
@@ -2134,6 +2158,13 @@ __metadata:
     "@emnapi/runtime": "npm:^1.1.0"
     "@tybys/wasm-util": "npm:^0.9.0"
   checksum: 1040de49b2ef509db207e2517465dbf7fb3474f20e8ec32897672a962ff4f59872385666dac61dc9dbeae3cae5dad265d8dc3865da756adeb07d1634c67b03a1
+  languageName: node
+  linkType: hard
+
+"@noble/ciphers@npm:^0.5.3":
+  version: 0.5.3
+  resolution: "@noble/ciphers@npm:0.5.3"
+  checksum: 2303217304baf51ec6caa2d984f4e640a66d3d586162ed8fecf37a00268fbf362e22cd5bceae4b0ccda4fa06ad0cb294d6a6b158260bbd2eac6a3dc0448f5254
   languageName: node
   linkType: hard
 
@@ -6366,6 +6397,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"commander@npm:^11.1.0":
+  version: 11.1.0
+  resolution: "commander@npm:11.1.0"
+  checksum: 13cc6ac875e48780250f723fb81c1c1178d35c5decb1abb1b628b3177af08a8554e76b2c0f29de72d69eef7c864d12613272a71fabef8047922bc622ab75a179
+  languageName: node
+  linkType: hard
+
 "commander@npm:^8.1.0":
   version: 8.3.0
   resolution: "commander@npm:8.3.0"
@@ -6566,6 +6604,16 @@ __metadata:
   version: 1.0.2
   resolution: "convert-to-spaces@npm:1.0.2"
   checksum: cb88c52e05a076ae55856a44b34ffbfc5944e6c21aefa7b3ef0551914674667a2cc9e713eeecc0b507e83f4a521a3876712ddc278ee8653985f6add6917a150b
+  languageName: node
+  linkType: hard
+
+"convict@npm:^6.2.4":
+  version: 6.2.4
+  resolution: "convict@npm:6.2.4"
+  dependencies:
+    lodash.clonedeep: "npm:^4.5.0"
+    yargs-parser: "npm:^20.2.7"
+  checksum: 82d4cd93bfe028948f4b145562d4a1650881952d0e4b615b014bbcdf3e5caaad6f5dc12b647eeb82c135eba1ce1a0922f7823c34d17162646f7030dc002985ad
   languageName: node
   linkType: hard
 
@@ -7530,7 +7578,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dotenv@npm:^16.4.4, dotenv@npm:~16.4.5":
+"dotenv@npm:^16.4.4, dotenv@npm:^16.4.5, dotenv@npm:~16.4.5":
   version: 16.4.5
   resolution: "dotenv@npm:16.4.5"
   checksum: 48d92870076832af0418b13acd6e5a5a3e83bb00df690d9812e94b24aff62b88ade955ac99a05501305b8dc8f1b0ee7638b18493deb6fe93d680e5220936292f
@@ -7570,6 +7618,17 @@ __metadata:
     jsbn: "npm:~0.1.0"
     safer-buffer: "npm:^2.1.0"
   checksum: 6cf168bae1e2dad2e46561d9af9cbabfbf5ff592176ad4e9f0f41eaaf5fe5e10bb58147fe0a804de62b1ee9dad42c28810c88d652b21b6013c47ba8efa274ca1
+  languageName: node
+  linkType: hard
+
+"eciesjs@npm:^0.4.6":
+  version: 0.4.7
+  resolution: "eciesjs@npm:0.4.7"
+  dependencies:
+    "@noble/ciphers": "npm:^0.5.3"
+    "@noble/curves": "npm:^1.4.0"
+    "@noble/hashes": "npm:^1.4.0"
+  checksum: 0f5272eab3eb1a1f8501c2eec71b11bb82dd8f9234eb766bc6d37dff539f765a3520ea2f4298f8fa52fb989ab5cca6d137a94f7b8c2c8aa4d92e4d8ed69af010
   languageName: node
   linkType: hard
 
@@ -8148,6 +8207,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"execa@npm:^5.1.1":
+  version: 5.1.1
+  resolution: "execa@npm:5.1.1"
+  dependencies:
+    cross-spawn: "npm:^7.0.3"
+    get-stream: "npm:^6.0.0"
+    human-signals: "npm:^2.1.0"
+    is-stream: "npm:^2.0.0"
+    merge-stream: "npm:^2.0.0"
+    npm-run-path: "npm:^4.0.1"
+    onetime: "npm:^5.1.2"
+    signal-exit: "npm:^3.0.3"
+    strip-final-newline: "npm:^2.0.0"
+  checksum: c8e615235e8de4c5addf2fa4c3da3e3aa59ce975a3e83533b4f6a71750fb816a2e79610dc5f1799b6e28976c9ae86747a36a606655bf8cb414a74d8d507b304f
+  languageName: node
+  linkType: hard
+
 "execa@npm:^8.0.1":
   version: 8.0.1
   resolution: "execa@npm:8.0.1"
@@ -8333,6 +8409,18 @@ __metadata:
   dependencies:
     reusify: "npm:^1.0.4"
   checksum: 1095f16cea45fb3beff558bb3afa74ca7a9250f5a670b65db7ed585f92b4b48381445cd328b3d87323da81e43232b5d5978a8201bde84e0cd514310f1ea6da34
+  languageName: node
+  linkType: hard
+
+"fdir@npm:^6.2.0":
+  version: 6.3.0
+  resolution: "fdir@npm:6.3.0"
+  peerDependencies:
+    picomatch: ^3 || ^4
+  peerDependenciesMeta:
+    picomatch:
+      optional: true
+  checksum: be91cd6ab2edbc6df457a69b79672ee9345996986821918ef01908ce9619b8cbecd9c6c13d4ca5d0aeb548b162050d68c599f45bb3fbff194a91e16f25e646b5
   languageName: node
   linkType: hard
 
@@ -9524,6 +9612,13 @@ __metadata:
   version: 5.3.1
   resolution: "ignore@npm:5.3.1"
   checksum: 703f7f45ffb2a27fb2c5a8db0c32e7dee66b33a225d28e8db4e1be6474795f606686a6e3bcc50e1aa12f2042db4c9d4a7d60af3250511de74620fbed052ea4cd
+  languageName: node
+  linkType: hard
+
+"ignore@npm:^5.3.0":
+  version: 5.3.2
+  resolution: "ignore@npm:5.3.2"
+  checksum: f9f652c957983634ded1e7f02da3b559a0d4cc210fca3792cb67f1b153623c9c42efdc1c4121af171e295444459fc4a9201101fb041b1104a3c000bccb188337
   languageName: node
   linkType: hard
 
@@ -12628,6 +12723,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"object-treeify@npm:1.1.33":
+  version: 1.1.33
+  resolution: "object-treeify@npm:1.1.33"
+  checksum: 5b735ac552200bf14f9892ce58295303e8d15a8cc7a0fd4fe6ff99923ab0c196fb70a870ab2a0eefc6820c4acb49e614b88c72d344b9c6bd22584a3efbd386fe
+  languageName: node
+  linkType: hard
+
 "obliterator@npm:^2.0.0":
   version: 2.0.4
   resolution: "obliterator@npm:2.0.4"
@@ -13196,6 +13298,13 @@ __metadata:
   version: 2.3.1
   resolution: "picomatch@npm:2.3.1"
   checksum: 26c02b8d06f03206fc2ab8d16f19960f2ff9e81a658f831ecb656d8f17d9edc799e8364b1f4a7873e89d9702dff96204be0fa26fe4181f6843f040f819dac4be
+  languageName: node
+  linkType: hard
+
+"picomatch@npm:^4.0.2":
+  version: 4.0.2
+  resolution: "picomatch@npm:4.0.2"
+  checksum: 7c51f3ad2bb42c776f49ebf964c644958158be30d0a510efd5a395e8d49cb5acfed5b82c0c5b365523ce18e6ab85013c9ebe574f60305892ec3fa8eee8304ccc
   languageName: node
   linkType: hard
 
@@ -16507,7 +16616,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"yargs-parser@npm:^20.2.2, yargs-parser@npm:^20.2.3, yargs-parser@npm:^20.2.9":
+"yargs-parser@npm:^20.2.2, yargs-parser@npm:^20.2.3, yargs-parser@npm:^20.2.7, yargs-parser@npm:^20.2.9":
   version: 20.2.9
   resolution: "yargs-parser@npm:20.2.9"
   checksum: 0685a8e58bbfb57fab6aefe03c6da904a59769bd803a722bb098bd5b0f29d274a1357762c7258fb487512811b8063fb5d2824a3415a0a4540598335b3b086c72

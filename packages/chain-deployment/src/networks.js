@@ -13,7 +13,8 @@ export const networks = {
       name: 'Abstract Block Explorer',
       url: 'https://explorer.testnet.abs.xyz'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   acala: {
     id: 787,
@@ -30,7 +31,8 @@ export const networks = {
       url: 'https://blockscout.acala.network',
       apiUrl: 'https://blockscout.acala.network/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   ancient8: {
     id: 888888888,
@@ -83,7 +85,8 @@ export const networks = {
           blockCreated: 19070571
         }
       }
-    }
+    },
+    testnet: false
   },
   ancient8Sepolia: {
     id: 28122024,
@@ -136,7 +139,8 @@ export const networks = {
           blockCreated: 4972908
         }
       }
-    }
+    },
+    testnet: false
   },
   anvil: {
     id: 31337,
@@ -149,7 +153,8 @@ export const networks = {
     },
     providerURL: 'http://127.0.0.1:8545',
     blockExplorer: {},
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   apexTestnet: {
     id: 3993,
@@ -171,7 +176,8 @@ export const networks = {
         address: '0xf7642be33a6b18D16a995657adb5a68CD0438aE2',
         blockCreated: 283775
       }
-    }
+    },
+    testnet: true
   },
   arbitrum: {
     id: 42161,
@@ -193,7 +199,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 7654707
       }
-    }
+    },
+    testnet: false
   },
   arbitrumGoerli: {
     id: 421613,
@@ -214,7 +221,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 88114
       }
-    }
+    },
+    testnet: true
   },
   arbitrumNova: {
     id: 42170,
@@ -236,7 +244,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 1746963
       }
-    }
+    },
+    testnet: false
   },
   arbitrumSepolia: {
     id: 421614,
@@ -258,7 +267,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 81930
       }
-    }
+    },
+    testnet: true
   },
   areonNetwork: {
     id: 463,
@@ -274,7 +284,8 @@ export const networks = {
       name: 'Areonscan',
       url: 'https://areonscan.com'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   areonNetworkTestnet: {
     id: 462,
@@ -290,7 +301,8 @@ export const networks = {
       name: 'Areonscan',
       url: 'https://areonscan.com'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   artelaTestnet: {
     id: 11822,
@@ -312,7 +324,8 @@ export const networks = {
         address: '0xd07c8635f76e8745Ee7092fbb6e8fbc5FeF09DD7',
         blockCreated: 7001871
       }
-    }
+    },
+    testnet: true
   },
   assetChainTestnet: {
     id: 42421,
@@ -334,7 +347,8 @@ export const networks = {
         address: '0x989F832D35988cb5e3eB001Fa2Fe789469EC31Ea',
         blockCreated: 17177
       }
-    }
+    },
+    testnet: true
   },
   astar: {
     id: 592,
@@ -355,7 +369,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 761794
       }
-    }
+    },
+    testnet: false
   },
   astarZkEVM: {
     id: 3776,
@@ -376,7 +391,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 93528
       }
-    }
+    },
+    testnet: false
   },
   astarZkyoto: {
     id: 6038361,
@@ -397,7 +413,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 196153
       }
-    }
+    },
+    testnet: true
   },
   atletaOlympia: {
     id: 2340,
@@ -419,7 +436,8 @@ export const networks = {
         address: '0x1472ec6392180fb84F345d2455bCC75B26577115',
         blockCreated: 1076473
       }
-    }
+    },
+    testnet: true
   },
   aurora: {
     id: 1313161554,
@@ -441,7 +459,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 62907816
       }
-    }
+    },
+    testnet: false
   },
   auroraTestnet: {
     id: 1313161555,
@@ -458,7 +477,8 @@ export const networks = {
       url: 'https://testnet.aurorascan.dev',
       apiUrl: 'https://testnet.aurorascan.dev/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   auroria: {
     id: 205205,
@@ -474,7 +494,8 @@ export const networks = {
       name: 'Auroria Testnet Explorer',
       url: 'https://auroria.explorer.stratisevm.com'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   avalanche: {
     id: 43114,
@@ -496,7 +517,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 11907934
       }
-    }
+    },
+    testnet: false
   },
   avalancheFuji: {
     id: 43113,
@@ -518,7 +540,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 7096959
       }
-    }
+    },
+    testnet: true
   },
   b3: {
     id: 8333,
@@ -534,7 +557,8 @@ export const networks = {
       name: 'Blockscout',
       url: 'https://explorer.b3.fun'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   b3Sepolia: {
     id: 1993,
@@ -550,7 +574,8 @@ export const networks = {
       name: 'Blockscout',
       url: 'https://sepolia.explorer.b3.fun'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   bahamut: {
     id: 5165,
@@ -567,7 +592,8 @@ export const networks = {
       url: 'https://www.ftnscan.com',
       apiUrl: 'https://www.ftnscan.com/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   base: {
     id: 8453,
@@ -624,7 +650,8 @@ export const networks = {
           blockCreated: 17482143
         }
       }
-    }
+    },
+    testnet: false
   },
   baseGoerli: {
     id: 84531,
@@ -679,7 +706,8 @@ export const networks = {
           address: '0xfA6D8Ee5BE770F84FC001D098C4bD604Fe01284a'
         }
       }
-    }
+    },
+    testnet: true
   },
   baseSepolia: {
     id: 84532,
@@ -741,7 +769,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 1059647
       }
-    }
+    },
+    testnet: true
   },
   beam: {
     id: 4337,
@@ -762,7 +791,8 @@ export const networks = {
         address: '0x4956f15efdc3dc16645e90cc356eafa65ffc65ec',
         blockCreated: 1
       }
-    }
+    },
+    testnet: false
   },
   beamTestnet: {
     id: 13337,
@@ -783,7 +813,8 @@ export const networks = {
         address: '0x9bf49b704ee2a095b95c1f2d4eb9010510c41c9e',
         blockCreated: 3
       }
-    }
+    },
+    testnet: true
   },
   bearNetworkChainMainnet: {
     id: 641230,
@@ -800,7 +831,8 @@ export const networks = {
       url: 'https://brnkscan.bearnetwork.net',
       apiUrl: 'https://brnkscan.bearnetwork.net/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   bearNetworkChainTestnet: {
     id: 751230,
@@ -817,7 +849,8 @@ export const networks = {
       url: 'https://brnktest-scan.bearnetwork.net',
       apiUrl: 'https://brnktest-scan.bearnetwork.net/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   berachainTestnet: {
     id: 80085,
@@ -833,7 +866,8 @@ export const networks = {
       name: 'Berachain',
       url: 'https://artio.beratrail.io'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   berachainTestnetbArtio: {
     id: 80084,
@@ -854,7 +888,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 109269
       }
-    }
+    },
+    testnet: true
   },
   bevmMainnet: {
     id: 11501,
@@ -871,7 +906,8 @@ export const networks = {
       url: 'https://scan-mainnet.bevm.io',
       apiUrl: 'https://scan-mainnet-api.bevm.io/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   bitTorrent: {
     id: 199,
@@ -893,7 +929,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 31078552
       }
-    }
+    },
+    testnet: false
   },
   bitTorrentTestnet: {
     id: 1028,
@@ -910,7 +947,8 @@ export const networks = {
       url: 'https://testnet.bttcscan.com',
       apiUrl: 'https://testnet.bttcscan.com/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   bitkub: {
     id: 96,
@@ -927,7 +965,8 @@ export const networks = {
       url: 'https://www.bkcscan.com',
       apiUrl: 'https://www.bkcscan.com/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   bitkubTestnet: {
     id: 25925,
@@ -944,7 +983,8 @@ export const networks = {
       url: 'https://testnet.bkcscan.com',
       apiUrl: 'https://testnet.bkcscan.com/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   blast: {
     id: 81457,
@@ -966,7 +1006,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 212929
       }
-    }
+    },
+    testnet: false
   },
   blastSepolia: {
     id: 168587773,
@@ -988,7 +1029,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 756690
       }
-    }
+    },
+    testnet: true
   },
   bob: {
     id: 60808,
@@ -1039,7 +1081,8 @@ export const networks = {
           blockCreated: 4462615
         }
       }
-    }
+    },
+    testnet: false
   },
   bobSepolia: {
     id: 808813,
@@ -1090,7 +1133,8 @@ export const networks = {
           blockCreated: 4462615
         }
       }
-    }
+    },
+    testnet: true
   },
   boba: {
     id: 288,
@@ -1111,7 +1155,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 446859
       }
-    }
+    },
+    testnet: false
   },
   bobaSepolia: {
     id: 28882,
@@ -1127,7 +1172,8 @@ export const networks = {
       name: 'BOBAScan',
       url: 'https://testnet.bobascan.com'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   botanixTestnet: {
     id: 3636,
@@ -1144,7 +1190,8 @@ export const networks = {
       url: 'https://blockscout.botanixlabs.dev',
       apiUrl: 'https://blockscout.botanixlabs.dev'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   bronos: {
     id: 1039,
@@ -1160,7 +1207,8 @@ export const networks = {
       name: 'BronoScan',
       url: 'https://broscan.bronos.org'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   bronosTestnet: {
     id: 1038,
@@ -1176,7 +1224,8 @@ export const networks = {
       name: 'BronoScan',
       url: 'https://tbroscan.bronos.org'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   bsc: {
     id: 56,
@@ -1198,7 +1247,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 15921452
       }
-    }
+    },
+    testnet: false
   },
   bscGreenfield: {
     id: 1017,
@@ -1214,7 +1264,8 @@ export const networks = {
       name: 'BNB Greenfield Mainnet Scan',
       url: 'https://greenfieldscan.com'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   bscTestnet: {
     id: 97,
@@ -1236,7 +1287,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 17422483
       }
-    }
+    },
+    testnet: true
   },
   btr: {
     id: 200901,
@@ -1252,7 +1304,8 @@ export const networks = {
       name: 'Bitlayer(BTR) Scan',
       url: 'https://www.btrscan.com'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   btrTestnet: {
     id: 200810,
@@ -1268,7 +1321,8 @@ export const networks = {
       name: 'Bitlayer(BTR) Scan',
       url: 'https://testnet.btrscan.com'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   bxn: {
     id: 4999,
@@ -1285,7 +1339,8 @@ export const networks = {
       url: 'https://explorer.blackfort.network',
       apiUrl: 'https://explorer.blackfort.network/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   bxnTestnet: {
     id: 4777,
@@ -1302,7 +1357,8 @@ export const networks = {
       url: 'https://testnet-explorer.blackfort.network',
       apiUrl: 'https://testnet-explorer.blackfort.network/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   canto: {
     id: 7700,
@@ -1323,7 +1379,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 2905789
       }
-    }
+    },
+    testnet: false
   },
   celo: {
     id: 42220,
@@ -1345,7 +1402,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 13112599
       }
-    }
+    },
+    testnet: false
   },
   celoAlfajores: {
     id: 44787,
@@ -1367,7 +1425,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 14569001
       }
-    }
+    },
+    testnet: true
   },
   chiliz: {
     id: 88888,
@@ -1384,7 +1443,8 @@ export const networks = {
       url: 'https://scan.chiliz.com',
       apiUrl: 'https://scan.chiliz.com/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   chips: {
     id: 2882,
@@ -1397,7 +1457,8 @@ export const networks = {
     },
     providerURL: 'https://node.chips.ooo/wasp/api/v1/chains/iota1pp3d3mnap3ufmgqnjsnw344sqmf5svjh26y2khnmc89sv6788y3r207a8fn/evm',
     blockExplorer: {},
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   classic: {
     id: 61,
@@ -1413,7 +1474,8 @@ export const networks = {
       name: 'Blockscout',
       url: 'https://blockscout.com/etc/mainnet'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   confluxESpace: {
     id: 1030,
@@ -1434,7 +1496,8 @@ export const networks = {
         address: '0xEFf0078910f638cd81996cc117bccD3eDf2B072F',
         blockCreated: 68602935
       }
-    }
+    },
+    testnet: false
   },
   confluxESpaceTestnet: {
     id: 71,
@@ -1455,7 +1518,8 @@ export const networks = {
         address: '0xEFf0078910f638cd81996cc117bccD3eDf2B072F',
         blockCreated: 117499050
       }
-    }
+    },
+    testnet: true
   },
   coreDao: {
     id: 1116,
@@ -1476,7 +1540,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 11907934
       }
-    }
+    },
+    testnet: false
   },
   crab: {
     id: 44,
@@ -1497,7 +1562,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 3032593
       }
-    }
+    },
+    testnet: false
   },
   cronos: {
     id: 25,
@@ -1519,7 +1585,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 1963112
       }
-    }
+    },
+    testnet: false
   },
   cronosTestnet: {
     id: 338,
@@ -1540,7 +1607,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 10191251
       }
-    }
+    },
+    testnet: true
   },
   cronoszkEVM: {
     id: 388,
@@ -1556,7 +1624,8 @@ export const networks = {
       name: 'Cronos zkEVM (Mainnet) Chain Explorer',
       url: 'https://explorer.zkevm.cronos.org'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   cronoszkEVMTestnet: {
     id: 282,
@@ -1572,7 +1641,8 @@ export const networks = {
       name: 'Cronos zkEVM Testnet Explorer',
       url: 'https://explorer.zkevm.cronos.org/testnet'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   crossbell: {
     id: 3737,
@@ -1594,7 +1664,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 38246031
       }
-    }
+    },
+    testnet: false
   },
   curtis: {
     id: 33111,
@@ -1610,7 +1681,8 @@ export const networks = {
       name: 'Curtis Explorer',
       url: 'https://explorer.curtis.apechain.com'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   cyber: {
     id: 7560,
@@ -1632,7 +1704,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 0
       }
-    }
+    },
+    testnet: false
   },
   cyberTestnet: {
     id: 111557560,
@@ -1654,7 +1727,8 @@ export const networks = {
         address: '0xffc391F0018269d4758AEA1a144772E8FB99545E',
         blockCreated: 304545
       }
-    }
+    },
+    testnet: true
   },
   darwinia: {
     id: 46,
@@ -1675,7 +1749,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 69420
       }
-    }
+    },
+    testnet: false
   },
   dchain: {
     id: 2716446429837000,
@@ -1711,7 +1786,8 @@ export const networks = {
       l2ToL1MessagePasser: {
         address: '0x4200000000000000000000000000000000000016'
       }
-    }
+    },
+    testnet: false
   },
   dchainTestnet: {
     id: 2713017997578000,
@@ -1747,7 +1823,8 @@ export const networks = {
       l2ToL1MessagePasser: {
         address: '0x4200000000000000000000000000000000000016'
       }
-    }
+    },
+    testnet: false
   },
   defichainEvm: {
     id: 1130,
@@ -1768,7 +1845,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 137852
       }
-    }
+    },
+    testnet: false
   },
   defichainEvmTestnet: {
     id: 1131,
@@ -1789,7 +1867,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 156462
       }
-    }
+    },
+    testnet: true
   },
   degen: {
     id: 666666666,
@@ -1806,7 +1885,8 @@ export const networks = {
       url: 'https://explorer.degen.tips',
       apiUrl: 'https://explorer.degen.tips/api/v2'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   dfk: {
     id: 53935,
@@ -1827,7 +1907,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 14790551
       }
-    }
+    },
+    testnet: false
   },
   dodochainTestnet: {
     id: 53457,
@@ -1843,7 +1924,8 @@ export const networks = {
       name: 'DODOchain Testnet (Sepolia) Explorer',
       url: 'https://testnet-scan.dodochain.com'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   dogechain: {
     id: 2000,
@@ -1865,7 +1947,8 @@ export const networks = {
         address: '0x68a8609a60a008EFA633dfdec592c03B030cC508',
         blockCreated: 25384031
       }
-    }
+    },
+    testnet: false
   },
   dreyerxMainnet: {
     id: 23451,
@@ -1881,7 +1964,8 @@ export const networks = {
       name: 'DreyerX Scan',
       url: 'https://scan.dreyerx.com'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   dreyerxTestnet: {
     id: 23452,
@@ -1897,7 +1981,8 @@ export const networks = {
       name: 'DreyerX Testnet Scan',
       url: 'https://testnet-scan.dreyerx.com'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   edgeless: {
     id: 2026,
@@ -1913,7 +1998,8 @@ export const networks = {
       name: 'Edgeless Explorer',
       url: 'https://explorer.edgeless.network'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   edgelessTestnet: {
     id: 202,
@@ -1929,7 +2015,8 @@ export const networks = {
       name: 'Edgeless Testnet Explorer',
       url: 'https://testnet.explorer.edgeless.network'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   edgeware: {
     id: 2021,
@@ -1951,7 +2038,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 18117872
       }
-    }
+    },
+    testnet: false
   },
   edgewareTestnet: {
     id: 2022,
@@ -1968,7 +2056,8 @@ export const networks = {
       url: 'https://testnet.edgscan.live',
       apiUrl: 'https://testnet.edgscan.live/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   ekta: {
     id: 1994,
@@ -1985,7 +2074,8 @@ export const networks = {
       url: 'https://ektascan.io',
       apiUrl: 'https://ektascan.io/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   ektaTestnet: {
     id: 1004,
@@ -2002,7 +2092,8 @@ export const networks = {
       url: 'https://test.ektascan.io',
       apiUrl: 'https://test.ektascan.io/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   eon: {
     id: 7332,
@@ -2018,7 +2109,8 @@ export const networks = {
       name: 'EON Explorer',
       url: 'https://eon-explorer.horizenlabs.io'
     },
-    contracts: {}
+    contracts: {},
+    testnet: false
   },
   eos: {
     id: 17777,
@@ -2040,7 +2132,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 7943933
       }
-    }
+    },
+    testnet: false
   },
   eosTestnet: {
     id: 15557,
@@ -2062,7 +2155,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 9067940
       }
-    }
+    },
+    testnet: true
   },
   etherlink: {
     id: 42793,
@@ -2083,7 +2177,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 33899
       }
-    }
+    },
+    testnet: false
   },
   etherlinkTestnet: {
     id: 128123,
@@ -2099,7 +2194,8 @@ export const networks = {
       name: 'Etherlink Testnet',
       url: 'https://testnet-explorer.etherlink.com'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   evmos: {
     id: 9001,
@@ -2115,7 +2211,8 @@ export const networks = {
       name: 'Evmos Block Explorer',
       url: 'https://escan.live'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   evmosTestnet: {
     id: 9000,
@@ -2131,7 +2228,8 @@ export const networks = {
       name: 'Evmos Testnet Block Explorer',
       url: 'https://evm.evmos.dev/'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   fantom: {
     id: 250,
@@ -2153,7 +2251,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 33001987
       }
-    }
+    },
+    testnet: false
   },
   fantomSonicTestnet: {
     id: 64240,
@@ -2169,7 +2268,8 @@ export const networks = {
       name: 'Fantom Sonic Open Testnet Explorer',
       url: 'https://public-sonic.fantom.network'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   fantomTestnet: {
     id: 4002,
@@ -2191,7 +2291,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 8328688
       }
-    }
+    },
+    testnet: true
   },
   fibo: {
     id: 12306,
@@ -2207,7 +2308,8 @@ export const networks = {
       name: 'FiboScan',
       url: 'https://scan.fibochain.org'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   filecoin: {
     id: 314,
@@ -2228,7 +2330,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 3328594
       }
-    }
+    },
+    testnet: false
   },
   filecoinCalibration: {
     id: 314159,
@@ -2244,7 +2347,8 @@ export const networks = {
       name: 'Filscan',
       url: 'https://calibration.filscan.io'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   filecoinHyperspace: {
     id: 3141,
@@ -2260,7 +2364,8 @@ export const networks = {
       name: 'Filfox',
       url: 'https://hyperspace.filfox.info/en'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   flare: {
     id: 14,
@@ -2277,7 +2382,8 @@ export const networks = {
       url: 'https://flare-explorer.flare.network',
       apiUrl: 'https://flare-explorer.flare.network/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   flareTestnet: {
     id: 114,
@@ -2294,7 +2400,8 @@ export const networks = {
       url: 'https://coston2-explorer.flare.network',
       apiUrl: 'https://coston2-explorer.flare.network/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   flowMainnet: {
     id: 747,
@@ -2310,7 +2417,8 @@ export const networks = {
       name: 'Mainnet Explorer',
       url: 'https://flowdiver.io'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   flowPreviewnet: {
     id: 646,
@@ -2331,7 +2439,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 6205
       }
-    }
+    },
+    testnet: false
   },
   flowTestnet: {
     id: 545,
@@ -2352,7 +2461,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 137518
       }
-    }
+    },
+    testnet: false
   },
   fluence: {
     id: 9999999,
@@ -2369,7 +2479,8 @@ export const networks = {
       url: 'https://blockscout.mainnet.fluence.dev',
       apiUrl: 'https://blockscout.mainnet.fluence.dev/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   fluenceStage: {
     id: 123420000220,
@@ -2386,7 +2497,8 @@ export const networks = {
       url: 'https://blockscout.stage.fluence.dev',
       apiUrl: 'https://blockscout.stage.fluence.dev/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   fluenceTestnet: {
     id: 52164803,
@@ -2403,7 +2515,8 @@ export const networks = {
       url: 'https://blockscout.testnet.fluence.dev',
       apiUrl: 'https://blockscout.testnet.fluence.dev/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   forma: {
     id: 984122,
@@ -2424,7 +2537,8 @@ export const networks = {
         address: '0xd53C6FFB123F7349A32980F87faeD8FfDc9ef079',
         blockCreated: 252705
       }
-    }
+    },
+    testnet: false
   },
   foundry: {
     id: 31337,
@@ -2437,7 +2551,8 @@ export const networks = {
     },
     providerURL: 'http://127.0.0.1:8545',
     blockExplorer: {},
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   fraxtal: {
     id: 252,
@@ -2493,7 +2608,8 @@ export const networks = {
           blockCreated: 19135323
         }
       }
-    }
+    },
+    testnet: false
   },
   fraxtalTestnet: {
     id: 2522,
@@ -2549,7 +2665,8 @@ export const networks = {
           blockCreated: 318416
         }
       }
-    }
+    },
+    testnet: false
   },
   funkiMainnet: {
     id: 33979,
@@ -2584,7 +2701,8 @@ export const networks = {
       l2ToL1MessagePasser: {
         address: '0x4200000000000000000000000000000000000016'
       }
-    }
+    },
+    testnet: false
   },
   funkiSepolia: {
     id: 3397901,
@@ -2623,7 +2741,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 1620204
       }
-    }
+    },
+    testnet: true
   },
   fuse: {
     id: 122,
@@ -2645,7 +2764,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 16146628
       }
-    }
+    },
+    testnet: false
   },
   fuseSparknet: {
     id: 123,
@@ -2662,7 +2782,8 @@ export const networks = {
       url: 'https://explorer.fusespark.io',
       apiUrl: 'https://explorer.fusespark.io/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   gnosis: {
     id: 100,
@@ -2684,7 +2805,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 21022491
       }
-    }
+    },
+    testnet: false
   },
   gnosisChiado: {
     id: 10200,
@@ -2706,7 +2828,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 4967313
       }
-    }
+    },
+    testnet: true
   },
   gobi: {
     id: 1663,
@@ -2722,7 +2845,8 @@ export const networks = {
       name: 'Gobi Explorer',
       url: 'https://gobi-explorer.horizen.io'
     },
-    contracts: {}
+    contracts: {},
+    testnet: true
   },
   goerli: {
     id: 5,
@@ -2751,7 +2875,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 6507670
       }
-    }
+    },
+    testnet: true
   },
   gravity: {
     id: 1625,
@@ -2773,7 +2898,8 @@ export const networks = {
         address: '0xf8ac4BEB2F75d2cFFb588c63251347fdD629B92c',
         blockCreated: 16851
       }
-    }
+    },
+    testnet: false
   },
   ham: {
     id: 5112,
@@ -2790,7 +2916,8 @@ export const networks = {
       url: 'https://explorer.ham.fun',
       apiUrl: 'https://explorer.ham.fun/api/v2'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   haqqMainnet: {
     id: 11235,
@@ -2807,7 +2934,8 @@ export const networks = {
       url: 'https://explorer.haqq.network',
       apiUrl: 'https://explorer.haqq.network/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   haqqTestedge2: {
     id: 54211,
@@ -2824,7 +2952,8 @@ export const networks = {
       url: 'https://explorer.testedge2.haqq.network',
       apiUrl: 'https://explorer.testedge2.haqq.network/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   hardhat: {
     id: 31337,
@@ -2837,7 +2966,8 @@ export const networks = {
     },
     providerURL: 'http://127.0.0.1:8545',
     blockExplorer: {},
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   harmonyOne: {
     id: 1666600000,
@@ -2858,7 +2988,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 24185753
       }
-    }
+    },
+    testnet: false
   },
   hashkeyTestnet: {
     id: 133,
@@ -2874,7 +3005,8 @@ export const networks = {
       name: 'HashKey Chain Explorer',
       url: 'https://hashkeychain-testnet-explorer.alt.technology'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   hedera: {
     id: 295,
@@ -2890,7 +3022,8 @@ export const networks = {
       name: 'Hashscan',
       url: 'https://hashscan.io/mainnet'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   hederaPreviewnet: {
     id: 297,
@@ -2906,7 +3039,8 @@ export const networks = {
       name: 'Hashscan',
       url: 'https://hashscan.io/previewnet'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   hederaTestnet: {
     id: 296,
@@ -2922,7 +3056,8 @@ export const networks = {
       name: 'Hashscan',
       url: 'https://hashscan.io/testnet'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   holesky: {
     id: 17000,
@@ -2952,7 +3087,8 @@ export const networks = {
         address: '0xa6AC935D4971E3CD133b950aE053bECD16fE7f3b',
         blockCreated: 973484
       }
-    }
+    },
+    testnet: true
   },
   immutableZkEvm: {
     id: 13371,
@@ -2974,7 +3110,8 @@ export const networks = {
         address: '0x236bdA4589e44e6850f5aC6a74BfCa398a86c6c0',
         blockCreated: 4335972
       }
-    }
+    },
+    testnet: false
   },
   immutableZkEvmTestnet: {
     id: 13473,
@@ -2995,7 +3132,8 @@ export const networks = {
         address: '0x2CC787Ed364600B0222361C4188308Fa8E68bA60',
         blockCreated: 5977391
       }
-    }
+    },
+    testnet: true
   },
   inEVM: {
     id: 2525,
@@ -3017,7 +3155,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 118606
       }
-    }
+    },
+    testnet: false
   },
   iota: {
     id: 8822,
@@ -3034,7 +3173,8 @@ export const networks = {
       url: 'https://explorer.evm.iota.org',
       apiUrl: 'https://explorer.evm.iota.org/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   iotaTestnet: {
     id: 1075,
@@ -3051,7 +3191,8 @@ export const networks = {
       url: 'https://explorer.evm.testnet.iotaledger.net',
       apiUrl: 'https://explorer.evm.testnet.iotaledger.net/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   iotex: {
     id: 4689,
@@ -3072,7 +3213,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 22163670
       }
-    }
+    },
+    testnet: false
   },
   iotexTestnet: {
     id: 4690,
@@ -3093,7 +3235,8 @@ export const networks = {
         address: '0xb5cecD6894c6f473Ec726A176f1512399A2e355d',
         blockCreated: 24347592
       }
-    }
+    },
+    testnet: true
   },
   jbc: {
     id: 8899,
@@ -3115,7 +3258,8 @@ export const networks = {
         address: '0xc0C8C486D1466C57Efe13C2bf000d4c56F47CBdC',
         blockCreated: 2299048
       }
-    }
+    },
+    testnet: false
   },
   jbcTestnet: {
     id: 88991,
@@ -3137,7 +3281,8 @@ export const networks = {
         address: '0xa1a858ad9041B4741e620355a3F96B3c78e70ecE',
         blockCreated: 32848
       }
-    }
+    },
+    testnet: true
   },
   kaia: {
     id: 8217,
@@ -3158,7 +3303,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 96002415
       }
-    }
+    },
+    testnet: false
   },
   kairos: {
     id: 1001,
@@ -3179,7 +3325,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 123390593
       }
-    }
+    },
+    testnet: true
   },
   kakarotSepolia: {
     id: 1802203764,
@@ -3195,7 +3342,8 @@ export const networks = {
       name: 'Kakarot Scan',
       url: 'https://sepolia.kakarotscan.org'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   karura: {
     id: 686,
@@ -3212,7 +3360,8 @@ export const networks = {
       url: 'https://blockscout.karura.network',
       apiUrl: 'https://blockscout.karura.network/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   kava: {
     id: 2222,
@@ -3234,7 +3383,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 3661165
       }
-    }
+    },
+    testnet: false
   },
   kavaTestnet: {
     id: 2221,
@@ -3256,7 +3406,8 @@ export const networks = {
         address: '0xDf1D724A7166261eEB015418fe8c7679BBEa7fd6',
         blockCreated: 7242179
       }
-    }
+    },
+    testnet: true
   },
   kcc: {
     id: 321,
@@ -3277,7 +3428,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 11760430
       }
-    }
+    },
+    testnet: false
   },
   klaytn: {
     id: 8217,
@@ -3298,7 +3450,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 96002415
       }
-    }
+    },
+    testnet: false
   },
   klaytnBaobab: {
     id: 1001,
@@ -3319,7 +3472,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 123390593
       }
-    }
+    },
+    testnet: true
   },
   koi: {
     id: 701,
@@ -3340,7 +3494,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 180001
       }
-    }
+    },
+    testnet: true
   },
   kroma: {
     id: 255,
@@ -3357,7 +3512,8 @@ export const networks = {
       url: 'https://blockscout.kroma.network',
       apiUrl: 'https://blockscout.kroma.network/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   kromaSepolia: {
     id: 2358,
@@ -3374,7 +3530,8 @@ export const networks = {
       url: 'https://blockscout.sepolia.kroma.network',
       apiUrl: 'https://blockscout.sepolia.kroma.network/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   l3x: {
     id: 12324,
@@ -3391,7 +3548,8 @@ export const networks = {
       url: 'https://explorer.l3x.com',
       apiUrl: 'https://explorer.l3x.com/api/v2'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   l3xTestnet: {
     id: 12325,
@@ -3408,7 +3566,8 @@ export const networks = {
       url: 'https://explorer-testnet.l3x.com',
       apiUrl: 'https://explorer-testnet.l3x.com/api/v2'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   lightlinkPegasus: {
     id: 1891,
@@ -3424,7 +3583,8 @@ export const networks = {
       name: 'LightLink Pegasus Explorer',
       url: 'https://pegasus.lightlink.io'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   lightlinkPhoenix: {
     id: 1890,
@@ -3440,7 +3600,8 @@ export const networks = {
       name: 'LightLink Phoenix Explorer',
       url: 'https://phoenix.lightlink.io'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   linea: {
     id: 59144,
@@ -3462,7 +3623,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 42
       }
-    }
+    },
+    testnet: false
   },
   lineaGoerli: {
     id: 59140,
@@ -3484,7 +3646,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 498623
       }
-    }
+    },
+    testnet: true
   },
   lineaSepolia: {
     id: 59141,
@@ -3506,7 +3669,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 227427
       }
-    }
+    },
+    testnet: true
   },
   lineaTestnet: {
     id: 59140,
@@ -3528,7 +3692,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 498623
       }
-    }
+    },
+    testnet: true
   },
   lisk: {
     id: 1135,
@@ -3549,7 +3714,8 @@ export const networks = {
       multicall3: {
         address: '0xA9d71E1dd7ca26F26e656E66d6AA81ed7f745bf0'
       }
-    }
+    },
+    testnet: false
   },
   liskSepolia: {
     id: 4202,
@@ -3603,7 +3769,8 @@ export const networks = {
           address: '0x1Fb30e446eA791cd1f011675E5F3f5311b70faF5'
         }
       }
-    }
+    },
+    testnet: true
   },
   localhost: {
     id: 1337,
@@ -3616,7 +3783,8 @@ export const networks = {
     },
     providerURL: 'http://127.0.0.1:8545',
     blockExplorer: {},
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   lukso: {
     id: 42,
@@ -3638,7 +3806,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 468183
       }
-    }
+    },
+    testnet: false
   },
   luksoTestnet: {
     id: 4201,
@@ -3660,7 +3829,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 605348
       }
-    }
+    },
+    testnet: true
   },
   lycan: {
     id: 721,
@@ -3676,7 +3846,8 @@ export const networks = {
       name: 'Lycan Explorer',
       url: 'https://explorer.lycanchain.com'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   lyra: {
     id: 957,
@@ -3698,7 +3869,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 1935198
       }
-    }
+    },
+    testnet: false
   },
   mainnet: {
     id: 1,
@@ -3727,7 +3899,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 14353601
       }
-    }
+    },
+    testnet: false
   },
   mandala: {
     id: 595,
@@ -3744,7 +3917,8 @@ export const networks = {
       url: 'https://blockscout.mandala.aca-staging.network',
       apiUrl: 'https://blockscout.mandala.aca-staging.network/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   manta: {
     id: 169,
@@ -3766,7 +3940,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 332890
       }
-    }
+    },
+    testnet: false
   },
   mantaSepoliaTestnet: {
     id: 3441006,
@@ -3788,7 +3963,8 @@ export const networks = {
         address: '0xca54918f7B525C8df894668846506767412b53E3',
         blockCreated: 479584
       }
-    }
+    },
+    testnet: true
   },
   mantaTestnet: {
     id: 3441005,
@@ -3810,7 +3986,8 @@ export const networks = {
         address: '0x211B1643b95Fe76f11eD8880EE810ABD9A4cf56C',
         blockCreated: 419915
       }
-    }
+    },
+    testnet: true
   },
   mantle: {
     id: 5000,
@@ -3832,7 +4009,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 304717
       }
-    }
+    },
+    testnet: false
   },
   mantleSepoliaTestnet: {
     id: 5003,
@@ -3854,7 +4032,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 4584012
       }
-    }
+    },
+    testnet: true
   },
   mantleTestnet: {
     id: 5001,
@@ -3876,7 +4055,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 561333
       }
-    }
+    },
+    testnet: true
   },
   merlin: {
     id: 4200,
@@ -3893,7 +4073,8 @@ export const networks = {
       url: 'https://scan.merlinchain.io',
       apiUrl: 'https://scan.merlinchain.io/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   metachain: {
     id: 571,
@@ -3914,7 +4095,8 @@ export const networks = {
         address: '0x0000000000000000000000000000000000003001',
         blockCreated: 0
       }
-    }
+    },
+    testnet: false
   },
   metachainIstanbul: {
     id: 1453,
@@ -3935,7 +4117,8 @@ export const networks = {
         address: '0x0000000000000000000000000000000000003001',
         blockCreated: 0
       }
-    }
+    },
+    testnet: true
   },
   metalL2: {
     id: 1750,
@@ -3990,7 +4173,8 @@ export const networks = {
           address: '0x6d0f65D59b55B0FEC5d2d15365154DcADC140BF3'
         }
       }
-    }
+    },
+    testnet: false
   },
   meter: {
     id: 82,
@@ -4006,7 +4190,8 @@ export const networks = {
       name: 'MeterScan',
       url: 'https://scan.meter.io'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   meterTestnet: {
     id: 83,
@@ -4022,7 +4207,8 @@ export const networks = {
       name: 'MeterTestnetScan',
       url: 'https://scan-warringstakes.meter.io'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   metis: {
     id: 1088,
@@ -4044,7 +4230,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 2338552
       }
-    }
+    },
+    testnet: false
   },
   metisGoerli: {
     id: 599,
@@ -4066,7 +4253,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 1006207
       }
-    }
+    },
+    testnet: false
   },
   mev: {
     id: 7518,
@@ -4087,7 +4275,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 86881340
       }
-    }
+    },
+    testnet: false
   },
   mevTestnet: {
     id: 4759,
@@ -4108,7 +4297,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 64371115
       }
-    }
+    },
+    testnet: true
   },
   mintSepoliaTestnet: {
     id: 1686,
@@ -4124,7 +4314,8 @@ export const networks = {
       name: 'Mintchain Testnet explorer',
       url: 'https://testnet-explorer.mintchain.io'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   mode: {
     id: 34443,
@@ -4160,7 +4351,8 @@ export const networks = {
           address: '0x735aDBbE72226BD52e818E7181953f42E3b0FF21'
         }
       }
-    }
+    },
+    testnet: false
   },
   modeTestnet: {
     id: 919,
@@ -4218,7 +4410,8 @@ export const networks = {
         address: '0xBAba8373113Fb7a68f195deF18732e01aF8eDfCF',
         blockCreated: 3019007
       }
-    }
+    },
+    testnet: true
   },
   moonbaseAlpha: {
     id: 1287,
@@ -4240,7 +4433,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 1850686
       }
-    }
+    },
+    testnet: true
   },
   moonbeam: {
     id: 1284,
@@ -4262,7 +4456,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 609002
       }
-    }
+    },
+    testnet: false
   },
   moonbeamDev: {
     id: 1281,
@@ -4275,7 +4470,8 @@ export const networks = {
     },
     providerURL: 'http://127.0.0.1:9944',
     blockExplorer: {},
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   moonriver: {
     id: 1285,
@@ -4297,7 +4493,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 1597904
       }
-    }
+    },
+    testnet: false
   },
   morphHolesky: {
     id: 2810,
@@ -4314,7 +4511,8 @@ export const networks = {
       url: 'https://explorer-holesky.morphl2.io',
       apiUrl: 'https://explorer-api-holesky.morphl2.io/api?'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   morphSepolia: {
     id: 2710,
@@ -4331,7 +4529,8 @@ export const networks = {
       url: 'https://explorer-testnet.morphl2.io',
       apiUrl: 'https://explorer-api-testnet.morphl2.io/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   nautilus: {
     id: 22222,
@@ -4347,7 +4546,8 @@ export const networks = {
       name: 'NautScan',
       url: 'https://nautscan.com'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   neonDevnet: {
     id: 245022926,
@@ -4368,7 +4568,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 205206112
       }
-    }
+    },
+    testnet: true
   },
   neonMainnet: {
     id: 245022934,
@@ -4389,7 +4590,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 206545524
       }
-    }
+    },
+    testnet: false
   },
   nexi: {
     id: 4242,
@@ -4411,7 +4613,8 @@ export const networks = {
         address: '0x0277A46Cc69A57eE3A6C8c158bA874832F718B8E',
         blockCreated: 25770160
       }
-    }
+    },
+    testnet: false
   },
   nexilix: {
     id: 240,
@@ -4432,7 +4635,8 @@ export const networks = {
         address: '0x58381c8e2BF9d0C2C4259cA14BdA9Afe02831244',
         blockCreated: 74448
       }
-    }
+    },
+    testnet: false
   },
   oasisTestnet: {
     id: 4090,
@@ -4449,7 +4653,8 @@ export const networks = {
       url: 'https://oasis.ftnscan.com',
       apiUrl: 'https://oasis.ftnscan.com/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   oasys: {
     id: 248,
@@ -4466,7 +4671,8 @@ export const networks = {
       url: 'https://scan.oasys.games',
       apiUrl: 'https://scan.oasys.games/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   okc: {
     id: 66,
@@ -4487,7 +4693,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 10364792
       }
-    }
+    },
+    testnet: false
   },
   oortMainnetDev: {
     id: 9700,
@@ -4503,7 +4710,8 @@ export const networks = {
       name: 'OORT MainnetDev Explorer',
       url: 'https://dev-scan.oortech.com'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   opBNB: {
     id: 204,
@@ -4524,7 +4732,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 512881
       }
-    }
+    },
+    testnet: false
   },
   opBNBTestnet: {
     id: 5611,
@@ -4545,7 +4754,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 3705108
       }
-    }
+    },
+    testnet: true
   },
   optimism: {
     id: 10,
@@ -4605,7 +4815,8 @@ export const networks = {
           address: '0x99C9fc46f92E8a1c0deC1b1747d010903E884bE1'
         }
       }
-    }
+    },
+    testnet: false
   },
   optimismGoerli: {
     id: 420,
@@ -4660,7 +4871,8 @@ export const networks = {
           address: '0x636Af16bf2f682dD3109e60102b8E1A089FedAa8'
         }
       }
-    }
+    },
+    testnet: true
   },
   optimismSepolia: {
     id: 11155420,
@@ -4720,7 +4932,8 @@ export const networks = {
           address: '0xFBb0621E0B23b5478B630BD55a5f21f67730B0F1'
         }
       }
-    }
+    },
+    testnet: true
   },
   otimDevnet: {
     id: 41144114,
@@ -4737,7 +4950,8 @@ export const networks = {
       batchInvoker: {
         address: '0x5FbDB2315678afecb367f032d93F642f64180aa3'
       }
-    }
+    },
+    testnet: false
   },
   palm: {
     id: 11297108109,
@@ -4758,7 +4972,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 15429248
       }
-    }
+    },
+    testnet: false
   },
   palmTestnet: {
     id: 11297108099,
@@ -4779,7 +4994,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 15429248
       }
-    }
+    },
+    testnet: true
   },
   pgn: {
     id: 424,
@@ -4816,7 +5032,8 @@ export const networks = {
           address: '0xD0204B9527C1bA7bD765Fa5CCD9355d38338272b'
         }
       }
-    }
+    },
+    testnet: false
   },
   pgnTestnet: {
     id: 58008,
@@ -4853,7 +5070,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 3754925
       }
-    }
+    },
+    testnet: true
   },
   phoenix: {
     id: 13381,
@@ -4875,7 +5093,8 @@ export const networks = {
         address: '0x498cF757a575cFF2c2Ed9f532f56Efa797f86442',
         blockCreated: 5620192
       }
-    }
+    },
+    testnet: false
   },
   playfiAlbireo: {
     id: 1612127,
@@ -4895,7 +5114,8 @@ export const networks = {
       multicall3: {
         address: '0xF9cda624FBC7e059355ce98a31693d299FACd963'
       }
-    }
+    },
+    testnet: true
   },
   plinga: {
     id: 242,
@@ -4916,7 +5136,8 @@ export const networks = {
         address: '0x0989576160f2e7092908BB9479631b901060b6e4',
         blockCreated: 204489
       }
-    }
+    },
+    testnet: false
   },
   plumeTestnet: {
     id: 161221135,
@@ -4933,7 +5154,8 @@ export const networks = {
       url: 'https://testnet-explorer.plumenetwork.xyz',
       apiUrl: 'https://testnet-explorer.plumenetwork.xyz/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   polygon: {
     id: 137,
@@ -4955,7 +5177,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 25770160
       }
-    }
+    },
+    testnet: false
   },
   polygonAmoy: {
     id: 80002,
@@ -4977,7 +5200,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 3127388
       }
-    }
+    },
+    testnet: true
   },
   polygonMumbai: {
     id: 80001,
@@ -4999,7 +5223,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 25770160
       }
-    }
+    },
+    testnet: true
   },
   polygonZkEvm: {
     id: 1101,
@@ -5021,7 +5246,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 57746
       }
-    }
+    },
+    testnet: false
   },
   polygonZkEvmCardona: {
     id: 2442,
@@ -5043,7 +5269,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 114091
       }
-    }
+    },
+    testnet: true
   },
   polygonZkEvmTestnet: {
     id: 1442,
@@ -5065,7 +5292,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 525686
       }
-    }
+    },
+    testnet: true
   },
   pulsechain: {
     id: 369,
@@ -5090,7 +5318,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 14353601
       }
-    }
+    },
+    testnet: false
   },
   pulsechainV4: {
     id: 943,
@@ -5115,7 +5344,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 14353601
       }
-    }
+    },
+    testnet: true
   },
   qMainnet: {
     id: 35441,
@@ -5132,7 +5362,8 @@ export const networks = {
       url: 'https://explorer.q.org',
       apiUrl: 'https://explorer.q.org/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   qTestnet: {
     id: 35443,
@@ -5149,7 +5380,8 @@ export const networks = {
       url: 'https://explorer.qtestnet.org',
       apiUrl: 'https://explorer.qtestnet.org/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   real: {
     id: 111188,
@@ -5171,7 +5403,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 695
       }
-    }
+    },
+    testnet: false
   },
   redbellyTestnet: {
     id: 153,
@@ -5188,7 +5421,8 @@ export const networks = {
       url: 'https://explorer.testnet.redbelly.network',
       apiUrl: 'https://ethernal.fly.dev/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   redstone: {
     id: 690,
@@ -5204,7 +5438,8 @@ export const networks = {
       name: 'Explorer',
       url: '\thttps://explorer.redstone.xyz'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   reyaNetwork: {
     id: 1729,
@@ -5220,7 +5455,8 @@ export const networks = {
       name: 'Reya Network Explorer',
       url: 'https://explorer.reya.network'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   rollux: {
     id: 570,
@@ -5242,7 +5478,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 119222
       }
-    }
+    },
+    testnet: false
   },
   rolluxTestnet: {
     id: 57000,
@@ -5264,7 +5501,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 1813675
       }
-    }
+    },
+    testnet: false
   },
   ronin: {
     id: 2020,
@@ -5285,7 +5523,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 26023535
       }
-    }
+    },
+    testnet: false
   },
   root: {
     id: 7668,
@@ -5306,7 +5545,8 @@ export const networks = {
         address: '0xc9C2E2429AeC354916c476B30d729deDdC94988d',
         blockCreated: 9218338
       }
-    }
+    },
+    testnet: false
   },
   rootPorcini: {
     id: 7672,
@@ -5327,7 +5567,8 @@ export const networks = {
         address: '0xc9C2E2429AeC354916c476B30d729deDdC94988d',
         blockCreated: 10555692
       }
-    }
+    },
+    testnet: true
   },
   rootstock: {
     id: 30,
@@ -5348,7 +5589,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 4249540
       }
-    }
+    },
+    testnet: false
   },
   rootstockTestnet: {
     id: 31,
@@ -5364,7 +5606,8 @@ export const networks = {
       name: 'RSK Explorer',
       url: 'https://explorer.testnet.rootstock.io'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   rss3: {
     id: 12553,
@@ -5420,7 +5663,8 @@ export const networks = {
           address: '0x4cbab69108Aa72151EDa5A3c164eA86845f18438'
         }
       }
-    }
+    },
+    testnet: false
   },
   rss3Sepolia: {
     id: 2331,
@@ -5476,7 +5720,8 @@ export const networks = {
           address: '0xdDD29bb63B0839FB1cE0eE439Ff027738595D07B'
         }
       }
-    }
+    },
+    testnet: true
   },
   saigon: {
     id: 2021,
@@ -5497,7 +5742,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 18736871
       }
-    }
+    },
+    testnet: true
   },
   sapphire: {
     id: 23294,
@@ -5518,7 +5764,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 734531
       }
-    }
+    },
+    testnet: false
   },
   sapphireTestnet: {
     id: 23295,
@@ -5534,7 +5781,8 @@ export const networks = {
       name: 'Oasis Explorer',
       url: 'https://explorer.oasis.io/testnet/sapphire'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   satoshiVM: {
     id: 3109,
@@ -5551,7 +5799,8 @@ export const networks = {
       url: 'https://svmscan.io',
       apiUrl: 'https://svmscan.io/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   satoshiVMTestnet: {
     id: 3110,
@@ -5568,7 +5817,8 @@ export const networks = {
       url: 'https://testnet.svmscan.io',
       apiUrl: 'https://testnet.svmscan.io/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   scroll: {
     id: 534352,
@@ -5590,7 +5840,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 14
       }
-    }
+    },
+    testnet: false
   },
   scrollSepolia: {
     id: 534351,
@@ -5612,7 +5863,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 9473
       }
-    }
+    },
+    testnet: true
   },
   sei: {
     id: 1329,
@@ -5633,7 +5885,8 @@ export const networks = {
       multicall3: {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11'
       }
-    }
+    },
+    testnet: false
   },
   seiDevnet: {
     id: 713715,
@@ -5649,7 +5902,8 @@ export const networks = {
       name: 'Seitrace',
       url: 'https://seitrace.com'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   seiTestnet: {
     id: 1328,
@@ -5665,7 +5919,8 @@ export const networks = {
       name: 'Seitrace',
       url: 'https://seitrace.com'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   sepolia: {
     id: 11155111,
@@ -5694,7 +5949,8 @@ export const networks = {
         address: '0xc8Af999e38273D658BE1b921b88A9Ddf005769cC',
         blockCreated: 5317080
       }
-    }
+    },
+    testnet: true
   },
   shapeSepolia: {
     id: 11011,
@@ -5711,7 +5967,8 @@ export const networks = {
       url: 'https://shape-sepolia-explorer.alchemy.com',
       apiUrl: 'https://shape-sepolia-explorer.alchemy.com/api/v2'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   shardeumSphinx: {
     id: 8082,
@@ -5727,7 +5984,8 @@ export const networks = {
       name: 'Shardeum Explorer',
       url: 'https://explorer-sphinx.shardeum.org'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   shibarium: {
     id: 109,
@@ -5748,7 +6006,8 @@ export const networks = {
         address: '0x864Bf681ADD6052395188A89101A1B37d3B4C961',
         blockCreated: 265900
       }
-    }
+    },
+    testnet: false
   },
   shibariumTestnet: {
     id: 157,
@@ -5770,7 +6029,8 @@ export const networks = {
         address: '0xA4029b74FBA366c926eDFA7Dd10B21C621170a4c',
         blockCreated: 3035769
       }
-    }
+    },
+    testnet: true
   },
   shimmer: {
     id: 148,
@@ -5787,7 +6047,8 @@ export const networks = {
       url: 'https://explorer.evm.shimmer.network',
       apiUrl: 'https://explorer.evm.shimmer.network/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   shimmerTestnet: {
     id: 1073,
@@ -5804,7 +6065,8 @@ export const networks = {
       url: 'https://explorer.evm.testnet.shimmer.network',
       apiUrl: 'https://explorer.evm.testnet.shimmer.network/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   skaleBlockBrawlers: {
     id: 391845894,
@@ -5820,7 +6082,8 @@ export const networks = {
       name: 'SKALE Explorer',
       url: 'https://frayed-decent-antares.explorer.mainnet.skalenodes.com'
     },
-    contracts: {}
+    contracts: {},
+    testnet: false
   },
   skaleCalypso: {
     id: 1564830818,
@@ -5841,7 +6104,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 3107626
       }
-    }
+    },
+    testnet: false
   },
   skaleCalypsoTestnet: {
     id: 974399131,
@@ -5862,7 +6126,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 103220
       }
-    }
+    },
+    testnet: true
   },
   skaleCryptoBlades: {
     id: 1026062157,
@@ -5878,7 +6143,8 @@ export const networks = {
       name: 'SKALE Explorer',
       url: 'https://affectionate-immediate-pollux.explorer.mainnet.skalenodes.com'
     },
-    contracts: {}
+    contracts: {},
+    testnet: false
   },
   skaleCryptoColosseum: {
     id: 1032942172,
@@ -5894,7 +6160,8 @@ export const networks = {
       name: 'SKALE Explorer',
       url: 'https://haunting-devoted-deneb.explorer.mainnet.skalenodes.com'
     },
-    contracts: {}
+    contracts: {},
+    testnet: false
   },
   skaleEuropa: {
     id: 2046399126,
@@ -5915,7 +6182,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 3113495
       }
-    }
+    },
+    testnet: false
   },
   skaleEuropaTestnet: {
     id: 1444673419,
@@ -5936,7 +6204,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 110858
       }
-    }
+    },
+    testnet: true
   },
   skaleExorde: {
     id: 2139927552,
@@ -5952,7 +6221,8 @@ export const networks = {
       name: 'SKALE Explorer',
       url: 'https://light-vast-diphda.explorer.mainnet.skalenodes.com'
     },
-    contracts: {}
+    contracts: {},
+    testnet: false
   },
   skaleHumanProtocol: {
     id: 1273227453,
@@ -5968,7 +6238,8 @@ export const networks = {
       name: 'SKALE Explorer',
       url: 'https://wan-red-ain.explorer.mainnet.skalenodes.com'
     },
-    contracts: {}
+    contracts: {},
+    testnet: false
   },
   skaleNebula: {
     id: 1482601649,
@@ -5989,7 +6260,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 2372986
       }
-    }
+    },
+    testnet: false
   },
   skaleNebulaTestnet: {
     id: 37084624,
@@ -6010,7 +6282,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 105141
       }
-    }
+    },
+    testnet: true
   },
   skaleRazor: {
     id: 278611351,
@@ -6026,7 +6299,8 @@ export const networks = {
       name: 'SKALE Explorer',
       url: 'https://turbulent-unique-scheat.explorer.mainnet.skalenodes.com'
     },
-    contracts: {}
+    contracts: {},
+    testnet: false
   },
   skaleTitan: {
     id: 1350216234,
@@ -6047,7 +6321,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 2076458
       }
-    }
+    },
+    testnet: false
   },
   skaleTitanTestnet: {
     id: 1020352220,
@@ -6068,7 +6343,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 104072
       }
-    }
+    },
+    testnet: true
   },
   sketchpad: {
     id: 984123,
@@ -6084,7 +6360,8 @@ export const networks = {
       name: 'Sketchpad Explorer',
       url: 'https://explorer.sketchpad-1.forma.art'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   soneiumMinato: {
     id: 1946,
@@ -6106,7 +6383,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 1
       }
-    }
+    },
+    testnet: true
   },
   songbird: {
     id: 19,
@@ -6123,7 +6401,8 @@ export const networks = {
       url: 'https://songbird-explorer.flare.network',
       apiUrl: 'https://songbird-explorer.flare.network/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   songbirdTestnet: {
     id: 16,
@@ -6140,7 +6419,8 @@ export const networks = {
       url: 'https://coston-explorer.flare.network',
       apiUrl: 'https://coston-explorer.flare.network/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   sophonTestnet: {
     id: 531050104,
@@ -6161,7 +6441,8 @@ export const networks = {
         address: '0x83c04d112adedA2C6D9037bb6ecb42E7f0b108Af',
         blockCreated: 15642
       }
-    }
+    },
+    testnet: true
   },
   spicy: {
     id: 88882,
@@ -6178,7 +6459,8 @@ export const networks = {
       url: 'http://spicy-explorer.chiliz.com',
       apiUrl: 'http://spicy-explorer.chiliz.com/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   storyTestnet: {
     id: 1513,
@@ -6194,7 +6476,8 @@ export const networks = {
       name: 'Story Testnet Explorer',
       url: 'https://testnet.storyscan.xyz'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   stratis: {
     id: 105105,
@@ -6210,7 +6493,8 @@ export const networks = {
       name: 'Stratis Explorer',
       url: 'https://explorer.stratisevm.com'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   syscoin: {
     id: 57,
@@ -6232,7 +6516,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 287139
       }
-    }
+    },
+    testnet: false
   },
   syscoinTestnet: {
     id: 5700,
@@ -6253,7 +6538,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 271288
       }
-    }
+    },
+    testnet: false
   },
   taiko: {
     id: 167000,
@@ -6274,7 +6560,8 @@ export const networks = {
       multicall3: {
         address: '0xcb2436774C3e191c85056d248EF4260ce5f27A9D'
       }
-    }
+    },
+    testnet: false
   },
   taikoHekla: {
     id: 167009,
@@ -6290,7 +6577,8 @@ export const networks = {
       name: 'Taikoscan',
       url: 'https://hekla.taikoscan.network'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   taikoJolnir: {
     id: 167007,
@@ -6311,7 +6599,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 732706
       }
-    }
+    },
+    testnet: true
   },
   taikoKatla: {
     id: 167008,
@@ -6327,7 +6616,8 @@ export const networks = {
       name: 'blockscout',
       url: 'https://explorer.katla.taiko.xyz'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   taikoTestnetSepolia: {
     id: 167005,
@@ -6343,7 +6633,8 @@ export const networks = {
       name: 'blockscout',
       url: 'https://explorer.test.taiko.xyz'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   taraxa: {
     id: 841,
@@ -6359,7 +6650,8 @@ export const networks = {
       name: 'Taraxa Explorer',
       url: 'https://explorer.mainnet.taraxa.io'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   taraxaTestnet: {
     id: 842,
@@ -6375,7 +6667,8 @@ export const networks = {
       name: 'Taraxa Explorer',
       url: 'https://explorer.testnet.taraxa.io'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   telcoinTestnet: {
     id: 2017,
@@ -6391,7 +6684,8 @@ export const networks = {
       name: 'telscan',
       url: 'https://telscan.io'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   telos: {
     id: 40,
@@ -6412,7 +6706,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 246530709
       }
-    }
+    },
+    testnet: false
   },
   telosTestnet: {
     id: 41,
@@ -6428,7 +6723,8 @@ export const networks = {
       name: 'Teloscan (testnet)',
       url: 'https://testnet.teloscan.io/'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   tenet: {
     id: 1559,
@@ -6445,7 +6741,8 @@ export const networks = {
       url: 'https://tenetscan.io',
       apiUrl: 'https://tenetscan.io/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   thaiChain: {
     id: 7,
@@ -6467,7 +6764,8 @@ export const networks = {
         address: '0x0DaD6130e832c21719C5CE3bae93454E16A84826',
         blockCreated: 4806386
       }
-    }
+    },
+    testnet: false
   },
   thunderTestnet: {
     id: 997,
@@ -6483,7 +6781,8 @@ export const networks = {
       name: '5ireChain Explorer',
       url: 'https://explorer.5ire.network'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   tron: {
     id: 728126428,
@@ -6500,7 +6799,8 @@ export const networks = {
       url: 'https://tronscan.org',
       apiUrl: 'https://apilist.tronscanapi.com/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   unreal: {
     id: 18233,
@@ -6522,7 +6822,8 @@ export const networks = {
         address: '0x8b6B0e60D8CD84898Ea8b981065A12F876eA5677',
         blockCreated: 1745
       }
-    }
+    },
+    testnet: true
   },
   vechain: {
     id: 100009,
@@ -6538,7 +6839,8 @@ export const networks = {
       name: 'Vechain Explorer',
       url: 'https://explore.vechain.org'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   wanchain: {
     id: 888,
@@ -6559,7 +6861,8 @@ export const networks = {
         address: '0xcDF6A1566e78EB4594c86Fe73Fcdc82429e97fbB',
         blockCreated: 25312390
       }
-    }
+    },
+    testnet: false
   },
   wanchainTestnet: {
     id: 999,
@@ -6580,7 +6883,8 @@ export const networks = {
         address: '0x11c89bF4496c39FB80535Ffb4c92715839CC5324',
         blockCreated: 24743448
       }
-    }
+    },
+    testnet: true
   },
   wemix: {
     id: 1111,
@@ -6596,7 +6900,8 @@ export const networks = {
       name: 'wemixExplorer',
       url: 'https://explorer.wemix.com'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   wemixTestnet: {
     id: 1112,
@@ -6613,7 +6918,8 @@ export const networks = {
       url: 'https://testnet.wemixscan.com',
       apiUrl: 'https://testnet.wemixscan.com/api'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   x1Testnet: {
     id: 195,
@@ -6634,7 +6940,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 624344
       }
-    }
+    },
+    testnet: true
   },
   xLayer: {
     id: 196,
@@ -6655,7 +6962,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 47416
       }
-    }
+    },
+    testnet: false
   },
   xLayerTestnet: {
     id: 195,
@@ -6676,7 +6984,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 624344
       }
-    }
+    },
+    testnet: true
   },
   xai: {
     id: 660279,
@@ -6697,7 +7006,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 222549
       }
-    }
+    },
+    testnet: false
   },
   xaiTestnet: {
     id: 37714555429,
@@ -6713,7 +7023,8 @@ export const networks = {
       name: 'Blockscout',
       url: 'https://testnet-explorer-v2.xai-chain.net'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   xdc: {
     id: 50,
@@ -6734,7 +7045,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 71542788
       }
-    }
+    },
+    testnet: false
   },
   xdcTestnet: {
     id: 51,
@@ -6755,7 +7067,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 59765389
       }
-    }
+    },
+    testnet: false
   },
   xrSepolia: {
     id: 2730,
@@ -6771,7 +7084,8 @@ export const networks = {
       name: 'Blockscout',
       url: 'https://xr-sepolia-testnet.explorer.caldera.xyz'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   yooldoVerse: {
     id: 50005,
@@ -6787,7 +7101,8 @@ export const networks = {
       name: 'Yooldo Verse Explorer',
       url: 'https://explorer.yooldo-verse.xyz'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   yooldoVerseTestnet: {
     id: 50006,
@@ -6803,7 +7118,8 @@ export const networks = {
       name: 'Yooldo Verse Testnet Explorer',
       url: 'https://explorer.testnet.yooldo-verse.xyz'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   zetachain: {
     id: 7000,
@@ -6824,7 +7140,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 1632781
       }
-    }
+    },
+    testnet: false
   },
   zetachainAthensTestnet: {
     id: 7001,
@@ -6845,7 +7162,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 2715217
       }
-    }
+    },
+    testnet: true
   },
   zhejiang: {
     id: 1337803,
@@ -6861,7 +7179,8 @@ export const networks = {
       name: 'Beaconchain',
       url: 'https://zhejiang.beaconcha.in'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   zilliqa: {
     id: 32769,
@@ -6877,7 +7196,8 @@ export const networks = {
       name: 'Ethernal',
       url: 'https://evmx.zilliqa.com'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   zilliqaTestnet: {
     id: 33101,
@@ -6893,7 +7213,8 @@ export const networks = {
       name: 'Ethernal',
       url: 'https://evmx.testnet.zilliqa.com'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   zircuitTestnet: {
     id: 48899,
@@ -6914,7 +7235,8 @@ export const networks = {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
         blockCreated: 6040287
       }
-    }
+    },
+    testnet: false
   },
   zkFair: {
     id: 42766,
@@ -6936,7 +7258,8 @@ export const networks = {
         address: '0xca11bde05977b3631167028862be2a173976ca11',
         blockCreated: 6090959
       }
-    }
+    },
+    testnet: false
   },
   zkFairTestnet: {
     id: 43851,
@@ -6952,7 +7275,8 @@ export const networks = {
       name: 'zkFair Explorer',
       url: 'https://testnet-scan.zkfair.io'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   zkLinkNova: {
     id: 810180,
@@ -6968,7 +7292,8 @@ export const networks = {
       name: 'zkLink Nova Block Explorer',
       url: 'https://explorer.zklink.io'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   zkLinkNovaSepoliaTestnet: {
     id: 810181,
@@ -6984,7 +7309,8 @@ export const networks = {
       name: 'zkLink Nova Block Explorer',
       url: 'https://sepolia.explorer.zklink.io'
     },
-    contracts: undefined
+    contracts: {},
+    testnet: false
   },
   zkSync: {
     id: 324,
@@ -7005,7 +7331,8 @@ export const networks = {
       multicall3: {
         address: '0xF9cda624FBC7e059355ce98a31693d299FACd963'
       }
-    }
+    },
+    testnet: false
   },
   zkSyncInMemoryNode: {
     id: 260,
@@ -7018,7 +7345,8 @@ export const networks = {
     },
     providerURL: 'http://localhost:8011',
     blockExplorer: {},
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   zkSyncLocalNode: {
     id: 270,
@@ -7031,7 +7359,8 @@ export const networks = {
     },
     providerURL: 'http://localhost:3050',
     blockExplorer: {},
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   zkSyncSepoliaTestnet: {
     id: 300,
@@ -7052,7 +7381,8 @@ export const networks = {
       multicall3: {
         address: '0xF9cda624FBC7e059355ce98a31693d299FACd963'
       }
-    }
+    },
+    testnet: true
   },
   zksync: {
     id: 324,
@@ -7073,7 +7403,8 @@ export const networks = {
       multicall3: {
         address: '0xF9cda624FBC7e059355ce98a31693d299FACd963'
       }
-    }
+    },
+    testnet: false
   },
   zksyncInMemoryNode: {
     id: 260,
@@ -7086,7 +7417,8 @@ export const networks = {
     },
     providerURL: 'http://localhost:8011',
     blockExplorer: {},
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   zksyncLocalNode: {
     id: 270,
@@ -7099,7 +7431,8 @@ export const networks = {
     },
     providerURL: 'http://localhost:3050',
     blockExplorer: {},
-    contracts: undefined
+    contracts: {},
+    testnet: true
   },
   zksyncSepoliaTestnet: {
     id: 300,
@@ -7120,7 +7453,8 @@ export const networks = {
       multicall3: {
         address: '0xF9cda624FBC7e059355ce98a31693d299FACd963'
       }
-    }
+    },
+    testnet: true
   },
   zora: {
     id: 7777777,
@@ -7175,7 +7509,8 @@ export const networks = {
           address: '0x3e2Ea9B92B7E48A52296fD261dc26fd995284631'
         }
       }
-    }
+    },
+    testnet: false
   },
   zoraSepolia: {
     id: 999999999,
@@ -7230,7 +7565,8 @@ export const networks = {
           address: '0x5376f1D543dcbB5BD416c56C189e4cB7399fCcCB'
         }
       }
-    }
+    },
+    testnet: true
   },
   zoraTestnet: {
     id: 999,
@@ -7275,6 +7611,7 @@ export const networks = {
           address: '0xDb9F51790365e7dc196e7D072728df39Be958ACe'
         }
       }
-    }
+    },
+    testnet: true
   }
 }

@@ -5,7 +5,7 @@
   "type": "module",
   "main": "./src/index.js",
   "scripts": {
-    "generate:networks": "node scripts/generate-networks.js"
+    "save:networks": "node scripts/save_networks.js"
   },
   "dependencies": {
     "@nomicfoundation/hardhat-ethers": "^3.0.7",

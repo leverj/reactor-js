@@ -1,8 +1,8 @@
-import {G2ToNumbers, newKeyPair} from '@leverj/reactor.mcl'
+import {G2ToNumbers, PublicKey} from '@leverj/reactor.mcl'
 
 const projectDir = `${import.meta.dirname}/../../..`
 
-const publicKey = G2ToNumbers(newKeyPair().pubkey)
+const publicKey = 'CAESIOf1KYYMB/P5g7E2vR3m6wbgyehLcTcJxAIxFcgPzkI1'
 
 const configureContracts = (network, publicKey) => {
   const {id, nativeCurrency: {name, symbol, decimals}} = network
@@ -10,7 +10,7 @@ const configureContracts = (network, publicKey) => {
     BnsVerifier: {},
     Vault: {
       libraries: ['BnsVerifier'],
-      params: [id, name, symbol, decimals, publicKey],
+      params: [id, name, symbol, decimals, G2ToNumbers(new PublicKey(publicKey))],
     },
   }
 }
