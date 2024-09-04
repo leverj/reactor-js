@@ -5,6 +5,6 @@ export default {
   vault: {
     publicKey: 'CAESIOf1KYYMB/P5g7E2vR3m6wbgyehLcTcJxAIxFcgPzkI1',
   },
-  chains: ['hardhat', 'localhost'],
-  chain: 'hardhat',
+  chains: ['localhost', 'hardhat'],
+  chain: 'localhost',
 }

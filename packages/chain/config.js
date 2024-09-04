@@ -23,7 +23,7 @@ const schema = {
   },
   deployer: {
     privateKey: {
-      format: String,
+      format: '*',
       default: null,
       nullable: false,
       sensitive: true,
@@ -32,7 +32,7 @@ const schema = {
   },
   vault: {
     publicKey: {
-      format: String,
+      format: '*',
       default: null,
       nullable: false,
       sensitive: true,
@@ -53,34 +53,6 @@ const schema = {
   },
 }
 
-async function override(fileName, config) {
-  const path = `${import.meta.dirname}/config/${fileName}`
-  if (!existsSync(path)) return
-  const {default: override} = await import(path)
-  config.load(override || {})
-}
-
-//fixme: do this per each of networks
-function configureContracts(config) {
-  const {networks, chain, vault: {publicKey}} = config
-  const network = networks[chain]
-  const {id, nativeCurrency: {name, symbol, decimals}} = network
-  return {
-    BnsVerifier: {},
-    Vault: {
-      libraries: ['BnsVerifier'],
-      params: [id, name, symbol, decimals, G2ToNumbers(new PublicKey(publicKey))],
-    },
-  }
-}
-
-function postLoad(config) {
-  const chains = Set(config.chains)
-  config.networks = Map(networks).filter(_ => chains.has(_.label)).toJS()
-  config.contracts = configureContracts(config)
-  return config
-}
-
  async function configure(options = {}) {
   const config = convict(schema, options)
   const env = config.get('env')
@@ -88,6 +60,37 @@ function postLoad(config) {
   await override(`local-${env}.js`, config)
   config.validate({allowed: 'strict'})
   return postLoad(config.getProperties())
+}
+
+async function override(fileName, config) {
+  const path = `${import.meta.dirname}/config/${fileName}`
+  if (!existsSync(path)) return
+  const {default: override} = await import(path)
+  config.load(override || {})
+}
+
+function postLoad(config) {
+  config.networks = configureNetworks(config)
+  config.contracts = configureContracts(config)
+  return config
+}
+
+function configureNetworks(config) {
+  const chains = Set(config.chains)
+  return Map(networks).filter(_ => chains.has(_.label)).toJS()
+}
+
+function configureContracts(config) {
+  const {vault, networks} = config
+  const publicKey = G2ToNumbers(new PublicKey(vault.publicKey))
+  return Map(networks).map(({id, nativeCurrency: {name, symbol, decimals}}) => ({
+      BnsVerifier: {},
+      Vault: {
+        libraries: ['BnsVerifier'],
+        params: [id, name, symbol, decimals, G2ToNumbers(new PublicKey(publicKey))],
+      },
+    }),
+  ).toJS()
 }
 
 export default await configure()

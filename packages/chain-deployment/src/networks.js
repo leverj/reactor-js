@@ -154,7 +154,7 @@ export const networks = {
     providerURL: 'http://127.0.0.1:8545',
     blockExplorer: {},
     contracts: {},
-    testnet: true
+    testnet: false
   },
   apexTestnet: {
     id: 3993,
@@ -2552,7 +2552,7 @@ export const networks = {
     providerURL: 'http://127.0.0.1:8545',
     blockExplorer: {},
     contracts: {},
-    testnet: true
+    testnet: false
   },
   fraxtal: {
     id: 252,
@@ -3784,7 +3784,7 @@ export const networks = {
     providerURL: 'http://127.0.0.1:8545',
     blockExplorer: {},
     contracts: {},
-    testnet: false
+    testnet: true
   },
   lukso: {
     id: 42,

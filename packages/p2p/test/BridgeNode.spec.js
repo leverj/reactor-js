@@ -18,7 +18,6 @@ describe('BridgeNode', () => {
     const leaderGroupKey = leader.groupPublicKey
     const leaderSecretKey = leader.secretKeyShare
     await setTimeout(10)
-    console.log('>'.repeat(50), leader.publicKey)
     for (let each of nodes) {
       each.print()
       if (leader.peerId === each.peerId) continue

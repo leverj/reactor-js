@@ -8,6 +8,6 @@ for (const [label, network] of Object.entries(chains)) {
   const {id, name, nativeCurrency, rpcUrls, blockExplorers, contracts = {}, testnet = false} = network
   const providerURL = rpcUrls.default.http[0]
   const blockExplorer = blockExplorers?.default || {}
-  networks[label] = {id, label, name, nativeCurrency, providerURL, blockExplorer, contracts, testnet: testnet || id === 31337}
+  networks[label] = {id, label, name, nativeCurrency, providerURL, blockExplorer, contracts, testnet: testnet || label === 'hardhat' || label === 'localhost'}
 }
 writeFileSync(`${targetDir}/networks.js`, `export const networks = ${inspect(networks, {showHidden: false, compact: false, depth: null})}`)
