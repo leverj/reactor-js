@@ -1408,16 +1408,25 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@leverj/config@npm:^0.1.0, @leverj/config@workspace:packages/config":
+  version: 0.0.0-use.local
+  resolution: "@leverj/config@workspace:packages/config"
+  dependencies:
+    "@dotenvx/dotenvx": "npm:^1.13.2"
+    convict: "npm:^6.2.4"
+    dotenv: "npm:^16.4.5"
+    lodash-es: "npm:^4.17.21"
+  languageName: unknown
+  linkType: soft
+
 "@leverj/reactor.chain@npm:0.1.0, @leverj/reactor.chain@workspace:packages/chain":
   version: 0.0.0-use.local
   resolution: "@leverj/reactor.chain@workspace:packages/chain"
   dependencies:
-    "@dotenvx/dotenvx": "npm:^1.13.2"
     "@leverj/chain-deployment": "npm:0.1.0"
     "@leverj/common": "npm:0.1.0"
+    "@leverj/config": "npm:^0.1.0"
     "@openzeppelin/contracts": "npm:^5.0.2"
-    convict: "npm:^6.2.4"
-    dotenv: "npm:^16.4.5"
     ethers: "npm:^6.13.2"
     immutable: "npm:^5.0.0-rc.1"
   languageName: unknown

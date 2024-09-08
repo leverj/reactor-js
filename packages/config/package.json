@@ -1,0 +1,16 @@
+{
+  "name": "@leverj/config",
+  "version": "0.1.0",
+  "license": "UNLICENSED",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "npx mocha",
+    "dependency:check": "npx depcheck"
+  },
+  "dependencies": {
+    "convict": "^6.2.4",
+    "dotenv": "^16.4.5",
+    "lodash-es": "^4.17.21"
+  }
+}

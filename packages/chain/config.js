@@ -1,10 +1,7 @@
 import {networks} from '@leverj/chain-deployment'
+import {configure} from '@leverj/config/src/index.js'
 import {G2ToNumbers, PublicKey} from '@leverj/reactor.mcl'
-import convict from 'convict'
-// import {expand} from '@dotenvx/dotenvx'
 import {Map, Set} from 'immutable'
-import {existsSync} from 'node:fs'
-import 'dotenv/config'
 
 const dataDir = `${import.meta.dirname}/../../data`
 
@@ -53,22 +50,6 @@ const schema = {
   },
 }
 
- async function configure(options = {}) {
-  const config = convict(schema, options)
-  const env = config.get('env')
-  await override(`${env}.js`, config)
-  await override(`local-${env}.js`, config)
-  config.validate({allowed: 'strict'})
-  return postLoad(config.getProperties())
-}
-
-async function override(fileName, config) {
-  const path = `${import.meta.dirname}/config/${fileName}`
-  if (!existsSync(path)) return
-  const {default: override} = await import(path)
-  config.load(override || {})
-}
-
 function postLoad(config) {
   config.networks = configureNetworks(config)
   config.contracts = configureContracts(config)
@@ -93,4 +74,4 @@ function configureContracts(config) {
   ).toJS()
 }
 
-export default await configure()
+export default await configure(schema, postLoad)
