@@ -4,12 +4,10 @@ require('hardhat-switch-network')
 require('xdeployer')
 
 module.exports = {
-  solidity: {
-    version: '0.8.20',
-    settings: {
-      optimizer: {
-        enabled: false,
-      },
+  networks: {
+    hardhat: {
+      gasPrice: 0,
+      initialBaseFeePerGas: 0,
     },
   },
 }
