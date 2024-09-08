@@ -21,7 +21,7 @@ const {chain: {polling}} = config
 
 describe('VaultTracker', () => {
   const [, account] = accounts
-  const fromChainId = chainId, toChainId = 98989n, amount = 1000n
+  const fromChainId = 10101n, toChainId = 98989n, amount = 1000n
   let fromVault, toVault, tracker
 
   beforeEach(async () => {
