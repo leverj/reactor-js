@@ -7,10 +7,10 @@ import AesEncryption from 'aes-encryption'
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
 import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
+import config from '../config.js'
 import {NetworkNode} from '../src/NetworkNode.js'
 import {waitToSync} from '../src/utils.js'
 import {peerIdJsons} from './fixtures.js'
-import config from 'config'
 
 const {timeout, tryCount, port} = config
 

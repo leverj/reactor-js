@@ -16,7 +16,8 @@
     "start:local:chain": "npx hardhat node"
   },
   "dependencies": {
-    "@leverj/config": "^0.1.0",
+    "@leverj/config": "0.1.0",
+    "@leverj/reactor.mcl": "0.1.0",
     "ethers": "^6.13.2",
     "immutable": "^5.0.0-rc.1"
   },

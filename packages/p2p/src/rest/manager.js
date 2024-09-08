@@ -1,4 +1,4 @@
-import config from 'config'
+import config from '../../config.js'
 import {BridgeNode} from '../BridgeNode.js'
 import {Store} from '../db/Store.js'
 import {events, INFO_CHANGED} from '../utils.js'

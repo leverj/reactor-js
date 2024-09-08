@@ -1,10 +1,9 @@
 import {logger} from '@leverj/common'
 import axios from 'axios'
 import {fork} from 'child_process'
-import config from 'config'
 import {expect} from 'expect'
-import {rmSync} from 'node:fs'
 import {setTimeout} from 'node:timers/promises'
+import config from '../config.js'
 import {tryAgainIfError, waitToSync} from '../src/utils.js'
 import {Store} from '../src/db/Store.js'
 import {getNodeInfos} from './fixtures.js'
@@ -18,7 +17,6 @@ describe('e2e', () => {
 
   beforeEach(async () => await store.clear())
   afterEach(async () => await stop())
-  after(() => rmSync(bridgeNode.confDir, {recursive: true, force: true}))
 
   async function stop(ports = Array.from(Object.keys(processes))) {
     ports.forEach(_ => { processes[_].kill(); delete processes[_]})

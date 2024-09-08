@@ -12,9 +12,9 @@ import {
   Vault,
   ZeroAddress,
 } from '@leverj/reactor.chain/test'
-import config from 'config'
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
+import config from '../config.js'
 import {VaultTracker} from '../src/VaultTracker.js'
 
 const {chain: {polling}} = config

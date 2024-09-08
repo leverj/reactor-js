@@ -1,10 +1,17 @@
 import convict from 'convict'
+import convict_format_with_validator from 'convict-format-with-validator'
 // import {expand} from '@dotenvx/dotenvx'
 //    "@dotenvx/dotenvx": "^1.13.2",
 import {get, set} from 'lodash-es'
 import {existsSync} from 'node:fs'
-import 'dotenv/config'
 
+convict.addFormats(convict_format_with_validator)
+convict.addFormat({
+  name: 'json',
+  // validate: function (val) { try { typeof val === 'object' || JSON.parse(val) } catch (e) { throw Error('must be a valid json string') } },
+  validate: (val) => { if (typeof val !== 'object') throw Error('must be a valid json string') },
+  coerce: (val) => JSON.parse(val),
+})
 const configDir = `${process.env.PWD}/config`
 
 export async function configure(schema, postLoad = _ => _, options = {}) {

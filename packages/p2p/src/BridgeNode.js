@@ -7,8 +7,8 @@ import {
   G2ToNumbers,
   SecretKey,
 } from '@leverj/reactor.mcl'
-import config from 'config'
 import {setTimeout} from 'node:timers/promises'
+import config from '../config.js'
 import {NetworkNode} from './NetworkNode.js'
 import {TssNode} from './TssNode.js'
 import {events, INFO_CHANGED, PEER_DISCOVERY, waitToSync} from './utils.js'

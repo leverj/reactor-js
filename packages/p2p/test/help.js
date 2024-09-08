@@ -1,4 +1,4 @@
-import config from 'config'
+import config from '../config.js'
 import {BridgeNode} from '../src/BridgeNode.js'
 import {peerIdJsons} from './fixtures.js'
 

@@ -1,5 +1,5 @@
-import config from 'config'
 import {Router} from 'express'
+import config from '../../config.js'
 import manager from './manager.js'
 
 const {bridgeNode: {port, threshold}, externalIp} = config

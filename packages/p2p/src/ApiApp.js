@@ -1,6 +1,6 @@
 import {logger} from '@leverj/common'
-import config from 'config'
 import {createServer} from 'http'
+import config from '../config.js'
 import app from './rest/app.js'
 import manager from './rest/manager.js'
 
