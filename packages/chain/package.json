@@ -16,14 +16,14 @@
     "start:local:chain": "npx hardhat node"
   },
   "dependencies": {
-    "@leverj/config": "0.1.0",
+    "@leverj/config": "1.2.0",
     "@leverj/reactor.mcl": "0.1.0",
     "ethers": "^6.13.2",
     "immutable": "^5.0.0-rc.1"
   },
   "devDependencies": {
-    "@leverj/chain-deployment": "0.1.0",
-    "@leverj/common": "0.1.0",
+    "@leverj/chain-deployment": "1.2.0",
+    "@leverj/common": "1.2.0",
     "@openzeppelin/contracts": "^5.0.2"
   }
 }
