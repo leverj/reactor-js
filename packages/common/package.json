@@ -9,7 +9,7 @@
     "dependency:check": "npx depcheck"
   },
   "dependencies": {
-    "ethers": "^6.13.1",
+    "ethers": "^6.13.2",
     "immutable": "^5.0.0-rc.1",
     "lodash-es": "^4.17.21",
     "uuid": "^10.0.0"

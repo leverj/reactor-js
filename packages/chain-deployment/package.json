@@ -8,21 +8,21 @@
     "save:networks": "node scripts/save_networks.js"
   },
   "dependencies": {
-    "@nomicfoundation/hardhat-ethers": "^3.0.7",
-    "@nomicfoundation/hardhat-ignition": "^0.4.0",
+    "@nomicfoundation/hardhat-ethers": "^3.0.8",
+    "@nomicfoundation/hardhat-ignition": "^0.15.5",
     "@nomicfoundation/hardhat-ignition-ethers": "^0.15.5",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.11",
-    "@nomicfoundation/hardhat-verify": "^2.0.0",
-    "@nomicfoundation/ignition-core": "^0.4.0",
-    "@nomicfoundation/ignition-ui": "^0.4.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.10",
+    "@nomicfoundation/ignition-core": "^0.15.5",
+    "@nomicfoundation/ignition-ui": "^0.15.5",
     "@nomiclabs/hardhat-etherscan": "^3.1.8",
     "ethers": "^6.13.2",
     "glob": "^11.0.0",
-    "hardhat": "^2.22.9",
+    "hardhat": "^2.22.10",
     "hardhat-gas-reporter": "^2.2.1",
-    "hardhat-switch-network": "^1.1.0",
+    "hardhat-switch-network": "^1.1.1",
     "solidity-coverage": "^0.8.13",
-    "viem": "^2.21.1",
-    "xdeployer": "^3.0.16"
+    "viem": "^2.21.3",
+    "xdeployer": "^3.1.0"
   }
 }

@@ -1,8 +1,7 @@
 import {expect} from 'expect'
-import {rmSync, writeFileSync} from 'fs:node'
-import url from 'url'
+import {rmSync, writeFileSync} from 'node:fs'
 
-const packageDir = `${url.fileURLToPath(new URL('.', import.meta.url))}..`
+const packageDir = `${import.meta.dirname}/..`
 
 const configName = 'testing_override'
 const env = 'special'
