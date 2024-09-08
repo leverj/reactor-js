@@ -5,7 +5,7 @@ import {expect} from 'expect'
 import {rmSync} from 'node:fs'
 import config from '../config.js'
 
-describe('deploy to local hardhat chain', () => {
+describe('deploy to hardhat chain', () => {
   before(() => rmSync(`${config.deploymentDir}/env/test`, {recursive: true, force: true}))
 
   it('deploys all contracts', async () => {

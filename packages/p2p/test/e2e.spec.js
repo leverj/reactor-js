@@ -19,7 +19,7 @@ describe('e2e', () => {
   afterEach(async () => await stop())
 
   async function stop(ports = Array.from(Object.keys(processes))) {
-    ports.forEach(_ => { processes[_].kill(); delete processes[_]})
+    ports.forEach(_ => { processes[_].kill(); delete processes[_] })
     await setTimeout(100)
   }
 

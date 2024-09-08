@@ -19,17 +19,17 @@ export class MultiContractTracker {
     }
   }
 
-  static async from(store, chainId, provider, polling, processEvent = logger.log, logger = console) {
+  static async from(store, provider, polling, processEvent = logger.log, logger = console) {
+    const chainId = await provider.getNetwork().then(_ => _.chainId)
     const key = chainId
     await store.update(key, this.defaults())
-    const instance = new this(store, chainId, provider, polling, processEvent, logger)
-    await instance.load()
-    return instance
+    const instance = new this(store, key, provider, polling, processEvent, logger)
+    return instance.load()
   }
 
-  constructor(store, chainId, provider, polling, processEvent, logger) {
+  constructor(store, key, provider, polling, processEvent, logger) {
     this.store = store
-    this.chainId = chainId
+    this.key = key
     this.provider = provider
     this.processEvent = processEvent
     this.polling = polling
@@ -37,7 +37,6 @@ export class MultiContractTracker {
     this.isRunning = false
     exitHook(() => this.stop())
   }
-  get key() { return this.chainId }
   get lastBlock() { return this.marker.block }
 
   async load() {
@@ -53,6 +52,7 @@ export class MultiContractTracker {
       const contract = new Contract(address, ifaces[kind], this.provider)
       this._addContract_(contract, kind)
     })
+    return this
   }
 
   async update(state) { return this.store.update(this.key, state) }
@@ -83,11 +83,11 @@ export class MultiContractTracker {
   }
 
   async onboard(contract, kind) {
-    const {chainId, provider, polling, processEvent, logger, lastBlock} = this
+    const {provider, polling, processEvent, logger, lastBlock} = this
     const topics = this.topicsByKind[kind]
     const defaults = {contract, topics}
     const address = contract.target
-    const tracker = await ContractTracker.from(new InMemoryStore(), chainId, address, provider, defaults, polling, processEvent, logger)
+    const tracker = await ContractTracker.from(new InMemoryStore(), address, provider, defaults, polling, processEvent, logger)
     const creationBlock = await getCreationBlock(provider, address).catch(_ => 0)
     await tracker.processLogs(creationBlock, lastBlock)
     await this.update({

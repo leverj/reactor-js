@@ -1,15 +1,37 @@
-import config from '../config.js'
+import {networks} from '@leverj/chain-deployment'
+import {publicKey, wallets} from '@leverj/reactor.chain/test'
+import {Map} from 'immutable'
+import {cloneDeep, merge} from 'lodash-es'
 import {BridgeNode} from '../src/BridgeNode.js'
+import config from '../config.js'
 import {peerIdJsons} from './fixtures.js'
 
-const {bridgeNode: {port}} = config
+export const deploymentDir = `${import.meta.dirname}/../../../data/chain`
+
+
+export const createDeployConfig = (chain, chains, override = {}) => {
+  return merge({
+    env: process.env.NODE_ENV,
+    chain,
+    deploymentDir,
+    deployer: {privateKey: wallets[0].privateKey},
+    networks: Map(cloneDeep(networks)).filter(_ => chains.includes(_.label)).toJS(),
+    contracts: Map(networks).map(({id, nativeCurrency: {name, symbol, decimals}}) => ({
+      BnsVerifier: {},
+      Vault: {
+        libraries: ['BnsVerifier'],
+        params: [id, name, symbol, decimals, publicKey],
+      },
+    })).toJS(),
+  }, {networks: {[chain]: override}})
+}
 
 export const createBridgeNodes = async (howMany) => {
   const results = []
   const bootstrapNodes = []
   for (let i = 0; i < howMany; i++) {
     const data = {p2p: peerIdJsons[i]}
-    const node = await BridgeNode.from(port + i, bootstrapNodes, data)
+    const node = await BridgeNode.from(config.bridgeNode.port + i, bootstrapNodes, data)
     results.push(node)
     await node.start()
     if (i === 0) bootstrapNodes.push(node.multiaddrs[0])

@@ -1,3 +1,4 @@
+import {uint} from '@leverj/common'
 import {events, stubs} from '@leverj/reactor.chain/contracts'
 import {accounts, chainId, provider, publicKey, Vault} from '@leverj/reactor.chain/test'
 import {expect} from 'expect'
@@ -18,7 +19,7 @@ describe('Contract stub', () => {
     const [chainId, chainName, nativeSymbol, nativeDecimals] = await stub.home(), NATIVE = await stub.NATIVE()
     const startingAtBlock = await provider.getBlockNumber()
     const howMany = 5
-    for (let i = 0; i < howMany; i++) await stub.checkOutNative(toChainId, {value: deposit + BigInt(i)}).then(_ => _.wait())
+    for (let i = 0; i < howMany; i++) await stub.checkOutNative(toChainId, {value: deposit + uint(i)}).then(_ => _.wait())
 
     const events = await stub.runner.provider.getLogs({
       fromBlock: startingAtBlock,
@@ -35,13 +36,13 @@ describe('Contract stub', () => {
       expect(name).toEqual(chainName)
       expect(symbol).toEqual(nativeSymbol)
       expect(decimals).toEqual(nativeDecimals)
-      expect(amount).toEqual(deposit + BigInt(i))
+      expect(amount).toEqual(deposit + uint(i))
       expect(owner).toEqual(account.address)
       expect(from).toEqual(chainId)
       expect(to).toEqual(toChainId)
-      expect(tag).toEqual(BigInt(i + 1))
+      expect(tag).toEqual(uint(i + 1))
       expect(await stub.checkouts(transferHash)).toEqual(true)
     }
-    expect(await stub.checkoutCounter()).toEqual(BigInt(howMany))
+    expect(await stub.checkoutCounter()).toEqual(uint(howMany))
   })
 })

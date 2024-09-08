@@ -6,7 +6,7 @@ import {rmSync} from 'node:fs'
 import waitOn from 'wait-on'
 import config from '../config.js'
 
-describe('deploy to local localhost chain', () => {
+describe('deploy to localhost chain', () => {
   let localchain
 
   before(async () => {

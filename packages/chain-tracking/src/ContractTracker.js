@@ -14,17 +14,17 @@ export class ContractTracker {
     return result
   }
 
-  static async from(store, chainId, address, provider, defaults, polling, processEvent = logger.log, logger = console) {
+  static async from(store, address, provider, defaults, polling, processEvent = logger.log, logger = console) {
+    const chainId = await provider.getNetwork().then(_ => _.chainId)
     const key = [chainId, address].join(':')
     await store.update(key, this.defaults(defaults))
-    const instance = new this(store, chainId, address, provider, polling, processEvent, logger)
-    await instance.load()
-    return instance
+    const instance = new this(store, key, address, provider, polling, processEvent, logger)
+    return instance.load()
   }
 
-  constructor(store, chainId, address, provider, polling, processEvent, logger) {
+  constructor(store, key, address, provider, polling, processEvent, logger) {
     this.store = store
-    this.key = [chainId, address].join(':')
+    this.key = key
     this.address = address
     this.provider = provider
     this.polling = polling
@@ -41,6 +41,7 @@ export class ContractTracker {
     this.contract = new Contract(this.address, abi, this.provider)
     this.topics = topics
     this.marker = marker
+    return this
   }
 
   async update(state) { return this.store.update(this.key, state) }

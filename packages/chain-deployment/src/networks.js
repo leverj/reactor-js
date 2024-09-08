@@ -1,6 +1,6 @@
 export const networks = {
   abstractTestnet: {
-    id: 11124,
+    id: 11124n,
     label: 'abstractTestnet',
     name: 'Abstract Testnet',
     nativeCurrency: {
@@ -17,7 +17,7 @@ export const networks = {
     testnet: true
   },
   acala: {
-    id: 787,
+    id: 787n,
     label: 'acala',
     name: 'Acala',
     nativeCurrency: {
@@ -35,7 +35,7 @@ export const networks = {
     testnet: false
   },
   ancient8: {
-    id: 888888888,
+    id: 888888888n,
     label: 'ancient8',
     name: 'Ancient8',
     nativeCurrency: {
@@ -89,7 +89,7 @@ export const networks = {
     testnet: false
   },
   ancient8Sepolia: {
-    id: 28122024,
+    id: 28122024n,
     label: 'ancient8Sepolia',
     name: 'Ancient8 Testnet',
     nativeCurrency: {
@@ -143,7 +143,7 @@ export const networks = {
     testnet: false
   },
   anvil: {
-    id: 31337,
+    id: 31337n,
     label: 'anvil',
     name: 'Anvil',
     nativeCurrency: {
@@ -157,7 +157,7 @@ export const networks = {
     testnet: false
   },
   apexTestnet: {
-    id: 3993,
+    id: 3993n,
     label: 'apexTestnet',
     name: 'APEX Testnet',
     nativeCurrency: {
@@ -180,7 +180,7 @@ export const networks = {
     testnet: true
   },
   arbitrum: {
-    id: 42161,
+    id: 42161n,
     label: 'arbitrum',
     name: 'Arbitrum One',
     nativeCurrency: {
@@ -203,7 +203,7 @@ export const networks = {
     testnet: false
   },
   arbitrumGoerli: {
-    id: 421613,
+    id: 421613n,
     label: 'arbitrumGoerli',
     name: 'Arbitrum Goerli',
     nativeCurrency: {
@@ -225,7 +225,7 @@ export const networks = {
     testnet: true
   },
   arbitrumNova: {
-    id: 42170,
+    id: 42170n,
     label: 'arbitrumNova',
     name: 'Arbitrum Nova',
     nativeCurrency: {
@@ -248,7 +248,7 @@ export const networks = {
     testnet: false
   },
   arbitrumSepolia: {
-    id: 421614,
+    id: 421614n,
     label: 'arbitrumSepolia',
     name: 'Arbitrum Sepolia',
     nativeCurrency: {
@@ -271,7 +271,7 @@ export const networks = {
     testnet: true
   },
   areonNetwork: {
-    id: 463,
+    id: 463n,
     label: 'areonNetwork',
     name: 'Areon Network',
     nativeCurrency: {
@@ -288,7 +288,7 @@ export const networks = {
     testnet: false
   },
   areonNetworkTestnet: {
-    id: 462,
+    id: 462n,
     label: 'areonNetworkTestnet',
     name: 'Areon Network Testnet',
     nativeCurrency: {
@@ -305,7 +305,7 @@ export const networks = {
     testnet: true
   },
   artelaTestnet: {
-    id: 11822,
+    id: 11822n,
     label: 'artelaTestnet',
     name: 'Artela Testnet',
     nativeCurrency: {
@@ -328,7 +328,7 @@ export const networks = {
     testnet: true
   },
   assetChainTestnet: {
-    id: 42421,
+    id: 42421n,
     label: 'assetChainTestnet',
     name: 'AssetChain Testnet',
     nativeCurrency: {
@@ -351,7 +351,7 @@ export const networks = {
     testnet: true
   },
   astar: {
-    id: 592,
+    id: 592n,
     label: 'astar',
     name: 'Astar',
     nativeCurrency: {
@@ -373,7 +373,7 @@ export const networks = {
     testnet: false
   },
   astarZkEVM: {
-    id: 3776,
+    id: 3776n,
     label: 'astarZkEVM',
     name: 'Astar zkEVM',
     nativeCurrency: {
@@ -395,7 +395,7 @@ export const networks = {
     testnet: false
   },
   astarZkyoto: {
-    id: 6038361,
+    id: 6038361n,
     label: 'astarZkyoto',
     name: 'Astar zkEVM Testnet zKyoto',
     nativeCurrency: {
@@ -417,7 +417,7 @@ export const networks = {
     testnet: true
   },
   atletaOlympia: {
-    id: 2340,
+    id: 2340n,
     label: 'atletaOlympia',
     name: 'Atleta Olympia',
     nativeCurrency: {
@@ -440,7 +440,7 @@ export const networks = {
     testnet: true
   },
   aurora: {
-    id: 1313161554,
+    id: 1313161554n,
     label: 'aurora',
     name: 'Aurora',
     nativeCurrency: {
@@ -463,7 +463,7 @@ export const networks = {
     testnet: false
   },
   auroraTestnet: {
-    id: 1313161555,
+    id: 1313161555n,
     label: 'auroraTestnet',
     name: 'Aurora Testnet',
     nativeCurrency: {
@@ -481,7 +481,7 @@ export const networks = {
     testnet: true
   },
   auroria: {
-    id: 205205,
+    id: 205205n,
     label: 'auroria',
     name: 'Auroria Testnet',
     nativeCurrency: {
@@ -498,7 +498,7 @@ export const networks = {
     testnet: true
   },
   avalanche: {
-    id: 43114,
+    id: 43114n,
     label: 'avalanche',
     name: 'Avalanche',
     nativeCurrency: {
@@ -521,7 +521,7 @@ export const networks = {
     testnet: false
   },
   avalancheFuji: {
-    id: 43113,
+    id: 43113n,
     label: 'avalancheFuji',
     name: 'Avalanche Fuji',
     nativeCurrency: {
@@ -544,7 +544,7 @@ export const networks = {
     testnet: true
   },
   b3: {
-    id: 8333,
+    id: 8333n,
     label: 'b3',
     name: 'B3',
     nativeCurrency: {
@@ -561,7 +561,7 @@ export const networks = {
     testnet: false
   },
   b3Sepolia: {
-    id: 1993,
+    id: 1993n,
     label: 'b3Sepolia',
     name: 'B3 Sepolia',
     nativeCurrency: {
@@ -578,7 +578,7 @@ export const networks = {
     testnet: true
   },
   bahamut: {
-    id: 5165,
+    id: 5165n,
     label: 'bahamut',
     name: 'Bahamut',
     nativeCurrency: {
@@ -596,7 +596,7 @@ export const networks = {
     testnet: false
   },
   base: {
-    id: 8453,
+    id: 8453n,
     label: 'base',
     name: 'Base',
     nativeCurrency: {
@@ -654,7 +654,7 @@ export const networks = {
     testnet: false
   },
   baseGoerli: {
-    id: 84531,
+    id: 84531n,
     label: 'baseGoerli',
     name: 'Base Goerli',
     nativeCurrency: {
@@ -710,7 +710,7 @@ export const networks = {
     testnet: true
   },
   baseSepolia: {
-    id: 84532,
+    id: 84532n,
     label: 'baseSepolia',
     name: 'Base Sepolia',
     nativeCurrency: {
@@ -773,7 +773,7 @@ export const networks = {
     testnet: true
   },
   beam: {
-    id: 4337,
+    id: 4337n,
     label: 'beam',
     name: 'Beam',
     nativeCurrency: {
@@ -795,7 +795,7 @@ export const networks = {
     testnet: false
   },
   beamTestnet: {
-    id: 13337,
+    id: 13337n,
     label: 'beamTestnet',
     name: 'Beam Testnet',
     nativeCurrency: {
@@ -817,7 +817,7 @@ export const networks = {
     testnet: true
   },
   bearNetworkChainMainnet: {
-    id: 641230,
+    id: 641230n,
     label: 'bearNetworkChainMainnet',
     name: 'Bear Network Chain Mainnet',
     nativeCurrency: {
@@ -835,7 +835,7 @@ export const networks = {
     testnet: false
   },
   bearNetworkChainTestnet: {
-    id: 751230,
+    id: 751230n,
     label: 'bearNetworkChainTestnet',
     name: 'Bear Network Chain Testnet',
     nativeCurrency: {
@@ -853,7 +853,7 @@ export const networks = {
     testnet: true
   },
   berachainTestnet: {
-    id: 80085,
+    id: 80085n,
     label: 'berachainTestnet',
     name: 'Berachain Artio',
     nativeCurrency: {
@@ -870,7 +870,7 @@ export const networks = {
     testnet: true
   },
   berachainTestnetbArtio: {
-    id: 80084,
+    id: 80084n,
     label: 'berachainTestnetbArtio',
     name: 'Berachain bArtio',
     nativeCurrency: {
@@ -892,7 +892,7 @@ export const networks = {
     testnet: true
   },
   bevmMainnet: {
-    id: 11501,
+    id: 11501n,
     label: 'bevmMainnet',
     name: 'BEVM Mainnet',
     nativeCurrency: {
@@ -910,7 +910,7 @@ export const networks = {
     testnet: false
   },
   bitTorrent: {
-    id: 199,
+    id: 199n,
     label: 'bitTorrent',
     name: 'BitTorrent',
     nativeCurrency: {
@@ -933,7 +933,7 @@ export const networks = {
     testnet: false
   },
   bitTorrentTestnet: {
-    id: 1028,
+    id: 1028n,
     label: 'bitTorrentTestnet',
     name: 'BitTorrent Chain Testnet',
     nativeCurrency: {
@@ -951,7 +951,7 @@ export const networks = {
     testnet: true
   },
   bitkub: {
-    id: 96,
+    id: 96n,
     label: 'bitkub',
     name: 'Bitkub',
     nativeCurrency: {
@@ -969,7 +969,7 @@ export const networks = {
     testnet: false
   },
   bitkubTestnet: {
-    id: 25925,
+    id: 25925n,
     label: 'bitkubTestnet',
     name: 'Bitkub Testnet',
     nativeCurrency: {
@@ -987,7 +987,7 @@ export const networks = {
     testnet: true
   },
   blast: {
-    id: 81457,
+    id: 81457n,
     label: 'blast',
     name: 'Blast',
     nativeCurrency: {
@@ -1010,7 +1010,7 @@ export const networks = {
     testnet: false
   },
   blastSepolia: {
-    id: 168587773,
+    id: 168587773n,
     label: 'blastSepolia',
     name: 'Blast Sepolia',
     nativeCurrency: {
@@ -1033,7 +1033,7 @@ export const networks = {
     testnet: true
   },
   bob: {
-    id: 60808,
+    id: 60808n,
     label: 'bob',
     name: 'BOB',
     nativeCurrency: {
@@ -1085,7 +1085,7 @@ export const networks = {
     testnet: false
   },
   bobSepolia: {
-    id: 808813,
+    id: 808813n,
     label: 'bobSepolia',
     name: 'BOB Sepolia',
     nativeCurrency: {
@@ -1137,7 +1137,7 @@ export const networks = {
     testnet: true
   },
   boba: {
-    id: 288,
+    id: 288n,
     label: 'boba',
     name: 'Boba Network',
     nativeCurrency: {
@@ -1159,7 +1159,7 @@ export const networks = {
     testnet: false
   },
   bobaSepolia: {
-    id: 28882,
+    id: 28882n,
     label: 'bobaSepolia',
     name: 'Boba Sepolia',
     nativeCurrency: {
@@ -1176,7 +1176,7 @@ export const networks = {
     testnet: true
   },
   botanixTestnet: {
-    id: 3636,
+    id: 3636n,
     label: 'botanixTestnet',
     name: 'Botanix Testnet',
     nativeCurrency: {
@@ -1194,7 +1194,7 @@ export const networks = {
     testnet: true
   },
   bronos: {
-    id: 1039,
+    id: 1039n,
     label: 'bronos',
     name: 'Bronos',
     nativeCurrency: {
@@ -1211,7 +1211,7 @@ export const networks = {
     testnet: false
   },
   bronosTestnet: {
-    id: 1038,
+    id: 1038n,
     label: 'bronosTestnet',
     name: 'Bronos Testnet',
     nativeCurrency: {
@@ -1228,7 +1228,7 @@ export const networks = {
     testnet: true
   },
   bsc: {
-    id: 56,
+    id: 56n,
     label: 'bsc',
     name: 'BNB Smart Chain',
     nativeCurrency: {
@@ -1251,7 +1251,7 @@ export const networks = {
     testnet: false
   },
   bscGreenfield: {
-    id: 1017,
+    id: 1017n,
     label: 'bscGreenfield',
     name: 'BNB Greenfield Chain',
     nativeCurrency: {
@@ -1268,7 +1268,7 @@ export const networks = {
     testnet: false
   },
   bscTestnet: {
-    id: 97,
+    id: 97n,
     label: 'bscTestnet',
     name: 'Binance Smart Chain Testnet',
     nativeCurrency: {
@@ -1291,7 +1291,7 @@ export const networks = {
     testnet: true
   },
   btr: {
-    id: 200901,
+    id: 200901n,
     label: 'btr',
     name: 'Bitlayer',
     nativeCurrency: {
@@ -1308,7 +1308,7 @@ export const networks = {
     testnet: false
   },
   btrTestnet: {
-    id: 200810,
+    id: 200810n,
     label: 'btrTestnet',
     name: 'Bitlayer Testnet',
     nativeCurrency: {
@@ -1325,7 +1325,7 @@ export const networks = {
     testnet: true
   },
   bxn: {
-    id: 4999,
+    id: 4999n,
     label: 'bxn',
     name: 'BlackFort Exchange Network',
     nativeCurrency: {
@@ -1343,7 +1343,7 @@ export const networks = {
     testnet: false
   },
   bxnTestnet: {
-    id: 4777,
+    id: 4777n,
     label: 'bxnTestnet',
     name: 'BlackFort Exchange Network Testnet',
     nativeCurrency: {
@@ -1361,7 +1361,7 @@ export const networks = {
     testnet: true
   },
   canto: {
-    id: 7700,
+    id: 7700n,
     label: 'canto',
     name: 'Canto',
     nativeCurrency: {
@@ -1383,7 +1383,7 @@ export const networks = {
     testnet: false
   },
   celo: {
-    id: 42220,
+    id: 42220n,
     label: 'celo',
     name: 'Celo',
     nativeCurrency: {
@@ -1406,7 +1406,7 @@ export const networks = {
     testnet: false
   },
   celoAlfajores: {
-    id: 44787,
+    id: 44787n,
     label: 'celoAlfajores',
     name: 'Alfajores',
     nativeCurrency: {
@@ -1429,7 +1429,7 @@ export const networks = {
     testnet: true
   },
   chiliz: {
-    id: 88888,
+    id: 88888n,
     label: 'chiliz',
     name: 'Chiliz Chain',
     nativeCurrency: {
@@ -1447,7 +1447,7 @@ export const networks = {
     testnet: false
   },
   chips: {
-    id: 2882,
+    id: 2882n,
     label: 'chips',
     name: 'Chips Network',
     nativeCurrency: {
@@ -1461,7 +1461,7 @@ export const networks = {
     testnet: false
   },
   classic: {
-    id: 61,
+    id: 61n,
     label: 'classic',
     name: 'Ethereum Classic',
     nativeCurrency: {
@@ -1478,7 +1478,7 @@ export const networks = {
     testnet: false
   },
   confluxESpace: {
-    id: 1030,
+    id: 1030n,
     label: 'confluxESpace',
     name: 'Conflux eSpace',
     nativeCurrency: {
@@ -1500,7 +1500,7 @@ export const networks = {
     testnet: false
   },
   confluxESpaceTestnet: {
-    id: 71,
+    id: 71n,
     label: 'confluxESpaceTestnet',
     name: 'Conflux eSpace Testnet',
     nativeCurrency: {
@@ -1522,7 +1522,7 @@ export const networks = {
     testnet: true
   },
   coreDao: {
-    id: 1116,
+    id: 1116n,
     label: 'coreDao',
     name: 'Core Dao',
     nativeCurrency: {
@@ -1544,7 +1544,7 @@ export const networks = {
     testnet: false
   },
   crab: {
-    id: 44,
+    id: 44n,
     label: 'crab',
     name: 'Crab Network',
     nativeCurrency: {
@@ -1566,7 +1566,7 @@ export const networks = {
     testnet: false
   },
   cronos: {
-    id: 25,
+    id: 25n,
     label: 'cronos',
     name: 'Cronos Mainnet',
     nativeCurrency: {
@@ -1589,7 +1589,7 @@ export const networks = {
     testnet: false
   },
   cronosTestnet: {
-    id: 338,
+    id: 338n,
     label: 'cronosTestnet',
     name: 'Cronos Testnet',
     nativeCurrency: {
@@ -1611,7 +1611,7 @@ export const networks = {
     testnet: true
   },
   cronoszkEVM: {
-    id: 388,
+    id: 388n,
     label: 'cronoszkEVM',
     name: 'Cronos zkEVM Mainnet',
     nativeCurrency: {
@@ -1628,7 +1628,7 @@ export const networks = {
     testnet: false
   },
   cronoszkEVMTestnet: {
-    id: 282,
+    id: 282n,
     label: 'cronoszkEVMTestnet',
     name: 'Cronos zkEVM Testnet',
     nativeCurrency: {
@@ -1645,7 +1645,7 @@ export const networks = {
     testnet: true
   },
   crossbell: {
-    id: 3737,
+    id: 3737n,
     label: 'crossbell',
     name: 'Crossbell',
     nativeCurrency: {
@@ -1668,7 +1668,7 @@ export const networks = {
     testnet: false
   },
   curtis: {
-    id: 33111,
+    id: 33111n,
     label: 'curtis',
     name: 'Curtis',
     nativeCurrency: {
@@ -1685,7 +1685,7 @@ export const networks = {
     testnet: true
   },
   cyber: {
-    id: 7560,
+    id: 7560n,
     label: 'cyber',
     name: 'Cyber',
     nativeCurrency: {
@@ -1708,7 +1708,7 @@ export const networks = {
     testnet: false
   },
   cyberTestnet: {
-    id: 111557560,
+    id: 111557560n,
     label: 'cyberTestnet',
     name: 'Cyber Testnet',
     nativeCurrency: {
@@ -1731,7 +1731,7 @@ export const networks = {
     testnet: true
   },
   darwinia: {
-    id: 46,
+    id: 46n,
     label: 'darwinia',
     name: 'Darwinia Network',
     nativeCurrency: {
@@ -1753,7 +1753,7 @@ export const networks = {
     testnet: false
   },
   dchain: {
-    id: 2716446429837000,
+    id: 2716446429837000n,
     label: 'dchain',
     name: 'Dchain',
     nativeCurrency: {
@@ -1790,7 +1790,7 @@ export const networks = {
     testnet: false
   },
   dchainTestnet: {
-    id: 2713017997578000,
+    id: 2713017997578000n,
     label: 'dchainTestnet',
     name: 'Dchain Testnet',
     nativeCurrency: {
@@ -1827,7 +1827,7 @@ export const networks = {
     testnet: false
   },
   defichainEvm: {
-    id: 1130,
+    id: 1130n,
     label: 'defichainEvm',
     name: 'DeFiChain EVM Mainnet',
     nativeCurrency: {
@@ -1849,7 +1849,7 @@ export const networks = {
     testnet: false
   },
   defichainEvmTestnet: {
-    id: 1131,
+    id: 1131n,
     label: 'defichainEvmTestnet',
     name: 'DeFiChain EVM Testnet',
     nativeCurrency: {
@@ -1871,7 +1871,7 @@ export const networks = {
     testnet: true
   },
   degen: {
-    id: 666666666,
+    id: 666666666n,
     label: 'degen',
     name: 'Degen',
     nativeCurrency: {
@@ -1889,7 +1889,7 @@ export const networks = {
     testnet: false
   },
   dfk: {
-    id: 53935,
+    id: 53935n,
     label: 'dfk',
     name: 'DFK Chain',
     nativeCurrency: {
@@ -1911,7 +1911,7 @@ export const networks = {
     testnet: false
   },
   dodochainTestnet: {
-    id: 53457,
+    id: 53457n,
     label: 'dodochainTestnet',
     name: 'DODOchain Testnet',
     nativeCurrency: {
@@ -1928,7 +1928,7 @@ export const networks = {
     testnet: true
   },
   dogechain: {
-    id: 2000,
+    id: 2000n,
     label: 'dogechain',
     name: 'Dogechain',
     nativeCurrency: {
@@ -1951,7 +1951,7 @@ export const networks = {
     testnet: false
   },
   dreyerxMainnet: {
-    id: 23451,
+    id: 23451n,
     label: 'dreyerxMainnet',
     name: 'DreyerX Mainnet',
     nativeCurrency: {
@@ -1968,7 +1968,7 @@ export const networks = {
     testnet: false
   },
   dreyerxTestnet: {
-    id: 23452,
+    id: 23452n,
     label: 'dreyerxTestnet',
     name: 'DreyerX Testnet',
     nativeCurrency: {
@@ -1985,7 +1985,7 @@ export const networks = {
     testnet: true
   },
   edgeless: {
-    id: 2026,
+    id: 2026n,
     label: 'edgeless',
     name: 'Edgeless Network',
     nativeCurrency: {
@@ -2002,7 +2002,7 @@ export const networks = {
     testnet: false
   },
   edgelessTestnet: {
-    id: 202,
+    id: 202n,
     label: 'edgelessTestnet',
     name: 'Edgeless Testnet',
     nativeCurrency: {
@@ -2019,7 +2019,7 @@ export const networks = {
     testnet: false
   },
   edgeware: {
-    id: 2021,
+    id: 2021n,
     label: 'edgeware',
     name: 'Edgeware EdgeEVM Mainnet',
     nativeCurrency: {
@@ -2042,7 +2042,7 @@ export const networks = {
     testnet: false
   },
   edgewareTestnet: {
-    id: 2022,
+    id: 2022n,
     label: 'edgewareTestnet',
     name: 'Beresheet BereEVM Testnet',
     nativeCurrency: {
@@ -2060,7 +2060,7 @@ export const networks = {
     testnet: false
   },
   ekta: {
-    id: 1994,
+    id: 1994n,
     label: 'ekta',
     name: 'Ekta',
     nativeCurrency: {
@@ -2078,7 +2078,7 @@ export const networks = {
     testnet: false
   },
   ektaTestnet: {
-    id: 1004,
+    id: 1004n,
     label: 'ektaTestnet',
     name: 'Ekta Testnet',
     nativeCurrency: {
@@ -2096,7 +2096,7 @@ export const networks = {
     testnet: true
   },
   eon: {
-    id: 7332,
+    id: 7332n,
     label: 'eon',
     name: 'Horizen EON',
     nativeCurrency: {
@@ -2113,7 +2113,7 @@ export const networks = {
     testnet: false
   },
   eos: {
-    id: 17777,
+    id: 17777n,
     label: 'eos',
     name: 'EOS EVM',
     nativeCurrency: {
@@ -2136,7 +2136,7 @@ export const networks = {
     testnet: false
   },
   eosTestnet: {
-    id: 15557,
+    id: 15557n,
     label: 'eosTestnet',
     name: 'EOS EVM Testnet',
     nativeCurrency: {
@@ -2159,7 +2159,7 @@ export const networks = {
     testnet: true
   },
   etherlink: {
-    id: 42793,
+    id: 42793n,
     label: 'etherlink',
     name: 'Etherlink',
     nativeCurrency: {
@@ -2181,7 +2181,7 @@ export const networks = {
     testnet: false
   },
   etherlinkTestnet: {
-    id: 128123,
+    id: 128123n,
     label: 'etherlinkTestnet',
     name: 'Etherlink Testnet',
     nativeCurrency: {
@@ -2198,7 +2198,7 @@ export const networks = {
     testnet: true
   },
   evmos: {
-    id: 9001,
+    id: 9001n,
     label: 'evmos',
     name: 'Evmos',
     nativeCurrency: {
@@ -2215,7 +2215,7 @@ export const networks = {
     testnet: false
   },
   evmosTestnet: {
-    id: 9000,
+    id: 9000n,
     label: 'evmosTestnet',
     name: 'Evmos Testnet',
     nativeCurrency: {
@@ -2232,7 +2232,7 @@ export const networks = {
     testnet: false
   },
   fantom: {
-    id: 250,
+    id: 250n,
     label: 'fantom',
     name: 'Fantom',
     nativeCurrency: {
@@ -2255,7 +2255,7 @@ export const networks = {
     testnet: false
   },
   fantomSonicTestnet: {
-    id: 64240,
+    id: 64240n,
     label: 'fantomSonicTestnet',
     name: 'Fantom Sonic Open Testnet',
     nativeCurrency: {
@@ -2272,7 +2272,7 @@ export const networks = {
     testnet: true
   },
   fantomTestnet: {
-    id: 4002,
+    id: 4002n,
     label: 'fantomTestnet',
     name: 'Fantom Testnet',
     nativeCurrency: {
@@ -2295,7 +2295,7 @@ export const networks = {
     testnet: true
   },
   fibo: {
-    id: 12306,
+    id: 12306n,
     label: 'fibo',
     name: 'Fibo Chain',
     nativeCurrency: {
@@ -2312,7 +2312,7 @@ export const networks = {
     testnet: false
   },
   filecoin: {
-    id: 314,
+    id: 314n,
     label: 'filecoin',
     name: 'Filecoin Mainnet',
     nativeCurrency: {
@@ -2334,7 +2334,7 @@ export const networks = {
     testnet: false
   },
   filecoinCalibration: {
-    id: 314159,
+    id: 314159n,
     label: 'filecoinCalibration',
     name: 'Filecoin Calibration',
     nativeCurrency: {
@@ -2351,7 +2351,7 @@ export const networks = {
     testnet: true
   },
   filecoinHyperspace: {
-    id: 3141,
+    id: 3141n,
     label: 'filecoinHyperspace',
     name: 'Filecoin Hyperspace',
     nativeCurrency: {
@@ -2368,7 +2368,7 @@ export const networks = {
     testnet: true
   },
   flare: {
-    id: 14,
+    id: 14n,
     label: 'flare',
     name: 'Flare Mainnet',
     nativeCurrency: {
@@ -2386,7 +2386,7 @@ export const networks = {
     testnet: false
   },
   flareTestnet: {
-    id: 114,
+    id: 114n,
     label: 'flareTestnet',
     name: 'Coston2',
     nativeCurrency: {
@@ -2404,7 +2404,7 @@ export const networks = {
     testnet: true
   },
   flowMainnet: {
-    id: 747,
+    id: 747n,
     label: 'flowMainnet',
     name: 'FlowEVM Mainnet',
     nativeCurrency: {
@@ -2421,7 +2421,7 @@ export const networks = {
     testnet: false
   },
   flowPreviewnet: {
-    id: 646,
+    id: 646n,
     label: 'flowPreviewnet',
     name: 'FlowEVM Previewnet',
     nativeCurrency: {
@@ -2443,7 +2443,7 @@ export const networks = {
     testnet: false
   },
   flowTestnet: {
-    id: 545,
+    id: 545n,
     label: 'flowTestnet',
     name: 'FlowEVM Testnet',
     nativeCurrency: {
@@ -2465,7 +2465,7 @@ export const networks = {
     testnet: false
   },
   fluence: {
-    id: 9999999,
+    id: 9999999n,
     label: 'fluence',
     name: 'Fluence',
     nativeCurrency: {
@@ -2483,7 +2483,7 @@ export const networks = {
     testnet: false
   },
   fluenceStage: {
-    id: 123420000220,
+    id: 123420000220n,
     label: 'fluenceStage',
     name: 'Fluence Stage',
     nativeCurrency: {
@@ -2501,7 +2501,7 @@ export const networks = {
     testnet: true
   },
   fluenceTestnet: {
-    id: 52164803,
+    id: 52164803n,
     label: 'fluenceTestnet',
     name: 'Fluence Testnet',
     nativeCurrency: {
@@ -2519,7 +2519,7 @@ export const networks = {
     testnet: true
   },
   forma: {
-    id: 984122,
+    id: 984122n,
     label: 'forma',
     name: 'Forma',
     nativeCurrency: {
@@ -2541,7 +2541,7 @@ export const networks = {
     testnet: false
   },
   foundry: {
-    id: 31337,
+    id: 31337n,
     label: 'foundry',
     name: 'Foundry',
     nativeCurrency: {
@@ -2555,7 +2555,7 @@ export const networks = {
     testnet: false
   },
   fraxtal: {
-    id: 252,
+    id: 252n,
     label: 'fraxtal',
     name: 'Fraxtal',
     nativeCurrency: {
@@ -2612,7 +2612,7 @@ export const networks = {
     testnet: false
   },
   fraxtalTestnet: {
-    id: 2522,
+    id: 2522n,
     label: 'fraxtalTestnet',
     name: 'Fraxtal Testnet',
     nativeCurrency: {
@@ -2669,7 +2669,7 @@ export const networks = {
     testnet: false
   },
   funkiMainnet: {
-    id: 33979,
+    id: 33979n,
     label: 'funkiMainnet',
     name: 'Funki',
     nativeCurrency: {
@@ -2705,7 +2705,7 @@ export const networks = {
     testnet: false
   },
   funkiSepolia: {
-    id: 3397901,
+    id: 3397901n,
     label: 'funkiSepolia',
     name: 'Funki Sepolia Sandbox',
     nativeCurrency: {
@@ -2745,7 +2745,7 @@ export const networks = {
     testnet: true
   },
   fuse: {
-    id: 122,
+    id: 122n,
     label: 'fuse',
     name: 'Fuse',
     nativeCurrency: {
@@ -2768,7 +2768,7 @@ export const networks = {
     testnet: false
   },
   fuseSparknet: {
-    id: 123,
+    id: 123n,
     label: 'fuseSparknet',
     name: 'Fuse Sparknet',
     nativeCurrency: {
@@ -2786,7 +2786,7 @@ export const networks = {
     testnet: false
   },
   gnosis: {
-    id: 100,
+    id: 100n,
     label: 'gnosis',
     name: 'Gnosis',
     nativeCurrency: {
@@ -2809,7 +2809,7 @@ export const networks = {
     testnet: false
   },
   gnosisChiado: {
-    id: 10200,
+    id: 10200n,
     label: 'gnosisChiado',
     name: 'Gnosis Chiado',
     nativeCurrency: {
@@ -2832,7 +2832,7 @@ export const networks = {
     testnet: true
   },
   gobi: {
-    id: 1663,
+    id: 1663n,
     label: 'gobi',
     name: 'Horizen Gobi Testnet',
     nativeCurrency: {
@@ -2849,7 +2849,7 @@ export const networks = {
     testnet: true
   },
   goerli: {
-    id: 5,
+    id: 5n,
     label: 'goerli',
     name: 'Goerli',
     nativeCurrency: {
@@ -2879,7 +2879,7 @@ export const networks = {
     testnet: true
   },
   gravity: {
-    id: 1625,
+    id: 1625n,
     label: 'gravity',
     name: 'Gravity Alpha Mainnet',
     nativeCurrency: {
@@ -2902,7 +2902,7 @@ export const networks = {
     testnet: false
   },
   ham: {
-    id: 5112,
+    id: 5112n,
     label: 'ham',
     name: 'Ham',
     nativeCurrency: {
@@ -2920,7 +2920,7 @@ export const networks = {
     testnet: false
   },
   haqqMainnet: {
-    id: 11235,
+    id: 11235n,
     label: 'haqqMainnet',
     name: 'HAQQ Mainnet',
     nativeCurrency: {
@@ -2938,7 +2938,7 @@ export const networks = {
     testnet: false
   },
   haqqTestedge2: {
-    id: 54211,
+    id: 54211n,
     label: 'haqqTestedge2',
     name: 'HAQQ Testedge 2',
     nativeCurrency: {
@@ -2956,7 +2956,7 @@ export const networks = {
     testnet: false
   },
   hardhat: {
-    id: 31337,
+    id: 31337n,
     label: 'hardhat',
     name: 'Hardhat',
     nativeCurrency: {
@@ -2970,7 +2970,7 @@ export const networks = {
     testnet: true
   },
   harmonyOne: {
-    id: 1666600000,
+    id: 1666600000n,
     label: 'harmonyOne',
     name: 'Harmony One',
     nativeCurrency: {
@@ -2992,7 +2992,7 @@ export const networks = {
     testnet: false
   },
   hashkeyTestnet: {
-    id: 133,
+    id: 133n,
     label: 'hashkeyTestnet',
     name: 'HashKey Chain Testnet',
     nativeCurrency: {
@@ -3009,7 +3009,7 @@ export const networks = {
     testnet: false
   },
   hedera: {
-    id: 295,
+    id: 295n,
     label: 'hedera',
     name: 'Hedera Mainnet',
     nativeCurrency: {
@@ -3026,7 +3026,7 @@ export const networks = {
     testnet: false
   },
   hederaPreviewnet: {
-    id: 297,
+    id: 297n,
     label: 'hederaPreviewnet',
     name: 'Hedera Previewnet',
     nativeCurrency: {
@@ -3043,7 +3043,7 @@ export const networks = {
     testnet: true
   },
   hederaTestnet: {
-    id: 296,
+    id: 296n,
     label: 'hederaTestnet',
     name: 'Hedera Testnet',
     nativeCurrency: {
@@ -3060,7 +3060,7 @@ export const networks = {
     testnet: true
   },
   holesky: {
-    id: 17000,
+    id: 17000n,
     label: 'holesky',
     name: 'Holesky',
     nativeCurrency: {
@@ -3091,7 +3091,7 @@ export const networks = {
     testnet: true
   },
   immutableZkEvm: {
-    id: 13371,
+    id: 13371n,
     label: 'immutableZkEvm',
     name: 'Immutable zkEVM',
     nativeCurrency: {
@@ -3114,7 +3114,7 @@ export const networks = {
     testnet: false
   },
   immutableZkEvmTestnet: {
-    id: 13473,
+    id: 13473n,
     label: 'immutableZkEvmTestnet',
     name: 'Immutable zkEVM Testnet',
     nativeCurrency: {
@@ -3136,7 +3136,7 @@ export const networks = {
     testnet: true
   },
   inEVM: {
-    id: 2525,
+    id: 2525n,
     label: 'inEVM',
     name: 'inEVM Mainnet',
     nativeCurrency: {
@@ -3159,7 +3159,7 @@ export const networks = {
     testnet: false
   },
   iota: {
-    id: 8822,
+    id: 8822n,
     label: 'iota',
     name: 'IOTA EVM',
     nativeCurrency: {
@@ -3177,7 +3177,7 @@ export const networks = {
     testnet: false
   },
   iotaTestnet: {
-    id: 1075,
+    id: 1075n,
     label: 'iotaTestnet',
     name: 'IOTA EVM Testnet',
     nativeCurrency: {
@@ -3195,7 +3195,7 @@ export const networks = {
     testnet: true
   },
   iotex: {
-    id: 4689,
+    id: 4689n,
     label: 'iotex',
     name: 'IoTeX',
     nativeCurrency: {
@@ -3217,7 +3217,7 @@ export const networks = {
     testnet: false
   },
   iotexTestnet: {
-    id: 4690,
+    id: 4690n,
     label: 'iotexTestnet',
     name: 'IoTeX Testnet',
     nativeCurrency: {
@@ -3239,7 +3239,7 @@ export const networks = {
     testnet: true
   },
   jbc: {
-    id: 8899,
+    id: 8899n,
     label: 'jbc',
     name: 'JIBCHAIN L1',
     nativeCurrency: {
@@ -3262,7 +3262,7 @@ export const networks = {
     testnet: false
   },
   jbcTestnet: {
-    id: 88991,
+    id: 88991n,
     label: 'jbcTestnet',
     name: 'Jibchain Testnet',
     nativeCurrency: {
@@ -3285,7 +3285,7 @@ export const networks = {
     testnet: true
   },
   kaia: {
-    id: 8217,
+    id: 8217n,
     label: 'kaia',
     name: 'Kaia',
     nativeCurrency: {
@@ -3296,7 +3296,8 @@ export const networks = {
     providerURL: 'https://public-en.node.kaia.io',
     blockExplorer: {
       name: 'KaiaScope',
-      url: 'https://kaiascope.com'
+      url: 'https://kaiascope.com',
+      apiUrl: 'https://api-cypress.klaytnscope.com/api'
     },
     contracts: {
       multicall3: {
@@ -3307,7 +3308,7 @@ export const networks = {
     testnet: false
   },
   kairos: {
-    id: 1001,
+    id: 1001n,
     label: 'kairos',
     name: 'Kairos Testnet',
     nativeCurrency: {
@@ -3329,7 +3330,7 @@ export const networks = {
     testnet: true
   },
   kakarotSepolia: {
-    id: 1802203764,
+    id: 1802203764n,
     label: 'kakarotSepolia',
     name: 'Kakarot Sepolia',
     nativeCurrency: {
@@ -3346,7 +3347,7 @@ export const networks = {
     testnet: true
   },
   karura: {
-    id: 686,
+    id: 686n,
     label: 'karura',
     name: 'Karura',
     nativeCurrency: {
@@ -3364,7 +3365,7 @@ export const networks = {
     testnet: false
   },
   kava: {
-    id: 2222,
+    id: 2222n,
     label: 'kava',
     name: 'Kava EVM',
     nativeCurrency: {
@@ -3387,7 +3388,7 @@ export const networks = {
     testnet: false
   },
   kavaTestnet: {
-    id: 2221,
+    id: 2221n,
     label: 'kavaTestnet',
     name: 'Kava EVM Testnet',
     nativeCurrency: {
@@ -3410,7 +3411,7 @@ export const networks = {
     testnet: true
   },
   kcc: {
-    id: 321,
+    id: 321n,
     label: 'kcc',
     name: 'KCC Mainnet',
     nativeCurrency: {
@@ -3432,7 +3433,7 @@ export const networks = {
     testnet: false
   },
   klaytn: {
-    id: 8217,
+    id: 8217n,
     label: 'klaytn',
     name: 'Klaytn',
     nativeCurrency: {
@@ -3454,7 +3455,7 @@ export const networks = {
     testnet: false
   },
   klaytnBaobab: {
-    id: 1001,
+    id: 1001n,
     label: 'klaytnBaobab',
     name: 'Klaytn Baobab Testnet',
     nativeCurrency: {
@@ -3476,7 +3477,7 @@ export const networks = {
     testnet: true
   },
   koi: {
-    id: 701,
+    id: 701n,
     label: 'koi',
     name: 'Koi Network',
     nativeCurrency: {
@@ -3498,7 +3499,7 @@ export const networks = {
     testnet: true
   },
   kroma: {
-    id: 255,
+    id: 255n,
     label: 'kroma',
     name: 'Kroma',
     nativeCurrency: {
@@ -3516,7 +3517,7 @@ export const networks = {
     testnet: false
   },
   kromaSepolia: {
-    id: 2358,
+    id: 2358n,
     label: 'kromaSepolia',
     name: 'Kroma Sepolia',
     nativeCurrency: {
@@ -3534,7 +3535,7 @@ export const networks = {
     testnet: true
   },
   l3x: {
-    id: 12324,
+    id: 12324n,
     label: 'l3x',
     name: 'L3X Protocol',
     nativeCurrency: {
@@ -3552,7 +3553,7 @@ export const networks = {
     testnet: false
   },
   l3xTestnet: {
-    id: 12325,
+    id: 12325n,
     label: 'l3xTestnet',
     name: 'L3X Protocol Testnet',
     nativeCurrency: {
@@ -3570,7 +3571,7 @@ export const networks = {
     testnet: true
   },
   lightlinkPegasus: {
-    id: 1891,
+    id: 1891n,
     label: 'lightlinkPegasus',
     name: 'LightLink Pegasus Testnet',
     nativeCurrency: {
@@ -3587,7 +3588,7 @@ export const networks = {
     testnet: true
   },
   lightlinkPhoenix: {
-    id: 1890,
+    id: 1890n,
     label: 'lightlinkPhoenix',
     name: 'LightLink Phoenix Mainnet',
     nativeCurrency: {
@@ -3604,7 +3605,7 @@ export const networks = {
     testnet: false
   },
   linea: {
-    id: 59144,
+    id: 59144n,
     label: 'linea',
     name: 'Linea Mainnet',
     nativeCurrency: {
@@ -3627,7 +3628,7 @@ export const networks = {
     testnet: false
   },
   lineaGoerli: {
-    id: 59140,
+    id: 59140n,
     label: 'lineaGoerli',
     name: 'Linea Goerli Testnet',
     nativeCurrency: {
@@ -3650,7 +3651,7 @@ export const networks = {
     testnet: true
   },
   lineaSepolia: {
-    id: 59141,
+    id: 59141n,
     label: 'lineaSepolia',
     name: 'Linea Sepolia Testnet',
     nativeCurrency: {
@@ -3673,7 +3674,7 @@ export const networks = {
     testnet: true
   },
   lineaTestnet: {
-    id: 59140,
+    id: 59140n,
     label: 'lineaTestnet',
     name: 'Linea Goerli Testnet',
     nativeCurrency: {
@@ -3696,7 +3697,7 @@ export const networks = {
     testnet: true
   },
   lisk: {
-    id: 1135,
+    id: 1135n,
     label: 'lisk',
     name: 'Lisk',
     nativeCurrency: {
@@ -3718,7 +3719,7 @@ export const networks = {
     testnet: false
   },
   liskSepolia: {
-    id: 4202,
+    id: 4202n,
     label: 'liskSepolia',
     name: 'Lisk Sepolia',
     nativeCurrency: {
@@ -3773,7 +3774,7 @@ export const networks = {
     testnet: true
   },
   localhost: {
-    id: 1337,
+    id: 1337n,
     label: 'localhost',
     name: 'Localhost',
     nativeCurrency: {
@@ -3787,7 +3788,7 @@ export const networks = {
     testnet: true
   },
   lukso: {
-    id: 42,
+    id: 42n,
     label: 'lukso',
     name: 'LUKSO',
     nativeCurrency: {
@@ -3810,7 +3811,7 @@ export const networks = {
     testnet: false
   },
   luksoTestnet: {
-    id: 4201,
+    id: 4201n,
     label: 'luksoTestnet',
     name: 'LUKSO Testnet',
     nativeCurrency: {
@@ -3833,7 +3834,7 @@ export const networks = {
     testnet: true
   },
   lycan: {
-    id: 721,
+    id: 721n,
     label: 'lycan',
     name: 'Lycan',
     nativeCurrency: {
@@ -3850,7 +3851,7 @@ export const networks = {
     testnet: false
   },
   lyra: {
-    id: 957,
+    id: 957n,
     label: 'lyra',
     name: 'Lyra Chain',
     nativeCurrency: {
@@ -3873,7 +3874,7 @@ export const networks = {
     testnet: false
   },
   mainnet: {
-    id: 1,
+    id: 1n,
     label: 'mainnet',
     name: 'Ethereum',
     nativeCurrency: {
@@ -3903,7 +3904,7 @@ export const networks = {
     testnet: false
   },
   mandala: {
-    id: 595,
+    id: 595n,
     label: 'mandala',
     name: 'Mandala TC9',
     nativeCurrency: {
@@ -3921,7 +3922,7 @@ export const networks = {
     testnet: true
   },
   manta: {
-    id: 169,
+    id: 169n,
     label: 'manta',
     name: 'Manta Pacific Mainnet',
     nativeCurrency: {
@@ -3944,7 +3945,7 @@ export const networks = {
     testnet: false
   },
   mantaSepoliaTestnet: {
-    id: 3441006,
+    id: 3441006n,
     label: 'mantaSepoliaTestnet',
     name: 'Manta Pacific Sepolia Testnet',
     nativeCurrency: {
@@ -3967,7 +3968,7 @@ export const networks = {
     testnet: true
   },
   mantaTestnet: {
-    id: 3441005,
+    id: 3441005n,
     label: 'mantaTestnet',
     name: 'Manta Pacific Testnet',
     nativeCurrency: {
@@ -3990,7 +3991,7 @@ export const networks = {
     testnet: true
   },
   mantle: {
-    id: 5000,
+    id: 5000n,
     label: 'mantle',
     name: 'Mantle',
     nativeCurrency: {
@@ -4013,7 +4014,7 @@ export const networks = {
     testnet: false
   },
   mantleSepoliaTestnet: {
-    id: 5003,
+    id: 5003n,
     label: 'mantleSepoliaTestnet',
     name: 'Mantle Sepolia Testnet',
     nativeCurrency: {
@@ -4036,7 +4037,7 @@ export const networks = {
     testnet: true
   },
   mantleTestnet: {
-    id: 5001,
+    id: 5001n,
     label: 'mantleTestnet',
     name: 'Mantle Testnet',
     nativeCurrency: {
@@ -4059,7 +4060,7 @@ export const networks = {
     testnet: true
   },
   merlin: {
-    id: 4200,
+    id: 4200n,
     label: 'merlin',
     name: 'Merlin',
     nativeCurrency: {
@@ -4077,7 +4078,7 @@ export const networks = {
     testnet: false
   },
   metachain: {
-    id: 571,
+    id: 571n,
     label: 'metachain',
     name: 'MetaChain Mainnet',
     nativeCurrency: {
@@ -4099,7 +4100,7 @@ export const networks = {
     testnet: false
   },
   metachainIstanbul: {
-    id: 1453,
+    id: 1453n,
     label: 'metachainIstanbul',
     name: 'MetaChain Istanbul',
     nativeCurrency: {
@@ -4121,7 +4122,7 @@ export const networks = {
     testnet: true
   },
   metalL2: {
-    id: 1750,
+    id: 1750n,
     label: 'metalL2',
     name: 'Metal L2',
     nativeCurrency: {
@@ -4177,7 +4178,7 @@ export const networks = {
     testnet: false
   },
   meter: {
-    id: 82,
+    id: 82n,
     label: 'meter',
     name: 'Meter',
     nativeCurrency: {
@@ -4194,7 +4195,7 @@ export const networks = {
     testnet: false
   },
   meterTestnet: {
-    id: 83,
+    id: 83n,
     label: 'meterTestnet',
     name: 'Meter Testnet',
     nativeCurrency: {
@@ -4211,7 +4212,7 @@ export const networks = {
     testnet: false
   },
   metis: {
-    id: 1088,
+    id: 1088n,
     label: 'metis',
     name: 'Metis',
     nativeCurrency: {
@@ -4223,7 +4224,7 @@ export const networks = {
     blockExplorer: {
       name: 'Metis Explorer',
       url: 'https://explorer.metis.io',
-      apiUrl: 'https://api.routescan.io/v2/network/mainnet/evm/43114/etherscan/api'
+      apiUrl: 'https://api.routescan.io/v2/network/mainnet/evm/1088/etherscan/api'
     },
     contracts: {
       multicall3: {
@@ -4234,7 +4235,7 @@ export const networks = {
     testnet: false
   },
   metisGoerli: {
-    id: 599,
+    id: 599n,
     label: 'metisGoerli',
     name: 'Metis Goerli',
     nativeCurrency: {
@@ -4257,7 +4258,7 @@ export const networks = {
     testnet: false
   },
   mev: {
-    id: 7518,
+    id: 7518n,
     label: 'mev',
     name: 'MEVerse Chain Mainnet',
     nativeCurrency: {
@@ -4279,7 +4280,7 @@ export const networks = {
     testnet: false
   },
   mevTestnet: {
-    id: 4759,
+    id: 4759n,
     label: 'mevTestnet',
     name: 'MEVerse Chain Testnet',
     nativeCurrency: {
@@ -4301,7 +4302,7 @@ export const networks = {
     testnet: true
   },
   mintSepoliaTestnet: {
-    id: 1686,
+    id: 1686n,
     label: 'mintSepoliaTestnet',
     name: 'Mint Sepolia Testnet',
     nativeCurrency: {
@@ -4318,7 +4319,7 @@ export const networks = {
     testnet: true
   },
   mode: {
-    id: 34443,
+    id: 34443n,
     label: 'mode',
     name: 'Mode Mainnet',
     nativeCurrency: {
@@ -4355,7 +4356,7 @@ export const networks = {
     testnet: false
   },
   modeTestnet: {
-    id: 919,
+    id: 919n,
     label: 'modeTestnet',
     name: 'Mode Testnet',
     nativeCurrency: {
@@ -4414,7 +4415,7 @@ export const networks = {
     testnet: true
   },
   moonbaseAlpha: {
-    id: 1287,
+    id: 1287n,
     label: 'moonbaseAlpha',
     name: 'Moonbase Alpha',
     nativeCurrency: {
@@ -4437,7 +4438,7 @@ export const networks = {
     testnet: true
   },
   moonbeam: {
-    id: 1284,
+    id: 1284n,
     label: 'moonbeam',
     name: 'Moonbeam',
     nativeCurrency: {
@@ -4460,7 +4461,7 @@ export const networks = {
     testnet: false
   },
   moonbeamDev: {
-    id: 1281,
+    id: 1281n,
     label: 'moonbeamDev',
     name: 'Moonbeam Development Node',
     nativeCurrency: {
@@ -4474,7 +4475,7 @@ export const networks = {
     testnet: false
   },
   moonriver: {
-    id: 1285,
+    id: 1285n,
     label: 'moonriver',
     name: 'Moonriver',
     nativeCurrency: {
@@ -4497,7 +4498,7 @@ export const networks = {
     testnet: false
   },
   morphHolesky: {
-    id: 2810,
+    id: 2810n,
     label: 'morphHolesky',
     name: 'Morph Holesky',
     nativeCurrency: {
@@ -4515,7 +4516,7 @@ export const networks = {
     testnet: true
   },
   morphSepolia: {
-    id: 2710,
+    id: 2710n,
     label: 'morphSepolia',
     name: 'Morph Sepolia',
     nativeCurrency: {
@@ -4533,7 +4534,7 @@ export const networks = {
     testnet: true
   },
   nautilus: {
-    id: 22222,
+    id: 22222n,
     label: 'nautilus',
     name: 'Nautilus Mainnet',
     nativeCurrency: {
@@ -4550,7 +4551,7 @@ export const networks = {
     testnet: false
   },
   neonDevnet: {
-    id: 245022926,
+    id: 245022926n,
     label: 'neonDevnet',
     name: 'Neon EVM DevNet',
     nativeCurrency: {
@@ -4572,7 +4573,7 @@ export const networks = {
     testnet: true
   },
   neonMainnet: {
-    id: 245022934,
+    id: 245022934n,
     label: 'neonMainnet',
     name: 'Neon EVM MainNet',
     nativeCurrency: {
@@ -4594,7 +4595,7 @@ export const networks = {
     testnet: false
   },
   nexi: {
-    id: 4242,
+    id: 4242n,
     label: 'nexi',
     name: 'Nexi',
     nativeCurrency: {
@@ -4617,7 +4618,7 @@ export const networks = {
     testnet: false
   },
   nexilix: {
-    id: 240,
+    id: 240n,
     label: 'nexilix',
     name: 'Nexilix Smart Chain',
     nativeCurrency: {
@@ -4639,7 +4640,7 @@ export const networks = {
     testnet: false
   },
   oasisTestnet: {
-    id: 4090,
+    id: 4090n,
     label: 'oasisTestnet',
     name: 'Oasis Testnet',
     nativeCurrency: {
@@ -4657,7 +4658,7 @@ export const networks = {
     testnet: true
   },
   oasys: {
-    id: 248,
+    id: 248n,
     label: 'oasys',
     name: 'Oasys',
     nativeCurrency: {
@@ -4675,7 +4676,7 @@ export const networks = {
     testnet: false
   },
   okc: {
-    id: 66,
+    id: 66n,
     label: 'okc',
     name: 'OKC',
     nativeCurrency: {
@@ -4697,7 +4698,7 @@ export const networks = {
     testnet: false
   },
   oortMainnetDev: {
-    id: 9700,
+    id: 9700n,
     label: 'oortMainnetDev',
     name: 'OORT MainnetDev',
     nativeCurrency: {
@@ -4714,7 +4715,7 @@ export const networks = {
     testnet: false
   },
   opBNB: {
-    id: 204,
+    id: 204n,
     label: 'opBNB',
     name: 'opBNB',
     nativeCurrency: {
@@ -4736,7 +4737,7 @@ export const networks = {
     testnet: false
   },
   opBNBTestnet: {
-    id: 5611,
+    id: 5611n,
     label: 'opBNBTestnet',
     name: 'opBNB Testnet',
     nativeCurrency: {
@@ -4758,7 +4759,7 @@ export const networks = {
     testnet: true
   },
   optimism: {
-    id: 10,
+    id: 10n,
     label: 'optimism',
     name: 'OP Mainnet',
     nativeCurrency: {
@@ -4819,7 +4820,7 @@ export const networks = {
     testnet: false
   },
   optimismGoerli: {
-    id: 420,
+    id: 420n,
     label: 'optimismGoerli',
     name: 'Optimism Goerli',
     nativeCurrency: {
@@ -4875,7 +4876,7 @@ export const networks = {
     testnet: true
   },
   optimismSepolia: {
-    id: 11155420,
+    id: 11155420n,
     label: 'optimismSepolia',
     name: 'OP Sepolia',
     nativeCurrency: {
@@ -4936,7 +4937,7 @@ export const networks = {
     testnet: true
   },
   otimDevnet: {
-    id: 41144114,
+    id: 41144114n,
     label: 'otimDevnet',
     name: 'Otim Devnet',
     nativeCurrency: {
@@ -4954,7 +4955,7 @@ export const networks = {
     testnet: false
   },
   palm: {
-    id: 11297108109,
+    id: 11297108109n,
     label: 'palm',
     name: 'Palm',
     nativeCurrency: {
@@ -4976,7 +4977,7 @@ export const networks = {
     testnet: false
   },
   palmTestnet: {
-    id: 11297108099,
+    id: 11297108099n,
     label: 'palmTestnet',
     name: 'Palm Testnet',
     nativeCurrency: {
@@ -4998,7 +4999,7 @@ export const networks = {
     testnet: true
   },
   pgn: {
-    id: 424,
+    id: 424n,
     label: 'pgn',
     name: 'PGN',
     nativeCurrency: {
@@ -5036,7 +5037,7 @@ export const networks = {
     testnet: false
   },
   pgnTestnet: {
-    id: 58008,
+    id: 58008n,
     label: 'pgnTestnet',
     name: 'PGN ',
     nativeCurrency: {
@@ -5074,7 +5075,7 @@ export const networks = {
     testnet: true
   },
   phoenix: {
-    id: 13381,
+    id: 13381n,
     label: 'phoenix',
     name: 'Phoenix Blockchain',
     nativeCurrency: {
@@ -5097,7 +5098,7 @@ export const networks = {
     testnet: false
   },
   playfiAlbireo: {
-    id: 1612127,
+    id: 1612127n,
     label: 'playfiAlbireo',
     name: 'PlayFi Albireo Testnet',
     nativeCurrency: {
@@ -5118,7 +5119,7 @@ export const networks = {
     testnet: true
   },
   plinga: {
-    id: 242,
+    id: 242n,
     label: 'plinga',
     name: 'Plinga',
     nativeCurrency: {
@@ -5140,7 +5141,7 @@ export const networks = {
     testnet: false
   },
   plumeTestnet: {
-    id: 161221135,
+    id: 161221135n,
     label: 'plumeTestnet',
     name: 'Plume Testnet',
     nativeCurrency: {
@@ -5158,12 +5159,12 @@ export const networks = {
     testnet: true
   },
   polygon: {
-    id: 137,
+    id: 137n,
     label: 'polygon',
     name: 'Polygon',
     nativeCurrency: {
-      name: 'MATIC',
-      symbol: 'MATIC',
+      name: 'POL',
+      symbol: 'POL',
       decimals: 18
     },
     providerURL: 'https://polygon-rpc.com',
@@ -5181,7 +5182,7 @@ export const networks = {
     testnet: false
   },
   polygonAmoy: {
-    id: 80002,
+    id: 80002n,
     label: 'polygonAmoy',
     name: 'Polygon Amoy',
     nativeCurrency: {
@@ -5204,7 +5205,7 @@ export const networks = {
     testnet: true
   },
   polygonMumbai: {
-    id: 80001,
+    id: 80001n,
     label: 'polygonMumbai',
     name: 'Polygon Mumbai',
     nativeCurrency: {
@@ -5227,7 +5228,7 @@ export const networks = {
     testnet: true
   },
   polygonZkEvm: {
-    id: 1101,
+    id: 1101n,
     label: 'polygonZkEvm',
     name: 'Polygon zkEVM',
     nativeCurrency: {
@@ -5250,7 +5251,7 @@ export const networks = {
     testnet: false
   },
   polygonZkEvmCardona: {
-    id: 2442,
+    id: 2442n,
     label: 'polygonZkEvmCardona',
     name: 'Polygon zkEVM Cardona',
     nativeCurrency: {
@@ -5273,7 +5274,7 @@ export const networks = {
     testnet: true
   },
   polygonZkEvmTestnet: {
-    id: 1442,
+    id: 1442n,
     label: 'polygonZkEvmTestnet',
     name: 'Polygon zkEVM Testnet',
     nativeCurrency: {
@@ -5296,7 +5297,7 @@ export const networks = {
     testnet: true
   },
   pulsechain: {
-    id: 369,
+    id: 369n,
     label: 'pulsechain',
     name: 'PulseChain',
     nativeCurrency: {
@@ -5322,7 +5323,7 @@ export const networks = {
     testnet: false
   },
   pulsechainV4: {
-    id: 943,
+    id: 943n,
     label: 'pulsechainV4',
     name: 'PulseChain V4',
     nativeCurrency: {
@@ -5348,7 +5349,7 @@ export const networks = {
     testnet: true
   },
   qMainnet: {
-    id: 35441,
+    id: 35441n,
     label: 'qMainnet',
     name: 'Q Mainnet',
     nativeCurrency: {
@@ -5366,7 +5367,7 @@ export const networks = {
     testnet: false
   },
   qTestnet: {
-    id: 35443,
+    id: 35443n,
     label: 'qTestnet',
     name: 'Q Testnet',
     nativeCurrency: {
@@ -5384,7 +5385,7 @@ export const networks = {
     testnet: true
   },
   real: {
-    id: 111188,
+    id: 111188n,
     label: 'real',
     name: 're.al',
     nativeCurrency: {
@@ -5407,7 +5408,7 @@ export const networks = {
     testnet: false
   },
   redbellyTestnet: {
-    id: 153,
+    id: 153n,
     label: 'redbellyTestnet',
     name: 'Redbelly Network Testnet',
     nativeCurrency: {
@@ -5425,7 +5426,7 @@ export const networks = {
     testnet: true
   },
   redstone: {
-    id: 690,
+    id: 690n,
     label: 'redstone',
     name: 'Redstone',
     nativeCurrency: {
@@ -5442,7 +5443,7 @@ export const networks = {
     testnet: false
   },
   reyaNetwork: {
-    id: 1729,
+    id: 1729n,
     label: 'reyaNetwork',
     name: 'Reya Network',
     nativeCurrency: {
@@ -5459,7 +5460,7 @@ export const networks = {
     testnet: false
   },
   rollux: {
-    id: 570,
+    id: 570n,
     label: 'rollux',
     name: 'Rollux Mainnet',
     nativeCurrency: {
@@ -5482,7 +5483,7 @@ export const networks = {
     testnet: false
   },
   rolluxTestnet: {
-    id: 57000,
+    id: 57000n,
     label: 'rolluxTestnet',
     name: 'Rollux Testnet',
     nativeCurrency: {
@@ -5505,7 +5506,7 @@ export const networks = {
     testnet: false
   },
   ronin: {
-    id: 2020,
+    id: 2020n,
     label: 'ronin',
     name: 'Ronin',
     nativeCurrency: {
@@ -5527,7 +5528,7 @@ export const networks = {
     testnet: false
   },
   root: {
-    id: 7668,
+    id: 7668n,
     label: 'root',
     name: 'The Root Network',
     nativeCurrency: {
@@ -5549,7 +5550,7 @@ export const networks = {
     testnet: false
   },
   rootPorcini: {
-    id: 7672,
+    id: 7672n,
     label: 'rootPorcini',
     name: 'The Root Network - Porcini',
     nativeCurrency: {
@@ -5571,7 +5572,7 @@ export const networks = {
     testnet: true
   },
   rootstock: {
-    id: 30,
+    id: 30n,
     label: 'rootstock',
     name: 'Rootstock Mainnet',
     nativeCurrency: {
@@ -5593,7 +5594,7 @@ export const networks = {
     testnet: false
   },
   rootstockTestnet: {
-    id: 31,
+    id: 31n,
     label: 'rootstockTestnet',
     name: 'Rootstock Testnet',
     nativeCurrency: {
@@ -5610,7 +5611,7 @@ export const networks = {
     testnet: true
   },
   rss3: {
-    id: 12553,
+    id: 12553n,
     label: 'rss3',
     name: 'RSS3 VSL Mainnet',
     nativeCurrency: {
@@ -5667,7 +5668,7 @@ export const networks = {
     testnet: false
   },
   rss3Sepolia: {
-    id: 2331,
+    id: 2331n,
     label: 'rss3Sepolia',
     name: 'RSS3 VSL Sepolia Testnet',
     nativeCurrency: {
@@ -5724,7 +5725,7 @@ export const networks = {
     testnet: true
   },
   saigon: {
-    id: 2021,
+    id: 2021n,
     label: 'saigon',
     name: 'Saigon Testnet',
     nativeCurrency: {
@@ -5746,7 +5747,7 @@ export const networks = {
     testnet: true
   },
   sapphire: {
-    id: 23294,
+    id: 23294n,
     label: 'sapphire',
     name: 'Oasis Sapphire',
     nativeCurrency: {
@@ -5768,7 +5769,7 @@ export const networks = {
     testnet: false
   },
   sapphireTestnet: {
-    id: 23295,
+    id: 23295n,
     label: 'sapphireTestnet',
     name: 'Oasis Sapphire Testnet',
     nativeCurrency: {
@@ -5785,7 +5786,7 @@ export const networks = {
     testnet: true
   },
   satoshiVM: {
-    id: 3109,
+    id: 3109n,
     label: 'satoshiVM',
     name: 'SatoshiVM Alpha Mainnet',
     nativeCurrency: {
@@ -5803,7 +5804,7 @@ export const networks = {
     testnet: false
   },
   satoshiVMTestnet: {
-    id: 3110,
+    id: 3110n,
     label: 'satoshiVMTestnet',
     name: 'SatoshiVM Testnet',
     nativeCurrency: {
@@ -5821,7 +5822,7 @@ export const networks = {
     testnet: true
   },
   scroll: {
-    id: 534352,
+    id: 534352n,
     label: 'scroll',
     name: 'Scroll',
     nativeCurrency: {
@@ -5844,7 +5845,7 @@ export const networks = {
     testnet: false
   },
   scrollSepolia: {
-    id: 534351,
+    id: 534351n,
     label: 'scrollSepolia',
     name: 'Scroll Sepolia',
     nativeCurrency: {
@@ -5867,7 +5868,7 @@ export const networks = {
     testnet: true
   },
   sei: {
-    id: 1329,
+    id: 1329n,
     label: 'sei',
     name: 'Sei Network',
     nativeCurrency: {
@@ -5889,7 +5890,7 @@ export const networks = {
     testnet: false
   },
   seiDevnet: {
-    id: 713715,
+    id: 713715n,
     label: 'seiDevnet',
     name: 'Sei Devnet',
     nativeCurrency: {
@@ -5906,7 +5907,7 @@ export const networks = {
     testnet: true
   },
   seiTestnet: {
-    id: 1328,
+    id: 1328n,
     label: 'seiTestnet',
     name: 'Sei Testnet',
     nativeCurrency: {
@@ -5923,7 +5924,7 @@ export const networks = {
     testnet: true
   },
   sepolia: {
-    id: 11155111,
+    id: 11155111n,
     label: 'sepolia',
     name: 'Sepolia',
     nativeCurrency: {
@@ -5953,7 +5954,7 @@ export const networks = {
     testnet: true
   },
   shapeSepolia: {
-    id: 11011,
+    id: 11011n,
     label: 'shapeSepolia',
     name: 'Shape Sepolia Testnet',
     nativeCurrency: {
@@ -5971,7 +5972,7 @@ export const networks = {
     testnet: false
   },
   shardeumSphinx: {
-    id: 8082,
+    id: 8082n,
     label: 'shardeumSphinx',
     name: 'Shardeum Sphinx',
     nativeCurrency: {
@@ -5988,7 +5989,7 @@ export const networks = {
     testnet: true
   },
   shibarium: {
-    id: 109,
+    id: 109n,
     label: 'shibarium',
     name: 'Shibarium',
     nativeCurrency: {
@@ -6010,7 +6011,7 @@ export const networks = {
     testnet: false
   },
   shibariumTestnet: {
-    id: 157,
+    id: 157n,
     label: 'shibariumTestnet',
     name: 'Puppynet Shibarium',
     nativeCurrency: {
@@ -6033,7 +6034,7 @@ export const networks = {
     testnet: true
   },
   shimmer: {
-    id: 148,
+    id: 148n,
     label: 'shimmer',
     name: 'Shimmer',
     nativeCurrency: {
@@ -6051,7 +6052,7 @@ export const networks = {
     testnet: false
   },
   shimmerTestnet: {
-    id: 1073,
+    id: 1073n,
     label: 'shimmerTestnet',
     name: 'Shimmer Testnet',
     nativeCurrency: {
@@ -6069,7 +6070,7 @@ export const networks = {
     testnet: true
   },
   skaleBlockBrawlers: {
-    id: 391845894,
+    id: 391845894n,
     label: 'skaleBlockBrawlers',
     name: 'SKALE | Block Brawlers',
     nativeCurrency: {
@@ -6086,7 +6087,7 @@ export const networks = {
     testnet: false
   },
   skaleCalypso: {
-    id: 1564830818,
+    id: 1564830818n,
     label: 'skaleCalypso',
     name: 'SKALE | Calypso NFT Hub',
     nativeCurrency: {
@@ -6108,7 +6109,7 @@ export const networks = {
     testnet: false
   },
   skaleCalypsoTestnet: {
-    id: 974399131,
+    id: 974399131n,
     label: 'skaleCalypsoTestnet',
     name: 'SKALE Calypso Testnet',
     nativeCurrency: {
@@ -6130,7 +6131,7 @@ export const networks = {
     testnet: true
   },
   skaleCryptoBlades: {
-    id: 1026062157,
+    id: 1026062157n,
     label: 'skaleCryptoBlades',
     name: 'SKALE | CryptoBlades',
     nativeCurrency: {
@@ -6147,7 +6148,7 @@ export const networks = {
     testnet: false
   },
   skaleCryptoColosseum: {
-    id: 1032942172,
+    id: 1032942172n,
     label: 'skaleCryptoColosseum',
     name: 'SKALE | Crypto Colosseum',
     nativeCurrency: {
@@ -6164,7 +6165,7 @@ export const networks = {
     testnet: false
   },
   skaleEuropa: {
-    id: 2046399126,
+    id: 2046399126n,
     label: 'skaleEuropa',
     name: 'SKALE | Europa Liquidity Hub',
     nativeCurrency: {
@@ -6186,7 +6187,7 @@ export const networks = {
     testnet: false
   },
   skaleEuropaTestnet: {
-    id: 1444673419,
+    id: 1444673419n,
     label: 'skaleEuropaTestnet',
     name: 'SKALE Europa Testnet',
     nativeCurrency: {
@@ -6208,7 +6209,7 @@ export const networks = {
     testnet: true
   },
   skaleExorde: {
-    id: 2139927552,
+    id: 2139927552n,
     label: 'skaleExorde',
     name: 'SKALE | Exorde',
     nativeCurrency: {
@@ -6225,7 +6226,7 @@ export const networks = {
     testnet: false
   },
   skaleHumanProtocol: {
-    id: 1273227453,
+    id: 1273227453n,
     label: 'skaleHumanProtocol',
     name: 'SKALE | Human Protocol',
     nativeCurrency: {
@@ -6242,7 +6243,7 @@ export const networks = {
     testnet: false
   },
   skaleNebula: {
-    id: 1482601649,
+    id: 1482601649n,
     label: 'skaleNebula',
     name: 'SKALE | Nebula Gaming Hub',
     nativeCurrency: {
@@ -6264,7 +6265,7 @@ export const networks = {
     testnet: false
   },
   skaleNebulaTestnet: {
-    id: 37084624,
+    id: 37084624n,
     label: 'skaleNebulaTestnet',
     name: 'SKALE Nebula Testnet',
     nativeCurrency: {
@@ -6286,7 +6287,7 @@ export const networks = {
     testnet: true
   },
   skaleRazor: {
-    id: 278611351,
+    id: 278611351n,
     label: 'skaleRazor',
     name: 'SKALE | Razor Network',
     nativeCurrency: {
@@ -6303,7 +6304,7 @@ export const networks = {
     testnet: false
   },
   skaleTitan: {
-    id: 1350216234,
+    id: 1350216234n,
     label: 'skaleTitan',
     name: 'SKALE | Titan Community Hub',
     nativeCurrency: {
@@ -6325,7 +6326,7 @@ export const networks = {
     testnet: false
   },
   skaleTitanTestnet: {
-    id: 1020352220,
+    id: 1020352220n,
     label: 'skaleTitanTestnet',
     name: 'SKALE Titan Hub',
     nativeCurrency: {
@@ -6347,7 +6348,7 @@ export const networks = {
     testnet: true
   },
   sketchpad: {
-    id: 984123,
+    id: 984123n,
     label: 'sketchpad',
     name: 'Forma Sketchpad',
     nativeCurrency: {
@@ -6364,7 +6365,7 @@ export const networks = {
     testnet: true
   },
   soneiumMinato: {
-    id: 1946,
+    id: 1946n,
     label: 'soneiumMinato',
     name: 'Soneium Minato',
     nativeCurrency: {
@@ -6387,7 +6388,7 @@ export const networks = {
     testnet: true
   },
   songbird: {
-    id: 19,
+    id: 19n,
     label: 'songbird',
     name: 'Songbird Mainnet',
     nativeCurrency: {
@@ -6405,7 +6406,7 @@ export const networks = {
     testnet: false
   },
   songbirdTestnet: {
-    id: 16,
+    id: 16n,
     label: 'songbirdTestnet',
     name: 'Coston',
     nativeCurrency: {
@@ -6423,7 +6424,7 @@ export const networks = {
     testnet: true
   },
   sophonTestnet: {
-    id: 531050104,
+    id: 531050104n,
     label: 'sophonTestnet',
     name: 'Sophon Testnet',
     nativeCurrency: {
@@ -6445,7 +6446,7 @@ export const networks = {
     testnet: true
   },
   spicy: {
-    id: 88882,
+    id: 88882n,
     label: 'spicy',
     name: 'Chiliz Spicy Testnet',
     nativeCurrency: {
@@ -6463,7 +6464,7 @@ export const networks = {
     testnet: true
   },
   storyTestnet: {
-    id: 1513,
+    id: 1513n,
     label: 'storyTestnet',
     name: 'Story Testnet',
     nativeCurrency: {
@@ -6480,7 +6481,7 @@ export const networks = {
     testnet: true
   },
   stratis: {
-    id: 105105,
+    id: 105105n,
     label: 'stratis',
     name: 'Stratis Mainnet',
     nativeCurrency: {
@@ -6497,7 +6498,7 @@ export const networks = {
     testnet: false
   },
   syscoin: {
-    id: 57,
+    id: 57n,
     label: 'syscoin',
     name: 'Syscoin Mainnet',
     nativeCurrency: {
@@ -6520,7 +6521,7 @@ export const networks = {
     testnet: false
   },
   syscoinTestnet: {
-    id: 5700,
+    id: 5700n,
     label: 'syscoinTestnet',
     name: 'Syscoin Tanenbaum Testnet',
     nativeCurrency: {
@@ -6542,7 +6543,7 @@ export const networks = {
     testnet: false
   },
   taiko: {
-    id: 167000,
+    id: 167000n,
     label: 'taiko',
     name: 'Taiko Mainnet',
     nativeCurrency: {
@@ -6564,7 +6565,7 @@ export const networks = {
     testnet: false
   },
   taikoHekla: {
-    id: 167009,
+    id: 167009n,
     label: 'taikoHekla',
     name: 'Taiko Hekla L2',
     nativeCurrency: {
@@ -6581,7 +6582,7 @@ export const networks = {
     testnet: true
   },
   taikoJolnir: {
-    id: 167007,
+    id: 167007n,
     label: 'taikoJolnir',
     name: 'Taiko Jolnir (Alpha-5 Testnet)',
     nativeCurrency: {
@@ -6603,7 +6604,7 @@ export const networks = {
     testnet: true
   },
   taikoKatla: {
-    id: 167008,
+    id: 167008n,
     label: 'taikoKatla',
     name: 'Taiko Katla (Alpha-6 Testnet)',
     nativeCurrency: {
@@ -6620,7 +6621,7 @@ export const networks = {
     testnet: false
   },
   taikoTestnetSepolia: {
-    id: 167005,
+    id: 167005n,
     label: 'taikoTestnetSepolia',
     name: 'Taiko (Alpha-3 Testnet)',
     nativeCurrency: {
@@ -6637,7 +6638,7 @@ export const networks = {
     testnet: false
   },
   taraxa: {
-    id: 841,
+    id: 841n,
     label: 'taraxa',
     name: 'Taraxa Mainnet',
     nativeCurrency: {
@@ -6654,7 +6655,7 @@ export const networks = {
     testnet: false
   },
   taraxaTestnet: {
-    id: 842,
+    id: 842n,
     label: 'taraxaTestnet',
     name: 'Taraxa Testnet',
     nativeCurrency: {
@@ -6671,7 +6672,7 @@ export const networks = {
     testnet: true
   },
   telcoinTestnet: {
-    id: 2017,
+    id: 2017n,
     label: 'telcoinTestnet',
     name: 'Telcoin Adiri Testnet',
     nativeCurrency: {
@@ -6688,7 +6689,7 @@ export const networks = {
     testnet: true
   },
   telos: {
-    id: 40,
+    id: 40n,
     label: 'telos',
     name: 'Telos',
     nativeCurrency: {
@@ -6710,7 +6711,7 @@ export const networks = {
     testnet: false
   },
   telosTestnet: {
-    id: 41,
+    id: 41n,
     label: 'telosTestnet',
     name: 'Telos',
     nativeCurrency: {
@@ -6727,7 +6728,7 @@ export const networks = {
     testnet: true
   },
   tenet: {
-    id: 1559,
+    id: 1559n,
     label: 'tenet',
     name: 'Tenet',
     nativeCurrency: {
@@ -6745,7 +6746,7 @@ export const networks = {
     testnet: false
   },
   thaiChain: {
-    id: 7,
+    id: 7n,
     label: 'thaiChain',
     name: 'ThaiChain',
     nativeCurrency: {
@@ -6768,7 +6769,7 @@ export const networks = {
     testnet: false
   },
   thunderTestnet: {
-    id: 997,
+    id: 997n,
     label: 'thunderTestnet',
     name: '5ireChain Thunder Testnet',
     nativeCurrency: {
@@ -6785,7 +6786,7 @@ export const networks = {
     testnet: true
   },
   tron: {
-    id: 728126428,
+    id: 728126428n,
     label: 'tron',
     name: 'Tron',
     nativeCurrency: {
@@ -6803,7 +6804,7 @@ export const networks = {
     testnet: false
   },
   unreal: {
-    id: 18233,
+    id: 18233n,
     label: 'unreal',
     name: 'Unreal',
     nativeCurrency: {
@@ -6826,7 +6827,7 @@ export const networks = {
     testnet: true
   },
   vechain: {
-    id: 100009,
+    id: 100009n,
     label: 'vechain',
     name: 'Vechain',
     nativeCurrency: {
@@ -6843,7 +6844,7 @@ export const networks = {
     testnet: false
   },
   wanchain: {
-    id: 888,
+    id: 888n,
     label: 'wanchain',
     name: 'Wanchain',
     nativeCurrency: {
@@ -6865,7 +6866,7 @@ export const networks = {
     testnet: false
   },
   wanchainTestnet: {
-    id: 999,
+    id: 999n,
     label: 'wanchainTestnet',
     name: 'Wanchain Testnet',
     nativeCurrency: {
@@ -6887,7 +6888,7 @@ export const networks = {
     testnet: true
   },
   wemix: {
-    id: 1111,
+    id: 1111n,
     label: 'wemix',
     name: 'WEMIX',
     nativeCurrency: {
@@ -6904,7 +6905,7 @@ export const networks = {
     testnet: false
   },
   wemixTestnet: {
-    id: 1112,
+    id: 1112n,
     label: 'wemixTestnet',
     name: 'WEMIX Testnet',
     nativeCurrency: {
@@ -6922,7 +6923,7 @@ export const networks = {
     testnet: true
   },
   x1Testnet: {
-    id: 195,
+    id: 195n,
     label: 'x1Testnet',
     name: 'X1 Testnet',
     nativeCurrency: {
@@ -6944,7 +6945,7 @@ export const networks = {
     testnet: true
   },
   xLayer: {
-    id: 196,
+    id: 196n,
     label: 'xLayer',
     name: 'X Layer Mainnet',
     nativeCurrency: {
@@ -6966,7 +6967,7 @@ export const networks = {
     testnet: false
   },
   xLayerTestnet: {
-    id: 195,
+    id: 195n,
     label: 'xLayerTestnet',
     name: 'X1 Testnet',
     nativeCurrency: {
@@ -6988,7 +6989,7 @@ export const networks = {
     testnet: true
   },
   xai: {
-    id: 660279,
+    id: 660279n,
     label: 'xai',
     name: 'Xai Mainnet',
     nativeCurrency: {
@@ -7010,7 +7011,7 @@ export const networks = {
     testnet: false
   },
   xaiTestnet: {
-    id: 37714555429,
+    id: 37714555429n,
     label: 'xaiTestnet',
     name: 'Xai Testnet',
     nativeCurrency: {
@@ -7027,7 +7028,7 @@ export const networks = {
     testnet: true
   },
   xdc: {
-    id: 50,
+    id: 50n,
     label: 'xdc',
     name: 'XinFin Network',
     nativeCurrency: {
@@ -7049,7 +7050,7 @@ export const networks = {
     testnet: false
   },
   xdcTestnet: {
-    id: 51,
+    id: 51n,
     label: 'xdcTestnet',
     name: 'Apothem Network',
     nativeCurrency: {
@@ -7071,7 +7072,7 @@ export const networks = {
     testnet: false
   },
   xrSepolia: {
-    id: 2730,
+    id: 2730n,
     label: 'xrSepolia',
     name: 'XR Sepolia',
     nativeCurrency: {
@@ -7088,7 +7089,7 @@ export const networks = {
     testnet: true
   },
   yooldoVerse: {
-    id: 50005,
+    id: 50005n,
     label: 'yooldoVerse',
     name: 'Yooldo Verse',
     nativeCurrency: {
@@ -7105,7 +7106,7 @@ export const networks = {
     testnet: false
   },
   yooldoVerseTestnet: {
-    id: 50006,
+    id: 50006n,
     label: 'yooldoVerseTestnet',
     name: 'Yooldo Verse Testnet',
     nativeCurrency: {
@@ -7122,7 +7123,7 @@ export const networks = {
     testnet: true
   },
   zetachain: {
-    id: 7000,
+    id: 7000n,
     label: 'zetachain',
     name: 'ZetaChain',
     nativeCurrency: {
@@ -7144,7 +7145,7 @@ export const networks = {
     testnet: false
   },
   zetachainAthensTestnet: {
-    id: 7001,
+    id: 7001n,
     label: 'zetachainAthensTestnet',
     name: 'ZetaChain Athens Testnet',
     nativeCurrency: {
@@ -7166,7 +7167,7 @@ export const networks = {
     testnet: true
   },
   zhejiang: {
-    id: 1337803,
+    id: 1337803n,
     label: 'zhejiang',
     name: 'Zhejiang',
     nativeCurrency: {
@@ -7183,7 +7184,7 @@ export const networks = {
     testnet: true
   },
   zilliqa: {
-    id: 32769,
+    id: 32769n,
     label: 'zilliqa',
     name: 'Zilliqa',
     nativeCurrency: {
@@ -7200,7 +7201,7 @@ export const networks = {
     testnet: false
   },
   zilliqaTestnet: {
-    id: 33101,
+    id: 33101n,
     label: 'zilliqaTestnet',
     name: 'Zilliqa Testnet',
     nativeCurrency: {
@@ -7217,7 +7218,7 @@ export const networks = {
     testnet: true
   },
   zircuitTestnet: {
-    id: 48899,
+    id: 48899n,
     label: 'zircuitTestnet',
     name: 'Zircuit Testnet',
     nativeCurrency: {
@@ -7239,7 +7240,7 @@ export const networks = {
     testnet: false
   },
   zkFair: {
-    id: 42766,
+    id: 42766n,
     label: 'zkFair',
     name: 'ZKFair Mainnet',
     nativeCurrency: {
@@ -7262,7 +7263,7 @@ export const networks = {
     testnet: false
   },
   zkFairTestnet: {
-    id: 43851,
+    id: 43851n,
     label: 'zkFairTestnet',
     name: 'ZKFair Testnet',
     nativeCurrency: {
@@ -7279,7 +7280,7 @@ export const networks = {
     testnet: true
   },
   zkLinkNova: {
-    id: 810180,
+    id: 810180n,
     label: 'zkLinkNova',
     name: 'zkLink Nova',
     nativeCurrency: {
@@ -7296,7 +7297,7 @@ export const networks = {
     testnet: false
   },
   zkLinkNovaSepoliaTestnet: {
-    id: 810181,
+    id: 810181n,
     label: 'zkLinkNovaSepoliaTestnet',
     name: 'zkLink Nova Sepolia Testnet',
     nativeCurrency: {
@@ -7313,7 +7314,7 @@ export const networks = {
     testnet: false
   },
   zkSync: {
-    id: 324,
+    id: 324n,
     label: 'zkSync',
     name: 'ZKsync Era',
     nativeCurrency: {
@@ -7335,7 +7336,7 @@ export const networks = {
     testnet: false
   },
   zkSyncInMemoryNode: {
-    id: 260,
+    id: 260n,
     label: 'zkSyncInMemoryNode',
     name: 'ZKsync InMemory Node',
     nativeCurrency: {
@@ -7349,7 +7350,7 @@ export const networks = {
     testnet: true
   },
   zkSyncLocalNode: {
-    id: 270,
+    id: 270n,
     label: 'zkSyncLocalNode',
     name: 'ZKsync CLI Local Node',
     nativeCurrency: {
@@ -7363,7 +7364,7 @@ export const networks = {
     testnet: true
   },
   zkSyncSepoliaTestnet: {
-    id: 300,
+    id: 300n,
     label: 'zkSyncSepoliaTestnet',
     name: 'ZKsync Sepolia Testnet',
     nativeCurrency: {
@@ -7385,7 +7386,7 @@ export const networks = {
     testnet: true
   },
   zksync: {
-    id: 324,
+    id: 324n,
     label: 'zksync',
     name: 'ZKsync Era',
     nativeCurrency: {
@@ -7407,7 +7408,7 @@ export const networks = {
     testnet: false
   },
   zksyncInMemoryNode: {
-    id: 260,
+    id: 260n,
     label: 'zksyncInMemoryNode',
     name: 'ZKsync InMemory Node',
     nativeCurrency: {
@@ -7421,7 +7422,7 @@ export const networks = {
     testnet: true
   },
   zksyncLocalNode: {
-    id: 270,
+    id: 270n,
     label: 'zksyncLocalNode',
     name: 'ZKsync CLI Local Node',
     nativeCurrency: {
@@ -7435,7 +7436,7 @@ export const networks = {
     testnet: true
   },
   zksyncSepoliaTestnet: {
-    id: 300,
+    id: 300n,
     label: 'zksyncSepoliaTestnet',
     name: 'ZKsync Sepolia Testnet',
     nativeCurrency: {
@@ -7457,7 +7458,7 @@ export const networks = {
     testnet: true
   },
   zora: {
-    id: 7777777,
+    id: 7777777n,
     label: 'zora',
     name: 'Zora',
     nativeCurrency: {
@@ -7513,7 +7514,7 @@ export const networks = {
     testnet: false
   },
   zoraSepolia: {
-    id: 999999999,
+    id: 999999999n,
     label: 'zoraSepolia',
     name: 'Zora Sepolia',
     nativeCurrency: {
@@ -7569,7 +7570,7 @@ export const networks = {
     testnet: true
   },
   zoraTestnet: {
-    id: 999,
+    id: 999n,
     label: 'zoraTestnet',
     name: 'Zora Goerli Testnet',
     nativeCurrency: {

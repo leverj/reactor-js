@@ -40,6 +40,7 @@
   "devDependencies": {
     "@noble/curves": "^1.6.0",
     "aes-encryption": "^1.0.4",
-    "axios": "^1.7.7"
+    "axios": "^1.7.7",
+    "dotenv": "^16.4.5"
   }
 }

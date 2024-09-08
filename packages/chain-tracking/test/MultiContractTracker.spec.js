@@ -1,13 +1,5 @@
 import {MultiContractTracker} from '@leverj/chain-tracking'
-import {
-  accounts,
-  chainId,
-  ERC20,
-  ERC721,
-  expectEventsToMatch,
-  provider,
-  ZeroAddress,
-} from '@leverj/chain-tracking/test'
+import {accounts, ERC20, ERC721, expectEventsToMatch, provider, ZeroAddress} from '@leverj/chain-tracking/test'
 import {InMemoryStore, logger} from '@leverj/common'
 import {setTimeout} from 'node:timers/promises'
 
@@ -18,7 +10,7 @@ describe('MultiContractTracker', () => {
   beforeEach(async () => {
     events = []
     const polling = {interval: 10, attempts: 5}
-    tracker = await MultiContractTracker.from(new InMemoryStore(), chainId, provider, polling, _ => events.push(_), logger)
+    tracker = await MultiContractTracker.from(new InMemoryStore(), provider, polling, _ => events.push(_), logger)
   })
   afterEach(() => tracker.stop())
 

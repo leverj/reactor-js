@@ -1,5 +1,5 @@
 import {ContractTracker, MultiContractTracker} from '@leverj/chain-tracking'
-import {accounts, chainId, ERC20, ERC721, provider} from '@leverj/chain-tracking/test'
+import {accounts, ERC20, ERC721, provider} from '@leverj/chain-tracking/test'
 import {InMemoryStore, logger} from '@leverj/common'
 import {cloneDeep} from 'lodash-es'
 import {setTimeout} from 'node:timers/promises'
@@ -19,8 +19,8 @@ describe('ContractTracker / Store interaction', () => {
     const topics = iface.fragments.filter(_ => _.type === 'event').map(_ => _.topicHash)
     const defaults = {contract, topics}
     const store = new InMemoryStore()
-    tracker = await ContractTracker.from(store, chainId, address, provider, defaults, polling, _ => _, logger)
-    const key = [chainId, address].join(':')
+    tracker = await ContractTracker.from(store, address, provider, defaults, polling, _ => _, logger)
+    const key = tracker.key
     const before = cloneDeep(await store.get(key))
     expect(tracker.marker).toEqual(before.marker)
     expect(tracker.marker.block).toEqual(0)
@@ -49,8 +49,8 @@ describe('ContractTracker / Store interaction', () => {
     const contract3 = await ERC721('Three', '333')
 
     const store = new InMemoryStore()
-    tracker = await MultiContractTracker.from(store, chainId, provider, polling, _ => _, logger)
-    const key = chainId
+    tracker = await MultiContractTracker.from(store, provider, polling, _ => _, logger)
+    const key = tracker.key
     const before = cloneDeep(await store.get(key))
     expect(before.abis).toHaveLength(0)
     expect(before.contracts).toHaveLength(0)

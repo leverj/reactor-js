@@ -1,5 +1,5 @@
 import {ContractTracker} from '@leverj/chain-tracking'
-import {accounts, chainId, ERC20, expectEventsToMatch, ZeroAddress} from '@leverj/chain-tracking/test'
+import {accounts, ERC20, expectEventsToMatch, ZeroAddress} from '@leverj/chain-tracking/test'
 import {InMemoryStore, logger} from '@leverj/common'
 import {setTimeout} from 'node:timers/promises'
 
@@ -14,7 +14,7 @@ describe('ContractTracker', () => {
     const topics = [filters.Approval().fragment.topicHash, filters.Transfer().fragment.topicHash]
     const defaults = {contract, topics}
     const polling = {interval: 10, attempts: 5}
-    tracker = await ContractTracker.from(new InMemoryStore(), chainId, address, provider, defaults, polling, _ => _, logger)
+    tracker = await ContractTracker.from(new InMemoryStore(), address, provider, defaults, polling, _ => _, logger)
   })
   afterEach(() => tracker.stop())
 

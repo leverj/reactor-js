@@ -2,7 +2,6 @@ import {InMemoryStore} from '@leverj/common'
 import {encodeTransfer} from '@leverj/reactor.chain/contracts'
 import {
   accounts,
-  chainId,
   ETH,
   getContractAt,
   provider,
@@ -34,7 +33,7 @@ describe('VaultTracker', () => {
         await toVault.checkIn(signature, publicKey, payload).then(_ => _.wait())
       }
     }
-    tracker = await VaultTracker(new InMemoryStore(), fromChainId, fromVault, polling, node)
+    tracker = await VaultTracker(new InMemoryStore(), fromVault, polling, node)
     await tracker.start()
   })
   afterEach(async () => tracker.stop())
