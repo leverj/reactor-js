@@ -1,4 +1,4 @@
-import {InMemoryStore, MultiContractTracker} from '@leverj/chain-tracking'
+import {MultiContractTracker} from '@leverj/chain-tracking'
 import {
   accounts,
   chainId,
@@ -8,7 +8,7 @@ import {
   provider,
   ZeroAddress,
 } from '@leverj/chain-tracking/test'
-import {logger} from '@leverj/common'
+import {InMemoryStore, logger} from '@leverj/common'
 import {setTimeout} from 'node:timers/promises'
 
 describe('MultiContractTracker', () => {
