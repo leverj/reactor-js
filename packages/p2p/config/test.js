@@ -7,6 +7,7 @@ export default {
   chain: {
     polling: {
       interval: 10,
+      attempts: 5,
     },
   }
 }

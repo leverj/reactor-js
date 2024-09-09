@@ -5,17 +5,17 @@ import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
 import config from '../config.js'
 import {tryAgainIfError, waitToSync} from '../src/utils.js'
-import {Store} from '../src/db/Store.js'
 import {getNodeInfos} from './fixtures.js'
+import {JsonDirStore} from '../src/db/JsonDirStore.js'
 
 const {bridgeNode, externalIp, port: leaderPort} = config
 const {timeout, tryCount, port} = config
 
 describe('e2e', () => {
-  const store = Store.JsonDir(bridgeNode.confDir, 'Info')
+  const store = new JsonDirStore(bridgeNode.confDir, 'Info')
   const processes = {}
 
-  beforeEach(async () => await store.clear())
+  beforeEach(() => store.clear())
   afterEach(async () => await stop())
 
   async function stop(ports = Array.from(Object.keys(processes))) {
@@ -27,7 +27,7 @@ describe('e2e', () => {
     const createApiNode = async (port) => {
       const index = port - leaderPort
       const getLeaderNode = async _ => {
-        const leader = (await store.get(leaderPort))?.p2p.id
+        const leader = store.get(leaderPort)?.p2p.id
         if (leader) return [`/ip4/${externalIp}/tcp/${bridgeNode.port}/p2p/${leader}`]
         else {
           const e = Error(`no leader found @ port ${leaderPort}`)
@@ -62,7 +62,7 @@ describe('e2e', () => {
   }
 
   const createNodeInfos = async (howMany) => {
-    for (let [i, info] of getNodeInfos(howMany).entries()) await store.set(leaderPort + i, info)
+    for (let [i, info] of getNodeInfos(howMany).entries()) store.set(leaderPort + i, info)
   }
   const GET = (port, endpoint) => axios.get(`http://127.0.0.1:${port}/api/${endpoint}`).then(_ => _.data)
   const POST = (port, endpoint, payload) => axios.post(`http://127.0.0.1:${port}/api/${endpoint}`, payload || {})
@@ -91,7 +91,7 @@ describe('e2e', () => {
     await createNodeInfos(3)
     const infos = getNodeInfos(3)
     const ports = await createApiNodes(3)
-    for (let [i, port] of ports.entries()) expect(await store.get(port)).toEqual(infos[i])
+    for (let [i, port] of ports.entries()) expect(store.get(port)).toEqual(infos[i])
   })
 
   it('aggregate signatures over pubsub topic', async () => {
@@ -108,16 +108,16 @@ describe('e2e', () => {
     await GET(leaderPort + 1, 'peer/bootstrapped')
     await stop(ports.slice(2))
     await publishWhitelist(ports.slice(0, 2), 4)
-    expect((await store.get(ports[0])).whitelist).toHaveLength(4)
-    expect((await store.get(ports[1])).whitelist).toHaveLength(4)
-    expect((await store.get(ports[2])).whitelist).toHaveLength(1)
-    expect((await store.get(ports[3])).whitelist).toHaveLength(1)
+    expect(store.get(ports[0]).whitelist).toHaveLength(4)
+    expect(store.get(ports[1]).whitelist).toHaveLength(4)
+    expect(store.get(ports[2]).whitelist).toHaveLength(1)
+    expect(store.get(ports[3]).whitelist).toHaveLength(1)
 
     await createApiNodesFrom(ports.slice(2), 3)
     await waitForWhitelistSync(ports)
-    expect((await store.get(ports[0])).whitelist).toHaveLength(4)
-    expect((await store.get(ports[1])).whitelist).toHaveLength(4)
-    expect((await store.get(ports[2])).whitelist).toHaveLength(4)
-    expect((await store.get(ports[3])).whitelist).toHaveLength(4)
+    expect(store.get(ports[0]).whitelist).toHaveLength(4)
+    expect(store.get(ports[1]).whitelist).toHaveLength(4)
+    expect(store.get(ports[2]).whitelist).toHaveLength(4)
+    expect(store.get(ports[3]).whitelist).toHaveLength(4)
   })
 })

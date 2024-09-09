@@ -1,4 +1,4 @@
-import {accounts, ETH} from '@leverj/chain-deployment'
+import {accounts, provider, chainId, ETH} from '@leverj/chain-deployment'
 import {ContractTracker} from '@leverj/chain-tracking'
 import {ERC20, expectEventsToMatch} from '@leverj/chain-tracking/test'
 import {InMemoryStore, logger} from '@leverj/common'
@@ -8,14 +8,17 @@ describe('ContractTracker', () => {
   const [deployer, account] = accounts
   let contract, tracker, events
 
+  //fixme: track specific topics vs. all topics
+  // using ContractTracker.of(store, contract, ...) construction
+
   beforeEach(async () => {
     events = []
     contract = await ERC20()
-    const {filters, target: address, runner: {provider}} = contract
+    const {filters, target: address} = contract
     const topics = [filters.Approval().fragment.topicHash, filters.Transfer().fragment.topicHash]
     const defaults = {contract, topics}
     const polling = {interval: 10, attempts: 5}
-    tracker = await ContractTracker.from(new InMemoryStore(), address, provider, defaults, polling, _ => _, logger)
+    tracker = ContractTracker.from(chainId, address, provider, defaults, new InMemoryStore(), polling, _ => _, logger)
   })
   afterEach(() => tracker.stop())
 

@@ -10,6 +10,13 @@ import {ContractTracker} from './ContractTracker.js'
  * a MultiContractTracker connects to multiple contracts deployed in an Ethereum-like chain and tracks their respective events
  */
 export class MultiContractTracker {
+  static from(chainId, provider, store, polling, processEvent = logger.log, logger = console) {
+    const key = chainId
+    store.update(key, this.defaults())
+    const instance = new this(chainId, provider, store, key, polling, processEvent, logger)
+    return instance.load()
+  }
+
   static defaults() {
     return {
       marker: {block: 0, logIndex: -1, blockWasProcessed: false},
@@ -19,28 +26,21 @@ export class MultiContractTracker {
     }
   }
 
-  static async from(store, provider, polling, processEvent = logger.log, logger = console) {
-    const chainId = await provider.getNetwork().then(_ => _.chainId)
-    const key = chainId
-    await store.update(key, this.defaults())
-    const instance = new this(store, key, provider, polling, processEvent, logger)
-    return instance.load()
-  }
-
-  constructor(store, key, provider, polling, processEvent, logger) {
+  constructor(chainId, provider, store, key, polling, processEvent, logger) {
+    this.chainId = chainId
+    this.provider = provider
     this.store = store
     this.key = key
-    this.provider = provider
-    this.processEvent = processEvent
     this.polling = polling
+    this.processEvent = processEvent
     this.logger = logger
     this.isRunning = false
     exitHook(() => this.stop())
   }
   get lastBlock() { return this.marker.block }
 
-  async load() {
-    const {marker, toOnboard, abis, contracts} = await this.store.get(this.key)
+  load() {
+    const {marker, toOnboard, abis, contracts} = this.store.get(this.key)
     this.marker = marker
     this.toOnboard = toOnboard
     this.contracts = {}
@@ -83,11 +83,11 @@ export class MultiContractTracker {
   }
 
   async onboard(contract, kind) {
-    const {provider, polling, processEvent, logger, lastBlock} = this
+    const {chainId, provider, polling, processEvent, logger, lastBlock} = this
+    const address = contract.target
     const topics = this.topicsByKind[kind]
     const defaults = {contract, topics}
-    const address = contract.target
-    const tracker = await ContractTracker.from(new InMemoryStore(), address, provider, defaults, polling, processEvent, logger)
+    const tracker = ContractTracker.from(chainId, address, provider, defaults, new InMemoryStore(), polling, processEvent, logger)
     const creationBlock = await getCreationBlock(provider, address).catch(_ => 0)
     await tracker.processLogs(creationBlock, lastBlock)
     await this.update({

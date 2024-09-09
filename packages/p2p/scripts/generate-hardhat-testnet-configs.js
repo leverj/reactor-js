@@ -31,14 +31,14 @@ const targetChains = Set([
   'zoraSepolia',
 ])
 const targetDir = `${process.env.PWD}/test/hardhat/testnets`
-const template = (name, chainId) => `const root = \`\${process.env.PWD}/../chain\`
+const template = (chainId) => `const root = \`\${process.env.PWD}/../chain\`
 
 module.exports = Object.assign(require(\`\${root}/hardhat.config.cjs\`), {
   paths: {
     root,
   },
   networks: {
-    ${name}: {
+    hardhat: {
       chainId: ${chainId},
       gasPrice: 0,
       initialBaseFeePerGas: 0,
@@ -48,10 +48,11 @@ module.exports = Object.assign(require(\`\${root}/hardhat.config.cjs\`), {
 
 if (!existsSync(targetDir)) mkdirSync(targetDir, {recursive: true})
 Map(networks).filter(_ => _.testnet && targetChains.has(_.label)).forEach(_ => {
-  writeFileSync(`${targetDir}/${_.label}.config.cjs`, template(_.label, _.id))
+  const file = `${targetDir}/${_.label}.config.cjs`
+  if (!existsSync(file)) writeFileSync(file, template(_.id))
 })
 
-const candidateChains = [
+const candidateChains = Set([
   'abstractTestnet',
   'apexTestnet',
   'arbitrumGoerli',
@@ -203,4 +204,8 @@ const candidateChains = [
   'zksyncSepoliaTestnet',
   'zoraSepolia',
   'zoraTestnet',
-]
+])
+if (false) {
+  const chains = Map(networks).filter(_ => _.testnet).keySeq().toArray().sort()
+  console.log(chains.map(_ => `'${_}',`).join('\n'))
+}

@@ -1,4 +1,4 @@
-import {accounts, ETH, provider} from '@leverj/chain-deployment'
+import {accounts, chainId, ETH, provider} from '@leverj/chain-deployment'
 import {MultiContractTracker} from '@leverj/chain-tracking'
 import {ERC20, ERC721, expectEventsToMatch} from '@leverj/chain-tracking/test'
 import {InMemoryStore, logger} from '@leverj/common'
@@ -11,7 +11,7 @@ describe('MultiContractTracker', () => {
   beforeEach(async () => {
     events = []
     const polling = {interval: 10, attempts: 5}
-    tracker = await MultiContractTracker.from(new InMemoryStore(), provider, polling, _ => events.push(_), logger)
+    tracker = MultiContractTracker.from(chainId, provider, new InMemoryStore(), polling, _ => events.push(_), logger)
   })
   afterEach(() => tracker.stop())
 

@@ -1,11 +1,11 @@
 import config from '../../config.js'
 import {BridgeNode} from '../BridgeNode.js'
-import {Store} from '../db/Store.js'
 import {events, INFO_CHANGED} from '../utils.js'
+import {JsonDirStore} from '../db/JsonDirStore.js'
 
 const {bridgeNode, port} = config
 
-const store = Store.JsonDir(bridgeNode.confDir, 'Info')
+const store = new JsonDirStore(bridgeNode.confDir, 'Info')
 
 class Info {
   constructor(node, data) {
@@ -22,12 +22,12 @@ class Info {
     this.timer = setTimeout(async () => {
       if (this.data === this.node.info()) return
       this.data = this.node.info()
-      await store.set(port, this.data)
+      store.set(port, this.data)
     }, 10)
   }
 }
 
-const data = await store.get(port)
+const data = store.get(port)
 const manager = await BridgeNode.from(bridgeNode.port, bridgeNode.bootstrapNodes, data)
 new Info(manager, data)
 await manager.start()

@@ -34,5 +34,6 @@ export class JsonStore {
   keys() { return this.cache.keys() }
   values() { return this.cache.values() }
   clear() { this.cache.clear(); this.save() }
-  save() { writeFileSync(this.file, JSON.stringify(this.cache.toObject(), null, 2)) }
+  toObject() { return this.cache.toObject() }
+  save() { writeFileSync(this.file, JSON.stringify(this.toObject(), null, 2)) }
 }

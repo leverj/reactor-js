@@ -5,13 +5,14 @@ import {exec} from 'child_process'
 import {expect} from 'expect'
 import {rmSync} from 'node:fs'
 import waitOn from 'wait-on'
-import {createDeployConfig, deploymentDir} from './help.js'
+import {Chain, createDeployConfig, deploymentDir, hardhatConfigFileFor} from './help.js'
 
 describe('deploy across multiple chains', () => {
+  const deployedDir = `${deploymentDir}/env/${process.env.NODE_ENV}`
   const chains = ['hardhat', 'sepolia', 'mainnet']
   const processes = []
 
-  before(async () => rmSync(`${deploymentDir}/env/${process.env.NODE_ENV}`, {recursive: true, force: true}))
+  before(async () => rmSync(deployedDir, {recursive: true, force: true}))
   afterEach(async () => { while (processes.length > 0) processes.pop().kill() })
 
   it('deploys all contracts', async () => {
@@ -19,12 +20,12 @@ describe('deploy across multiple chains', () => {
       const port = 8101 + i
       const config = createDeployConfig(chain, chains, {providerURL: `http://localhost:${port}`})
       const network = config.networks[chain]
-      const hardhat_config = `test/hardhat/${network.testnet ? 'testnets' : 'mainnets'}/${chain}.config.cjs`
-      processes.push(exec(`npx hardhat node --config ${hardhat_config} --port ${port}`))
+      processes.push(exec(`npx hardhat node --config ${hardhatConfigFileFor(config)} --port ${port}`))
       await waitOn({resources: [network.providerURL], timeout: 10_000})
       const deploy = Deploy.from(config, {logger})
-      expect(await deploy.provider.getNetwork().then(_ => _.chainId)).toEqual(network.id)
       expect(deploy.deployedContracts.Vault).not.toBeDefined()
+      expect((await Chain.from(deploy.provider)).id).toEqual(network.id)
+      expect((await Chain.from(deploy.provider)).label).toEqual(network.label)
 
       await deploy.run()
       expect(deploy.deployedContracts.Vault).toBeDefined()

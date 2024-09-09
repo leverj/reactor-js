@@ -1,9 +1,9 @@
-import {JsonDirStore} from './JsonDirStore.js'
 import {KeyvFile} from 'keyv-file'
 import {Level} from 'level'
 import {merge} from 'lodash-es'
 
 
+// fixme: maybe not needed?
 export class JsonStore extends KeyvFile {
   constructor(path, type, options) {
     super({filename: `${path}/${type}.json`}, options)
@@ -37,10 +37,6 @@ export class LevelStore {
 }
 
 export const Store = {
-  JsonDir: (path, type) => new JsonDirStore(path, type),
-  Json: (path, type, options) => new JsonStore(path, type, options),
-  Level: (path, type, options) => new LevelStore(path, type, options),
-
   /**   Store api:
    *
     get<Value>(key: string)

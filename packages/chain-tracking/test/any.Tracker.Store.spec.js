@@ -1,4 +1,4 @@
-import {accounts, provider} from '@leverj/chain-deployment'
+import {accounts, provider, chainId} from '@leverj/chain-deployment'
 import {ContractTracker, MultiContractTracker} from '@leverj/chain-tracking'
 import {ERC20, ERC721} from '@leverj/chain-tracking/test'
 import {InMemoryStore, logger} from '@leverj/common'
@@ -20,16 +20,16 @@ describe('ContractTracker / Store interaction', () => {
     const topics = iface.fragments.filter(_ => _.type === 'event').map(_ => _.topicHash)
     const defaults = {contract, topics}
     const store = new InMemoryStore()
-    tracker = await ContractTracker.from(store, address, provider, defaults, polling, _ => _, logger)
+    tracker = ContractTracker.from(chainId, address, provider, defaults, store, polling, _ => _, logger)
     const key = tracker.key
-    const before = cloneDeep(await store.get(key))
+    const before = cloneDeep(store.get(key))
     expect(tracker.marker).toEqual(before.marker)
     expect(tracker.marker.block).toEqual(0)
     expect(tracker.marker.blockWasProcessed).toBe(false)
 
     await tracker.start()
     await setTimeout(10) // ... catchup
-    expect(tracker.marker).toEqual((await store.get(key)).marker)
+    expect(tracker.marker).toEqual(store.get(key).marker)
     expect(tracker.marker.block).toBeGreaterThan(before.marker.block)
     expect(tracker.marker.blockWasProcessed).toBe(true)
 
@@ -37,7 +37,7 @@ describe('ContractTracker / Store interaction', () => {
     await contract.approve(contract.target, 5000n)
     await contract.mint(account.address, 2000n)
     await setTimeout(10)
-    const after = cloneDeep(await store.get(key))
+    const after = cloneDeep(store.get(key))
     expect(after.marker.block).toEqual(tracker.marker.block)
     expect(after.marker.blockWasProcessed).toBe(true)
     expect(after.abi).toMatchObject(before.abi)
@@ -50,16 +50,16 @@ describe('ContractTracker / Store interaction', () => {
     const contract3 = await ERC721('Three', '333')
 
     const store = new InMemoryStore()
-    tracker = await MultiContractTracker.from(store, provider, polling, _ => _, logger)
+    tracker = MultiContractTracker.from(chainId, provider, store, polling, _ => _, logger)
     const key = tracker.key
-    const before = cloneDeep(await store.get(key))
+    const before = cloneDeep(store.get(key))
     expect(before.abis).toHaveLength(0)
     expect(before.contracts).toHaveLength(0)
     expect(before.toOnboard).toHaveLength(0)
 
     await tracker.addContract(contract1, 'ERC20')
     await tracker.addContract(contract2, 'ERC20')
-    const beforeStart_addContracts = cloneDeep(await store.get(key))
+    const beforeStart_addContracts = cloneDeep(store.get(key))
     expect(beforeStart_addContracts.abis).toHaveLength(0)
     expect(beforeStart_addContracts.contracts).toHaveLength(0)
     expect(beforeStart_addContracts.toOnboard).toHaveLength(2)
@@ -69,21 +69,21 @@ describe('ContractTracker / Store interaction', () => {
 
     await tracker.start()
     await setTimeout(10) // ... onboard
-    const afterOnboarding = cloneDeep(await store.get(key))
+    const afterOnboarding = cloneDeep(store.get(key))
     expect(afterOnboarding.abis).toHaveLength(1)
     expect(afterOnboarding.contracts).toHaveLength(2)
     expect(afterOnboarding.toOnboard).toHaveLength(0)
-    expect(tracker.marker).toEqual((await store.get(key)).marker)
+    expect(tracker.marker).toEqual(store.get(key).marker)
     expect(tracker.marker.block).toBeGreaterThan(before.marker.block)
     expect(tracker.marker.blockWasProcessed).toBe(true)
 
     await tracker.addContract(contract3, 'ERC721')
     await setTimeout(10) // ... catchup
-    const afterStart_addContracts = cloneDeep(await store.get(key))
+    const afterStart_addContracts = cloneDeep(store.get(key))
     expect(afterStart_addContracts.abis).toHaveLength(2)
     expect(afterStart_addContracts.contracts).toHaveLength(3)
     expect(afterStart_addContracts.toOnboard).toHaveLength(0)
-    expect(tracker.marker).toEqual((await store.get(key)).marker)
+    expect(tracker.marker).toEqual(store.get(key).marker)
     expect(tracker.marker.block).toEqual(afterOnboarding.marker.block)
     expect(tracker.marker.blockWasProcessed).toBe(true)
 
@@ -97,7 +97,7 @@ describe('ContractTracker / Store interaction', () => {
     await contract3.connect(account).approve(contract1.target, 3n)
     await contract3.mint(account.address, 6n)
     await setTimeout(10)
-    const after = cloneDeep(await store.get(key))
+    const after = cloneDeep(store.get(key))
     expect(after.marker.block).toEqual(tracker.marker.block)
     expect(after.marker.block).toBeGreaterThan(afterStart_addContracts.marker.block)
     expect(after.marker.blockWasProcessed).toBe(true)

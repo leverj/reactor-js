@@ -7,26 +7,34 @@ import {merge} from 'lodash-es'
  * a ContractTracker connects to a contract deployed in an Ethereum-like chain and tracks its events
  */
 export class ContractTracker {
+  static of(chainId, contract, store, polling, processEvent = logger.log, logger = console) {
+    const {runner: {provider}, target: address} = contract
+    return this.from(chainId, address, provider, {contract}, store, polling, processEvent, logger)
+  }
+
+  static from(chainId, address, provider, defaults, store, polling, processEvent = logger.log, logger = console) {
+    const key = [chainId, address].join(':')
+    store.update(key, this.defaults(defaults))
+    const instance = new this(address, provider, store, key, polling, processEvent, logger)
+    return instance.load()
+  }
+
   static defaults({contract, topics}) {
     const result = {marker: {block: 0, logIndex: -1, blockWasProcessed: false}}
-    if (contract) result.abi = contract.interface.format()
+    if (contract) {
+      result.abi = contract.interface.format()
+      //if no specific topics designated, track all topics
+      if (!topics) topics = contract.interface.fragments.filter(_ => _.type === 'event').map(_ => _.topicHash)
+    }
     if (topics) result.topics = [topics]
     return result
   }
 
-  static async from(store, address, provider, defaults, polling, processEvent = logger.log, logger = console) {
-    const chainId = await provider.getNetwork().then(_ => _.chainId)
-    const key = [chainId, address].join(':')
-    await store.update(key, this.defaults(defaults))
-    const instance = new this(store, key, address, provider, polling, processEvent, logger)
-    return instance.load()
-  }
-
-  constructor(store, key, address, provider, polling, processEvent, logger) {
-    this.store = store
-    this.key = key
+  constructor(address, provider, store, key, polling, processEvent, logger) {
     this.address = address
     this.provider = provider
+    this.store = store
+    this.key = key
     this.polling = polling
     this.processEvent = processEvent
     this.logger = logger
@@ -36,8 +44,8 @@ export class ContractTracker {
   get interface() { return this.contract.interface }
   get lastBlock() { return this.marker.block }
 
-  async load() {
-    const {abi, topics, marker} = await this.store.get(this.key)
+  load() {
+    const {abi, topics, marker} = this.store.get(this.key)
     this.contract = new Contract(this.address, abi, this.provider)
     this.topics = topics
     this.marker = marker

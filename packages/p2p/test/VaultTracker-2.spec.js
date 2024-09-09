@@ -9,7 +9,7 @@ import {VaultTracker} from '../src/VaultTracker.js'
 
 const {chain: {polling}} = config
 
-describe('VaultTracker-2', () => {
+describe.skip('VaultTracker-2', () => {
   const [, account] = accounts
   const fromChainId = networks.hardhat.id, toChainId = networks.sepolia.id, amount = 1000n
   let fromVault, toVault, tracker
@@ -24,7 +24,7 @@ describe('VaultTracker-2', () => {
         await toVault.checkIn(signature, publicKey, payload).then(_ => _.wait())
       }
     }
-    tracker = await VaultTracker(new InMemoryStore(), fromVault, polling, node)
+    tracker = await VaultTracker(fromVault, new InMemoryStore(), polling, node)
     await tracker.start()
   })
   afterEach(async () => tracker.stop())

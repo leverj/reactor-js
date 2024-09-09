@@ -7,6 +7,8 @@ import config from '../config.js'
 import {peerIdJsons} from './fixtures.js'
 
 export const deploymentDir = `${import.meta.dirname}/../../../data/chain`
+export const hardhatConfigFileFor = ({networks, chain}) => `test/hardhat/${networks[chain].testnet ? 'testnets' : 'mainnets'}/${chain}.config.cjs`
+
 
 export const createDeployConfig = (chain, chains, override = {}) => {
   return merge({
@@ -36,4 +38,17 @@ export const createBridgeNodes = async (howMany) => {
     if (i === 0) bootstrapNodes.push(node.multiaddrs[0])
   }
   return results
+}
+
+export class Chain {
+  static async from(provider) {
+    const {chainId, name} = await provider.getNetwork()
+    return new this(chainId, name === 'unknown' ? 'hardhat' : name, provider)
+  }
+
+  constructor(id, label, provider) {
+    this.id = id
+    this.label = label
+    this.provider = provider
+  }
 }
