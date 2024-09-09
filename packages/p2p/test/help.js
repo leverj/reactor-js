@@ -1,5 +1,5 @@
-import {networks} from '@leverj/chain-deployment'
-import {publicKey, wallets} from '@leverj/reactor.chain/test'
+import {networks, wallets} from '@leverj/chain-deployment'
+import {publicKey} from '@leverj/reactor.chain/test'
 import {Map} from 'immutable'
 import {cloneDeep, merge} from 'lodash-es'
 import {BridgeNode} from '../src/BridgeNode.js'
@@ -7,7 +7,6 @@ import config from '../config.js'
 import {peerIdJsons} from './fixtures.js'
 
 export const deploymentDir = `${import.meta.dirname}/../../../data/chain`
-
 
 export const createDeployConfig = (chain, chains, override = {}) => {
   return merge({

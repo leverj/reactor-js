@@ -1,9 +1,9 @@
 require('dotenv').config()
-// processes.push(exec(`npx hardhat node --fork ${url} --fork-block-number ${blockNumber} --port ${port}`)) //fixme:fork
+const root = `${process.env.PWD}/../chain`
 
-module.exports = Object.assign(require('../chain/hardhat.config.cjs'), {
+module.exports = Object.assign(require(`${root}/hardhat.config.cjs`), {
   paths: {
-    root: '../chain',
+    root,
   },
   networks: {
     hardhat: {
@@ -17,3 +17,5 @@ module.exports = Object.assign(require('../chain/hardhat.config.cjs'), {
     },
   },
 })
+
+// processes.push(exec(`npx hardhat node --fork ${url} --fork-block-number ${blockNumber} --port ${port}`)) //fixme:fork

@@ -1,6 +1,5 @@
-import {Deploy} from '@leverj/chain-deployment'
+import {Deploy, provider} from '@leverj/chain-deployment'
 import {logger} from '@leverj/common'
-import {provider} from '@leverj/reactor.chain/test'
 import {expect} from 'expect'
 import {rmSync} from 'node:fs'
 import config from '../config.js'

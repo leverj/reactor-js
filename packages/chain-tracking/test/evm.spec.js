@@ -1,5 +1,5 @@
-import {getCreationBlock} from '@leverj/chain-tracking'
-import {ERC20, provider} from '@leverj/chain-tracking/test'
+import {getCreationBlock, provider} from '@leverj/chain-deployment'
+import {ERC20} from '@leverj/chain-tracking/test'
 import {expect} from 'expect'
 
 describe('evm', () => {

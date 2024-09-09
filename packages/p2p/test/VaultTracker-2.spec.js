@@ -1,4 +1,4 @@
-import {accounts, ETH, getContractAt, provider} from '@leverj/chain-deployment'
+import {accounts, ETH, getContractAt, networks, provider} from '@leverj/chain-deployment'
 import {InMemoryStore} from '@leverj/common'
 import {encodeTransfer} from '@leverj/reactor.chain/contracts'
 import {publicKey, signedBy, signer, Vault} from '@leverj/reactor.chain/test'
@@ -9,9 +9,9 @@ import {VaultTracker} from '../src/VaultTracker.js'
 
 const {chain: {polling}} = config
 
-describe('VaultTracker', () => {
+describe('VaultTracker-2', () => {
   const [, account] = accounts
-  const fromChainId = 10101n, toChainId = 98989n, amount = 1000n
+  const fromChainId = networks.hardhat.id, toChainId = networks.sepolia.id, amount = 1000n
   let fromVault, toVault, tracker
 
   beforeEach(async () => {

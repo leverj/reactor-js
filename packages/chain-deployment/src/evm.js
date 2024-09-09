@@ -1,15 +1,4 @@
-export class Chain {
-  static async from(provider) {
-    const {chainId, name} = await provider.getNetwork()
-    return new this(chainId, name, provider)
-  }
-
-  constructor(chainId, name, provider) {
-    this.chainId = chainId
-    this.name = name
-    this.provider = provider
-  }
-}
+export {ZeroAddress as ETH} from 'ethers'
 
 export const getCreationBlock = async (provider, address, fromBlock = 0, toBlock) => {
   if (!toBlock) toBlock = await provider.getBlockNumber()

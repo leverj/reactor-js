@@ -1,4 +1,5 @@
-import {accounts, ERC20, ERC20Proxy, ETH, getContractAt, provider, Vault, ZeroAddress} from '@leverj/reactor.chain/test'
+import {accounts, ETH, getContractAt, provider} from '@leverj/chain-deployment'
+import {ERC20, ERC20Proxy, Vault} from '@leverj/reactor.chain/test'
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
 import {createBridgeNodes} from './help.js'
@@ -94,7 +95,7 @@ describe('Vault', () => {
       const proxies = {}
       for (let i = 1; i < chains.length; i++) {
         const proxyAddress = await vaults[i].proxies(chains[0], ETH)
-        expect(proxyAddress).not.toEqual(ZeroAddress)
+        expect(proxyAddress).not.toEqual(ETH)
 
         proxies[chains[i]] = await getContractAt('ERC20Proxy', proxyAddress)
         expect(await proxies[chains[i]].balanceOf(account.address)).toEqual(amount)

@@ -1,5 +1,6 @@
+import {accounts, ETH, provider} from '@leverj/chain-deployment'
 import {MultiContractTracker} from '@leverj/chain-tracking'
-import {accounts, ERC20, ERC721, expectEventsToMatch, provider, ZeroAddress} from '@leverj/chain-tracking/test'
+import {ERC20, ERC721, expectEventsToMatch} from '@leverj/chain-tracking/test'
 import {InMemoryStore, logger} from '@leverj/common'
 import {setTimeout} from 'node:timers/promises'
 
@@ -25,9 +26,9 @@ describe('MultiContractTracker', () => {
       await contract.mint(account.address, 2000n)
       await setTimeout(10)
       expectEventsToMatch(events, [
-        {address, name: 'Transfer', args: [ZeroAddress, account.address, 1000n]},
+        {address, name: 'Transfer', args: [ETH, account.address, 1000n]},
         {address, name: 'Approval', args: [deployer.address, contract.target, 5000n]},
-        {address, name: 'Transfer', args: [ZeroAddress, account.address, 2000n]},
+        {address, name: 'Transfer', args: [ETH, account.address, 2000n]},
       ])
     })
   })
@@ -49,12 +50,12 @@ describe('MultiContractTracker', () => {
       await tracker.addContract(contract2, 'ERC20') // => will onboard
       await setTimeout(10)
       expectEventsToMatch(events, [
-        {address: address1, name: 'Transfer', args: [ZeroAddress, account.address, 100n]},
+        {address: address1, name: 'Transfer', args: [ETH, account.address, 100n]},
         {address: address1, name: 'Approval', args: [deployer.address, contract1.target, 10000n]},
-        {address: address1, name: 'Transfer', args: [ZeroAddress, account.address, 2000n]},
-        {address: address2, name: 'Transfer', args: [ZeroAddress, account.address, 200n]},
+        {address: address1, name: 'Transfer', args: [ETH, account.address, 2000n]},
+        {address: address2, name: 'Transfer', args: [ETH, account.address, 200n]},
         {address: address2, name: 'Approval', args: [deployer.address, contract2.target, 20000n]},
-        {address: address2, name: 'Transfer', args: [ZeroAddress, account.address, 4000n]},
+        {address: address2, name: 'Transfer', args: [ETH, account.address, 4000n]},
       ])
     })
   })
@@ -76,16 +77,16 @@ describe('MultiContractTracker', () => {
       await tracker.start()
       await setTimeout(10)
       expectEventsToMatch(events, [
-        {address: address1, name: 'Transfer', args: [ZeroAddress, account.address, 100n]},
+        {address: address1, name: 'Transfer', args: [ETH, account.address, 100n]},
         {address: address1, name: 'Approval', args: [deployer.address, contract1.target, 10000n]},
       ])
 
       await tracker.addContract(contract2, 'ERC20')
       await setTimeout(10)
       expectEventsToMatch(events, [
-        {address: address1, name: 'Transfer', args: [ZeroAddress, account.address, 100n]},
+        {address: address1, name: 'Transfer', args: [ETH, account.address, 100n]},
         {address: address1, name: 'Approval', args: [deployer.address, contract1.target, 10000n]},
-        {address: address2, name: 'Transfer', args: [ZeroAddress, account.address, 200n]},
+        {address: address2, name: 'Transfer', args: [ETH, account.address, 200n]},
       ])
 
       await contract1.mint(account.address, 2000n)
@@ -93,10 +94,10 @@ describe('MultiContractTracker', () => {
       await contract3.mint(account.address, 3n)
       await setTimeout(10)
       expectEventsToMatch(events, [
-        {address: address1, name: 'Transfer', args: [ZeroAddress, account.address, 100n]},
+        {address: address1, name: 'Transfer', args: [ETH, account.address, 100n]},
         {address: address1, name: 'Approval', args: [deployer.address, contract1.target, 10000n]},
-        {address: address2, name: 'Transfer', args: [ZeroAddress, account.address, 200n]},
-        {address: address1, name: 'Transfer', args: [ZeroAddress, account.address, 2000n]},
+        {address: address2, name: 'Transfer', args: [ETH, account.address, 200n]},
+        {address: address1, name: 'Transfer', args: [ETH, account.address, 2000n]},
         {address: address2, name: 'Approval', args: [deployer.address, contract2.target, 20000n]},
       ])
 
@@ -106,15 +107,15 @@ describe('MultiContractTracker', () => {
       await contract3.mint(account.address, 6n)
       await setTimeout(10)
       expectEventsToMatch(events, [
-        {address: address1, name: 'Transfer', args: [ZeroAddress, account.address, 100n]},
+        {address: address1, name: 'Transfer', args: [ETH, account.address, 100n]},
         {address: address1, name: 'Approval', args: [deployer.address, contract1.target, 10000n]},
-        {address: address2, name: 'Transfer', args: [ZeroAddress, account.address, 200n]},
-        {address: address1, name: 'Transfer', args: [ZeroAddress, account.address, 2000n]},
+        {address: address2, name: 'Transfer', args: [ETH, account.address, 200n]},
+        {address: address1, name: 'Transfer', args: [ETH, account.address, 2000n]},
         {address: address2, name: 'Approval', args: [deployer.address, contract2.target, 20000n]},
-        {address: address3, name: 'Transfer', args: [ZeroAddress, account.address, 3n]},
-        {address: address2, name: 'Transfer', args: [ZeroAddress, account.address, 4000n]},
+        {address: address3, name: 'Transfer', args: [ETH, account.address, 3n]},
+        {address: address2, name: 'Transfer', args: [ETH, account.address, 4000n]},
         {address: address3, name: 'Approval', args: [account.address, contract1.target, 3n]},
-        {address: address3, name: 'Transfer', args: [ZeroAddress, account.address, 6n]},
+        {address: address3, name: 'Transfer', args: [ETH, account.address, 6n]},
       ])
     })
   })

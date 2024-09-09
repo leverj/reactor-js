@@ -1,5 +1,6 @@
+import {accounts, provider} from '@leverj/chain-deployment'
 import {ContractTracker, MultiContractTracker} from '@leverj/chain-tracking'
-import {accounts, ERC20, ERC721, provider} from '@leverj/chain-tracking/test'
+import {ERC20, ERC721} from '@leverj/chain-tracking/test'
 import {InMemoryStore, logger} from '@leverj/common'
 import {cloneDeep} from 'lodash-es'
 import {setTimeout} from 'node:timers/promises'

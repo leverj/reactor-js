@@ -1,6 +1,7 @@
+import {accounts, chainId, provider} from '@leverj/chain-deployment'
 import {uint} from '@leverj/common'
 import {events, stubs} from '@leverj/reactor.chain/contracts'
-import {accounts, chainId, provider, publicKey, Vault} from '@leverj/reactor.chain/test'
+import {publicKey, Vault} from '@leverj/reactor.chain/test'
 import {expect} from 'expect'
 
 const {Transfer} = events.Vault

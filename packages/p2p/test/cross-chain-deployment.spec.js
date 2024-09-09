@@ -18,10 +18,12 @@ describe('deploy across multiple chains', () => {
     for (let [i, chain] of chains.entries()) {
       const port = 8101 + i
       const config = createDeployConfig(chain, chains, {providerURL: `http://localhost:${port}`})
-      processes.push(exec(`npx hardhat node --verbose --config ${chain}.config.cjs --port ${port}`))
-      await waitOn({resources: [config.networks[chain].providerURL], timeout: 10_000})
+      const network = config.networks[chain]
+      const hardhat_config = `test/hardhat/${network.testnet ? 'testnets' : 'mainnets'}/${chain}.config.cjs`
+      processes.push(exec(`npx hardhat node --config ${hardhat_config} --port ${port}`))
+      await waitOn({resources: [network.providerURL], timeout: 10_000})
       const deploy = Deploy.from(config, {logger})
-      expect(await deploy.provider.getNetwork().then(_ => _.chainId)).toEqual(config.networks[chain].id)
+      expect(await deploy.provider.getNetwork().then(_ => _.chainId)).toEqual(network.id)
       expect(deploy.deployedContracts.Vault).not.toBeDefined()
 
       await deploy.run()

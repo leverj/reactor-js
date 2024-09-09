@@ -1,9 +1,9 @@
 import {JsonStore} from '@leverj/common'
 import {execSync} from 'child_process'
 import {JsonRpcProvider, Wallet} from 'ethers'
-import {default as hardhat} from 'hardhat'
 import {Map} from 'immutable'
 import {setTimeout} from 'node:timers/promises'
+import {deployContract} from './hardhat.js'
 
 export class Deploy {
   static from(config, options = {reset: false, logger: console}) {
@@ -68,7 +68,7 @@ export class Deploy {
       this.logger.log(`deploying ${name} contract `.padEnd(120, '.'))
       libraries = translateLibraries(libraries)
       params = translateAddresses(params)
-      const contract = await hardhat.ethers.deployContract(name, params, {libraries, signer: this.wallet})
+      const contract = await deployContract(name, params, {libraries, signer: this.wallet})
       const address = contract.target
       const blockCreated = await this.provider.getTransactionReceipt(contract.deploymentTransaction().hash).then(_ => _.blockNumber)
       this.store.update(this.chain, {contracts: {[name]: {address, blockCreated}}})

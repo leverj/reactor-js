@@ -1,9 +1,9 @@
+import {getCreationBlock} from '@leverj/chain-deployment'
 import {InMemoryStore} from '@leverj/common'
 import exitHook from 'async-exit-hook'
 import {Contract} from 'ethers'
 import {List, Map} from 'immutable'
 import {merge} from 'lodash-es'
-import {getCreationBlock} from './evm.js'
 import {ContractTracker} from './ContractTracker.js'
 
 /**

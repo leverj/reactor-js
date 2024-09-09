@@ -8,6 +8,7 @@
   "scripts": {
     "test": "npx mocha",
     "dependency:check": "npx depcheck",
+    "hardhat:generate:configs": "node scripts/generate-hardhat-configs.js",
     "start": "node app.js",
     "docker:build": "./scripts/docker-build.sh"
   },

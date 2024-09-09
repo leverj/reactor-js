@@ -1,4 +1,4 @@
-import {deployContract} from './hardhat.js'
+import {deployContract} from '@leverj/chain-deployment'
 
 export const ERC20 = async (name = 'Crap', symbol = 'CRAP') => deployContract('ERC20Mock', [name, symbol])
 export const ERC721 = async (name = 'Crap', symbol = 'CRAP') => deployContract('ERC721Mock', [name, symbol])
