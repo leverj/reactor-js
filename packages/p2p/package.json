@@ -17,6 +17,7 @@
     "@chainsafe/libp2p-gossipsub": "13.2.0",
     "@chainsafe/libp2p-noise": "^15.1.2",
     "@chainsafe/libp2p-yamux": "^6.0.2",
+    "@leverj/chain-deployment": "1.2.0",
     "@leverj/chain-tracking": "1.2.0",
     "@leverj/common": "1.2.0",
     "@leverj/config": "1.2.0",
@@ -30,11 +31,12 @@
     "@libp2p/ping": "^1.1.6",
     "@libp2p/tcp": "^9.1.6",
     "body-parser": "^1.20.2",
+    "ethers": "^6.13.2",
     "express": "^4.19.2",
+    "immutable": "^5.0.0-rc.1",
     "it-map": "^3.1.1",
     "it-pipe": "^3.0.1",
     "libp2p": "^1.9.4",
-    "lodash-es": "^4.17.21",
     "uint8arrays": "^5.1.0"
   },
   "devDependencies": {

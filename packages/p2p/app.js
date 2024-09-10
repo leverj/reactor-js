@@ -9,7 +9,7 @@ process.on('SIGTERM', () => {
   process.exit()
 })
 
-// enable in case you start getting unhandled rejections
+// note: enable in case you start getting unhandled rejections
 // process.on('unhandledRejection', (reason, promise) => {
 //   logger.error('Unhandled Rejection caught at:', promise, 'reason:', reason)
 // })
