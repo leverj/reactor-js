@@ -4,8 +4,8 @@ import {encodeTransfer} from '@leverj/reactor.chain/contracts'
 import {publicKey, signedBy, signer, Vault} from '@leverj/reactor.chain/test'
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
-import config from '../config.js'
 import {VaultTracker} from '../src/CrossChainVaultsTracker.js'
+import config from '../config.js'
 
 const {chain: {polling}} = config
 

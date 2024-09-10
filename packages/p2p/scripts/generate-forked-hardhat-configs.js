@@ -2,6 +2,8 @@ import {networks} from '@leverj/chain-deployment'
 import {Map, Set} from 'immutable'
 import {existsSync, mkdirSync, writeFileSync} from 'node:fs'
 
+//fixme: expand to testnets as well
+
 const targetChains = Set([
   'arbitrum',
   'avalanche',
@@ -15,7 +17,7 @@ const targetChains = Set([
   'optimism',
   'polygon',
 ])
-const targetDir = `${process.env.PWD}/test/hardhat/mainnets`
+const targetDir = `${process.env.PWD}/test/hardhat/forked/mainnets`
 const template = (chainId, blockNumber) => `require('dotenv').config()
 const root = \`\${process.env.PWD}/../chain\`
 

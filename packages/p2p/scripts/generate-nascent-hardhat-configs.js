@@ -2,6 +2,8 @@ import {networks} from '@leverj/chain-deployment'
 import {Map, Set} from 'immutable'
 import {existsSync, mkdirSync, writeFileSync} from 'node:fs'
 
+//fixme: expand to mainnets as well
+
 const targetChains = Set([
   'hardhat',
   'sepolia',
@@ -30,7 +32,7 @@ const targetChains = Set([
   'zksyncSepoliaTestnet',
   'zoraSepolia',
 ])
-const targetDir = `${process.env.PWD}/test/hardhat/testnets`
+const targetDir = `${process.env.PWD}/test/hardhat/nascent/testnets`
 const template = (chainId) => `const root = \`\${process.env.PWD}/../chain\`
 
 module.exports = Object.assign(require(\`\${root}/hardhat.config.cjs\`), {

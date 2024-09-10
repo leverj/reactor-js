@@ -4,8 +4,8 @@ import {exec} from 'child_process'
 import {expect} from 'expect'
 import {rmSync} from 'node:fs'
 import waitOn from 'wait-on'
-import config from '../config.js'
 import {CrossChainVaultsTracker} from '../src/CrossChainVaultsTracker.js'
+import config from '../config.js'
 import {createDeployConfig, deploymentDir, hardhatConfigFileFor} from './help.js'
 
 const {chain: {polling}} = config

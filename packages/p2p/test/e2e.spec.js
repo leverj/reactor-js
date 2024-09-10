@@ -3,10 +3,10 @@ import axios from 'axios'
 import {fork} from 'child_process'
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
-import config from '../config.js'
-import {tryAgainIfError, waitToSync} from '../src/utils.js'
-import {getNodeInfos} from './fixtures.js'
 import {JsonDirStore} from '../src/db/JsonDirStore.js'
+import {tryAgainIfError, waitToSync} from '../src/utils.js'
+import config from '../config.js'
+import {getNodeInfos} from './fixtures.js'
 
 const {bridgeNode, externalIp, port: leaderPort} = config
 const {timeout, tryCount, port} = config

@@ -8,8 +8,8 @@
   "scripts": {
     "test": "npx mocha",
     "dependency:check": "npx depcheck",
-    "hardhat:generate:testnet:configs": "node scripts/generate-hardhat-testnet-configs.js",
-    "hardhat:generate:mainnet:configs": "node scripts/generate-hardhat-mainnet-configs.js",
+    "generate:nascent:hardhat:configs": "node scripts/generate-nascent-hardhat-configs.js",
+    "generate:forked:hardhat:configs": "node scripts/generate-forked-hardhat-configs.js",
     "start": "node app.js",
     "docker:build": "./scripts/docker-build.sh"
   },

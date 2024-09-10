@@ -7,7 +7,7 @@ import config from '../config.js'
 import {peerIdJsons} from './fixtures.js'
 
 export const deploymentDir = `${import.meta.dirname}/../../../data/chain`
-export const hardhatConfigFileFor = ({networks, chain}) => `test/hardhat/${networks[chain].testnet ? 'testnets' : 'mainnets'}/${chain}.config.cjs`
+export const hardhatConfigFileFor = ({networks, chain}) => `test/hardhat/${networks[chain].testnet ? 'nascent/testnets' : 'forked/mainnets'}/${chain}.config.cjs`
 
 
 export const createDeployConfig = (chain, chains, override = {}) => {
