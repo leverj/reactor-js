@@ -68,7 +68,7 @@ export class BridgeNode {
     }
   }
 
-  trackChain(tracker) { //fixme: tracker
+  trackChain(tracker) { //fixme:tracker
     this.trackers[tracker.chainId] = tracker
     this.vaults[tracker.chainId] = tracker.contract
   }

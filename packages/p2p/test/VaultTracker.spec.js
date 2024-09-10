@@ -1,5 +1,5 @@
 import {accounts, ETH, getContractAt, provider} from '@leverj/chain-deployment'
-import {InMemoryStore} from '@leverj/common'
+import {InMemoryStore, logger} from '@leverj/common'
 import {encodeTransfer} from '@leverj/reactor.chain/contracts'
 import {publicKey, signedBy, signer, Vault} from '@leverj/reactor.chain/test'
 import {expect} from 'expect'
@@ -24,7 +24,7 @@ describe('VaultTracker', () => {
         await toVault.checkIn(signature, publicKey, payload).then(_ => _.wait())
       }
     }
-    tracker = VaultTracker(fromChainId, fromVault, new InMemoryStore(), polling, node)
+    tracker = VaultTracker(fromChainId, fromVault, new InMemoryStore(), polling, node, logger)
     await tracker.start()
   })
   afterEach(async () => tracker.stop())

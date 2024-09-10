@@ -8,7 +8,7 @@ import {CrossChainVaultsTracker} from '../src/CrossChainVaultsTracker.js'
 import config from '../config.js'
 import {createDeployConfig, deploymentDir, hardhatConfigFileFor} from './help.js'
 
-const {chain: {polling}} = config
+const {bridge: {confDir}, chain: {polling}} = config
 
 describe('CrossChainVaultsTracker', () => {
   const deployedDir = `${deploymentDir}/env/${process.env.NODE_ENV}`
@@ -18,6 +18,8 @@ describe('CrossChainVaultsTracker', () => {
 
   before(async () => {
     rmSync(deployedDir, {recursive: true, force: true})
+    rmSync(confDir, {recursive: true, force: true})
+    const store = new JsonStore(confDir, 'trackers')
     const configs = []
     for (let [i, chain] of chains.entries()) {
       const port = 8101 + i
@@ -29,8 +31,8 @@ describe('CrossChainVaultsTracker', () => {
       await waitOn({resources: [config.networks[config.chain].providerURL], timeout: 10_000})
       await Deploy.from(config, {logger}).run()
     }
-    const store = new JsonStore(deployedDir, '.evms')
-    tracker = CrossChainVaultsTracker.of(chains, store, polling)
+    const evms = new JsonStore(deployedDir, '.evms').toObject()
+    tracker = CrossChainVaultsTracker.of(chains, evms, store, polling)
   })
   after(() => { while (processes.length > 0) processes.pop().kill() })
 
