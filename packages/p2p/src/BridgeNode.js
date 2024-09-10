@@ -50,6 +50,8 @@ export class BridgeNode {
   get multiaddrs() { return this.network.multiaddrs }
   get peerId() { return this.network.peerId }
   get peers() { return this.network.peers }
+  get port() { return port } //fixme: how come?
+  // get port() { return this.network.port }
   get signer() { return this.tss.idHex }
   get secretKeyShare() { return this.tss.secretKeyShare.serializeToHexStr() }
   get groupPublicKey() { return this.tss.groupPublicKey.serializeToHexStr() }

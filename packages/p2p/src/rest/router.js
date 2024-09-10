@@ -1,12 +1,13 @@
 import {Router} from 'express'
 import config from '../../config.js'
-import manager from './manager.js'
 
 const {bridgeNode: {port, threshold}, externalIp} = config
-const multiaddr = `/ip4/${externalIp}/tcp/${port}/p2p/${manager.peerId}`
+
+let manager
+export function setNode(_) { manager = _}
 
 async function getMultiaddrs(req, res) {
-  res.send({multiaddr})
+  res.send({multiaddr: `/ip4/${externalIp}/tcp/${port}/p2p/${manager.peerId}`})
 }
 
 async function getAllMultiaddrs(req, res) {
