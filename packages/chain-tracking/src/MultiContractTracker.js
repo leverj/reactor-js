@@ -18,19 +18,7 @@ export class MultiContractTracker {
       contracts: [],
       toOnboard: [],
     })
-    const instance = new this(chainId, provider, store, key, polling, processEvent, logger)
-    const {marker, toOnboard, abis, contracts} = store.get(key)
-    instance.marker = marker
-    instance.toOnboard = toOnboard
-    instance.contracts = {}
-    instance.interfaces = {}
-    instance.topicsByKind = {}
-    instance.topics = [[]]
-    const ifaces = Map(abis).toObject()
-    Map(contracts).forEach((kind, address) => {
-      instance._addContract_(new Contract(address, ifaces[kind], provider), kind)
-    })
-    return instance
+    return new this(chainId, provider, store, key, polling, processEvent, logger)
   }
 
   constructor(chainId, provider, store, key, polling, processEvent, logger) {

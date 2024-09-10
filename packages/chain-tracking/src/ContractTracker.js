@@ -35,19 +35,19 @@ export class ContractTracker {
   async updateMarker(state) { return this.update({marker: merge(this.marker, state)}) }
 
   async start() {
-    if (!this.isRunning) {
-      this.logger.log(`starting tracker [${this.key}]`)
-      this.isRunning = true
-      await this.pollForEvents()
-    }
+    if (this.isRunning) return
+
+    this.logger.log(`starting tracker [${this.key}]`)
+    this.isRunning = true
+    await this.pollForEvents()
   }
 
   stop() {
-    if (this.isRunning) {
-      this.logger.log(`stopping tracker [${this.key}]`)
-      this.isRunning = false
-      if (this.pollingTimer) clearTimeout(this.pollingTimer)
-    }
+    if (!this.isRunning) return
+
+    this.logger.log(`stopping tracker [${this.key}]`)
+    this.isRunning = false
+    if (this.pollingTimer) clearTimeout(this.pollingTimer)
   }
 
   fail(e) {

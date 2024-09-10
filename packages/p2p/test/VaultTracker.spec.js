@@ -5,7 +5,7 @@ import {publicKey, signedBy, signer, Vault} from '@leverj/reactor.chain/test'
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
 import config from '../config.js'
-import {VaultTracker} from '../src/VaultTracker.js'
+import {VaultTracker} from '../src/CrossChainVaultsTracker.js'
 
 const {chain: {polling}} = config
 
@@ -24,7 +24,7 @@ describe('VaultTracker', () => {
         await toVault.checkIn(signature, publicKey, payload).then(_ => _.wait())
       }
     }
-    tracker = await VaultTracker(fromVault, new InMemoryStore(), polling, node)
+    tracker = VaultTracker(fromChainId, fromVault, new InMemoryStore(), polling, node)
     await tracker.start()
   })
   afterEach(async () => tracker.stop())

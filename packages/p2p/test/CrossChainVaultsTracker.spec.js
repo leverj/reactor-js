@@ -1,19 +1,20 @@
 import {Deploy} from '@leverj/chain-deployment'
 import {JsonStore, logger} from '@leverj/common'
 import {exec} from 'child_process'
+import {expect} from 'expect'
 import {rmSync} from 'node:fs'
 import waitOn from 'wait-on'
 import config from '../config.js'
+import {CrossChainVaultsTracker} from '../src/CrossChainVaultsTracker.js'
 import {createDeployConfig, deploymentDir, hardhatConfigFileFor} from './help.js'
-import {MultiChainVaultTracker} from './MultiChainVaultTracker.js'
 
 const {chain: {polling}} = config
 
-describe('MultiChainVaultTracker', () => {
+describe('CrossChainVaultsTracker', () => {
   const deployedDir = `${deploymentDir}/env/${process.env.NODE_ENV}`
   const chains = ['hardhat', 'sepolia']
   const processes = []
-  let coordinator
+  let tracker
 
   before(async () => {
     rmSync(deployedDir, {recursive: true, force: true})
@@ -29,12 +30,18 @@ describe('MultiChainVaultTracker', () => {
       await Deploy.from(config, {logger}).run()
     }
     const store = new JsonStore(deployedDir, '.evms')
-    coordinator = MultiChainVaultTracker.of(chains, store, polling)
+    tracker = CrossChainVaultsTracker.of(chains, store, polling)
   })
-  beforeEach(() => coordinator.start())
-  afterEach(() => coordinator.stop())
   after(() => { while (processes.length > 0) processes.pop().kill() })
 
-  it('load all chains from deployment', async () => {
+  it('can start & stop', async () => {
+    expect(tracker.chains).toEqual(chains)
+    expect(tracker.isRunning).toBe(false)
+
+    await tracker.start()
+    expect(tracker.isRunning).toBe(true)
+
+    tracker.stop()
+    expect(tracker.isRunning).toBe(false)
   })
 })
