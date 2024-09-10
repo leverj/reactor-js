@@ -2,7 +2,7 @@ import {EventEmitter} from 'node:events'
 import {setTimeout} from 'node:timers/promises'
 
 export const events = new EventEmitter()
-export const INFO_CHANGED = 'INFO_CHANGED'
+export const NODE_INFO_CHANGED = 'NODE_INFO_CHANGED'
 export const PEER_DISCOVERY = 'peer:discovery'
 export const PEER_CONNECT = 'peer:connect'
 
@@ -19,7 +19,7 @@ export async function waitToSync(fns, tryCount, timeout, port) {
   }
 }
 
-const ErrorCodes = ['ECONNREFUSED', 'ECONNRESET', 'ERR_ENCRYPTION_FAILED', 'ENOENT'] //fixme: what to call this error-group?
+const ErrorCodes = ['ERR_ENCRYPTION_FAILED', 'ENOENT'].concat(ConnectionErrorCodes)
 export const tryAgainIfError = async (fn, tryCount, timeout, port) => tryFor(fn, ErrorCodes, tryCount, timeout, port)
 
 async function tryFor(fn, errorCode, tryCount, timeout, port) {

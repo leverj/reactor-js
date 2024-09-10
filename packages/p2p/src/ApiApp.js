@@ -4,7 +4,7 @@ import {JsonDirStore} from './db/JsonDirStore.js'
 import app from './rest/app.js'
 import {setNode} from './rest/router.js'
 import config from '../config.js'
-import {events, INFO_CHANGED} from './utils.js'
+import {events, NODE_INFO_CHANGED} from './utils.js'
 import {BridgeNode} from './BridgeNode.js'
 
 const {bridge, port, ip} = config
@@ -14,7 +14,7 @@ class NodeStorage {
     this.node = node
     this.store = store
     this.timer = null
-    events.on(INFO_CHANGED, () => this.set())
+    events.on(NODE_INFO_CHANGED, () => this.set())
   }
 
   get data() { return this.store.get(this.node.port) }
@@ -31,9 +31,9 @@ export class ApiApp {
   static async new() {
     const store = new JsonDirStore(bridge.confDir, 'nodes')
     const node = await BridgeNode.from(bridge.port, bridge.bootstrapNodes, store.get(port))
-    new NodeStorage(node, store)
+    new NodeStorage(node, store) // ... start listening to NODE_INFO_CHANGED
     await node.start()
-    setNode(node)
+    setNode(node) // hack: make it available to router
     return new this(node)
   }
 

@@ -11,7 +11,7 @@ import {setTimeout} from 'node:timers/promises'
 import config from '../config.js'
 import {NetworkNode} from './NetworkNode.js'
 import {TssNode} from './TssNode.js'
-import {events, INFO_CHANGED, PEER_DISCOVERY, waitToSync} from './utils.js'
+import {events, NODE_INFO_CHANGED, PEER_DISCOVERY, waitToSync} from './utils.js'
 
 const {timeout, port} = config
 
@@ -87,7 +87,7 @@ export class BridgeNode {
   async start() {
     await this.network.start()
     await this.leadership.addLeader()
-    events.emit(INFO_CHANGED)
+    events.emit(NODE_INFO_CHANGED)
     this.ping()
   }
 
@@ -111,7 +111,7 @@ export class BridgeNode {
         if (each !== this.peerId) this.tss.addMember(dkgId, this.sendMessageToPeer.bind(this, each, DKG_RECEIVE_KEY_SHARE))
       }
       logger.log('Added to whitelist', peerIds.map(_ => `${_.slice(0, 4)}..${_.slice(-3)}`).join(', '))
-      events.emit(INFO_CHANGED)
+      events.emit(NODE_INFO_CHANGED)
     }
   }
 
