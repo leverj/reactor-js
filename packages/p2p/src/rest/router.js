@@ -1,49 +1,50 @@
 import {Router} from 'express'
 import config from '../../config.js'
-import manager from './manager.js'
 
 const {bridge: {port, threshold}, externalIp} = config
-const multiaddr = `/ip4/${externalIp}/tcp/${port}/p2p/${manager.peerId}`
+
+let node
+export function setNode(_) { node = _}
 
 async function getMultiaddrs(req, res) {
-  res.send({multiaddr})
+  res.send({multiaddr: `/ip4/${externalIp}/tcp/${port}/p2p/${node.peerId}`})
 }
 
 async function getAllMultiaddrs(req, res) {
-  res.send(manager.multiaddrs)
+  res.send(node.multiaddrs)
 }
 
 async function getPeers(req, res) {
-  res.send(manager.peers)
+  res.send(node.peers)
 }
 
 function getPeersStatus(req, res) {
-  res.send(manager.monitor.getPeersStatus())
+  res.send(node.monitor.getPeersStatus())
 }
 
 async function startDkg(req, res) {
-  await manager.startDKG(threshold).then(_ => res.send('ok'))
+  await node.startDKG(threshold).then(_ => res.send('ok'))
 }
 
 async function aggregateSignature(req, res) {
-  await manager.aggregateSignature(req.body.message, -1, _ => _).then(_ => res.send('ok'))
+  await node.aggregateSignature(req.body.message, -1, _ => _).then(_ => res.send('ok'))
 }
 
 async function getAggregateSignature(req, res) {
-  res.send(manager.getAggregateSignature(req.query.transferHash))
+  res.send(node.getAggregateSignature(req.query.transferHash))
 }
 
 async function getWhitelists(req, res) {
-  res.send(manager.whitelist.get())
+  res.send(node.whitelist.get())
 }
 
 async function publishWhitelist(req, res) {
-  await manager.publishWhitelist().then(_ => res.send('ok'))
+  await node.publishWhitelist().then(_ => res.send('ok'))
 }
 
 async function getBootstrapPeers(req, res) {
   const results = []
-  for (let each of manager.peers) results.push(await manager.network.findPeer(each))
+  for (let each of node.peers) results.push(await node.network.findPeer(each))
   res.send(results)
 }
 

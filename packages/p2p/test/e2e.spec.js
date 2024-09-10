@@ -1,4 +1,4 @@
-import {logger} from '@leverj/common'
+import {CodedError, logger} from '@leverj/common'
 import axios from 'axios'
 import {fork} from 'child_process'
 import {expect} from 'expect'
@@ -11,7 +11,7 @@ import {getNodeInfos} from './fixtures.js'
 const {bridge, externalIp, timeout, tryCount, port: leaderPort} = config
 
 describe('e2e', () => {
-  const store = new JsonDirStore(bridge.confDir, 'Info')
+  const store = new JsonDirStore(bridge.confDir, 'nodes')
   const processes = {}
 
   beforeEach(() => store.clear())
@@ -29,9 +29,7 @@ describe('e2e', () => {
         const leader = store.get(leaderPort)?.p2p.id
         if (leader) return [`/ip4/${externalIp}/tcp/${bridge.port}/p2p/${leader}`]
         else {
-          const e = Error(`no leader found @ port ${leaderPort}`)
-          e.code = 'ENOENT' //fixme: what is the expected error code / failure here?
-          throw e
+          throw CodedError(`no leader found @ port ${leaderPort}`, 'ENOENT')
         }
       }
       const bootstrapNodes = port === leaderPort ? [] : await tryAgainIfError(getLeaderNode, timeout, tryCount, port)
