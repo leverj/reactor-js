@@ -25,11 +25,11 @@ export class JsonStore {
       new InMemoryStore()
   }
   get exists() { return existsSync(this.file) }
-  get(key, defaults) { return this.cache.get(key, defaults) }
-  set(key, value) { this.cache.set(key, value); this.save() }
-  update(key, value) { this.cache.update(key, value); this.save() }
-  delete(key) { this.cache.delete(key); this.save() }
-  has(key) { return this.cache.has(key) }
+  get(key, defaults) { return this.cache.get(key.toString(), defaults) }
+  set(key, value) { this.cache.set(key.toString(), value); this.save() }
+  update(key, value) { this.cache.update(key.toString(), value); this.save() }
+  delete(key) { this.cache.delete(key.toString()); this.save() }
+  has(key) { return this.cache.has(key.toString()) }
   entries() { return this.cache.entries() }
   keys() { return this.cache.keys() }
   values() { return this.cache.values() }

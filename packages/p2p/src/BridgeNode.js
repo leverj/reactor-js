@@ -24,8 +24,8 @@ const DKG_RECEIVE_KEY_SHARE = 'DKG_RECEIVE_KEY_SHARE'
 const meshProtocol = '/bridgeNode/0.0.1'
 
 export class BridgeNode {
-  static async from(port, bootstrapNodes, info = {}) {
-    const {p2p, tssNode, whitelist, leader} = info
+  static async from(port, bootstrapNodes, data = {}) {
+    const {p2p, tssNode, whitelist, leader} = data
     const network = await NetworkNode.from(port, p2p, bootstrapNodes)
     const tss = new TssNode(network.peerId, tssNode)
     tss.addMember(tss.idHex, tss.onDkgShare.bind(tss)) // making self dkg share

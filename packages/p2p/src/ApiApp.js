@@ -9,39 +9,30 @@ import {BridgeNode} from './BridgeNode.js'
 
 const {bridgeNode, port, ip} = config
 
-const store = new JsonDirStore(bridgeNode.confDir, 'Info')
-
-class Info {
-  constructor(node, data) {
+class NodeStorage {
+  constructor(node, store) {
     this.node = node
-    this.data = data
+    this.store = store
     this.timer = null
     events.on(INFO_CHANGED, () => this.set())
   }
 
-  get() { return this.data }
+  get data() { return this.store.get(this.node.port) }
+  set data(value) { if (this.data !== value) this.store.set(this.node.port, value) }
 
+  get() { return this.data }
   set() {
     if (this.timer) clearTimeout(this.timer)
-    this.timer = setTimeout(async () => {
-      if (this.data === this.node.info()) return
-      this.data = this.node.info()
-      store.set(this.node.port, this.data)
-    }, 10)
+    this.timer = setTimeout(() => this.data = this.node.info(), 10)
   }
-}
-
-async function createNodeAt(port) {
-  const data = store.get(port)
-  const node = await BridgeNode.from(bridgeNode.port, bridgeNode.bootstrapNodes, data)
-  new Info(node, data)
-  await node.start()
-  return node
 }
 
 export class ApiApp {
   static async new() {
-    const node = await createNodeAt(port)
+    const store = new JsonDirStore(bridgeNode.confDir, 'nodes')
+    const node = await BridgeNode.from(bridgeNode.port, bridgeNode.bootstrapNodes, store.get(port))
+    new NodeStorage(node, store)
+    await node.start()
     setNode(node)
     return new this(node)
   }

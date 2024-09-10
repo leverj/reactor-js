@@ -1,4 +1,4 @@
-import {logger} from '@leverj/common'
+import {CodedError, logger} from '@leverj/common'
 import axios from 'axios'
 import {fork} from 'child_process'
 import {expect} from 'expect'
@@ -12,16 +12,14 @@ const {bridgeNode, externalIp, port: leaderPort} = config
 const {timeout, tryCount, port} = config
 
 describe('e2e', () => {
-  const store = new JsonDirStore(bridgeNode.confDir, 'Info')
-  const processes = {}
+  const store = new JsonDirStore(bridgeNode.confDir, 'nodes')
+  const processes = []
 
   beforeEach(() => store.clear())
-  afterEach(async () => await stop())
-
-  async function stop(ports = Array.from(Object.keys(processes))) {
-    ports.forEach(_ => { processes[_].kill(); delete processes[_] })
+  afterEach(async () => {
+    while (processes.length > 0) processes.pop().kill()
     await setTimeout(100)
-  }
+  })
 
   async function createApiNodesFrom(ports, howMany = ports.length - 1) {
     const createApiNode = async (port) => {
@@ -29,11 +27,7 @@ describe('e2e', () => {
       const getLeaderNode = async _ => {
         const leader = store.get(leaderPort)?.p2p.id
         if (leader) return [`/ip4/${externalIp}/tcp/${bridgeNode.port}/p2p/${leader}`]
-        else {
-          const e = Error(`no leader found @ port ${leaderPort}`)
-          e.code = 'ENOENT' //fixme: what is the expected error code / failure here?
-          throw e
-        }
+        else throw CodedError(`no leader found @ port ${leaderPort}`, 'ENOENT')
       }
       const bootstrapNodes = port === leaderPort ? [] : await tryAgainIfError(getLeaderNode, timeout, tryCount, port)
       const env = Object.assign({}, process.env, {
@@ -46,7 +40,7 @@ describe('e2e', () => {
     }
 
     for (let each of ports) {
-      processes[each] = await createApiNode(each)
+      processes.push(await createApiNode(each))
       await setTimeout(100)
     }
     await waitToSync(ports.map(_ => async () => GET(_, 'peer').then(_ => _.length === howMany)), tryCount, timeout, port)
@@ -79,7 +73,7 @@ describe('e2e', () => {
     const ports = await createApiNodes(2)
     await POST(leaderPort, 'dkg/start')
     await setTimeout(100)
-    const nodes = await Promise.all(ports.map(_ => store.get(_)))
+    const nodes = ports.map(_ => store.get(_))
     const publicKeys = nodes.map(_ => _.tssNode.groupPublicKey)
     for (let each of publicKeys) {
       expect(each).not.toBeNull()
@@ -106,7 +100,9 @@ describe('e2e', () => {
   it('whitelist', async () => {
     const ports = await createApiNodes(4, false)
     await GET(leaderPort + 1, 'peer/bootstrapped')
-    await stop(ports.slice(2))
+    const _processes_ = processes.slice(2)
+    while (_processes_.length > 0) _processes_.pop().kill()
+    await setTimeout(100)
     await publishWhitelist(ports.slice(0, 2), 4)
     expect(store.get(ports[0]).whitelist).toHaveLength(4)
     expect(store.get(ports[1]).whitelist).toHaveLength(4)
