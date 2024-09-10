@@ -21,7 +21,7 @@ const WHITELIST_TOPIC = 'WHITELIST'
 const WHITELIST_REQUEST = 'WHITELIST_REQUEST'
 const DKG_INIT_THRESHOLD_VECTORS = 'DKG_INIT_THRESHOLD_VECTORS'
 const DKG_RECEIVE_KEY_SHARE = 'DKG_RECEIVE_KEY_SHARE'
-const meshProtocol = '/bridgeNode/0.0.1'
+const meshProtocol = '/bridge/0.0.1'
 
 export class BridgeNode {
   static async from(port, bootstrapNodes, info = {}) {

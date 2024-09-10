@@ -2,7 +2,7 @@ import {Router} from 'express'
 import config from '../../config.js'
 import manager from './manager.js'
 
-const {bridgeNode: {port, threshold}, externalIp} = config
+const {bridge: {port, threshold}, externalIp} = config
 const multiaddr = `/ip4/${externalIp}/tcp/${port}/p2p/${manager.peerId}`
 
 async function getMultiaddrs(req, res) {

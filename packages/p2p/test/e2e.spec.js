@@ -8,11 +8,10 @@ import {tryAgainIfError, waitToSync} from '../src/utils.js'
 import config from '../config.js'
 import {getNodeInfos} from './fixtures.js'
 
-const {bridgeNode, externalIp, port: leaderPort} = config
-const {timeout, tryCount, port} = config
+const {bridge, externalIp, timeout, tryCount, port: leaderPort} = config
 
 describe('e2e', () => {
-  const store = new JsonDirStore(bridgeNode.confDir, 'Info')
+  const store = new JsonDirStore(bridge.confDir, 'Info')
   const processes = {}
 
   beforeEach(() => store.clear())
@@ -28,7 +27,7 @@ describe('e2e', () => {
       const index = port - leaderPort
       const getLeaderNode = async _ => {
         const leader = store.get(leaderPort)?.p2p.id
-        if (leader) return [`/ip4/${externalIp}/tcp/${bridgeNode.port}/p2p/${leader}`]
+        if (leader) return [`/ip4/${externalIp}/tcp/${bridge.port}/p2p/${leader}`]
         else {
           const e = Error(`no leader found @ port ${leaderPort}`)
           e.code = 'ENOENT' //fixme: what is the expected error code / failure here?
@@ -38,8 +37,8 @@ describe('e2e', () => {
       const bootstrapNodes = port === leaderPort ? [] : await tryAgainIfError(getLeaderNode, timeout, tryCount, port)
       const env = Object.assign({}, process.env, {
         PORT: port,
-        BRIDGE_PORT: bridgeNode.port + index,
-        BRIDGE_CONF_DIR: bridgeNode.confDir,
+        BRIDGE_PORT: bridge.port + index,
+        BRIDGE_CONF_DIR: bridge.confDir,
         BRIDGE_BOOTSTRAP_NODES: JSON.stringify(bootstrapNodes),
       })
       return fork('app.js', [], {cwd: process.cwd(), env})
@@ -49,7 +48,7 @@ describe('e2e', () => {
       processes[each] = await createApiNode(each)
       await setTimeout(100)
     }
-    await waitToSync(ports.map(_ => async () => GET(_, 'peer').then(_ => _.length === howMany)), tryCount, timeout, port)
+    await waitToSync(ports.map(_ => async () => GET(_, 'peer').then(_ => _.length === howMany)), tryCount, timeout, leaderPort)
     logger.log('bootstrap synced...')
     return ports
   }
@@ -68,12 +67,12 @@ describe('e2e', () => {
   const POST = (port, endpoint, payload) => axios.post(`http://127.0.0.1:${port}/api/${endpoint}`, payload || {})
 
   async function waitForWhitelistSync(ports, howMany = ports.length) {
-    await waitToSync(ports.map(_ => async () => GET(_, 'whitelist').then(_ => _.length === howMany)), tryCount, timeout, port)
+    await waitToSync(ports.map(_ => async () => GET(_, 'whitelist').then(_ => _.length === howMany)), tryCount, timeout, leaderPort)
     logger.log('whitelisted synced...')
   }
 
   const publishWhitelist = async (ports, total, available) =>
-    tryAgainIfError(_ => POST(leaderPort, 'whitelist/publish'), timeout, tryCount, port).then(_ => waitForWhitelistSync(ports, total, available))
+    tryAgainIfError(_ => POST(leaderPort, 'whitelist/publish'), timeout, tryCount, leaderPort).then(_ => waitForWhitelistSync(ports, total, available))
 
   it('should create new nodes, connect and init DKG', async () => {
     const ports = await createApiNodes(2)

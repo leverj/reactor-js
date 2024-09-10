@@ -3,9 +3,9 @@ import {BridgeNode} from '../BridgeNode.js'
 import {events, INFO_CHANGED} from '../utils.js'
 import {JsonDirStore} from '../db/JsonDirStore.js'
 
-const {bridgeNode, port} = config
+const {bridge, port} = config
 
-const store = new JsonDirStore(bridgeNode.confDir, 'Info')
+const store = new JsonDirStore(bridge.confDir, 'Info')
 
 class Info {
   constructor(node, data) {
@@ -28,7 +28,7 @@ class Info {
 }
 
 const data = store.get(port)
-const manager = await BridgeNode.from(bridgeNode.port, bridgeNode.bootstrapNodes, data)
+const manager = await BridgeNode.from(bridge.port, bridge.bootstrapNodes, data)
 new Info(manager, data)
 await manager.start()
 

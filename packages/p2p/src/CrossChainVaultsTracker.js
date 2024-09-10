@@ -1,5 +1,5 @@
 import {ContractTracker} from '@leverj/chain-tracking'
-import {InMemoryStore, logger} from '@leverj/common'
+import {InMemoryStore, JsonStore, logger} from '@leverj/common'
 import {stubs} from '@leverj/reactor.chain/contracts'
 import {JsonRpcProvider} from 'ethers'
 import {Map} from 'immutable'
@@ -37,6 +37,8 @@ export class CrossChainVaultsTracker {
     this.trackers = []
     this.networks.forEach(_ => {
       const contract = stubs.Vault(_.Vault.address, _.provider)
+      const storeX = new JsonStore(deployedDir, '.evms')
+
       const store = new InMemoryStore() //fixme: how to create the right store?
       const tracker = VaultTracker(_.id, contract, store, this.polling, this.node, this.logger)
       this.trackers.push(tracker)
