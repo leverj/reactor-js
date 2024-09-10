@@ -7,12 +7,12 @@ module.exports = Object.assign(require(`${root}/hardhat.config.cjs`), {
   },
   networks: {
     hardhat: {
-      chainId: 25,
+      chainId: 43113,
       gasPrice: 0,
       initialBaseFeePerGas: 0,
       forking: {
-        url: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
-        blockNumber: 1963112,
+        url: `https://avalanche-fuji.infura.io/v3/${process.env.INFURA_API_KEY}`,
+        blockNumber: 7096959,
       }
     }
   }

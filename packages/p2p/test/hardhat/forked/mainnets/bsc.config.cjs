@@ -11,7 +11,7 @@ module.exports = Object.assign(require(`${root}/hardhat.config.cjs`), {
       gasPrice: 0,
       initialBaseFeePerGas: 0,
       forking: {
-        url: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
+        url: `https://bsc-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
         blockNumber: 15921452,
       }
     }

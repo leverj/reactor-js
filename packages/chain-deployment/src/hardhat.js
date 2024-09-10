@@ -27,13 +27,3 @@ const {mnemonic, path} = config.networks.hardhat.accounts, phrase = Mnemonic.fro
 export const chainId = await provider.getNetwork().then(_ => _.chainId)
 export const accounts = await getSigners()
 export const wallets = accounts.map((value, i) => HDNodeWallet.fromMnemonic(phrase, `${path}/${i}`))
-
-//fixme: maybe
-export const MasqueradingProvider = (provider, chainId) => ({
-  getNetwork: async () => provider.getNetwork().then(_ => {
-    _.chainId = chainId
-    return _
-  }),
-  getBlockNumber: async () => provider.getBlockNumber(),
-  getLogs: async (filter) => provider.getLogs(filter),
-})

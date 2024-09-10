@@ -1,3 +1,4 @@
+require('dotenv').config()
 const root = `${process.env.PWD}/../chain`
 
 module.exports = Object.assign(require(`${root}/hardhat.config.cjs`), {
@@ -6,9 +7,13 @@ module.exports = Object.assign(require(`${root}/hardhat.config.cjs`), {
   },
   networks: {
     hardhat: {
-      chainId: 999999999,
+      chainId: 168587773,
       gasPrice: 0,
       initialBaseFeePerGas: 0,
+      forking: {
+        url: `https://blast-sepolia.infura.io/v3/${process.env.INFURA_API_KEY}`,
+        blockNumber: 756690,
+      }
     }
   }
 })

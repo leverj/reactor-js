@@ -6,7 +6,7 @@ module.exports = Object.assign(require(`${root}/hardhat.config.cjs`), {
   },
   networks: {
     hardhat: {
-      chainId: 168587773,
+      chainId: 168587773,  /*** blastSepolia ***/
       gasPrice: 0,
       initialBaseFeePerGas: 0,
     }

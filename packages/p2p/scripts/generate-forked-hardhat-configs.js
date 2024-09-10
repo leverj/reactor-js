@@ -1,24 +1,65 @@
 import {networks} from '@leverj/chain-deployment'
-import {Map, Set} from 'immutable'
+import {Map} from 'immutable'
 import {existsSync, mkdirSync, writeFileSync} from 'node:fs'
 
-//fixme: expand to testnets as well
+const infura_supported_chains = Map([
 
-const targetChains = Set([
-  'arbitrum',
-  'avalanche',
-  'base',
-  'bsc',
-  'cronos',
-  'fantom',
-  'filecoin',
-  'linea',
-  'mainnet',
-  'optimism',
-  'polygon',
-])
-const targetDir = `${process.env.PWD}/test/hardhat/forked/mainnets`
-const template = (chainId, blockNumber) => `require('dotenv').config()
+  // Arbitrum
+  ['arbitrum', 'arbitrum-mainnet', 42161n],
+  ['arbitrumSepolia', 'arbitrum-sepolia', 421614n],
+
+  // Avalanche
+  ['avalanche', 'avalanche-mainnet', 43114n],
+  ['avalancheFuji', 'avalanche-fuji', 43113n],
+
+  // Blast
+  ['blast', 'blast-mainnet', 81457n],
+  ['blastSepolia', 'blast-sepolia', 168587773n],
+
+  // Binance Smart Chain
+  ['bsc', 'bsc-mainnet', 56n],
+  ['bscTestnet', 'bsc-testnet', 97n],
+
+  // Celo
+  ['celo', 'celo-mainnet', 42220n],
+  ['celoAlfajores', 'celo-alfajores', 44787n],
+
+  // Ethereum
+  ['mainnet', 'mainnet', 1n],
+  ['holesky', 'holesky', 17000n],
+  ['sepolia', 'sepolia', 11155111n],
+
+  // Linea
+  ['linea', 'linea-mainnet', 59144n],
+  ['lineaSepolia', 'linea-sepolia', 59141n],
+
+  // Mantle
+  ['mantle', 'mantle-mainnet', 5000n],
+  ['mantleSepoliaTestnet', 'mantle-sepolia', 5003n],
+
+  // opBNB
+  ['opBNB', 'opbnb-mainnet', 204n],
+  ['opBNBTestnet', 'opbnb-testnet', 5611n],
+
+  // Optimism
+  ['optimism', 'optimism-mainnet', 10n],
+  ['optimismSepolia', 'optimism-sepolia', 11155420n],
+
+  // Palm
+  ['palm', 'palm-mainnet', 11297108109n],
+  ['palmTestnet', 'palm-testnet', 11297108099n],
+
+  // Polygon PoS
+  ['polygon', 'polygon-mainnet', 137n],
+  ['polygonAmoy', 'polygon-amoy', 80002n],
+
+  // ZKsync Era
+  ['zksync', 'zksync-mainnet', 324n],
+  ['zksyncSepoliaTestnet', 'zksync-sepolia', 300n],
+].map(([label, infura_label, id]) => [label, {label, infura_label, id}]))
+
+const targetDir = `${process.env.PWD}/test/hardhat/forked`
+const template = (chainId, infura_label, blockNumber) => `require('dotenv').config()
 const root = \`\${process.env.PWD}/../chain\`
 
 module.exports = Object.assign(require(\`\${root}/hardhat.config.cjs\`), {
@@ -31,55 +72,18 @@ module.exports = Object.assign(require(\`\${root}/hardhat.config.cjs\`), {
       gasPrice: 0,
       initialBaseFeePerGas: 0,
       forking: {
-        url: \`https://mainnet.infura.io/v3/\${process.env.INFURA_API_KEY}\`,
+        url: \`https://${infura_label}.infura.io/v3/\${process.env.INFURA_API_KEY}\`,
         blockNumber: ${blockNumber},
       }
     }
   }
 })`
 
-if (!existsSync(targetDir)) mkdirSync(targetDir, {recursive: true})
-Map(networks).filter(_ => !_.testnet && targetChains.has(_.label)).forEach(_ => {
+Map(networks).filter(_ => infura_supported_chains.has(_.label)).forEach(_ => {
   const blockNumber = Map(_.contracts || {}).reduce((result, _) => Math.min(result, _.blockCreated || result), Number.MAX_SAFE_INTEGER)
-  const file = `${targetDir}/${_.label}.config.cjs`
-  if (!existsSync(file)) writeFileSync(file, template(_.id, blockNumber))
+  const dir = `${targetDir}/${_.testnet ? 'testnets' : 'mainnets'}`
+  if (!existsSync(dir)) mkdirSync(dir, {recursive: true})
+  const file = `${dir}/${_.label}.config.cjs`
+  const infura_label = infura_supported_chains.get(_.label).infura_label
+  if (!existsSync(file)) writeFileSync(file, template(_.id, infura_label, blockNumber))
 })
-
-const candidateChains_infura = Set([
-  'arbitrum',
-  'arbitrumNova',
-  'avalanche',
-  'base',
-  'bsc',
-  'cronos',
-  'fantom',
-  'filecoin',
-  'linea',
-  'mainnet',
-  'optimism',
-  'polygon',
-  'zkSync',
-  'zksync',
-])
-const candidateChainsIds_infura = Set([
-  42161n,
-  42170n,
-  43114n,
-  8453n,
-  56n,
-  25n,
-  1n,
-  5n,
-  250n,
-  314n,
-  59144n,
-  59141n,
-  10n,
-  137n,
-  80002n,
-  324n,
-])
-if (false) {
-  const chains = Map(networks).filter(_ => !_.testnet && candidateChainsIds_infura.has(_.id)).keySeq().toArray().sort()
-  console.log(chains.map(_ => `'${_}',`).join('\n'))
-}

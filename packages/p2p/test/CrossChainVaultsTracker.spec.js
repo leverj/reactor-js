@@ -7,6 +7,8 @@ import waitOn from 'wait-on'
 import {CrossChainVaultsTracker} from '../src/CrossChainVaultsTracker.js'
 import config from '../config.js'
 import {createDeployConfig, deploymentDir, hardhatConfigFileFor} from './help.js'
+import {encodeTransfer} from '@leverj/reactor.chain/contracts'
+import {publicKey, signedBy, signer} from '@leverj/reactor.chain/test'
 
 const {bridge: {confDir}, chain: {polling}} = config
 
@@ -32,7 +34,16 @@ describe('CrossChainVaultsTracker', () => {
       await Deploy.from(config, {logger}).run()
     }
     const evms = new JsonStore(deployedDir, '.evms').toObject()
-    tracker = CrossChainVaultsTracker.of(chains, evms, store, polling)
+    const node = { //fixme: create a real node?
+      processTransfer: async _ => {
+        const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = _
+        const payload = encodeTransfer(origin, token, name, symbol, decimals, amount, owner, from, to, tag)
+        const signature = signedBy(transferHash, signer)
+        // await toVault.checkIn(signature, publicKey, payload).then(_ => _.wait())
+        logger.log(signature, publicKey, payload)
+      }
+    }
+    tracker = CrossChainVaultsTracker.of(chains, evms, store, polling, node, logger)
   })
   after(() => { while (processes.length > 0) processes.pop().kill() })
 

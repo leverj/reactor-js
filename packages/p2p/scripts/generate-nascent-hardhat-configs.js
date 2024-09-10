@@ -2,38 +2,64 @@ import {networks} from '@leverj/chain-deployment'
 import {Map, Set} from 'immutable'
 import {existsSync, mkdirSync, writeFileSync} from 'node:fs'
 
-//fixme: expand to mainnets as well
-
 const targetChains = Set([
   'hardhat',
-  'sepolia',
-  'polygonMumbai',
 
+  // Arbitrum
+  'arbitrum',
   'arbitrumSepolia',
-  'b3Sepolia',
-  'baseSepolia',
+
+  // Avalanche
+  'avalanche',
+  'avalancheFuji',
+
+  // Blast
+  'blast',
   'blastSepolia',
-  'bobSepolia',
-  'bobaSepolia',
-  'funkiSepolia',
-  'kakarotSepolia',
-  'kromaSepolia',
+
+  // Binance Smart Chain
+  'bsc',
+  'bscTestnet',
+
+  // Celo
+  'celo',
+  'celoAlfajores',
+
+  // Ethereum
+  'mainnet',
+  'holesky',
+  'sepolia',
+
+  // Linea
+  'linea',
   'lineaSepolia',
-  'liskSepolia',
-  'mantaSepoliaTestnet',
+
+  // Mantle
+  'mantle',
   'mantleSepoliaTestnet',
-  'mintSepoliaTestnet',
-  'morphSepolia',
+
+  // opBNB
+  'opBNB',
+  'opBNBTestnet',
+
+  // Optimism
+  'optimism',
   'optimismSepolia',
-  'rss3Sepolia',
-  'scrollSepolia',
-  'xrSepolia',
-  'zkSyncSepoliaTestnet',
+
+  // Palm
+  'palm',
+  'palmTestnet',
+
+  // Polygon PoS
+  'polygon',
+  'polygonAmoy',
+
+  // ZKsync Era
+  'zksync',
   'zksyncSepoliaTestnet',
-  'zoraSepolia',
 ])
-const targetDir = `${process.env.PWD}/test/hardhat/nascent/testnets`
-const template = (chainId) => `const root = \`\${process.env.PWD}/../chain\`
+const targetDir = `${process.env.PWD}/test/hardhat/nascent`
+const template = (chainId, label) => `const root = \`\${process.env.PWD}/../chain\`
 
 module.exports = Object.assign(require(\`\${root}/hardhat.config.cjs\`), {
   paths: {
@@ -41,7 +67,7 @@ module.exports = Object.assign(require(\`\${root}/hardhat.config.cjs\`), {
   },
   networks: {
     hardhat: {
-      chainId: ${chainId},
+      chainId: ${chainId},  /*** ${label} ***/
       gasPrice: 0,
       initialBaseFeePerGas: 0,
     }
@@ -49,165 +75,9 @@ module.exports = Object.assign(require(\`\${root}/hardhat.config.cjs\`), {
 })`
 
 if (!existsSync(targetDir)) mkdirSync(targetDir, {recursive: true})
-Map(networks).filter(_ => _.testnet && targetChains.has(_.label)).forEach(_ => {
-  const file = `${targetDir}/${_.label}.config.cjs`
-  if (!existsSync(file)) writeFileSync(file, template(_.id))
+Map(networks).filter(_ => targetChains.has(_.label)).forEach(_ => {
+  const dir = `${targetDir}/${_.testnet ? 'testnets' : 'mainnets'}`
+  if (!existsSync(dir)) mkdirSync(dir, {recursive: true})
+  const file = `${dir}/${_.label}.config.cjs`
+  if (!existsSync(file)) writeFileSync(file, template(_.id, _.label))
 })
-
-const candidateChains = Set([
-  'abstractTestnet',
-  'apexTestnet',
-  'arbitrumGoerli',
-  'arbitrumSepolia',
-  'areonNetworkTestnet',
-  'artelaTestnet',
-  'assetChainTestnet',
-  'astarZkyoto',
-  'atletaOlympia',
-  'auroraTestnet',
-  'auroria',
-  'avalancheFuji',
-  'b3Sepolia',
-  'baseGoerli',
-  'baseSepolia',
-  'beamTestnet',
-  'bearNetworkChainTestnet',
-  'berachainTestnet',
-  'berachainTestnetbArtio',
-  'bitTorrentTestnet',
-  'bitkubTestnet',
-  'blastSepolia',
-  'bobSepolia',
-  'bobaSepolia',
-  'botanixTestnet',
-  'bronosTestnet',
-  'bscTestnet',
-  'btrTestnet',
-  'bxnTestnet',
-  'celoAlfajores',
-  'confluxESpaceTestnet',
-  'cronosTestnet',
-  'cronoszkEVMTestnet',
-  'curtis',
-  'cyberTestnet',
-  'defichainEvmTestnet',
-  'dodochainTestnet',
-  'dreyerxTestnet',
-  'ektaTestnet',
-  'eosTestnet',
-  'etherlinkTestnet',
-  'fantomSonicTestnet',
-  'fantomTestnet',
-  'filecoinCalibration',
-  'filecoinHyperspace',
-  'flareTestnet',
-  'fluenceStage',
-  'fluenceTestnet',
-  'funkiSepolia',
-  'gnosisChiado',
-  'gobi',
-  'goerli',
-  'hardhat',
-  'hederaPreviewnet',
-  'hederaTestnet',
-  'holesky',
-  'immutableZkEvmTestnet',
-  'iotaTestnet',
-  'iotexTestnet',
-  'jbcTestnet',
-  'kairos',
-  'kakarotSepolia',
-  'kavaTestnet',
-  'klaytnBaobab',
-  'koi',
-  'kromaSepolia',
-  'l3xTestnet',
-  'lightlinkPegasus',
-  'lineaGoerli',
-  'lineaSepolia',
-  'lineaTestnet',
-  'liskSepolia',
-  'localhost',
-  'luksoTestnet',
-  'mandala',
-  'mantaSepoliaTestnet',
-  'mantaTestnet',
-  'mantleSepoliaTestnet',
-  'mantleTestnet',
-  'metachainIstanbul',
-  'mevTestnet',
-  'mintSepoliaTestnet',
-  'modeTestnet',
-  'moonbaseAlpha',
-  'morphHolesky',
-  'morphSepolia',
-  'neonDevnet',
-  'oasisTestnet',
-  'opBNBTestnet',
-  'optimismGoerli',
-  'optimismSepolia',
-  'palmTestnet',
-  'pgnTestnet',
-  'playfiAlbireo',
-  'plumeTestnet',
-  'polygonAmoy',
-  'polygonMumbai',
-  'polygonZkEvmCardona',
-  'polygonZkEvmTestnet',
-  'pulsechainV4',
-  'qTestnet',
-  'redbellyTestnet',
-  'rootPorcini',
-  'rootstockTestnet',
-  'rss3Sepolia',
-  'saigon',
-  'sapphireTestnet',
-  'satoshiVMTestnet',
-  'scrollSepolia',
-  'seiDevnet',
-  'seiTestnet',
-  'sepolia',
-  'shardeumSphinx',
-  'shibariumTestnet',
-  'shimmerTestnet',
-  'skaleCalypsoTestnet',
-  'skaleEuropaTestnet',
-  'skaleNebulaTestnet',
-  'skaleTitanTestnet',
-  'sketchpad',
-  'soneiumMinato',
-  'songbirdTestnet',
-  'sophonTestnet',
-  'spicy',
-  'storyTestnet',
-  'taikoHekla',
-  'taikoJolnir',
-  'taraxaTestnet',
-  'telcoinTestnet',
-  'telosTestnet',
-  'thunderTestnet',
-  'unreal',
-  'wanchainTestnet',
-  'wemixTestnet',
-  'x1Testnet',
-  'xLayerTestnet',
-  'xaiTestnet',
-  'xrSepolia',
-  'yooldoVerseTestnet',
-  'zetachainAthensTestnet',
-  'zhejiang',
-  'zilliqaTestnet',
-  'zkFairTestnet',
-  'zkSyncInMemoryNode',
-  'zkSyncLocalNode',
-  'zkSyncSepoliaTestnet',
-  'zksyncInMemoryNode',
-  'zksyncLocalNode',
-  'zksyncSepoliaTestnet',
-  'zoraSepolia',
-  'zoraTestnet',
-])
-if (false) {
-  const chains = Map(networks).filter(_ => _.testnet).keySeq().toArray().sort()
-  console.log(chains.map(_ => `'${_}',`).join('\n'))
-}
