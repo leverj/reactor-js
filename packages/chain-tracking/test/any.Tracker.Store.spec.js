@@ -1,4 +1,4 @@
-import {accounts, provider, chainId} from '@leverj/chain-deployment'
+import {accounts, chainId, provider} from '@leverj/chain-deployment'
 import {ContractTracker, MultiContractTracker} from '@leverj/chain-tracking'
 import {ERC20, ERC721} from '@leverj/chain-tracking/test'
 import {InMemoryStore, logger} from '@leverj/common'
@@ -15,12 +15,8 @@ describe('ContractTracker / Store interaction', () => {
 
   it('maintain state for ContractTracker', async () => {
     const contract = await ERC20()
-    const {target: address, interface: iface} = contract
-
-    const topics = iface.fragments.filter(_ => _.type === 'event').map(_ => _.topicHash)
-    const defaults = {contract, topics}
     const store = new InMemoryStore()
-    tracker = ContractTracker.from(chainId, address, provider, defaults, store, polling, _ => _, logger)
+    tracker = ContractTracker.of(chainId, contract, store, polling, _ => _, logger)
     const key = tracker.key
     const before = cloneDeep(store.get(key))
     expect(tracker.marker).toEqual(before.marker)
@@ -40,8 +36,6 @@ describe('ContractTracker / Store interaction', () => {
     const after = cloneDeep(store.get(key))
     expect(after.marker.block).toEqual(tracker.marker.block)
     expect(after.marker.blockWasProcessed).toBe(true)
-    expect(after.abi).toMatchObject(before.abi)
-    expect(after.topics).toMatchObject(before.topics)
   })
 
   it('maintain state for MultiContractTracker', async () => {

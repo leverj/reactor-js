@@ -1,5 +1,4 @@
 import exitHook from 'async-exit-hook'
-import {Contract} from 'ethers'
 import {List} from 'immutable'
 import {merge} from 'lodash-es'
 
@@ -8,31 +7,16 @@ import {merge} from 'lodash-es'
  */
 export class ContractTracker {
   static of(chainId, contract, store, polling, processEvent = logger.log, logger = console) {
-    const {runner: {provider}, target: address} = contract
-    return this.from(chainId, address, provider, {contract}, store, polling, processEvent, logger)
+    const key = [chainId, contract.target].join(':')
+    store.update(key, {
+      marker: {block: 0, logIndex: -1, blockWasProcessed: false}
+    })
+    return new this(contract, store, key, polling, processEvent, logger)
   }
 
-  static from(chainId, address, provider, defaults, store, polling, processEvent = logger.log, logger = console) {
-    const key = [chainId, address].join(':')
-    store.update(key, this.defaults(defaults))
-    const instance = new this(address, provider, store, key, polling, processEvent, logger)
-    return instance.load()
-  }
-
-  static defaults({contract, topics}) {
-    const result = {marker: {block: 0, logIndex: -1, blockWasProcessed: false}}
-    if (contract) {
-      result.abi = contract.interface.format()
-      //if no specific topics designated, track all topics
-      if (!topics) topics = contract.interface.fragments.filter(_ => _.type === 'event').map(_ => _.topicHash)
-    }
-    if (topics) result.topics = [topics]
-    return result
-  }
-
-  constructor(address, provider, store, key, polling, processEvent, logger) {
-    this.address = address
-    this.provider = provider
+  constructor(contract, store, key, polling, processEvent, logger) {
+    this.contract = contract
+    this.topics = [contract.interface.fragments.filter(_ => _.type === 'event').map(_ => _.topicHash)]
     this.store = store
     this.key = key
     this.polling = polling
@@ -41,16 +25,11 @@ export class ContractTracker {
     this.isRunning = false
     exitHook(() => this.stop())
   }
+  get address() { return this.contract.target }
+  get provider() { return this.contract.runner.provider }
   get interface() { return this.contract.interface }
+  get marker() { return this.store.get(this.key).marker }
   get lastBlock() { return this.marker.block }
-
-  load() {
-    const {abi, topics, marker} = this.store.get(this.key)
-    this.contract = new Contract(this.address, abi, this.provider)
-    this.topics = topics
-    this.marker = marker
-    return this
-  }
 
   async update(state) { return this.store.update(this.key, state) }
   async updateMarker(state) { return this.update({marker: merge(this.marker, state)}) }

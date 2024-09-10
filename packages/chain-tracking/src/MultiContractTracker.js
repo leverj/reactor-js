@@ -12,18 +12,25 @@ import {ContractTracker} from './ContractTracker.js'
 export class MultiContractTracker {
   static from(chainId, provider, store, polling, processEvent = logger.log, logger = console) {
     const key = chainId
-    store.update(key, this.defaults())
-    const instance = new this(chainId, provider, store, key, polling, processEvent, logger)
-    return instance.load()
-  }
-
-  static defaults() {
-    return {
+    store.update(key, {
       marker: {block: 0, logIndex: -1, blockWasProcessed: false},
       abis: [],
       contracts: [],
       toOnboard: [],
-    }
+    })
+    const instance = new this(chainId, provider, store, key, polling, processEvent, logger)
+    const {marker, toOnboard, abis, contracts} = store.get(key)
+    instance.marker = marker
+    instance.toOnboard = toOnboard
+    instance.contracts = {}
+    instance.interfaces = {}
+    instance.topicsByKind = {}
+    instance.topics = [[]]
+    const ifaces = Map(abis).toObject()
+    Map(contracts).forEach((kind, address) => {
+      instance._addContract_(new Contract(address, ifaces[kind], provider), kind)
+    })
+    return instance
   }
 
   constructor(chainId, provider, store, key, polling, processEvent, logger) {
@@ -34,26 +41,21 @@ export class MultiContractTracker {
     this.polling = polling
     this.processEvent = processEvent
     this.logger = logger
-    this.isRunning = false
-    exitHook(() => this.stop())
-  }
-  get lastBlock() { return this.marker.block }
-
-  load() {
-    const {marker, toOnboard, abis, contracts} = this.store.get(this.key)
-    this.marker = marker
-    this.toOnboard = toOnboard
     this.contracts = {}
     this.interfaces = {}
     this.topicsByKind = {}
     this.topics = [[]]
+    this.isRunning = false
+    const {marker, toOnboard, abis, contracts} = store.get(key)
+    this.marker = marker
+    this.toOnboard = toOnboard
     const ifaces = Map(abis).toObject()
-    Map(contracts).forEach((kind, address) => {
-      const contract = new Contract(address, ifaces[kind], this.provider)
-      this._addContract_(contract, kind)
-    })
-    return this
+    Map(contracts).forEach(
+      (kind, address) => this._addContract_(new Contract(address, ifaces[kind], provider), kind)
+    )
+    exitHook(() => this.stop())
   }
+  get lastBlock() { return this.marker.block }
 
   async update(state) { return this.store.update(this.key, state) }
   async updateMarker(state) { return this.update({marker: merge(this.marker, state)}) }
@@ -73,7 +75,7 @@ export class MultiContractTracker {
   async addContract(contract, kind) {
     this._addContract_(contract, kind)
     return this.isRunning ?
-      this.onboard(contract, kind) :
+      this.onboard(contract) :
       this.scheduleToOnboard(contract.target, kind)
   }
 
@@ -82,13 +84,10 @@ export class MultiContractTracker {
     await this.update({toOnboard: this.toOnboard})
   }
 
-  async onboard(contract, kind) {
+  async onboard(contract) {
     const {chainId, provider, polling, processEvent, logger, lastBlock} = this
-    const address = contract.target
-    const topics = this.topicsByKind[kind]
-    const defaults = {contract, topics}
-    const tracker = ContractTracker.from(chainId, address, provider, defaults, new InMemoryStore(), polling, processEvent, logger)
-    const creationBlock = await getCreationBlock(provider, address).catch(_ => 0)
+    const tracker = ContractTracker.of(chainId, contract, new InMemoryStore(), polling, processEvent, logger)
+    const creationBlock = await getCreationBlock(provider, contract.target).catch(_ => 0)
     await tracker.processLogs(creationBlock, lastBlock)
     await this.update({
       contracts: Map(this.contracts).toArray(),

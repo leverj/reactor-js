@@ -5,11 +5,11 @@ import {rmSync} from 'node:fs'
 import waitOn from 'wait-on'
 import config from '../config.js'
 import {createDeployConfig, deploymentDir, hardhatConfigFileFor} from './help.js'
-import {MultiChainContractCoordinator} from './MultiChainContractCoordinator.js'
+import {MultiChainVaultTracker} from './MultiChainVaultTracker.js'
 
 const {chain: {polling}} = config
 
-describe.skip('track all deployed vaults', () => {
+describe('MultiChainVaultTracker', () => {
   const deployedDir = `${deploymentDir}/env/${process.env.NODE_ENV}`
   const chains = ['hardhat', 'sepolia']
   const processes = []
@@ -29,7 +29,7 @@ describe.skip('track all deployed vaults', () => {
       await Deploy.from(config, {logger}).run()
     }
     const store = new JsonStore(deployedDir, '.evms')
-    coordinator = new MultiChainContractCoordinator(chains, store, polling)
+    coordinator = MultiChainVaultTracker.of(chains, store, polling)
   })
   beforeEach(() => coordinator.start())
   afterEach(() => coordinator.stop())

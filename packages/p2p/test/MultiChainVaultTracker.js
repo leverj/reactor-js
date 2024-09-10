@@ -1,13 +1,12 @@
-import {ContractTracker} from '@leverj/chain-tracking'
 import {InMemoryStore, logger} from '@leverj/common'
 import {stubs} from '@leverj/reactor.chain/contracts'
 import {JsonRpcProvider} from 'ethers'
 import {Map} from 'immutable'
 import {VaultTracker} from '../src/VaultTracker.js'
 
-export class MultiChainContractCoordinator {
+export class MultiChainVaultTracker {
   static of(chains, store, polling) {
-    const networks = Map(store.toObject).filter(_ => chains.includes(_.label)).map(_ => ({
+    const networks = Map(store.toObject()).filter(_ => chains.includes(_.label)).map(_ => ({
       id: _.id,
       label: _.label,
       Vault: _.contracts.Vault,
@@ -27,7 +26,7 @@ export class MultiChainContractCoordinator {
     const node = null //fixme
     for (let each of this.contracts) {
       const store = new InMemoryStore()
-      this.trackers.push(await VaultTracker(each, store, this.polling, node))
+      this.trackers.push(await VaultTracker(each, store, this.polling, node, logger))
     }
   }
 
