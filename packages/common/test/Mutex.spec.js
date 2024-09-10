@@ -1,22 +1,10 @@
 import {expect} from 'expect'
-import {Mutex} from '@leverj/common'
-import {CapturingLogger} from './CapturingLogger.js'
-
+import {CapturingLogger, Mutex} from '@leverj/common'
 
 describe('Mutex', () => {
-
-  const task1 = async (array) => {
-    await array.push(1)
-    await array.push(2)
-  }
-  const task2 = async (array) => {
-    await array.push(3)
-    await array.push(4)
-  }
-  const task3 = async (array) => {
-    await array.concat(123, 34, 4)
-    throw Error('This function is bad')
-  }
+  const task1 = async (array) => { await array.push(1); await array.push(2) }
+  const task2 = async (array) => { await array.push(3); await array.push(4) }
+  const task3 = async (array) => { await array.concat(123, 34, 4); throw Error('This function is bad') }
 
   it('should not run task in sequence if run in parallel', async () => {
     const populatedList = []

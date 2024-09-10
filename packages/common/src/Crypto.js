@@ -1,9 +1,7 @@
-import {FixedNumber, getAddress, ZeroAddress} from 'ethers'
-
-const NativeCurrency = ZeroAddress
+import {FixedNumber, getAddress, ZeroAddress as Native} from 'ethers'
 
 export class Crypto {
-  static Native(amount) { return new this(amount, NativeCurrency) }
+  static Native(amount) { return new this(amount, Native) }
   static Zero(currency) { return new this(0, currency) }
 
   static formatAmount(amount, decimals, fractionDigits) {
@@ -18,7 +16,7 @@ export class Crypto {
     this.currency = getAddress(currency)
   }
 
-  isNative() { return this.currency === NativeCurrency }
+  isNative() { return this.currency === Native }
   isZero() { return this.amount === 0n }
   isEqualTo(other) { return this.currency === other.currency && this.amount == BigInt(other.amount) }
   isGreaterThan(other) { return this.currency === other.currency && this.amount > BigInt(other.amount) }

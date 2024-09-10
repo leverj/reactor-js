@@ -1,6 +1,5 @@
 export * from './affirm.js'
 export * from './cleanse.js'
-export * from './constants.js'
 export * from './Crypto.js'
 export * from './Enum.js'
 export * from './errors.js'

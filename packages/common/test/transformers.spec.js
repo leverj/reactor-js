@@ -2,7 +2,6 @@ import {expect} from 'expect'
 import randomhex from 'randomhex'
 import {Compose, Dictionary, Enum, Enumerate, Functional, Keys, Type} from '@leverj/common'
 
-
 describe('Transformer', () => {
   describe('Dictionary', () => {
     const registry = {
