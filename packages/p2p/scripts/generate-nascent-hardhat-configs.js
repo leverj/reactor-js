@@ -1,6 +1,7 @@
 import {networks} from '@leverj/chain-deployment'
+import {ensureExistsSync} from '@leverj/common'
 import {Map, Set} from 'immutable'
-import {existsSync, mkdirSync, writeFileSync} from 'node:fs'
+import {existsSync, writeFileSync} from 'node:fs'
 
 const targetChains = Set([
   'hardhat',
@@ -74,10 +75,10 @@ module.exports = Object.assign(require(\`\${root}/hardhat.config.cjs\`), {
   }
 })`
 
-if (!existsSync(targetDir)) mkdirSync(targetDir, {recursive: true})
+ensureExistsSync(targetDir)
 Map(networks).filter(_ => targetChains.has(_.label)).forEach(_ => {
   const dir = `${targetDir}/${_.testnet ? 'testnets' : 'mainnets'}`
-  if (!existsSync(dir)) mkdirSync(dir, {recursive: true})
+  ensureExistsSync(dir)
   const file = `${dir}/${_.label}.config.cjs`
   if (!existsSync(file)) writeFileSync(file, template(_.id, _.label))
 })

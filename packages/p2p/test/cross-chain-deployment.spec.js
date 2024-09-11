@@ -8,11 +8,13 @@ import waitOn from 'wait-on'
 import {Chain, createDeployConfig, deploymentDir, hardhatConfigFileFor} from './help.js'
 
 describe('deploy across multiple chains', () => {
-  const deployedDir = `${deploymentDir}/env/${process.env.NODE_ENV}`
   const chains = ['hardhat', 'sepolia', 'mainnet']
   const processes = []
 
-  before(async () => rmSync(deployedDir, {recursive: true, force: true}))
+  before(async () => {
+    const deployedDir = `${deploymentDir}/env/${process.env.NODE_ENV}`
+    rmSync(deployedDir, {recursive: true, force: true})
+  })
   afterEach(async () => { while (processes.length > 0) processes.pop().kill() })
 
   it('deploys all contracts', async () => {

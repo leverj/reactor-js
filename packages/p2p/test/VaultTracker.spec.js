@@ -5,9 +5,6 @@ import {publicKey, signedBy, signer, Vault} from '@leverj/reactor.chain/test'
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
 import {VaultTracker} from '../src/CrossChainVaultCoordinator.js'
-import config from '../config.js'
-
-const {chain: {polling}} = config
 
 describe('VaultTracker', () => {
   const [, account] = accounts
@@ -16,21 +13,21 @@ describe('VaultTracker', () => {
 
   beforeEach(async () => {
     fromVault = await Vault(fromChainId, publicKey), toVault = await Vault(toChainId, publicKey)
-    const actor = {
-      //fixme: rename processTransfer to onEvent
-      processTransfer: async _ => {
-        const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = _
-        const payload = encodeTransfer(origin, token, name, symbol, decimals, amount, owner, from, to, tag)
-        const signature = signedBy(transferHash, signer)
-        await toVault.checkIn(signature, publicKey, payload).then(_ => _.wait())
+    const onEvent = async (event) => {
+      switch (event.name) {
+        case 'Transfer':
+          const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = event.args
+          const payload = encodeTransfer(origin, token, name, symbol, decimals, amount, owner, from, to, tag)
+          const signature = signedBy(transferHash, signer)
+          await toVault.checkIn(signature, publicKey, payload).then(_ => _.wait())
       }
     }
-    tracker = VaultTracker(fromChainId, fromVault, new InMemoryStore(), polling, actor, logger)
+    tracker = VaultTracker(fromChainId, fromVault, new InMemoryStore(), {onEvent}, logger)
     await tracker.start()
   })
   afterEach(async () => tracker.stop())
 
-  it('should respond on Transfer event', async () => {
+  it('should act on a Transfer event', async () => {
     const before = await provider.getBalance(account)
     await fromVault.connect(account).checkOutNative(toChainId, {value: amount}).then(_ => _.wait())
     const afterCheckingOut = await provider.getBalance(account)

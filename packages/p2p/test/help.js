@@ -1,14 +1,36 @@
-import {networks, wallets} from '@leverj/chain-deployment'
+import {Deploy, networks, wallets} from '@leverj/chain-deployment'
+import {logger} from '@leverj/common'
 import {publicKey} from '@leverj/reactor.chain/test'
+import {exec} from 'child_process'
 import {Map} from 'immutable'
 import {cloneDeep, merge} from 'lodash-es'
+import {rmSync} from 'node:fs'
+import waitOn from 'wait-on'
 import {BridgeNode} from '../src/BridgeNode.js'
 import config from '../config.js'
 import {peerIdJsons} from './fixtures.js'
 
+const {bridge: {confDir}} = config
+
 export const deploymentDir = `${import.meta.dirname}/../../../data/chain`
 export const hardhatConfigFileFor = ({networks, chain}) => `test/hardhat/${networks[chain].testnet ? 'nascent/testnets' : 'forked/mainnets'}/${chain}.config.cjs`
 
+export const spawnEvms = async (chains) => {
+  const processes = []
+  rmSync(confDir, {recursive: true, force: true})
+  const configs = []
+  for (let [i, chain] of chains.entries()) {
+    const port = 8101 + i
+    const config = createDeployConfig(chain, chains, {providerURL: `http://localhost:${port}`})
+    processes.push(exec(`npx hardhat node --config ${hardhatConfigFileFor(config)} --port ${port}`))
+    configs.push(config)
+  }
+  for (let config of configs) {
+    await waitOn({resources: [config.networks[config.chain].providerURL], timeout: 10_000})
+    await Deploy.from(config, {logger}).run()
+  }
+  return processes
+}
 
 export const createDeployConfig = (chain, chains, override = {}) => {
   return merge({

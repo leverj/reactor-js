@@ -40,7 +40,6 @@ export class BridgeNode {
     this.leadership = isLeader ? new Leader(this) : new Follower(this)
     this.messageMap = {}
     this.vaults = {}
-    this.trackers = {}
     this.monitor = new Monitor()
     this.network.registerStreamHandler(meshProtocol, this.onStreamMessage.bind(this))
     this.addPeersToWhiteList(...this.whitelist.initial)
@@ -68,16 +67,7 @@ export class BridgeNode {
     }
   }
 
-  trackChain(tracker) { //fixme:tracker
-    this.trackers[tracker.chainId] = tracker
-    this.vaults[tracker.chainId] = tracker.contract
-  }
-
-  setVaultForChain(chainId, vault) {
-    this.vaults[chainId] = vault
-  }
-
-  async processTransfer(args) { return this.leadership.processTransfer(args) }
+  async onEvent(args) { return this.leadership.onEvent(args) }
   async aggregateSignature(message, chainId, transferCallback) { return this.leadership.aggregateSignature(message, chainId, transferCallback) }
   async publishWhitelist() { return this.leadership.publishWhitelist() }
   async startDKG(threshold) { return this.leadership.startDKG(threshold) }
@@ -136,12 +126,14 @@ export class BridgeNode {
       logger.log('ignoring whitelist from non-leader', peerId)
   }
 
+  //fixme:tracker: vaults should not be in node; handled by coordinator
+  setVaultForChain(chainId, vault) { this.vaults[chainId] = vault }
+
   async handleSignatureStart(peerId, data) {
     if (this.leader !== peerId) return logger.log('ignoring signature start from non-leader', peerId, this.leader)
 
-    //fixme: note: for local e2e testing, which will not have any contracts or hardhat, till we expand the scope of e2e
+    //note: for local e2e testing, which will not have any contracts or hardhat, till we expand the scope of e2e
     const verifyTransferHash = async (chainId, transferHash) => chainId === -1 || this.vaults[chainId].checkouts(transferHash)
-
     const {message: transferHash, chainId} = data
     if (await verifyTransferHash(chainId, transferHash)) {
       const signature = this.tss.sign(transferHash).serializeToHexStr()
@@ -199,7 +191,7 @@ class Leader {
 
   listenToPeerDiscovery() { events.on(PEER_DISCOVERY, _ => this.self.addPeersToWhiteList(_)) }
 
-  async processTransfer(args) {
+  async onEvent(args) {
     const transferPayloadVerified = async (to, payload, aggregateSignature) => {
       if (aggregateSignature.verified) {
         const signature = G1ToNumbers(deserializeHexStrToSignature(aggregateSignature.groupSign))
@@ -265,7 +257,7 @@ class Follower {
     await this.self.sendMessageToPeer(this.self.leader, WHITELIST_REQUEST, '')
   }
   listenToPeerDiscovery() {}
-  async processTransfer(log) {}
+  async onEvent(log) {}
   async aggregateSignature(message, chainId, transferCallback) {}
   async publishWhitelist() {}
   async startDKG(threshold) {}

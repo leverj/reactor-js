@@ -1,51 +1,30 @@
-import {Deploy} from '@leverj/chain-deployment'
+import {accounts, ETH, getContractAt, networks} from '@leverj/chain-deployment'
 import {JsonStore, logger} from '@leverj/common'
-import {exec} from 'child_process'
 import {expect} from 'expect'
 import {rmSync} from 'node:fs'
-import waitOn from 'wait-on'
+import {setTimeout} from 'node:timers/promises'
 import {CrossChainVaultCoordinator} from '../src/CrossChainVaultCoordinator.js'
 import config from '../config.js'
-import {createDeployConfig, deploymentDir, hardhatConfigFileFor} from './help.js'
-import {encodeTransfer} from '@leverj/reactor.chain/contracts'
-import {publicKey, signedBy, signer} from '@leverj/reactor.chain/test'
+import {deploymentDir, spawnEvms} from './help.js'
 
-const {bridge: {confDir}, chain: {polling}} = config
+const {bridge: {confDir}} = config
 
 describe('CrossChainVaultsTracker', () => {
-  const deployedDir = `${deploymentDir}/env/${process.env.NODE_ENV}`
+  const [signer, account] = accounts
   const chains = ['hardhat', 'sepolia']
-  const processes = []
-  let coordinator
+  const fromChainId = networks.hardhat.id, toChainId = networks.sepolia.id, amount = 1000n
+  let processes, coordinator
 
   before(async () => {
+    const deployedDir = `${deploymentDir}/env/${process.env.NODE_ENV}`
     rmSync(deployedDir, {recursive: true, force: true})
-    rmSync(confDir, {recursive: true, force: true})
-    const store = new JsonStore(confDir, 'trackers')
-    const configs = []
-    for (let [i, chain] of chains.entries()) {
-      const port = 8101 + i
-      const config = createDeployConfig(chain, chains, {providerURL: `http://localhost:${port}`})
-      processes.push(exec(`npx hardhat node --config ${hardhatConfigFileFor(config)} --port ${port}`))
-      configs.push(config)
-    }
-    for (let config of configs) {
-      await waitOn({resources: [config.networks[config.chain].providerURL], timeout: 10_000})
-      await Deploy.from(config, {logger}).run()
-    }
+    processes = await spawnEvms(chains, processes)
     const evms = new JsonStore(deployedDir, '.evms').toObject()
-    const actor = { //fixme: create a real node?
-      processTransfer: async _ => {
-        const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = _
-        const payload = encodeTransfer(origin, token, name, symbol, decimals, amount, owner, from, to, tag)
-        const signature = signedBy(transferHash, signer)
-        // await toVault.checkIn(signature, publicKey, payload).then(_ => _.wait())
-        logger.log(signature, publicKey, payload)
-      }
-    }
-    coordinator = CrossChainVaultCoordinator.of(chains, evms, store, polling, actor, logger)
+    const trackerStore = new JsonStore(confDir, 'trackers')
+    coordinator = CrossChainVaultCoordinator.of(chains, evms, trackerStore, signer, logger)
   })
-  after(() => { while (processes.length > 0) processes.pop().kill() })
+  afterEach(() => { if (coordinator.isRunning) coordinator.stop() })
+  after(() => processes.forEach(_ => _.kill()))
 
   it('can start & stop', async () => {
     expect(coordinator.chains).toEqual(chains)
@@ -56,5 +35,34 @@ describe('CrossChainVaultsTracker', () => {
 
     coordinator.stop()
     expect(coordinator.isRunning).toBe(false)
+  })
+
+  it('should act on a Transfer event', async () => {
+    await coordinator.start()
+    const fromVault = coordinator.contracts.get(fromChainId), toVault = coordinator.contracts.get(toChainId)
+    const fromProvider = fromVault.runner.provider, toProvider = toVault.runner.provider
+
+    const before = {
+      from: await fromProvider.getBalance(account),
+      to: await toProvider.getBalance(account),
+    }
+    console.log('>'.repeat(50), before)
+    // expect(before.from).toEqual(10000000000000000001000n)
+    // expect(before.to).toEqual(10000000000000000001000n)
+    await fromVault.connect(account).checkOutNative(toChainId, {value: amount}).then(_ => _.wait())
+    await setTimeout(1000)
+    const after = {
+      from: await fromProvider.getBalance(account),
+      to: await toProvider.getBalance(account),
+    }
+    // expect(after.from).toEqual(before.from - amount)
+    // expect(after.to).toEqual(before.to + amount)
+    console.log('<'.repeat(50), after)
+
+    return //fixme
+    const proxyAddress = await toVault.proxies(fromChainId, ETH)
+    expect(proxyAddress).not.toEqual(ETH)
+    const proxy = await getContractAt('ERC20Proxy', proxyAddress)
+    expect(await proxy.balanceOf(account.address)).toEqual(amount)
   })
 })

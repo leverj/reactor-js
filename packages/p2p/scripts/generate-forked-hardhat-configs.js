@@ -1,6 +1,7 @@
 import {networks} from '@leverj/chain-deployment'
+import {ensureExistsSync} from '@leverj/common'
 import {Map} from 'immutable'
-import {existsSync, mkdirSync, writeFileSync} from 'node:fs'
+import {existsSync, writeFileSync} from 'node:fs'
 
 const infura_supported_chains = Map([
 
@@ -82,7 +83,7 @@ module.exports = Object.assign(require(\`\${root}/hardhat.config.cjs\`), {
 Map(networks).filter(_ => infura_supported_chains.has(_.label)).forEach(_ => {
   const blockNumber = Map(_.contracts || {}).reduce((result, _) => Math.min(result, _.blockCreated || result), Number.MAX_SAFE_INTEGER)
   const dir = `${targetDir}/${_.testnet ? 'testnets' : 'mainnets'}`
-  if (!existsSync(dir)) mkdirSync(dir, {recursive: true})
+  ensureExistsSync(dir)
   const file = `${dir}/${_.label}.config.cjs`
   const infura_label = infura_supported_chains.get(_.label).infura_label
   if (!existsSync(file)) writeFileSync(file, template(_.id, infura_label, blockNumber))

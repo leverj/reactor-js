@@ -1,6 +1,6 @@
-import {logger} from '@leverj/common'
+import {ensureExistsSync, logger} from '@leverj/common'
 import {createServer} from 'http'
-import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs'
+import {existsSync, readFileSync, writeFileSync} from 'node:fs'
 import config from '../config.js'
 import app from './rest/app.js'
 import {setNode} from './rest/router.js'
@@ -12,7 +12,7 @@ const {bridge, port, ip} = config
 export class JsonDirStore {
   constructor(path, type) {
     this.path = `${path}/${type}`
-    if (!existsSync(this.path)) mkdirSync(this.path, {recursive: true})
+    ensureExistsSync(this.path)
   }
   fileOf(key) { return `${this.path}/${key}.json` }
   get(key) { return existsSync(this.fileOf(key)) ? JSON.parse(readFileSync(this.fileOf(key)).toString()) : undefined }
