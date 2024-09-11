@@ -1,5 +1,4 @@
 import {ContractTracker} from '@leverj/chain-tracking'
-import {logger} from '@leverj/common'
 import {encodeTransfer, stubs} from '@leverj/reactor.chain/contracts'
 import {publicKey, signedBy, signer} from '@leverj/reactor.chain/test'
 import {JsonRpcProvider} from 'ethers'
@@ -24,7 +23,7 @@ export class Actor {
     switch (event.name) {
       case 'Transfer':
         const {signature, publicKey, payload} = parameters
-        logger.log(event.name, contract.target, {signature, publicKey, payload})
+        console.log(event.name, contract.target, {signature, publicKey, payload})
         return contract.checkIn(signature, publicKey, payload).then(_ => _.wait())
     }
   }
@@ -70,7 +69,7 @@ export class CrossChainVaultCoordinator {
     this.trackers = []
     this.networks.forEach(_ => {
       const contract = stubs.Vault(_.Vault.address, _.provider)
-      const tracker = VaultTracker(_.id, contract, this.store, this.actor, this.logger)
+      const tracker = VaultTracker(_.id, contract, this.store, this, this.logger)
       this.contracts.set(_.id, contract)
       this.trackers.push(tracker)
     })

@@ -67,7 +67,7 @@ export class BridgeNode {
     }
   }
 
-  async onEvent(args) { return this.leadership.onEvent(args) }
+  async onVaultEvent(event) { return this.leadership.onVaultEvent(event) }
   async aggregateSignature(message, chainId, transferCallback) { return this.leadership.aggregateSignature(message, chainId, transferCallback) }
   async publishWhitelist() { return this.leadership.publishWhitelist() }
   async startDKG(threshold) { return this.leadership.startDKG(threshold) }
@@ -191,7 +191,7 @@ class Leader {
 
   listenToPeerDiscovery() { events.on(PEER_DISCOVERY, _ => this.self.addPeersToWhiteList(_)) }
 
-  async onEvent(args) {
+  async onVaultEvent(event) {
     const transferPayloadVerified = async (to, payload, aggregateSignature) => {
       if (aggregateSignature.verified) {
         const signature = G1ToNumbers(deserializeHexStrToSignature(aggregateSignature.groupSign))
@@ -200,7 +200,8 @@ class Leader {
         await toContract.checkIn(signature, publicKey, payload).then(_ => _.wait())
       }
     }
-    const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = args
+    //fixme:make sure it is a Transfer event
+    const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = event.args
     const payload = encodeTransfer(origin, token, name, symbol, decimals, amount, owner, from, to, tag)
     if (await this.self.vaults[from].checkouts(transferHash)) {
       await this.self.aggregateSignature(
@@ -257,7 +258,7 @@ class Follower {
     await this.self.sendMessageToPeer(this.self.leader, WHITELIST_REQUEST, '')
   }
   listenToPeerDiscovery() {}
-  async onEvent(log) {}
+  async onVaultEvent(log) {}
   async aggregateSignature(message, chainId, transferCallback) {}
   async publishWhitelist() {}
   async startDKG(threshold) {}

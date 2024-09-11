@@ -1,4 +1,4 @@
-import {accounts, ETH, getContractAt, networks} from '@leverj/chain-deployment'
+import {accounts, ETH, getContractAt} from '@leverj/chain-deployment'
 import {JsonStore, logger} from '@leverj/common'
 import {expect} from 'expect'
 import {rmSync} from 'node:fs'
@@ -12,7 +12,6 @@ const {bridge: {confDir}} = config
 describe('CrossChainVaultsTracker', () => {
   const [signer, account] = accounts
   const chains = ['hardhat', 'sepolia']
-  const fromChainId = networks.hardhat.id, toChainId = networks.sepolia.id, amount = 1000n
   let processes, coordinator
 
   before(async () => {
@@ -39,16 +38,17 @@ describe('CrossChainVaultsTracker', () => {
 
   it('should act on a Transfer event', async () => {
     await coordinator.start()
-    const fromVault = coordinator.contracts.get(fromChainId), toVault = coordinator.contracts.get(toChainId)
-    const fromProvider = fromVault.runner.provider, toProvider = toVault.runner.provider
+    const [fromChainId, toChainId] = chains.map(_ => coordinator.networks.get(_).id)
+    const [fromVault, toVault] = [fromChainId, toChainId].map(_ => coordinator.contracts.get(_))
+    const [fromProvider, toProvider] = [fromVault, toVault].map(_ => _.runner.provider)
 
+    const amount = 1_000_000n
     const before = {
       from: await fromProvider.getBalance(account),
       to: await toProvider.getBalance(account),
     }
     console.log('>'.repeat(50), before)
-    // expect(before.from).toEqual(10000000000000000001000n)
-    // expect(before.to).toEqual(10000000000000000001000n)
+    account.connect(fromProvider)
     await fromVault.connect(account).checkOutNative(toChainId, {value: amount}).then(_ => _.wait())
     await setTimeout(1000)
     const after = {
