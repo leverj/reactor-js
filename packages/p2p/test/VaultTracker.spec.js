@@ -4,7 +4,7 @@ import {encodeTransfer} from '@leverj/reactor.chain/contracts'
 import {publicKey, signedBy, signer, Vault} from '@leverj/reactor.chain/test'
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
-import {VaultTracker} from '../src/CrossChainVaultsTracker.js'
+import {VaultTracker} from '../src/CrossChainVaultCoordinator.js'
 import config from '../config.js'
 
 const {chain: {polling}} = config
@@ -16,7 +16,8 @@ describe('VaultTracker', () => {
 
   beforeEach(async () => {
     fromVault = await Vault(fromChainId, publicKey), toVault = await Vault(toChainId, publicKey)
-    const node = {
+    const actor = {
+      //fixme: rename processTransfer to onEvent
       processTransfer: async _ => {
         const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = _
         const payload = encodeTransfer(origin, token, name, symbol, decimals, amount, owner, from, to, tag)
@@ -24,7 +25,7 @@ describe('VaultTracker', () => {
         await toVault.checkIn(signature, publicKey, payload).then(_ => _.wait())
       }
     }
-    tracker = VaultTracker(fromChainId, fromVault, new InMemoryStore(), polling, node, logger)
+    tracker = VaultTracker(fromChainId, fromVault, new InMemoryStore(), polling, actor, logger)
     await tracker.start()
   })
   afterEach(async () => tracker.stop())
