@@ -17,6 +17,6 @@
   },
   "devDependencies": {
     "@leverj/common": "1.2.0",
-    "bls-wasm": "^1.1.1"
+    "bls-wasm": "^1.3.0"
   }
 }

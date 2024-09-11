@@ -3,7 +3,6 @@ require('hardhat-deploy')
 require('hardhat-deploy-ethers')
 require('hardhat-gas-reporter')
 require('hardhat-switch-network')
-require('xdeployer')
 
 module.exports = {
   networks: {
