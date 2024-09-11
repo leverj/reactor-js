@@ -11,8 +11,9 @@ module.exports = Object.assign(require(`${root}/hardhat.config.cjs`), {
       gasPrice: 0,
       initialBaseFeePerGas: 0,
       forking: {
-        url: `https://polygon-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
-        blockNumber: 25770160,
+        url: `https://polygon-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
+        blockNumber: 10000000,
+        chainId: 137,
       }
     }
   }
