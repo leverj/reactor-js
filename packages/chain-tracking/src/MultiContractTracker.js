@@ -1,10 +1,10 @@
-import {getCreationBlock} from '@leverj/chain-deployment'
 import {InMemoryStore} from '@leverj/common'
 import exitHook from 'async-exit-hook'
 import {Contract} from 'ethers'
 import {List, Map} from 'immutable'
 import {merge} from 'lodash-es'
 import {ContractTracker} from './ContractTracker.js'
+import {getCreationBlock} from './evm.js'
 
 /**
  * a MultiContractTracker connects to multiple contracts deployed in an Ethereum-like chain and tracks their respective events

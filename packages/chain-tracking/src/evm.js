@@ -1,3 +1,5 @@
+export {ZeroAddress as ETH} from 'ethers'
+
 export const getCreationBlock = async (provider, address, fromBlock = 0, toBlock) => {
   if (!toBlock) toBlock = await provider.getBlockNumber()
 
