@@ -13,7 +13,6 @@
     "dependency:check": "npx depcheck"
   },
   "dependencies": {
-    "@leverj/chain-deployment": "1.2.0",
     "@leverj/common": "1.2.0",
     "async-exit-hook": "^2.0.1",
     "ethers": "^6.13.2",
@@ -21,6 +20,7 @@
     "lodash-es": "^4.17.21"
   },
   "devDependencies": {
+    "@leverj/chain-deployment": "1.2.0",
     "@openzeppelin/contracts": "^5.0.2"
   }
 }

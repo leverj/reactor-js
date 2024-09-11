@@ -12,7 +12,6 @@ import {
   week,
 } from '@leverj/common'
 
-
 const today = Date.UTC(2021, 6, 1)
 const tomorrow = today + 1 * day
 const nextWeek = today + 7 * days

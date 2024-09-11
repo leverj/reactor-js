@@ -1,7 +1,6 @@
 import {expect} from 'expect'
 import {Crypto, ETH, uint} from '@leverj/common'
 
-
 describe('Crypto', () => {
   const aNumber = uint(Number.MAX_SAFE_INTEGER)
   const aCurrency = '0xA00000000000000000000000000000000000000A'

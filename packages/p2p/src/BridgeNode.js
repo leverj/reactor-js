@@ -11,7 +11,7 @@ import {setTimeout} from 'node:timers/promises'
 import config from '../config.js'
 import {NetworkNode} from './NetworkNode.js'
 import {TssNode} from './TssNode.js'
-import {events, INFO_CHANGED, PEER_DISCOVERY, waitToSync} from './utils.js'
+import {events, NODE_INFO_CHANGED, PEER_DISCOVERY, waitToSync} from './utils.js'
 
 const {timeout, port} = config
 
@@ -21,7 +21,7 @@ const WHITELIST_TOPIC = 'WHITELIST'
 const WHITELIST_REQUEST = 'WHITELIST_REQUEST'
 const DKG_INIT_THRESHOLD_VECTORS = 'DKG_INIT_THRESHOLD_VECTORS'
 const DKG_RECEIVE_KEY_SHARE = 'DKG_RECEIVE_KEY_SHARE'
-const meshProtocol = '/bridgeNode/0.0.1'
+const meshProtocol = '/bridge/0.0.1'
 
 export class BridgeNode {
   static async from(port, bootstrapNodes, data = {}) {
@@ -40,7 +40,6 @@ export class BridgeNode {
     this.leadership = isLeader ? new Leader(this) : new Follower(this)
     this.messageMap = {}
     this.vaults = {}
-    this.trackers = {}
     this.monitor = new Monitor()
     this.network.registerStreamHandler(meshProtocol, this.onStreamMessage.bind(this))
     this.addPeersToWhiteList(...this.whitelist.initial)
@@ -50,8 +49,6 @@ export class BridgeNode {
   get multiaddrs() { return this.network.multiaddrs }
   get peerId() { return this.network.peerId }
   get peers() { return this.network.peers }
-  get port() { return port } //fixme: how come?
-  // get port() { return this.network.port }
   get signer() { return this.tss.idHex }
   get secretKeyShare() { return this.tss.secretKeyShare.serializeToHexStr() }
   get groupPublicKey() { return this.tss.groupPublicKey.serializeToHexStr() }
@@ -70,16 +67,7 @@ export class BridgeNode {
     }
   }
 
-  trackChain(tracker) { //fixme: tracker
-    this.trackers[tracker.chainId] = tracker
-    this.vaults[tracker.chainId] = tracker.contract
-  }
-
-  setVaultForChain(chainId, vault) {
-    this.vaults[chainId] = vault
-  }
-
-  async processTransfer(args) { return this.leadership.processTransfer(args) }
+  async onVaultEvent(event) { return this.leadership.onVaultEvent(event) }
   async aggregateSignature(message, chainId, transferCallback) { return this.leadership.aggregateSignature(message, chainId, transferCallback) }
   async publishWhitelist() { return this.leadership.publishWhitelist() }
   async startDKG(threshold) { return this.leadership.startDKG(threshold) }
@@ -87,7 +75,7 @@ export class BridgeNode {
   async start() {
     await this.network.start()
     await this.leadership.addLeader()
-    events.emit(INFO_CHANGED)
+    events.emit(NODE_INFO_CHANGED)
     this.ping()
   }
 
@@ -111,7 +99,7 @@ export class BridgeNode {
         if (each !== this.peerId) this.tss.addMember(dkgId, this.sendMessageToPeer.bind(this, each, DKG_RECEIVE_KEY_SHARE))
       }
       logger.log('Added to whitelist', peerIds.map(_ => `${_.slice(0, 4)}..${_.slice(-3)}`).join(', '))
-      events.emit(INFO_CHANGED)
+      events.emit(NODE_INFO_CHANGED)
     }
   }
 
@@ -138,12 +126,14 @@ export class BridgeNode {
       logger.log('ignoring whitelist from non-leader', peerId)
   }
 
+  //fixme:tracker: vaults should not be in node; handled by coordinator
+  setVaultForChain(chainId, vault) { this.vaults[chainId] = vault }
+
   async handleSignatureStart(peerId, data) {
     if (this.leader !== peerId) return logger.log('ignoring signature start from non-leader', peerId, this.leader)
 
-    //fixme: note: for local e2e testing, which will not have any contracts or hardhat, till we expand the scope of e2e
+    //note: for local e2e testing, which will not have any contracts or hardhat, till we expand the scope of e2e
     const verifyTransferHash = async (chainId, transferHash) => chainId === -1 || this.vaults[chainId].checkouts(transferHash)
-
     const {message: transferHash, chainId} = data
     if (await verifyTransferHash(chainId, transferHash)) {
       const signature = this.tss.sign(transferHash).serializeToHexStr()
@@ -201,7 +191,7 @@ class Leader {
 
   listenToPeerDiscovery() { events.on(PEER_DISCOVERY, _ => this.self.addPeersToWhiteList(_)) }
 
-  async processTransfer(args) {
+  async onVaultEvent(event) {
     const transferPayloadVerified = async (to, payload, aggregateSignature) => {
       if (aggregateSignature.verified) {
         const signature = G1ToNumbers(deserializeHexStrToSignature(aggregateSignature.groupSign))
@@ -210,7 +200,8 @@ class Leader {
         await toContract.checkIn(signature, publicKey, payload).then(_ => _.wait())
       }
     }
-    const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = args
+    //fixme:make sure it is a Transfer event
+    const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = event.args
     const payload = encodeTransfer(origin, token, name, symbol, decimals, amount, owner, from, to, tag)
     if (await this.self.vaults[from].checkouts(transferHash)) {
       await this.self.aggregateSignature(
@@ -267,7 +258,7 @@ class Follower {
     await this.self.sendMessageToPeer(this.self.leader, WHITELIST_REQUEST, '')
   }
   listenToPeerDiscovery() {}
-  async processTransfer(log) {}
+  async onVaultEvent(log) {}
   async aggregateSignature(message, chainId, transferCallback) {}
   async publishWhitelist() {}
   async startDKG(threshold) {}

@@ -8,9 +8,6 @@ describe('ContractTracker', () => {
   const [deployer, account] = accounts
   let contract, tracker, events
 
-  //fixme: track specific topics vs. all topics
-  // using ContractTracker.of(store, contract, ...) construction
-
   beforeEach(async () => {
     events = []
     contract = await ERC20()

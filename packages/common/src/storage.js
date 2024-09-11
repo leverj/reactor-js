@@ -1,6 +1,7 @@
 import {Map} from 'immutable'
 import {merge} from 'lodash-es'
-import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'node:fs'
+import {existsSync, readFileSync, writeFileSync} from 'node:fs'
+import {ensureExistsSync} from './files.js'
 
 export class InMemoryStore {
   constructor(prior = {}) { this.map = Map(prior).asMutable() }
@@ -18,7 +19,7 @@ export class InMemoryStore {
 
 export class JsonStore {
   constructor(path, type) {
-    if (!existsSync(path)) mkdirSync(path, {recursive: true})
+    ensureExistsSync(path)
     this.file = `${path}/${type}.json`
     this.cache = existsSync(this.file) ?
       new InMemoryStore(JSON.parse(readFileSync(this.file).toString())) :

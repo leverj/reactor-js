@@ -6,21 +6,21 @@ import {merge} from 'lodash-es'
  * a ContractTracker connects to a contract deployed in an Ethereum-like chain and tracks its events
  */
 export class ContractTracker {
-  static of(chainId, contract, store, polling, processEvent = logger.log, logger = console) {
+  static of(chainId, contract, store, polling, onEvent = logger.log, logger = console) {
     const key = [chainId, contract.target].join(':')
     store.update(key, {
       marker: {block: 0, logIndex: -1, blockWasProcessed: false}
     })
-    return new this(contract, store, key, polling, processEvent, logger)
+    return new this(contract, store, key, polling, onEvent, logger)
   }
 
-  constructor(contract, store, key, polling, processEvent, logger) {
+  constructor(contract, store, key, polling, onEvent, logger) {
     this.contract = contract
     this.topics = [contract.interface.fragments.filter(_ => _.type === 'event').map(_ => _.topicHash)]
     this.store = store
     this.key = key
     this.polling = polling
-    this.processEvent = processEvent
+    this.onEvent = onEvent
     this.logger = logger
     this.isRunning = false
     exitHook(() => this.stop())
@@ -35,19 +35,19 @@ export class ContractTracker {
   async updateMarker(state) { return this.update({marker: merge(this.marker, state)}) }
 
   async start() {
-    if (!this.isRunning) {
-      this.logger.log(`starting tracker [${this.key}]`)
-      this.isRunning = true
-      await this.pollForEvents()
-    }
+    if (this.isRunning) return
+
+    this.logger.log(`starting tracker [${this.key}]`)
+    this.isRunning = true
+    await this.pollForEvents()
   }
 
   stop() {
-    if (this.isRunning) {
-      this.logger.log(`stopping tracker [${this.key}]`)
-      this.isRunning = false
-      if (this.pollingTimer) clearTimeout(this.pollingTimer)
-    }
+    if (!this.isRunning) return
+
+    this.logger.log(`stopping tracker [${this.key}]`)
+    this.isRunning = false
+    if (this.pollingTimer) clearTimeout(this.pollingTimer)
   }
 
   fail(e) {
@@ -96,7 +96,7 @@ export class ContractTracker {
     await this.updateMarker(block > this.lastBlock ? {block, logIndex: -1, blockWasProcessed: false} : {blockWasProcessed: false})
     for (let each of logs) {
       const event = this.toEvent(each)
-      await this.processEvent(event)
+      await this.onEvent(event)
       await this.updateMarker({logIndex: each.logIndex})
     }
     await this.updateMarker({blockWasProcessed: true})

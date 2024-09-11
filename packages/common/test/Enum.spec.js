@@ -2,7 +2,6 @@ import {expect} from 'expect'
 import randomhex from 'randomhex'
 import {Enum} from '@leverj/common'
 
-
 describe('Enum', () => {
   describe('of numbers', () => {
     const SomeType = Enum.of({zero: 0, one: 1})

@@ -1,7 +1,8 @@
 import {ContractTracker} from '@leverj/chain-tracking'
+import config from '../config.js'
 
-export const VaultTracker = async (contract, store, polling, node, logger = console) => {
-  const chainId = await contract.runner.provider.getNetwork().then(_ => _.chainId)
-  const processEvent = async _ => node.processTransfer(_.args)
-  return ContractTracker.of(chainId, contract, store, polling, processEvent, logger)
+const {chain: {polling}} = config
+
+export const VaultTracker = (chainId, contract, store, actor, logger = console) => {
+  return ContractTracker.of(chainId, contract, store, polling, _ => actor.onEvent(_), logger)
 }

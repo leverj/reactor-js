@@ -1,7 +1,7 @@
 const dataDir = `${import.meta.dirname}/../../../data`
 
 export default {
-  bridgeNode: {
+  bridge: {
     confDir: `${dataDir}/p2p/test`,
   },
   chain: {

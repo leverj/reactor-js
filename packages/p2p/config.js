@@ -34,7 +34,7 @@ const schema = {
     default: 50,
     env: 'TRY_COUNT',
   },
-  bridgeNode: {
+  bridge: {
     confDir: {
       format: String,
       default: `${dataDir}/p2p`,

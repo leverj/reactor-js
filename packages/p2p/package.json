@@ -8,8 +8,6 @@
   "scripts": {
     "test": "npx mocha",
     "dependency:check": "npx depcheck",
-    "hardhat:generate:testnet:configs": "node scripts/generate-hardhat-testnet-configs.js",
-    "hardhat:generate:mainnet:configs": "node scripts/generate-hardhat-mainnet-configs.js",
     "start": "node app.js",
     "docker:build": "./scripts/docker-build.sh"
   },
@@ -29,20 +27,19 @@
     "@libp2p/peer-id-factory": "^4.2.4",
     "@libp2p/ping": "^1.1.6",
     "@libp2p/tcp": "^9.1.6",
-    "body-parser": "^1.20.2",
-    "express": "^4.19.2",
+    "body-parser": "^1.20.3",
+    "express": "^4.20.0",
     "it-map": "^3.1.1",
     "it-pipe": "^3.0.1",
-    "keyv-file": "^5.0.3",
-    "level": "^8.0.1",
     "libp2p": "^1.9.4",
-    "lodash-es": "^4.17.21",
     "uint8arrays": "^5.1.0"
   },
   "devDependencies": {
+    "@leverj/chain-deployment": "1.2.0",
     "@noble/curves": "^1.6.0",
     "aes-encryption": "^1.0.4",
     "axios": "^1.7.7",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "ganache-cli": "^6.12.2"
   }
 }

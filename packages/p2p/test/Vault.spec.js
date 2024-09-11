@@ -37,11 +37,11 @@ describe('Vault', () => {
     token ?
       await fromVault.connect(account).checkOutToken(to, token.target, amount).then(_ => _.wait()) :
       await fromVault.connect(account).checkOutNative(to, {value: amount}).then(_ => _.wait())
-    await processTransfer(fromVault)
+    await onEvent(fromVault)
   }
 
-  const processTransfer = async (vault) => vault.queryFilter('Transfer').
-    then(_ => leader.processTransfer(vault.interface.parseLog(_[0]).args)).
+  const onEvent = async (vault) => vault.queryFilter('Transfer').
+    then(_ => leader.onVaultEvent(vault.interface.parseLog(_[0]))).
     then(_ => setTimeout(100))
 
   describe('should disburse currency when transferred from originating chain', () => {
@@ -59,7 +59,7 @@ describe('Vault', () => {
       await toVault.connect(account).checkOutToken(L1, proxy.target, amount).then(_ => _.wait())
       expect(await proxy.balanceOf(account.address)).toEqual(0n)
 
-      await processTransfer(toVault)
+      await onEvent(toVault)
       expect(await provider.getBalance(account)).toEqual(before)
     })
 
@@ -77,7 +77,7 @@ describe('Vault', () => {
       await toVault.connect(account).checkOutToken(L1, proxy.target, amount).then(_ => _.wait())
       expect(await proxy.balanceOf(account.address)).toEqual(0n)
 
-      await processTransfer(toVault)
+      await onEvent(toVault)
       expect(await erc20.balanceOf(account.address)).toEqual(before)
     })
   })
@@ -91,7 +91,7 @@ describe('Vault', () => {
     it('Native', async () => {
       const before = await provider.getBalance(account)
       await vaults[0].connect(account).checkOutNative(chains[1], {value: amount}).then(_ => _.wait())
-      await processTransfer(vaults[0])
+      await onEvent(vaults[0])
       const proxies = {}
       for (let i = 1; i < chains.length; i++) {
         const proxyAddress = await vaults[i].proxies(chains[0], ETH)
@@ -103,7 +103,7 @@ describe('Vault', () => {
         const targetChainIndex = (i === chains.length - 1) ? 0 : (i + 1)
         const targetChain = chains[targetChainIndex]
         await vaults[i].connect(account).checkOutToken(targetChain, proxyAddress, amount).then(_ => _.wait())
-        await processTransfer(vaults[i])
+        await onEvent(vaults[i])
         expect(await proxies[chains[i]].balanceOf(account.address)).toEqual(0n)
       }
       expect(before).toEqual(await provider.getBalance(account))

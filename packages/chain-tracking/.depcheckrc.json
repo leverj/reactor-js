@@ -4,6 +4,7 @@
     "test"
   ],
   "ignores": [
+    "@leverj/chain-deployment",
     "@nomiclabs/hardhat-ethers",
     "@openzeppelin/contracts",
     "hardhat"
