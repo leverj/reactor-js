@@ -4,10 +4,7 @@ import {encodeTransfer} from '@leverj/reactor.chain/contracts'
 import {publicKey, signedBy, signer, Vault} from '@leverj/reactor.chain/test'
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
-import config from '../config.js'
 import {VaultTracker} from '../src/VaultTracker.js'
-
-const {chain: {polling}} = config
 
 describe('VaultTracker', () => {
   const [, account] = accounts
