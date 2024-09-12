@@ -72,7 +72,7 @@ describe('e2e', () => {
   const publishWhitelist = async (ports, total, available) =>
     tryAgainIfError(_ => POST(leaderPort, 'whitelist/publish'), timeout, tryCount, leaderPort).then(_ => waitForWhitelistSync(ports, total, available))
 
-  it('should create new nodes, connect and init DKG', async () => {
+  it('create new nodes, connect and init DKG', async () => {
     const ports = await createApiNodes(2)
     await POST(leaderPort, 'dkg/start')
     await setTimeout(100)
@@ -84,7 +84,7 @@ describe('e2e', () => {
     }
   })
 
-  it('should be able to create node with already existing info.json', async () => {
+  it('can create node with already existing info.json', async () => {
     await createNodeInfos(3)
     const infos = getNodeInfos(3)
     const ports = await createApiNodes(3)

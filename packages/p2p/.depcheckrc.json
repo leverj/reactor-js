@@ -5,7 +5,6 @@
     "test"
   ],
   "ignores": [
-    "@leverj/chain-deployment",
     "@noble/curves",
     "aes-encryption",
     "axios",

@@ -4,7 +4,7 @@ import {encodeTransfer} from '@leverj/reactor.chain/contracts'
 import {publicKey, signedBy, signer, Vault} from '@leverj/reactor.chain/test'
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
-import {VaultTracker} from '../src/VaultTracker.js'
+import {VaultTracker} from '../src/CrossChainVaultCoordinator.js'
 
 describe('VaultTracker', () => {
   const [, account] = accounts
@@ -27,7 +27,7 @@ describe('VaultTracker', () => {
   })
   afterEach(async () => tracker.stop())
 
-  it('should act on a Transfer event', async () => {
+  it('acts on a Transfer event', async () => {
     const before = await provider.getBalance(account)
     await fromVault.connect(account).checkOutNative(toChainId, {value: amount}).then(_ => _.wait())
     const afterCheckingOut = await provider.getBalance(account)

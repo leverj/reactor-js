@@ -1,5 +1,5 @@
 {
-  "name": "reactor",
+  "name": "@leverj/reactor",
   "type": "module",
   "private": true,
   "engines": {
@@ -24,7 +24,7 @@
     "expect": "^29.7.0",
     "lerna": "^8.1.8",
     "mocha": "^10.7.3",
-    "wait-on": "^8.0.0",
+    "wait-on": "^8.0.1",
     "yargs": "^17.7.2"
   }
 }
