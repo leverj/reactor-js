@@ -11,8 +11,6 @@ import {Chain, createDeployConfig, deploymentDir, launchEvm, launchEvms} from '.
 
 describe('deploy across multiple chains', () => {
   const deployedDir = `${deploymentDir}/env/${process.env.NODE_ENV}`
-  const chains = ['hardhat']
-  // const chains = ['hardhat', 'sepolia', 'mainnet']
   let processes
 
   before(async () => {
@@ -22,6 +20,7 @@ describe('deploy across multiple chains', () => {
   afterEach(() => processes.forEach(_ => _.kill()))
 
   it('deploys all contracts', async () => {
+    const chains = ['hardhat', 'sepolia', 'mainnet']
     for (let [i, chain] of chains.entries()) {
       const port = 8101 + i
       const config = createDeployConfig(chain, chains, {providerURL: `http://localhost:${port}`})
@@ -39,10 +38,10 @@ describe('deploy across multiple chains', () => {
     }
   })
 
-  it('transacts with deployed contracts', async () => {
-    // const [deployer, account] = wallets
+  it('enquire balances on all chains', async () => {
+    const chains = ['hardhat', 'sepolia', 'mainnet']
     const [deployer, account] = accounts
-    processes = await launchEvms(chains, processes)
+    processes = await launchEvms(chains)
     const evms = new JsonStore(deployedDir, '.evms').toObject()
     const networks = Map(evms).map(_ => ({
       id: _.id,
@@ -53,16 +52,35 @@ describe('deploy across multiple chains', () => {
       Vault: _.contracts.Vault,
     }))
     for (let _ of networks.valueSeq().toArray()) {
-      // const provider = new JsonRpcProvider(_.providerURL)
       const provider = _.provider
-      const balance = await provider.getBalance(account)
-      expect(balance).toBeGreaterThan(0n)
-      console.log(_.id.toString().padStart(8), _.label, '$'.repeat(3), balance)
-      // continue
+      for (let each of [deployer, account]) {
+        const balance = await provider.getBalance(account)
+        expect(balance).toBeGreaterThan(0n)
+        console.log(_.id.toString().padStart(8), _.label, `@ ${each.address}`, '$'.repeat(3), balance)
+      }
+    }
+  })
 
+  it('transacts with deployed contracts', async () => {
+    const chains = ['mainnet']
+    // const chains = ['hardhat', 'sepolia', 'mainnet']
+    // const [deployer, account] = wallets
+    const [deployer, account] = accounts
+    processes = await launchEvms(chains)
+    const evms = new JsonStore(deployedDir, '.evms').toObject()
+    const networks = Map(evms).map(_ => ({
+      id: _.id,
+      label: _.label,
+      nativeCurrency: _.nativeCurrency,
+      providerURL: _.providerURL,
+      provider: new JsonRpcProvider(_.providerURL),
+      Vault: _.contracts.Vault,
+    }))
+    for (let _ of networks.valueSeq().toArray()) {
+      const provider = _.provider
       const contract = stubs.Vault(_.Vault.address, provider)
       //fixme: failing to connect to actual network if launched more then one
-      console.log('>'.repeat(50), await contract.home())
+      console.log(await contract.home())
       const [chainId, chainName, nativeSymbol, nativeDecimals] = await contract.home()
       expect(chainId).toEqual(BigInt(_.id))
       expect(chainName).toEqual(_.nativeCurrency.name)
