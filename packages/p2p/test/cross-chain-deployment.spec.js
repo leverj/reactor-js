@@ -12,24 +12,24 @@ describe('deploy across multiple chains', () => {
   const deployedDir = `${deploymentDir}/env/${process.env.NODE_ENV}`
   const chains = ['hardhat', 'sepolia', 'holesky']
   const [deployer, account] = accounts
-  let processes
+  let processes, networks
 
   before(async () => {
     rmSync(deployedDir, {recursive: true, force: true})
-    processes = []
+    processes = await launchEvms(chains)
+    const evms = new JsonStore(deployedDir, '.evms').toObject()
+    networks = Map(evms).map(_ => ({
+      id: _.id,
+      label: _.label,
+      nativeCurrency: _.nativeCurrency,
+      provider: new JsonRpcProvider(_.providerURL),
+      Vault: _.contracts.Vault,
+    })).valueSeq().toArray()
   })
   afterEach(() => processes.forEach(_ => _.kill()))
 
-  it('enquire balances on all chains', async () => {
-    processes = await launchEvms(chains)
-    const evms = new JsonStore(deployedDir, '.evms').toObject()
-    const networks = Map(evms).map(_ => ({
-      id: _.id,
-      label: _.label,
-      provider: new JsonRpcProvider(_.providerURL),
-      Vault: _.contracts.Vault,
-    }))
-    for (let each of networks.valueSeq().toArray()) {
+  it('connect to provider and query balances on each chain', async () => {
+    for (let each of networks) {
       const {provider, Vault} = each
       const balance = await provider.getBalance(account)
       expect(Vault.address).toBeDefined()
@@ -39,41 +39,33 @@ describe('deploy across multiple chains', () => {
     }
   })
 
-  it('transacts with deployed contracts', async () => {
-    // const chains = ['holesky']
-    // const [deployer, account] = wallets
-    const [deployer, account] = accounts
-    processes = await launchEvms(chains)
-    const evms = new JsonStore(deployedDir, '.evms').toObject()
-    const networks = Map(evms).map(_ => ({
-      id: _.id,
-      label: _.label,
-      nativeCurrency: _.nativeCurrency,
-      provider: new JsonRpcProvider(_.providerURL),
-      Vault: _.contracts.Vault,
-    }))
-    for (let each of networks.valueSeq().toArray()) {
-      const {id, label, nativeCurrency, provider, Vault} = each
+  it('connect to contract and query on each chain', async () => {
+    for (let each of networks) {
+      const {id, nativeCurrency, provider, Vault} = each
       const contract = stubs.Vault(Vault.address, provider)
-      //fixme: failing to connect to actual network if launched more then one
-      console.log(await contract.home())
       const [chainId, chainName, nativeSymbol, nativeDecimals] = await contract.home()
       expect(chainId).toEqual(BigInt(id))
       expect(chainName).toEqual(nativeCurrency.name)
       expect(nativeSymbol).toEqual(nativeCurrency.symbol)
       expect(nativeDecimals).toEqual(BigInt(nativeCurrency.decimals))
+      // console.log(await contract.home())
+    }
+  })
 
+  it('connect to contract and transact on each chain', async () => {
+    for (let each of networks) {
+      const {provider, Vault} = each
+      const contract = stubs.Vault(Vault.address, provider)
       const currency = await contract.NATIVE(), amount = 1000n
-      const toChainId = chainId + 1n
+      const toChainId = await contract.chainId() + 1n
       const before = await contract.balances(currency)
-      const signers = [deployer, account]//.map(_ => _.connect(provider))
+      const signers = [deployer, account].map(_ => _.connect(provider))
       for (let signer of signers) {
         await contract.connect(signer).checkOutNative(toChainId, {value: amount}).then(_ => _.wait())
       }
       const after = await contract.balances(currency)
-      console.log('>'.repeat(50), {before, after}, 'expected:', before + amount * BigInt(signers.length))
-      continue
       expect(after).toEqual(before + amount * BigInt(signers.length))
+      // console.log({before, after})
     }
   })
 })
