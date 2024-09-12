@@ -39,12 +39,11 @@ export const launchEvms = async (chains, forked = false) => {
   const config = createChainConfigWithoutChain(chains)
   const ports = chains.map((chain, i) => 8101 + i)
   zip(chains, ports).forEach(([chain, port]) => config.networks[chain].providerURL = `http://localhost:${port}`)
-  const processes = zip(chains, ports).map(([chain, port]) =>
-    launchEvm(config.networks, chain, port, forked))
+  const processes = zip(chains, ports).map(([chain, port]) => launchEvm(config.networks, chain, port, forked))
   for (let chain of chains) {
     await waitOn({resources: [config.networks[chain].providerURL], timeout: 10_000})
     const configWithChain = merge({}, config, {chain})
-    await Deploy.from(configWithChain, {logger}).run()
+    await Deploy.from(configWithChain, {logger, reset: true}).run()
   }
   return processes
 }

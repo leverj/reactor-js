@@ -10,7 +10,7 @@ import {deploymentDir, launchEvms} from './help.js'
 
 describe('deploy across multiple chains', () => {
   const deployedDir = `${deploymentDir}/env/${process.env.NODE_ENV}`
-  const chains = ['hardhat', 'sepolia', 'mainnet']
+  const chains = ['hardhat', 'sepolia', 'holesky']
   const [deployer, account] = accounts
   let processes
 
@@ -37,7 +37,7 @@ describe('deploy across multiple chains', () => {
   })
 
   it('transacts with deployed contracts', async () => {
-    const chains = ['mainnet']
+    // const chains = ['holesky']
     // const [deployer, account] = wallets
     const [deployer, account] = accounts
     processes = await launchEvms(chains)
