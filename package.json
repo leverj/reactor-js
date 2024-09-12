@@ -1,5 +1,5 @@
 {
-  "name": "reactor",
+  "name": "@leverj/reactor",
   "type": "module",
   "private": true,
   "engines": {

@@ -1,3 +1,4 @@
+require('@nomicfoundation/hardhat-ethers')
 require('@nomiclabs/hardhat-etherscan')
 require('hardhat-deploy')
 require('hardhat-deploy-ethers')

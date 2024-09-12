@@ -47,7 +47,7 @@ describe('CrossChainVaultsTracker', () => {
       from: await fromProvider.getBalance(account),
       to: await toProvider.getBalance(account),
     }
-    console.log('>'.repeat(50), before)
+    // console.log('>'.repeat(50), before)
     return
     account.connect(fromProvider)
     await fromVault.connect(account).checkOutNative(toChainId, {value: amount}).then(_ => _.wait())
@@ -58,7 +58,7 @@ describe('CrossChainVaultsTracker', () => {
     }
     // expect(after.from).toEqual(before.from - amount)
     // expect(after.to).toEqual(before.to + amount)
-    console.log('<'.repeat(50), after)
+    // console.log('<'.repeat(50), after)
 
     return //fixme
     const proxyAddress = await toVault.proxies(fromChainId, ETH)

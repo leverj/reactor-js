@@ -1,9 +1,9 @@
-import {Deploy, networks, wallets} from '@leverj/chain-deployment'
+import {Deploy, networks as NETWORKS, wallets} from '@leverj/chain-deployment'
 import {logger} from '@leverj/common'
 import {publicKey} from '@leverj/reactor.chain/test'
-import {exec, spawn} from 'child_process'
+import {exec} from 'child_process'
 import {Map} from 'immutable'
-import {cloneDeep, merge} from 'lodash-es'
+import {merge, zip} from 'lodash-es'
 import {rmSync} from 'node:fs'
 import waitOn from 'wait-on'
 import {BridgeNode} from '../src/BridgeNode.js'
@@ -14,53 +14,46 @@ const {bridge: {confDir}} = config
 
 export const deploymentDir = `${import.meta.dirname}/../../../data/chain`
 
-export const launchEvm = (config, port) => {
-  const {networks, chain} = config
-  const hardhatConfigFileFor = `test/hardhat/${networks[chain].testnet ? 'nascent/testnets' : 'forked/mainnets'}/${chain}.config.cjs`
-  const command = `npx hardhat node --config ${hardhatConfigFileFor} --port ${port}`
-  return exec(command)
-}
-export const launchGanacheEvm = (config, port) => {
-  const {networks, chain} = config
-  const command = `npx ganache-cli --fork ${networks[chain].providerUrl}  --port ${port}`
-  // return exec(command)
-  const args = command.split(' ')
-  return spawn(args.shift(), args, {detached: true})
-}
-
-export const launchEvms = async (chains) => {
-  const processes = []
-  rmSync(confDir, {recursive: true, force: true})
-  const configs = []
-  for (let [i, chain] of chains.entries()) {
-    const port = 8101 + i
-    const config = createDeployConfig(chain, chains, {providerURL: `http://localhost:${port}`})
-    processes.push(launchEvm(config, port))
-    configs.push(config)
-  }
-  for (let config of configs) {
-    await waitOn({resources: [config.networks[config.chain].providerURL], timeout: 10_000})
-    await Deploy.from(config, {logger}).run()
-  }
-  return processes
-}
-
-export const createDeployConfig = (chain, chains, override = {}) => {
-  return merge({
+// manufacture a config just like the one in @leverj/reactor.chain
+export const createChainConfigWithoutChain = (chains) => {
+  const networks = Map(NETWORKS).filter(_ => chains.includes(_.label))
+  return ({
     env: process.env.NODE_ENV,
-    chain,
     deploymentDir,
     deployer: {privateKey: wallets[0].privateKey},
-    networks: Map(cloneDeep(networks)).filter(_ => chains.includes(_.label)).toJS(),
-    contracts: Map(networks).map(({id, nativeCurrency: {name, symbol, decimals}}) => ({
+    vault: {publicKey},
+    chains: networks.keySeq().toArray(),
+    networks: networks.toJS(),
+    contracts: networks.map(({id, nativeCurrency: {name, symbol, decimals}}) => ({
       BnsVerifier: {},
       Vault: {
         libraries: ['BnsVerifier'],
         params: [id, name, symbol, decimals, publicKey],
       },
     })).toJS(),
-  }, {networks: {[chain]: override}})
+  })
 }
+
+export const launchEvms = async (chains, forked = false) => {
+  rmSync(confDir, {recursive: true, force: true})
+  const config = createChainConfigWithoutChain(chains)
+  const ports = chains.map((chain, i) => 8101 + i)
+  zip(chains, ports).forEach(([chain, port]) => config.networks[chain].providerURL = `http://localhost:${port}`)
+  const processes = zip(chains, ports).map(([chain, port]) => launchEvm(config.networks, chain, port, forked))
+  for (let chain of chains) {
+    await waitOn({resources: [config.networks[chain].providerURL], timeout: 10_000})
+    const configWithChain = merge({}, config, {chain})
+    await Deploy.from(configWithChain, {logger, reset: true}).run()
+  }
+  return processes
+}
+
+const launchEvm = (networks, chain, port, forked = false) => {
+  const dir = `${forked ? 'forked' : 'nascent'}/${networks[chain].testnet ? 'testnets' : 'mainnets'}`
+  const hardhatConfigFileFor = `test/hardhat/${dir}/${chain}.config.cjs`
+  return exec(`npx hardhat node --config ${hardhatConfigFileFor} --port ${port}`)
+}
+const launchGanacheEvm = (providerUrl, port) => exec(`npx ganache-cli --fork ${providerUrl}  --port ${port}`) //fixme: experimental
 
 export const createBridgeNodes = async (howMany) => {
   const results = []
