@@ -27,12 +27,15 @@ describe('deploy across multiple chains', () => {
       id: _.id,
       label: _.label,
       provider: new JsonRpcProvider(_.providerURL),
+      Vault: _.contracts.Vault,
     }))
     for (let each of networks.valueSeq().toArray()) {
-      const {id, label, provider} = each
+      const {provider, Vault} = each
       const balance = await provider.getBalance(account)
+      expect(Vault.address).toBeDefined()
+      expect(Vault.blockCreated).toBeGreaterThan(0)
       expect(balance).toBeGreaterThan(0n)
-      console.log(id.toString().padStart(8), label, `@ ${account.address}`, '$'.repeat(3), balance)
+      // console.log(id.toString().padStart(8), _.label, account.address, '$'.repeat(3), balance)
     }
   })
 
@@ -46,8 +49,8 @@ describe('deploy across multiple chains', () => {
       id: _.id,
       label: _.label,
       nativeCurrency: _.nativeCurrency,
-      Vault: _.contracts.Vault,
       provider: new JsonRpcProvider(_.providerURL),
+      Vault: _.contracts.Vault,
     }))
     for (let each of networks.valueSeq().toArray()) {
       const {id, label, nativeCurrency, provider, Vault} = each
