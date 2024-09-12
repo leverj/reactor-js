@@ -36,7 +36,7 @@ describe('CrossChainVaultsTracker', () => {
     expect(coordinator.isRunning).toBe(false)
   })
 
-  it('should act on a Transfer event', async () => {
+  it('acts on a Transfer event', async () => {
     await coordinator.start()
     const [fromChainId, toChainId] = chains.map(_ => coordinator.networks.get(_).id)
     const [fromVault, toVault] = [fromChainId, toChainId].map(_ => coordinator.contracts.get(_))

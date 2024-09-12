@@ -7,7 +7,7 @@ describe('BridgeNode', () => {
 
   afterEach(async () => { for (let each of nodes) await each.stop() })
 
-  it('it should be able to connect with other nodes', async () => {
+  it('it can connect with other nodes', async () => {
     const howMany = 7
     nodes = await createBridgeNodes(howMany)
     const leader = nodes[0]
