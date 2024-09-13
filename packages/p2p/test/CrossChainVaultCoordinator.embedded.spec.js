@@ -1,33 +1,28 @@
 import {accounts} from '@leverj/chain-deployment'
 import {JsonStore, logger} from '@leverj/common'
 import {expect} from 'expect'
-import {rmSync} from 'node:fs'
 import {setTimeout} from 'node:timers/promises'
 import {CrossChainVaultCoordinator} from '../src/CrossChainVaultCoordinator.js'
 import config from '../config.js'
-import {deploymentDir, launchEvms} from './help.js'
 import {ZeroAddress} from 'ethers'
 
 const {bridge: {confDir}} = config
 
 describe('CrossChainVaultsTracker', () => {
-  const deployedDir = `${deploymentDir}/env/${process.env.NODE_ENV}`
+  // const fromChainId = 10101n, toChainId = 98989n, amount = 1_000_000n
+  // const chains = [fromChainId, toChainId]
   const chains = ['holesky', 'sepolia']
   const [, deployer, account] = accounts
-  let processes, coordinator
+  let coordinator
 
   before(async () => {
-    rmSync(deployedDir, {recursive: true, force: true})
-    processes = await launchEvms(chains)
     const evms = new JsonStore(deployedDir, '.evms').toObject()
+    //fixme: make all providerURL to hardhat
     const trackerStore = new JsonStore(confDir, 'trackers')
     coordinator = CrossChainVaultCoordinator.of(chains, evms, trackerStore, deployer, logger)
     await coordinator.start()
   })
-  after(() => {
-    coordinator.stop()
-    processes.forEach(_ => _.kill())
-  })
+  after(() => coordinator.stop())
 
   it('can start & stop', async () => {
     expect(coordinator.chains).toEqual(chains)
@@ -41,9 +36,10 @@ describe('CrossChainVaultsTracker', () => {
   })
 
   it('detects & acts on a Transfer event', async () => {
+    await coordinator.start()
     const [fromChainId, toChainId] = coordinator.networks.map(_ => _.id)
     const [fromVault, toVault] = [fromChainId, toChainId].map(_ => coordinator.contracts.get(_))
-    const [fromProvider, toProvider] = [fromVault, toVault].map(_ => _.runner.provider)
+    const [fromProvider, toProvider] = [fromVault, toVault].map(_ => _.runner.provider) // masquerade provider?
     const NATIVE = await toVault.NATIVE()
     expect(await toVault.proxies(fromChainId, NATIVE)).toEqual(ZeroAddress) // no transfers in yet, so no proxy token created
 
@@ -52,7 +48,8 @@ describe('CrossChainVaultsTracker', () => {
       from: await fromProvider.getBalance(account),
       to: await toProvider.getBalance(account),
     }
-    await fromVault.connect(account.connect(fromProvider)).checkOutNative(toChainId, {value: amount}).then(_ => _.wait())
+    await fromVault.connect(account).checkOutNative(toChainId, {value: amount}).then(_ => _.wait())
+    // await fromVault.connect(account.connect(fromProvider)).checkOutNative(toChainId, {value: amount}).then(_ => _.wait())
     await setTimeout(1000)
     const after = {
       from: await fromProvider.getBalance(account),
