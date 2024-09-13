@@ -28,12 +28,12 @@ describe('deploy across multiple chains', () => {
       Vault: _.contracts.Vault,
     })).valueSeq().toArray()
   })
-  afterEach(async () => {
+  after(async () => {
     processes.forEach(_ => _.kill())
-    await setTimeout(1000)
+    await setTimeout(100)
   })
 
-  it.skip('connect to provider and query balances on each chain', async () => {
+  it('connect to provider and query balances on each chain', async () => {
     for (let each of networks) {
       const {provider, Vault} = each
       const balance = await provider.getBalance(account)
@@ -44,7 +44,7 @@ describe('deploy across multiple chains', () => {
     }
   })
 
-  it.skip('connect to contract and query on each chain', async () => {
+  it('connect to contract and query on each chain', async () => {
     for (let each of networks) {
       const {id, nativeCurrency, provider, Vault} = each
       const contract = stubs.Vault(Vault.address, provider)
@@ -67,7 +67,6 @@ describe('deploy across multiple chains', () => {
       await contract.connect(account.connect(provider)).checkOutNative(toChainId, {value: amount}).then(_ => _.wait())
       const after = await contract.balances(currency)
       expect(after).toEqual(before + amount)
-      // console.log({before, after})
     }
   })
 })

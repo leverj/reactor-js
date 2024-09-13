@@ -41,6 +41,31 @@ describe('NetworkNode', () => {
     expect(latency).toBeGreaterThan(0)
   })
 
+  it('sends data across stream from node1 to node2', async () => {
+    const messages = {}
+    const responses = {}
+    await startNetworkNodes(6)
+    const leader = nodes[0]
+    leader.registerStreamHandler(meshProtocol, async (stream, peerId, message) => {
+      messages[peerId] = message
+      leader.sendMessageOnStream(stream, `responding ${message}`)
+    })
+    const sendMessage = async (node, message) => node.createAndSendMessage(leader.peerId, meshProtocol, message, _ => responses[node.peerId] = _)
+    for (let each of nodes.slice(1)) await sendMessage(each, `Verified Transfer Hash ${each.port}`)
+    await setTimeout(10)
+    for (let each of nodes.slice(1)) {
+      expect(messages[each.peerId]).toEqual(`Verified Transfer Hash ${each.port}`)
+      expect(responses[each.peerId]).toEqual(`responding Verified Transfer Hash ${each.port}`)
+    }
+
+    for (let each of nodes.slice(1)) await sendMessage(each, `Verified Transfer Hash ${each.port} again`)
+    await setTimeout(10)
+    for (let each of nodes.slice(1)) {
+      expect(messages[each.peerId]).toEqual(`Verified Transfer Hash ${each.port} again`)
+      expect(responses[each.peerId]).toEqual(`responding Verified Transfer Hash ${each.port} again`)
+    }
+  })
+
   it('sends data using gossipsub', async () => {
     const transferReceipts = {} // each node will just save the transferHash and ack. later children will sign and attest point to point
     await startNetworkNodes(4)
@@ -106,8 +131,8 @@ describe('NetworkNode', () => {
     await nodes[0].createAndSendMessage(addressToSend, meshProtocol, 'HI', (message) => {logger.log('ACK RESP', message)})*/
     // await setTimeout(10)
   })
-  //fixme: to be implemented
 
+  //fixme: to be implemented
   it.skip('disallow to connect a node if not approved', async () => {
     const [node1, node2] = await startNetworkNodes(2)
     node1.connect(node2.peerId)
@@ -156,29 +181,4 @@ describe('NetworkNode', () => {
       expect(decrypted).toEqual(each)
     }
   })
-
-})
-it('can send data across stream from node1 to node2', async () => {
-  const messages = {}
-  const responses = {}
-  await startNetworkNodes(6)
-  const leader = nodes[0]
-  leader.registerStreamHandler(meshProtocol, async (stream, peerId, message) => {
-    messages[peerId] = message
-    leader.sendMessageOnStream(stream, `responding ${message}`)
-  })
-  const sendMessage = async (node, message) => node.createAndSendMessage(leader.peerId, meshProtocol, message, _ => responses[node.peerId] = _)
-  for (let each of nodes.slice(1)) await sendMessage(each, `Verified Transfer Hash ${each.port}`)
-  await setTimeout(10)
-  for (let each of nodes.slice(1)) {
-    expect(messages[each.peerId]).toEqual(`Verified Transfer Hash ${each.port}`)
-    expect(responses[each.peerId]).toEqual(`responding Verified Transfer Hash ${each.port}`)
-  }
-
-  for (let each of nodes.slice(1)) await sendMessage(each, `Verified Transfer Hash ${each.port} again`)
-  await setTimeout(10)
-  for (let each of nodes.slice(1)) {
-    expect(messages[each.peerId]).toEqual(`Verified Transfer Hash ${each.port} again`)
-    expect(responses[each.peerId]).toEqual(`responding Verified Transfer Hash ${each.port} again`)
-  }
 })
