@@ -21,7 +21,7 @@ describe('deploy across multiple chains', () => {
     processes = await launchEvms(chains)
     const evms = new JsonStore(deployedDir, '.evms').toObject()
     networks = Map(evms).map(_ => ({
-      id: _.id,
+      id: BigInt(_.id),
       label: _.label,
       nativeCurrency: _.nativeCurrency,
       provider: new JsonRpcProvider(_.providerURL),
@@ -49,7 +49,7 @@ describe('deploy across multiple chains', () => {
       const {id, nativeCurrency, provider, Vault} = each
       const contract = stubs.Vault(Vault.address, provider)
       const [chainId, chainName, nativeSymbol, nativeDecimals] = await contract.home()
-      expect(chainId).toEqual(BigInt(id))
+      expect(chainId).toEqual(id)
       expect(chainName).toEqual(nativeCurrency.name)
       expect(nativeSymbol).toEqual(nativeCurrency.symbol)
       expect(nativeDecimals).toEqual(BigInt(nativeCurrency.decimals))

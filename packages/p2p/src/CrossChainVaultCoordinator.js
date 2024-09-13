@@ -17,37 +17,39 @@ export class Actor {
   }
 
   async actOn(event, contract, parameters) {
-    // this.signer.connect(provider)
-    contract.connect(this.signer)
-
     switch (event.name) {
       case 'Transfer':
         const {signature, publicKey, payload} = parameters
         console.log(event.name, contract.target, {signature, publicKey, payload})
-        return contract.checkIn(signature, publicKey, payload).then(_ => _.wait())
+        const provider = contract.runner.provider
+        const runner = contract.connect(this.signer.connect(provider))
+        return runner.checkIn(signature, publicKey, payload).then(_ => _.wait())
     }
   }
 }
 
 export class CrossChainVaultCoordinator {
   static of(chains, evms, store, signer, logger = console) {
+    // fixme: affirm evms includes all of chains
     const networks = Map(evms).filter(_ => chains.includes(_.label)).map(_ => ({
       id: BigInt(_.id),
       label: _.label,
       provider: new JsonRpcProvider(_.providerURL),
       Vault: _.contracts.Vault,
     }))
-    return new this(networks, store, signer, logger)
+    const chains_ = networks.keySeq().toArray()
+    const networks_ = networks.valueSeq().toArray()
+    return new this(chains_, networks_, store, signer, logger)
   }
 
-  constructor(networks, store, signer, logger) {
+  constructor(chains, networks, store, signer, logger) {
+    this.chains = chains
     this.networks = networks
     this.store = store
     this.actor = new Actor(signer)
     this.logger = logger
     this.isRunning = false
   }
-  get chains() { return this.networks.keySeq().toArray() }
 
   async onEvent(event) {
     switch (event.name) {
@@ -65,6 +67,7 @@ export class CrossChainVaultCoordinator {
 
     this.logger.log(`starting cross-chain Vault tracking for [${this.chains}]`)
     this.isRunning = true
+    this.contracts = Map().asMutable()
     this.contracts = Map().asMutable()
     this.trackers = []
     this.networks.forEach(_ => {
