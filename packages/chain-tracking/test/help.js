@@ -1,4 +1,4 @@
-import {deployContract} from '@leverj/chain-deployment'
+import {deployContract} from '@leverj/chain-deployment/test'
 import {expect} from 'expect'
 
 export const ERC20 = async (name = 'Crap', symbol = 'CRAP') => deployContract('ERC20Mock', [name, symbol])

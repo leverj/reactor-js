@@ -1,6 +1,6 @@
 import {configure} from '@leverj/config/src/index.js'
 
-const dataDir = `${import.meta.dirname}/../../data`
+const dataDir = `${process.env.PWD}/data`
 
 const schema = {
   env: {
@@ -35,7 +35,7 @@ const schema = {
     env: 'TRY_COUNT',
   },
   bridge: {
-    confDir: {
+    nodesDir: {
       format: String,
       default: `${dataDir}/p2p`,
       env: 'BRIDGE_CONF_DIR',

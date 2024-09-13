@@ -1,4 +1,4 @@
-import {accounts, chainId, provider} from '@leverj/chain-deployment'
+import {accounts, chainId, provider} from '@leverj/chain-deployment/test'
 import {ContractTracker, MultiContractTracker} from '@leverj/chain-tracking'
 import {ERC20, ERC721} from '@leverj/chain-tracking/test'
 import {InMemoryStore, logger} from '@leverj/common'

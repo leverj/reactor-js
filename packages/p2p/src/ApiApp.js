@@ -15,7 +15,7 @@ export class JsonDirStore {
     ensureExistsSync(this.path)
   }
   fileOf(key) { return `${this.path}/${key}.json` }
-  get(key) { return existsSync(this.fileOf(key)) ? JSON.parse(readFileSync(this.fileOf(key)).toString()) : undefined }
+  get(key) { return existsSync(this.fileOf(key)) ? JSON.parse(readFileSync(this.fileOf(key), 'utf8')) : undefined }
   set(key, value) { writeFileSync(this.fileOf(key), JSON.stringify(value, null, 2)) }
 }
 
@@ -35,7 +35,7 @@ class NodePersistence {
 
 export class ApiApp {
   static async new() {
-    const store = new JsonDirStore(bridge.confDir, 'nodes')
+    const store = new JsonDirStore(bridge.nodesDir, 'nodes')
     const node = await BridgeNode.from(bridge.port, bridge.bootstrapNodes, store.get(port))
     new NodePersistence(node, store) // ... start listening to NODE_INFO_CHANGED
     await node.start()

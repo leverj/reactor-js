@@ -1,4 +1,4 @@
-import {accounts, chainId, deployContract} from '@leverj/chain-deployment'
+import {accounts, chainId, deployContract} from '@leverj/chain-deployment/test'
 import {expect} from 'expect'
 
 describe('Bank', () => {

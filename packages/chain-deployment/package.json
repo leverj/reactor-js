@@ -3,10 +3,14 @@
   "version": "1.2.0",
   "license": "UNLICENSED",
   "type": "module",
-  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./config.schema": "./config.schema.js",
+    "./hardhat.config": "./hardhat.config.cjs",
+    "./test": "./test/help/index.js"
+  },
   "scripts": {
-    "test": "npx mocha",
-    "deploy": "NODE_NO_WARNINGS=1 node scripts/deploy"
+    "test": "npx mocha"
   },
   "dependencies": {
     "@nomicfoundation/hardhat-ethers": "^3.0.8",
@@ -20,7 +24,11 @@
     "hardhat-deploy-ethers": "^0.4.2",
     "hardhat-gas-reporter": "^2.2.1",
     "hardhat-switch-network": "^1.1.1",
-    "solidity-coverage": "^0.8.13",
-    "viem": "^2.21.5"
+    "solidity-coverage": "^0.8.13"
+  },
+  "devDependencies": {
+    "@leverj/config": "1.2.0",
+    "viem": "^2.21.5",
+    "wait-on": "^8.0.1"
   }
 }

@@ -1,4 +1,7 @@
 # fixme: revise Chain Deployment section
+
+### config = {deployer: {privateKey}, deploymentDir,env, networks, contracts}
+
 ## Chain Deployment
 - configure the deployed project/package with the minimal configuration looking like [here](templates/config).
 - create a `.env` file in the deployed project/package root, overriding config values like [here](templates/.env).

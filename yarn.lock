@@ -877,6 +877,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@leverj/chain-deployment@workspace:packages/chain-deployment"
   dependencies:
+    "@leverj/config": "npm:1.2.0"
     "@nomicfoundation/hardhat-ethers": "npm:^3.0.8"
     "@nomicfoundation/hardhat-network-helpers": "npm:^1.0.11"
     "@nomicfoundation/hardhat-verify": "npm:^2.0.10"
@@ -890,6 +891,7 @@ __metadata:
     hardhat-switch-network: "npm:^1.1.1"
     solidity-coverage: "npm:^0.8.13"
     viem: "npm:^2.21.5"
+    wait-on: "npm:^8.0.1"
   languageName: unknown
   linkType: soft
 

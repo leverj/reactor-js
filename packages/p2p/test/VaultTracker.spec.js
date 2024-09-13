@@ -1,4 +1,4 @@
-import {accounts, ETH, getContractAt, provider} from '@leverj/chain-deployment'
+import {accounts, ETH, getContractAt, provider} from '@leverj/chain-deployment/test'
 import {InMemoryStore, logger} from '@leverj/common'
 import {encodeTransfer} from '@leverj/reactor.chain/contracts'
 import {publicKey, signedBy, signer, Vault} from '@leverj/reactor.chain/test'

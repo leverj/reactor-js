@@ -1,4 +1,4 @@
-import {provider} from '@leverj/chain-deployment'
+import {provider} from '@leverj/chain-deployment/test'
 import {ERC20} from '@leverj/chain-tracking/test'
 import {expect} from 'expect'
 import {getCreationBlock} from '../src/evm.js'

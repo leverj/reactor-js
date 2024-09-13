@@ -16,8 +16,8 @@ describe('e2e', () => {
   let store
 
   beforeEach(() => {
-    rmSync(bridge.confDir, {recursive: true, force: true})
-    store = new JsonDirStore(bridge.confDir, 'nodes')
+    rmSync(bridge.nodesDir, {recursive: true, force: true})
+    store = new JsonDirStore(bridge.nodesDir, 'nodes')
   })
   afterEach(async () => {
     while (processes.length > 0) processes.pop().kill()
@@ -36,7 +36,7 @@ describe('e2e', () => {
       const env = Object.assign({}, process.env, {
         PORT: port,
         BRIDGE_PORT: bridge.port + index,
-        BRIDGE_CONF_DIR: bridge.confDir,
+        BRIDGE_CONF_DIR: bridge.nodesDir,
         BRIDGE_BOOTSTRAP_NODES: JSON.stringify(bootstrapNodes),
       })
       return fork('app.js', [], {cwd: process.cwd(), env})

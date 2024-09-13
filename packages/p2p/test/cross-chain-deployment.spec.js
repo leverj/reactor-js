@@ -1,5 +1,4 @@
-import 'dotenv/config'
-import {accounts} from '@leverj/chain-deployment'
+import {accounts} from '@leverj/chain-deployment/test'
 import {JsonStore} from '@leverj/common'
 import {stubs} from '@leverj/reactor.chain/contracts'
 import {JsonRpcProvider} from 'ethers'
@@ -7,18 +6,18 @@ import {expect} from 'expect'
 import {Map} from 'immutable'
 import {rmSync} from 'node:fs'
 import {setTimeout} from 'node:timers/promises'
-import {deploymentDir, launchEvms} from './help.js'
+import {configureDeployment, launchEvms} from './help.js'
 
 describe('deploy across multiple chains', () => {
-  const deployedDir = `${deploymentDir}/env/${process.env.NODE_ENV}`
   const chains = ['sepolia', 'holesky']
-  // const chains = ['hardhat', 'sepolia', 'holesky']
   const [, account] = accounts
   let processes, networks
 
   before(async () => {
+    const config = await configureDeployment(chains)
+    const deployedDir = `${config.deploymentDir}/env/${config.env}`
     rmSync(deployedDir, {recursive: true, force: true})
-    processes = await launchEvms(chains)
+    processes = await launchEvms(config)
     const evms = new JsonStore(deployedDir, '.evms').toObject()
     networks = Map(evms).map(_ => ({
       id: BigInt(_.id),

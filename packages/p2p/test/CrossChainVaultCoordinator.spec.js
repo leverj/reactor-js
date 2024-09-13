@@ -1,26 +1,26 @@
-import {accounts} from '@leverj/chain-deployment'
+import {accounts} from '@leverj/chain-deployment/test'
 import {JsonStore, logger} from '@leverj/common'
+import {ZeroAddress} from 'ethers'
 import {expect} from 'expect'
 import {rmSync} from 'node:fs'
 import {setTimeout} from 'node:timers/promises'
 import {CrossChainVaultCoordinator} from '../src/CrossChainVaultCoordinator.js'
 import config from '../config.js'
-import {deploymentDir, launchEvms} from './help.js'
-import {ZeroAddress} from 'ethers'
+import {configureDeployment, launchEvms} from './help.js'
 
-const {bridge: {confDir}} = config
+const {bridge: {nodesDir}} = config
 
 describe('CrossChainVaultCoordinator', () => {
-  const deployedDir = `${deploymentDir}/env/${process.env.NODE_ENV}`
   const chains = ['holesky', 'sepolia']
   const [, deployer, account] = accounts
   let processes, coordinator
 
   before(async () => {
+    const config = await configureDeployment(chains)
+    const deployedDir = `${config.deploymentDir}/env/${config.env}`
     rmSync(deployedDir, {recursive: true, force: true})
-    processes = await launchEvms(chains)
-    const evms = new JsonStore(deployedDir, '.evms').toObject()
-    const trackerStore = new JsonStore(confDir, 'trackers')
+    processes = await launchEvms(config)
+    const trackerStore = new JsonStore(nodesDir, 'trackers')
     coordinator = CrossChainVaultCoordinator.of(chains, evms, trackerStore, deployer, logger)
     await coordinator.start()
   })

@@ -1,4 +1,4 @@
-import {accounts, chainId, provider} from '@leverj/chain-deployment'
+import {accounts, chainId, provider} from '@leverj/chain-deployment/test'
 import {uint} from '@leverj/common'
 import {events, stubs} from '@leverj/reactor.chain/contracts'
 import {publicKey, Vault} from '@leverj/reactor.chain/test'

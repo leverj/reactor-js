@@ -1,51 +1,53 @@
-import {Deploy, networks as NETWORKS, wallets} from '@leverj/chain-deployment'
+import info from '../package.json' assert {type: 'json'}
+import {Deploy} from '@leverj/chain-deployment'
+import {wallets} from '@leverj/chain-deployment/test'
 import {logger} from '@leverj/common'
+import * as reactor_chain_config from '@leverj/reactor.chain/config'
 import {publicKey} from '@leverj/reactor.chain/test'
 import {exec} from 'child_process'
-import {Map} from 'immutable'
-import {merge, zip} from 'lodash-es'
-import {rmSync} from 'node:fs'
+import {zip} from 'lodash-es'
 import waitOn from 'wait-on'
 import {BridgeNode} from '../src/BridgeNode.js'
 import config from '../config.js'
 import {peerIdJsons} from './fixtures.js'
 
-const {bridge: {confDir}} = config
-
-export const deploymentDir = `${import.meta.dirname}/../../../data/chain`
+//fixme: how to make this work?
+// export const createDeployConfig_2 = async (chains) => {
+//   // override chain/config/env with ^^^ chains
+//   const chain_config_dir = `${process.env.PWD}/../chain/config`
+//   const config_file = `${chain_config_dir}/${env}.js`
+//   const override_file = `${chain_config_dir}/local-${env}.js`
+//   const regex = /(.*chains:\s*\[)(.+)(].*)/
+//   const override = `$1${chains.map(_ => `'${_}'`)}$3`
+//   writeFileSync(override_file, readFileSync(config_file, 'utf8').replace(regex, override))
+//   const config = await import(`${chain_config_dir}.js`)
+//   rmSync(override_file)
+//   return config
+// }
 
 // manufacture a config just like the one in @leverj/reactor.chain
-export const createChainConfigWithoutChain = (chains) => {
-  const networks = Map(NETWORKS).filter(_ => chains.includes(_.label))
-  return ({
+export const configureDeployment = (chains) => {
+  const config = {
     env: process.env.NODE_ENV,
-    deploymentDir,
+    deploymentDir: `${process.env.PWD}/../../data/${info.name}/chain`,
     deployer: {privateKey: wallets[0].privateKey},
+    chains,
     vault: {publicKey},
-    chains: networks.keySeq().toArray(),
-    networks: networks.toJS(),
-    contracts: networks.map(({id, nativeCurrency: {name, symbol, decimals}}) => ({
-      BnsVerifier: {},
-      Vault: {
-        libraries: ['BnsVerifier'],
-        params: [id, name, symbol, decimals, publicKey],
-      },
-    })).toJS(),
-  })
+  }
+  return reactor_chain_config.postLoad(config)
 }
 
-export const launchEvms = async (chains, forked = false) => {
-  rmSync(confDir, {recursive: true, force: true})
-  const config = createChainConfigWithoutChain(chains)
+export const launchEvms = async (config, forked = false) => {
+  const {chains, networks} = config
+  const deploy = Deploy.from(config, logger)
   const ports = chains.map((chain, i) => 8101 + i)
   zip(chains, ports).forEach(([chain, port]) => config.networks[chain].providerURL = `http://localhost:${port}`)
   const processes = zip(chains, ports).map(([chain, port]) => launchEvm(config.networks, chain, port, forked))
   for (let chain of chains) {
-    await waitOn({resources: [config.networks[chain].providerURL], timeout: 10_000})
-    const configWithChain = merge({}, config, {chain})
-    await Deploy.from(configWithChain, {logger, reset: true}).run()
+    await waitOn({resources: [networks[chain].providerURL], timeout: 10_000})
+    await deploy.to(chain, {reset: true})
   }
-  return processes
+  return {config, processes}
 }
 
 const launchEvm = (networks, chain, port, forked = false) => {
