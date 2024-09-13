@@ -16,7 +16,7 @@ describe('deploy across multiple chains', () => {
   const [, account] = accounts
   let processes, networks
 
-  beforeEach(async () => {
+  before(async () => {
     rmSync(deployedDir, {recursive: true, force: true})
     processes = await launchEvms(chains)
     const evms = new JsonStore(deployedDir, '.evms').toObject()
@@ -28,7 +28,7 @@ describe('deploy across multiple chains', () => {
       Vault: _.contracts.Vault,
     })).valueSeq().toArray()
   })
-  afterEach(async () => {
+  after(async () => {
     processes.forEach(_ => _.kill())
     await setTimeout(100)
   })
