@@ -16,7 +16,7 @@ describe('deploy across multiple chains', () => {
   const [, account] = accounts
   let processes, networks
 
-  before(async () => {
+  beforeEach(async () => {
     rmSync(deployedDir, {recursive: true, force: true})
     processes = await launchEvms(chains)
     const evms = new JsonStore(deployedDir, '.evms').toObject()
@@ -30,10 +30,10 @@ describe('deploy across multiple chains', () => {
   })
   afterEach(async () => {
     processes.forEach(_ => _.kill())
-    await setTimeout(1000)
+    await setTimeout(100)
   })
 
-  it.skip('connect to provider and query balances on each chain', async () => {
+  it('connect to provider and query balances on each chain', async () => {
     for (let each of networks) {
       const {provider, Vault} = each
       const balance = await provider.getBalance(account)
@@ -44,7 +44,7 @@ describe('deploy across multiple chains', () => {
     }
   })
 
-  it.skip('connect to contract and query on each chain', async () => {
+  it('connect to contract and query on each chain', async () => {
     for (let each of networks) {
       const {id, nativeCurrency, provider, Vault} = each
       const contract = stubs.Vault(Vault.address, provider)
