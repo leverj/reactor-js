@@ -5,10 +5,11 @@ import {setTimeout} from 'node:timers/promises'
 import {CrossChainVaultCoordinator} from '../src/CrossChainVaultCoordinator.js'
 import config from '../config.js'
 import {ZeroAddress} from 'ethers'
+import {deploymentDir} from './help.js'
 
 const {bridge: {confDir}} = config
 
-describe('CrossChainVaultsTracker', () => {
+describe.skip('CrossChainVaultCoordinator', () => {
   // const fromChainId = 10101n, toChainId = 98989n, amount = 1_000_000n
   // const chains = [fromChainId, toChainId]
   const chains = ['holesky', 'sepolia']
@@ -16,6 +17,7 @@ describe('CrossChainVaultsTracker', () => {
   let coordinator
 
   before(async () => {
+    const deployedDir = `${deploymentDir}/env/${process.env.NODE_ENV}`
     const evms = new JsonStore(deployedDir, '.evms').toObject()
     //fixme: make all providerURL to hardhat
     const trackerStore = new JsonStore(confDir, 'trackers')

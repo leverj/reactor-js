@@ -10,7 +10,7 @@ import {ZeroAddress} from 'ethers'
 
 const {bridge: {confDir}} = config
 
-describe('CrossChainVaultsTracker', () => {
+describe('CrossChainVaultCoordinator', () => {
   const deployedDir = `${deploymentDir}/env/${process.env.NODE_ENV}`
   const chains = ['holesky', 'sepolia']
   const [, deployer, account] = accounts
@@ -53,16 +53,14 @@ describe('CrossChainVaultsTracker', () => {
       to: await toProvider.getBalance(account),
     }
     await fromVault.connect(account.connect(fromProvider)).checkOutNative(toChainId, {value: amount}).then(_ => _.wait())
-    await setTimeout(1000)
+    await setTimeout(200)
     const after = {
       from: await fromProvider.getBalance(account),
       to: await toProvider.getBalance(account),
     }
+    console.log('>'.repeat(50), {before, after})
     expect(after.from).toEqual(before.from - amount)
     // expect(after.to).toEqual(before.to + amount)
-    console.log('<'.repeat(50), {before, after})
-
-    return //fixme
-    expect(await toVault.proxies(fromChainId, NATIVE)).not.toEqual(ZeroAddress) // transferred in, so proxy token created
+    // expect(await toVault.proxies(fromChainId, NATIVE)).not.toEqual(ZeroAddress) // transferred in, so proxy token created
   })
 })

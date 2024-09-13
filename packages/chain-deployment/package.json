@@ -5,15 +5,13 @@
   "type": "module",
   "main": "./src/index.js",
   "scripts": {
-    "save:networks": "node scripts/save_networks.js"
+    "test": "npx mocha",
+    "deploy": "NODE_NO_WARNINGS=1 node scripts/deploy"
   },
   "dependencies": {
     "@nomicfoundation/hardhat-ethers": "^3.0.8",
-    "@nomicfoundation/hardhat-ignition": "^0.15.5",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.11",
     "@nomicfoundation/hardhat-verify": "^2.0.10",
-    "@nomicfoundation/ignition-core": "^0.15.5",
-    "@nomicfoundation/ignition-ui": "^0.15.5",
     "@nomiclabs/hardhat-etherscan": "^3.1.8",
     "ethers": "^6.13.2",
     "glob": "^11.0.0",

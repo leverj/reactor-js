@@ -67,16 +67,3 @@ export const createBridgeNodes = async (howMany) => {
   }
   return results
 }
-
-export class Chain {
-  static async from(provider) {
-    const {chainId, name} = await provider.getNetwork()
-    return new this(chainId, name === 'unknown' ? 'hardhat' : name, provider)
-  }
-
-  constructor(id, label, provider) {
-    this.id = id
-    this.label = label
-    this.provider = provider
-  }
-}

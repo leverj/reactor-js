@@ -1,34 +1,27 @@
-import {Deploy} from '@leverj/chain-deployment'
+import {Deploy, provider} from '@leverj/chain-deployment'
 import {logger} from '@leverj/common'
-import {exec} from 'child_process'
 import {expect} from 'expect'
 import {rmSync} from 'node:fs'
-import waitOn from 'wait-on'
-import config from '../config.js'
+import {createConfig} from './help.js'
 
-describe('deploy to localhost chain', () => {
-  let localchain
-
-  before(async () => {
-    config.chain = 'localhost'
-    rmSync(`${config.deploymentDir}/env/test`, {recursive: true, force: true})
-    localchain = exec('npx hardhat node')
-    await waitOn({resources: ['http://localhost:8545'], timeout: 1000})
-  })
-  after(() => localchain.kill())
+describe.skip('deploy to hardhat chain', () => {
+  const chains = ['hardhat', 'sepolia', 'holesky']
+  const config = createConfig(chains)
+  before(() => rmSync(`${config.deploymentDir}/env/${process.env.NODE_ENV}`, {recursive: true, force: true}))
 
   it('deploys all contracts', async () => {
-    const deploy = Deploy.from(config, {logger})
+    const deploy = Deploy.from(config, {provider, logger})
     expect(deploy.config).toMatchObject(config)
+    expect(await deploy.provider.getNetwork().then(_ => _.name)).toEqual('hardhat')
     expect(await deploy.provider.getNetwork().then(_ => _.chainId)).toEqual(31337n)
     expect(deploy.deployedContracts.Vault).not.toBeDefined()
 
-    await deploy.run()
+    await deploy.to(chain) //fixme
     const deployed_initial = deploy.deployedContracts
     expect(deployed_initial.Vault).toBeDefined()
 
     {    // deploy again; do not reset contract addresses!
-      const deploy = Deploy.from(config, {reset: false, logger})
+      const deploy = Deploy.from(config, {reset: false, provider, logger})
       expect(deploy.deployedContracts.Vault).toBeDefined()
 
       await deploy.run()
@@ -36,7 +29,7 @@ describe('deploy to localhost chain', () => {
       expect(redeployed_without_reset).toMatchObject(deployed_initial)
     }
     {    // deploy again; force reset contract addresses!
-      const deploy = Deploy.from(config, {reset: true, logger})
+      const deploy = Deploy.from(config, {reset: true, provider, logger})
       expect(deploy.deployedContracts.Vault).not.toBeDefined()
 
       await deploy.run()

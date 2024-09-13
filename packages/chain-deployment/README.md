@@ -1,3 +1,4 @@
+# fixme: revise Chain Deployment section
 ## Chain Deployment
 - configure the deployed project/package with the minimal configuration looking like [here](templates/config).
 - create a `.env` file in the deployed project/package root, overriding config values like [here](templates/.env).
@@ -12,10 +13,10 @@
 ---
 ### Generating javascript source for contracts interaction
 to support interaction with deployed contract, you can generate a correponding source files like so:
-- create a `generate-contract-exports` script such as [this](templates/generate-contract-exports.js), to be executed via:
+- create a `generate-contract-exports` script such as [this](scripts/generate-contract-exports.js), to be executed via:
     ```bash
-      $> yarn generate-contract-exports
+      $> node scripts/generate-contract-exports
     ```
-- the resulting javascript files will reside under the `<deployed-project-root>/src/contracts/` directory
+- the resulting javascript files will reside under the `<project-root>/src/contracts/` directory
 
 

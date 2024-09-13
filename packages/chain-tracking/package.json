@@ -6,11 +6,10 @@
   "main": "./src/index.js",
   "exports": {
     ".": "./src/index.js",
-    "./test": "./test/help/index.js"
+    "./test": "./test/help.js"
   },
   "scripts": {
-    "test": "npx mocha",
-    "dependency:check": "npx depcheck"
+    "test": "npx mocha"
   },
   "dependencies": {
     "@leverj/common": "1.2.0",
