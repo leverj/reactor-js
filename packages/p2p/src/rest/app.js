@@ -1,10 +1,11 @@
 import bodyParser from 'body-parser'
 import express from 'express'
-import router from './router.js'
+import {createRouter} from './router.js'
 
-const app = express()
-app.use(bodyParser.json())
-app.use(express.json())
-app.use('/api', router)
-
-export default app
+export function createApp(config, node) {
+  const app = express()
+  app.use(bodyParser.json())
+  app.use(express.json())
+  app.use('/api', createRouter(config, node))
+  return app
+}

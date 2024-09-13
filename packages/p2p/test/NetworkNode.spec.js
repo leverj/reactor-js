@@ -26,7 +26,7 @@ describe('NetworkNode', () => {
   const startNetworkNodes = async (count) => {
     let bootstrapNodes = []
     for (let i = 0; i < count; i++) {
-      const node = await NetworkNode.from(10000 + i, peerIdJsons[i], bootstrapNodes)
+      const node = await NetworkNode.from(config, 10000 + i, peerIdJsons[i], bootstrapNodes)
       await node.start()
       nodes.push(node)
       if (i === 0) bootstrapNodes = node.multiaddrs

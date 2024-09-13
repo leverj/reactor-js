@@ -8,12 +8,9 @@ import {
   SecretKey,
 } from '@leverj/reactor.mcl'
 import {setTimeout} from 'node:timers/promises'
-import config from '../config.js'
 import {NetworkNode} from './NetworkNode.js'
 import {TssNode} from './TssNode.js'
 import {events, NODE_INFO_CHANGED, PEER_DISCOVERY, waitToSync} from './utils.js'
-
-const {timeout, port} = config
 
 const TSS_RECEIVE_SIGNATURE_SHARE = 'TSS_RECEIVE_SIGNATURE_SHARE'
 const SIGNATURE_START = 'SIGNATURE_START'
@@ -24,20 +21,21 @@ const DKG_RECEIVE_KEY_SHARE = 'DKG_RECEIVE_KEY_SHARE'
 const meshProtocol = '/bridge/0.0.1'
 
 export class BridgeNode {
-  static async from(port, bootstrapNodes, data = {}) {
+  static async from(config, port, bootstrapNodes, data = {}) {
     const {p2p, tssNode, whitelist, leader} = data
-    const network = await NetworkNode.from(port, p2p, bootstrapNodes)
+    const network = await NetworkNode.from(config, port, p2p, bootstrapNodes)
     const tss = new TssNode(network.peerId, tssNode)
     tss.addMember(tss.idHex, tss.onDkgShare.bind(tss)) // making self dkg share
-    return new this(network, tss,  new Whitelist(whitelist || []), leader, bootstrapNodes.length === 0)
+    return new this(config, network, tss,  new Whitelist(whitelist || []), leader, bootstrapNodes.length === 0)
   }
 
-  constructor(network, tss, whitelist, leader, isLeader) {
+  constructor(config, network, tss, whitelist, leader, isLeader) {
     this.network = network
+    this.config = config
     this.tss = tss
     this.whitelist = whitelist
     this.leader = leader
-    this.leadership = isLeader ? new Leader(this) : new Follower(this)
+    this.leadership = isLeader ? new Leader(this) : new Follower(config, this)
     this.messageMap = {}
     this.vaults = {}
     this.monitor = new Monitor()
@@ -87,9 +85,9 @@ export class BridgeNode {
     const peerIds = this.whitelist.get()
     for (let each of peerIds) if (each !== this.peerId) {
       this.monitor.updateLatency(each, await this.network.ping(each))
-      await setTimeout(timeout)
+      await setTimeout(this.config.timeout)
     }
-    setTimeout(timeout).then(this.ping.bind(this))
+    setTimeout(this.config.timeout).then(this.ping.bind(this))
   }
 
   addPeersToWhiteList(...peerIds) {
@@ -249,12 +247,15 @@ class Leader {
 }
 
 class Follower {
-  constructor(self) { this.self = self}
+  constructor(config, self) {
+    this.config = config
+    this.self = self
+  }
 
   async addLeader() {
     this.self.leader = this.self.network.bootstrapNodes[0].split('/').pop()
     this.self.addPeersToWhiteList(this.self.leader)
-    await waitToSync([_ => this.self.peers.includes(this.self.leader)], -1, timeout, port)
+    await waitToSync([_ => this.self.peers.includes(this.self.leader)], -1, this.config.timeout, this.config.port)
     await this.self.sendMessageToPeer(this.self.leader, WHITELIST_REQUEST, '')
   }
   listenToPeerDiscovery() {}
