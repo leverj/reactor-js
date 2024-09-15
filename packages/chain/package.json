@@ -4,7 +4,7 @@
   "license": "UNLICENSED",
   "type": "module",
   "exports": {
-    "./config": "./config.js",
+    "./config.schema": "./config.schema.js",
     "./contracts": "./src/contracts/index.js",
     "./test": "./test/contracts/help/index.js"
   },

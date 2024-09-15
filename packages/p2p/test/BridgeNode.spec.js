@@ -1,6 +1,6 @@
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
-import {createBridgeNodes} from './help.js'
+import {createBridgeNodes} from './help/bridge.js'
 
 describe('BridgeNode', () => {
   let nodes

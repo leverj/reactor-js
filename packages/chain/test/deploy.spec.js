@@ -19,7 +19,7 @@ describe('deploy to hardhat chain', () => {
   })
   after(async () => {
     evm.kill()
-    await setTimeout(200)
+    while(!evm.killed) await setTimeout(10)
   })
 
   it('deploy', async () => {

@@ -6,27 +6,31 @@ import {rmSync} from 'node:fs'
 import {setTimeout} from 'node:timers/promises'
 import {CrossChainVaultCoordinator} from '../src/CrossChainVaultCoordinator.js'
 import config from '../config.js'
-import {configureDeployment, launchEvms} from './help.js'
+import {createChainConfig, getEvmsStore, launchEvms} from './help/chain.js'
 
 const {bridge: {nodesDir}} = config
 
 describe('CrossChainVaultCoordinator', () => {
+  const [, account] = accounts
   const chains = ['holesky', 'sepolia']
-  const [, deployer, account] = accounts
   let processes, coordinator
 
   before(async () => {
-    const config = await configureDeployment(chains)
-    const deployedDir = `${config.deploymentDir}/env/${config.env}`
-    rmSync(deployedDir, {recursive: true, force: true})
+    const config = await createChainConfig(chains)
+    const deploymentDir = `${config.deploymentDir}/env/${config.env}`
+    rmSync(deploymentDir, {recursive: true, force: true})
     processes = await launchEvms(config)
-    const trackerStore = new JsonStore(nodesDir, 'trackers')
-    coordinator = CrossChainVaultCoordinator.of(chains, evms, trackerStore, deployer, logger)
+    const trackersStore = new JsonStore(nodesDir, 'trackers')
+    const evms = getEvmsStore(deploymentDir).toObject()
+    coordinator = CrossChainVaultCoordinator.of(chains, evms, trackersStore, config.deployer, logger)
     await coordinator.start()
   })
-  after(() => {
+  after(async () => {
     coordinator.stop()
-    processes.forEach(_ => _.kill())
+    for (let each of processes) {
+      each.kill()
+      while(!each.killed) await setTimeout(10)
+    }
   })
 
   it('can start & stop', async () => {

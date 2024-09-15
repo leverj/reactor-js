@@ -20,8 +20,11 @@ describe('e2e', () => {
     store = new JsonDirStore(bridge.nodesDir, 'nodes')
   })
   afterEach(async () => {
-    while (processes.length > 0) processes.pop().kill()
-    await setTimeout(100)
+    for (let each of processes) {
+      each.kill()
+      while(!each.killed) await setTimeout(10)
+    }
+    processes.length = 0
   })
 
   async function createApiNodesFrom(ports, howMany = ports.length - 1) {

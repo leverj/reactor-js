@@ -1,39 +1,31 @@
 import {accounts} from '@leverj/chain-deployment/test'
-import {JsonStore} from '@leverj/common'
 import {stubs} from '@leverj/reactor.chain/contracts'
-import {JsonRpcProvider} from 'ethers'
 import {expect} from 'expect'
-import {Map} from 'immutable'
 import {rmSync} from 'node:fs'
 import {setTimeout} from 'node:timers/promises'
-import {configureDeployment, launchEvms} from './help.js'
+import {createChainConfig, getDeployedNetworks, launchEvms} from './help/chain.js'
 
 describe('deploy across multiple chains', () => {
-  const chains = ['sepolia', 'holesky']
   const [, account] = accounts
-  let processes, networks
+  const chains = ['holesky', 'sepolia']
+  let processes, deployments
 
   before(async () => {
-    const config = await configureDeployment(chains)
-    const deployedDir = `${config.deploymentDir}/env/${config.env}`
-    rmSync(deployedDir, {recursive: true, force: true})
+    const config = await createChainConfig(chains)
+    const deploymentDir = `${config.deploymentDir}/env/${config.env}`
+    rmSync(deploymentDir, {recursive: true, force: true})
     processes = await launchEvms(config)
-    const evms = new JsonStore(deployedDir, '.evms').toObject()
-    networks = Map(evms).map(_ => ({
-      id: BigInt(_.id),
-      label: _.label,
-      nativeCurrency: _.nativeCurrency,
-      provider: new JsonRpcProvider(_.providerURL),
-      Vault: _.contracts.Vault,
-    })).valueSeq().toArray()
+    deployments = getDeployedNetworks(deploymentDir)
   })
   after(async () => {
-    processes.forEach(_ => _.kill())
-    await setTimeout(100)
+    for (let each of processes) {
+      each.kill()
+      while(!each.killed) await setTimeout(10)
+    }
   })
 
   it('connect to provider and query balances on each chain', async () => {
-    for (let each of networks) {
+    for (let each of deployments) {
       const {provider, Vault} = each
       const balance = await provider.getBalance(account)
       expect(Vault.address).toBeDefined()
@@ -44,7 +36,7 @@ describe('deploy across multiple chains', () => {
   })
 
   it('connect to contract and query on each chain', async () => {
-    for (let each of networks) {
+    for (let each of deployments) {
       const {id, nativeCurrency, provider, Vault} = each
       const contract = stubs.Vault(Vault.address, provider)
       const [chainId, chainName, nativeSymbol, nativeDecimals] = await contract.home()
@@ -57,7 +49,7 @@ describe('deploy across multiple chains', () => {
   })
 
   it('connect to contract and transact on each chain', async () => {
-    for (let each of networks) {
+    for (let each of deployments) {
       const {provider, Vault} = each
       const contract = stubs.Vault(Vault.address, provider)
       const currency = await contract.NATIVE(), amount = 1000n

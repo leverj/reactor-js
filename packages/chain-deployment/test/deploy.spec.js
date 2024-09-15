@@ -16,7 +16,17 @@ describe('deploy to multiple chains', () => {
   let processes
 
   before(async () => {
-    // prepare config
+    const {ports, providerURLs} = configureDeployment()
+    processes = await launchEvms(ports, providerURLs)
+  })
+  after(async () => {
+    for (let each of processes) {
+      each.kill()
+      while(!each.killed) await setTimeout(10)
+    }
+  })
+
+  const configureDeployment = () => {
     config.contracts = Map(zip(
       chains,
       chains.map(_ => ({Bank: {params: [networks[_].id, info.name]}}))
@@ -24,19 +34,18 @@ describe('deploy to multiple chains', () => {
     const ports = chains.map((chain, i) => 8101 + i)
     const providerURLs = ports.map(port => `http://localhost:${port}`)
     zip(chains, providerURLs).forEach(([chain, providerURL]) => config.networks[chain].providerURL = providerURL)
+    return {ports, providerURLs}
+  }
 
-    // launch evms
-    processes = []
+  const launchEvms = async (ports, providerURLs) => {
+    const processes = []
     for (let [chain, port, providerURL] of zip(chains, ports, providerURLs)) {
-      const evm = exec(`npx hardhat node --config ${process.env.PWD}/test/hardhat/${chain}.config.cjs --port ${port}`)
+      const evm = exec(`npx hardhat node --config ${import.meta.dirname}/hardhat/${chain}.config.cjs --port ${port}`)
       await waitOn({resources: [providerURL], timeout: 10_000})
       processes.push(evm)
     }
-  })
-  after(async () => {
-    processes.forEach(_ => _.kill())
-    await setTimeout(200)
-  })
+    return processes
+  }
 
   it('can deploy contracts to each chain', async () => {
     rmSync(`${config.deploymentDir}/env/test`, {recursive: true, force: true})
