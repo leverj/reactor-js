@@ -35,9 +35,9 @@ export class NetworkNode {
     }
   }
 
-  async start() { return this.p2p.start() }
+  async start() { return await this.p2p.start() }
 
-  async stop() { return this.p2p.stop() }
+  async stop() { return await this.p2p.stop() }
 
   async connect(peerId) { return this.p2p.dial(peerIdFromString(peerId)) }
 

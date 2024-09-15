@@ -8,8 +8,7 @@
   "scripts": {
     "test": "npx mocha",
     "dependency:check": "npx depcheck",
-    "start": "node app.js",
-    "docker:build": "./scripts/docker-build.sh"
+    "start": "node app.js"
   },
   "dependencies": {
     "@chainsafe/libp2p-gossipsub": "13.2.0",

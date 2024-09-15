@@ -58,7 +58,11 @@ export class ApiApp {
   }
 
   async stop() {
-    this.server.close()
     await this.node.stop()
+    const promise = new Promise((resolve, reject) => this.server.close(function (err) {
+      if (err) reject(err)
+      else resolve()
+    }))
+    await promise
   }
 }
