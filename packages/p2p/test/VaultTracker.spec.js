@@ -20,7 +20,7 @@ describe('VaultTracker', () => {
           const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = event.args
           const payload = encodeTransfer(origin, token, name, symbol, decimals, amount, owner, from, to, tag)
           const signature = signedBy(transferHash, signer)
-          await toVault.checkIn(signature, publicKey, payload).then(_ => _.wait())
+          await toVault.accept(signature, publicKey, payload).then(_ => _.wait())
       }
     }
     tracker = VaultTracker(fromChainId, fromVault, new InMemoryStore(), config.chain.polling, {onEvent}, logger)

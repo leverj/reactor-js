@@ -17,7 +17,7 @@ export class Actor {
       case 'Transfer':
         const {signature, publicKey, payload} = parameters
         const provider = contract.runner.provider
-        await contract.connect(this.signer.connect(provider)).checkIn(signature, publicKey, payload).then(_ => _.wait())
+        await contract.connect(this.signer.connect(provider)).accept(signature, publicKey, payload).then(_ => _.wait())
     }
   }
 }

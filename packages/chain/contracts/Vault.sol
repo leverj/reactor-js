@@ -35,9 +35,9 @@ contract Vault {
     uint public sendCounter = 0;
     mapping(address => uint) public balances;
     mapping(bytes32 => bool) public sends;
-    mapping(bytes32 => bool) public checkins;
+    mapping(bytes32 => bool) public accepts;
     mapping(uint64 => mapping(address => address)) public proxies;
-    mapping(address => bool) public isCheckedIn;
+    mapping(address => bool) public wasAccepted;
 
     constructor(uint64 chainId_, string memory chainName_, string memory nativeSymbol_, uint8 nativeDecimals_, uint[4] memory publicKey_) {
         home = Chain(chainId_, chainName_, nativeSymbol_, nativeDecimals_); //fixme:chainId: use block.chainid instead
@@ -52,7 +52,7 @@ contract Vault {
     }
 
     function sendToken(uint64 to, address token, uint amount) external {
-        if (isCheckedIn[token]) {
+        if (wasAccepted[token]) {
             ERC20Proxy proxy = ERC20Proxy(token);
             proxy.burn(msg.sender, amount);
             send(proxy.chain(), proxy.token(), proxy.name(), proxy.symbol(), proxy.decimals(), amount, msg.sender, to);
@@ -75,14 +75,14 @@ contract Vault {
         for (uint8 i = 0; i < 4; i++) if (publicKey[i] != key[i]) revert InvalidPublicKey(i);
     }
 
-    function checkIn(uint[2] calldata signature, uint[4] calldata signerPublicKey, bytes calldata payload) external {
+    function accept(uint[2] calldata signature, uint[4] calldata signerPublicKey, bytes calldata payload) external {
         validatePublicKey(signerPublicKey);
         bytes32 hash = keccak256(payload);
-        require(!checkins[hash], 'Token already checked-in');
+        require(!accepts[hash], 'Token already accepted');
         BnsVerifier.verify(signature, signerPublicKey, hash);
         (uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner, , ,) = abi.decode(payload, (uint64, address, string, string, uint8, uint, address, uint, uint, uint));
         mintOrDisburse(origin, token, name, symbol, decimals, amount, owner);
-        checkins[hash] = true;
+        accepts[hash] = true;
     }
 
     function mintOrDisburse(uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner) private {
@@ -94,7 +94,7 @@ contract Vault {
     function mint(uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner) private {
         if (proxies[origin][token] == address(0)) { // if proxy yet to exist
             proxies[origin][token] = address(new ERC20Proxy(origin, token, name, symbol, decimals));
-            isCheckedIn[proxies[origin][token]] = true;
+            wasAccepted[proxies[origin][token]] = true;
         }
         ERC20Proxy(proxies[origin][token]).mint(owner, amount);
     }

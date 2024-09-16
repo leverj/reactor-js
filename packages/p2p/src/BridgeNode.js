@@ -195,7 +195,7 @@ class Leader {
         const signature = G1ToNumbers(deserializeHexStrToSignature(aggregateSignature.groupSign))
         const publicKey = this.self.publicKey
         const toContract = this.self.vaults[to]
-        await toContract.checkIn(signature, publicKey, payload).then(_ => _.wait())
+        await toContract.accept(signature, publicKey, payload).then(_ => _.wait())
       }
     }
     //fixme:make sure it is a Transfer event

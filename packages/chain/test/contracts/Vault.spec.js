@@ -54,23 +54,23 @@ describe('Vault', () => {
     })
   })
 
-  describe('checkIn', () => {
+  describe('accept', () => {
     it('Native', async () => {
       const fromVault = await Vault(fromChainId, publicKey), toVault = await Vault(toChainId, publicKey)
       await fromVault.connect(account).sendNative(toChainId, {value: deposit}).then(_ => _.wait())
       const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = await getTransferEvent()
       expect(origin).toEqual(fromChainId)
 
-      expect(await toVault.checkins(transferHash)).toEqual(false)
+      expect(await toVault.accepts(transferHash)).toEqual(false)
       const signature = signedBy(transferHash, signer)
       const payload = encodeTransfer(origin, token, name, symbol, decimals, amount, owner, from, to, tag)
-      await toVault.checkIn(signature, publicKey, payload).then(_ => _.wait())
-      expect(await toVault.checkins(transferHash)).toEqual(true)
+      await toVault.accept(signature, publicKey, payload).then(_ => _.wait())
+      expect(await toVault.accepts(transferHash)).toEqual(true)
 
       const proxyAddress = await toVault.proxies(fromChainId, ETH)
       const proxy = await getContractAt('ERC20Proxy', proxyAddress)
       expect(amount).toEqual(await proxy.balanceOf(owner))
-      expect(await toVault.isCheckedIn(proxyAddress)).toEqual(true)
+      expect(await toVault.wasAccepted(proxyAddress)).toEqual(true)
     })
 
     it('Token', async () => {
@@ -82,16 +82,16 @@ describe('Vault', () => {
       const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = await getTransferEvent()
       expect(origin).toEqual(fromChainId)
 
-      expect(await toVault.checkins(transferHash)).toEqual(false)
+      expect(await toVault.accepts(transferHash)).toEqual(false)
       const signature = signedBy(transferHash, signer)
       const payload = encodeTransfer(origin, token, name, symbol, decimals, amount, owner, from, to, tag)
-      await toVault.checkIn(signature, publicKey, payload).then(_ => _.wait())
-      expect(await toVault.checkins(transferHash)).toEqual(true)
+      await toVault.accept(signature, publicKey, payload).then(_ => _.wait())
+      expect(await toVault.accepts(transferHash)).toEqual(true)
 
       const proxyAddress = await toVault.proxies(fromChainId, erc20.target)
       const proxy = await getContractAt('ERC20Proxy', proxyAddress)
       expect(await proxy.balanceOf(owner)).toEqual(amount)
-      expect(await toVault.isCheckedIn(proxyAddress)).toEqual(true)
+      expect(await toVault.wasAccepted(proxyAddress)).toEqual(true)
     })
   })
 })
