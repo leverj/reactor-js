@@ -53,7 +53,6 @@ const launchEvm = (networks, chain, port, forked = false) => {
   process.stdout.on('data', logger.log)
   return process
 }
-const launchGanacheEvm = (providerUrl, port) => exec(`npx ganache-cli --fork ${providerUrl}  --port ${port}`) //fixme: experimental
 
 export const getEvmsStore = (path) => new JsonStore(path, '.evms')
 

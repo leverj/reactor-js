@@ -39,8 +39,6 @@
     "@leverj/chain-deployment": "1.2.0",
     "@noble/curves": "^1.6.0",
     "aes-encryption": "^1.0.4",
-    "axios": "^1.7.7",
-    "dotenv": "^16.4.5",
-    "ganache-cli": "^6.12.2"
+    "axios": "^1.7.7"
   }
 }

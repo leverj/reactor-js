@@ -9,21 +9,21 @@ export const VaultTracker = (chainId, contract, store, polling, actor, logger = 
 }
 
 export class Actor {
-  constructor (signer) {
-    this.signer = signer
+  constructor (wallet) {
+    this.wallet = wallet
   }
-  async actOn(event, contract, parameters) {
+  async actOn(event, toVault, parameters) {
     switch (event.name) {
       case 'Transfer':
         const {signature, publicKey, payload} = parameters
-        const provider = contract.runner.provider
-        await contract.connect(this.signer.connect(provider)).accept(signature, publicKey, payload).then(_ => _.wait())
+        const provider = toVault.runner.provider
+        await toVault.connect(this.wallet.connect(provider)).accept(signature, publicKey, payload).then(_ => _.wait())
     }
   }
 }
 
 export class CrossChainVaultCoordinator {
-  static of(chains, evms, store, polling, signer, logger = console) {
+  static of(chains, evms, store, polling, wallet, logger = console) {
     // fixme:chains: affirm evms includes all of chains
     const networks = Map(evms).filter(_ => chains.includes(_.label)).map(_ => ({
       id: BigInt(_.id),
@@ -31,7 +31,7 @@ export class CrossChainVaultCoordinator {
       provider: new JsonRpcProvider(_.providerURL),
       Vault: _.contracts.Vault,
     })).valueSeq().toArray()
-    return new this(chains, networks, store, polling, signer, logger)
+    return new this(chains, networks, store, polling, wallet, logger)
   }
 
   constructor(chains, networks, store, polling, signer, logger) {

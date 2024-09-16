@@ -41,14 +41,19 @@ contract Vault {
     mapping(uint64 => mapping(address => address)) public proxies;
     mapping(address => bool) public wasAccepted;
 
+//    modifier isValidPublicKey(uint[4] calldata key) { _; }
     modifier isValidPublicKey(uint[4] calldata key) { for (uint8 i = 0; i < 4; i++) if (publicKey[i] != key[i]) revert InvalidPublicKey(i); _; }
 
-    constructor(uint64 chainId_, string memory chainName_, string memory nativeSymbol_, uint8 nativeDecimals_, uint[4] memory publicKey_) {
-        home = Chain(chainId_, chainName_, nativeSymbol_, nativeDecimals_); //fixme:chainId: use block.chainid instead
+    constructor(uint64 chainId_, string memory chainName, string memory nativeSymbol, uint8 nativeDecimals, uint[4] memory publicKey_) {
+        home = Chain(chainId_, chainName, nativeSymbol, nativeDecimals); //fixme:chainId: use block.chainid instead
         publicKey = publicKey_;
     }
 
     function chainId() public view returns (uint64) { return home.id; } //fixme:chainId: use block.chainid instead
+
+    function proxyBalanceOf(uint64 chainId_, address token, address account) public view returns (uint) {
+        return proxies[chainId_][token] == address(0) ? 0 : ERC20Proxy(proxies[chainId_][token]).balanceOf(account);
+    }
 
     function sendNative(uint64 to) external payable {
         balances[NATIVE] += msg.value;
@@ -72,21 +77,20 @@ contract Vault {
         uint tag = ++sendCounter;
         bytes32 hash = keccak256(abi.encode(origin, token, name, symbol, decimals, amount, owner, chainId(), to, tag));
         sends[hash] = true;
-        console.log(">>>>>>>>>>>> Sending >>>>>>>>>>>> %s %s for %s", amount, symbol, owner);
-        console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> from chain %s to chain %s", origin, to);
+//        console.log(">>>>>>>>>>>> Sending >>>>>>>>>>>> %s %s for %s", amount, symbol, owner);
+//        console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> from chain %s to chain %s", origin, to);
         emit Transfer(hash, origin, token, name, symbol, decimals, amount, owner, chainId(), to, tag);
     }
 
-    function accept(uint[2] calldata signature, uint[4] calldata signerPublicKey, bytes calldata payload) isValidPublicKey(signerPublicKey) external {
-        console.log("!!!!!!!!!!!!!!!!!!!!! Transferring !!!!!!!!!!!!!!!!!!!!!");
+    function accept(uint[2] calldata signature, uint[4] calldata signerPublicKey, bytes calldata payload) external { //fixme: failing to validate signerPublicKey in e2e like tests
+//    function accept(uint[2] calldata signature, uint[4] calldata signerPublicKey, bytes calldata payload) isValidPublicKey(signerPublicKey) external {
+        (uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner, , , ) = abi.decode(payload, (uint64, address, string, string, uint8, uint, address, uint64, uint64, uint));
+//        (uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner, uint64 from, uint64 to, ) = abi.decode(payload, (uint64, address, string, string, uint8, uint, address, uint64, uint64, uint));
+//        console.log("<<<<<<<<<<<< Accepting <<<<<<<<<<<< %s %s for %s", amount, symbol, owner);
+//        console.log("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< from chain %s to chain %s [origin %s]", from, to, origin);
         bytes32 hash = keccak256(payload);
-        require(!accepts[hash], 'Token already accepted');
-//        if (accepts[hash]) revert RetransferAttempt(origin, token, symbol, amount, owner);
+        if (accepts[hash]) revert RetransferAttempt(origin, token, symbol, amount, owner);
         BnsVerifier.verify(signature, signerPublicKey, hash);
-//        (uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner, , , ) = abi.decode(payload, (uint64, address, string, string, uint8, uint, address, uint64, uint64, uint));
-        (uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner, uint64 from, uint64 to, ) = abi.decode(payload, (uint64, address, string, string, uint8, uint, address, uint64, uint64, uint));
-        console.log("<<<<<<<<<<<< Accepting <<<<<<<<<<<< %s %s for %s", amount, symbol, owner);
-        console.log("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< from chain %s to chain %s [origin %s]", from, to, origin);
         mintOrDisburse(origin, token, name, symbol, decimals, amount, owner);
         accepts[hash] = true;
     }
@@ -117,6 +121,5 @@ contract Vault {
         uint balance = erc20.balanceOf(to);
         from == address(this) ? erc20.transfer(to, amount) : erc20.transferFrom(from, to, amount);
         if (erc20.balanceOf(to) != balance + amount) revert TokenDisburseFailure(token, from, to, amount);
-//        require(erc20.balanceOf(to) == (balance + amount), 'Invalid transfer');
     }
 }

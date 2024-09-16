@@ -7,7 +7,6 @@
   "ignores": [
     "@noble/curves",
     "aes-encryption",
-    "axios",
-    "dotenv"
+    "axios"
   ]
 }
