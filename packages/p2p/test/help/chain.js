@@ -2,10 +2,10 @@ import {Deploy} from '@leverj/chain-deployment'
 import {JsonStore, logger} from '@leverj/common'
 import {configure} from '@leverj/config'
 import {postLoad, schema} from '@leverj/reactor.chain/config.schema'
-import {exec} from 'child_process'
 import {JsonRpcProvider} from 'ethers'
 import {Map} from 'immutable'
 import {zip} from 'lodash-es'
+import {exec} from 'node:child_process'
 import {readFileSync, rmSync, writeFileSync} from 'node:fs'
 import waitOn from 'wait-on'
 
@@ -40,7 +40,9 @@ export const launchEvms = async (config, forked = false) => {
 const launchEvm = (networks, chain, port, forked = false) => {
   const dir = `${forked ? 'forked' : 'nascent'}/${networks[chain].testnet ? 'testnets' : 'mainnets'}`
   const hardhatConfigFileFor = `test/hardhat/${dir}/${chain}.config.cjs`
-  return exec(`npx hardhat node --config ${hardhatConfigFileFor} --port ${port}`)
+  const process = exec(`npx hardhat node --config ${hardhatConfigFileFor} --port ${port}`)
+  process.stdout.on('data', console.log)
+  return process
 }
 const launchGanacheEvm = (providerUrl, port) => exec(`npx ganache-cli --fork ${providerUrl}  --port ${port}`) //fixme: experimental
 

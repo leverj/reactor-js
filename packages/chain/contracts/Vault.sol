@@ -72,21 +72,21 @@ contract Vault {
         uint tag = ++sendCounter;
         bytes32 hash = keccak256(abi.encode(origin, token, name, symbol, decimals, amount, owner, chainId(), to, tag));
         sends[hash] = true;
-        console.log("Sending >>> %s %s for %s", amount, symbol, owner);
-        console.log(">>>>>>>>>>> from chain %s to chain %s", origin, to);
+        console.log(">>>>>>>>>>>> Sending >>>>>>>>>>>> %s %s for %s", amount, symbol, owner);
+        console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> from chain %s to chain %s", origin, to);
         emit Transfer(hash, origin, token, name, symbol, decimals, amount, owner, chainId(), to, tag);
     }
 
     function accept(uint[2] calldata signature, uint[4] calldata signerPublicKey, bytes calldata payload) isValidPublicKey(signerPublicKey) external {
-        console.log("Transferring ...");
+        console.log("!!!!!!!!!!!!!!!!!!!!! Transferring !!!!!!!!!!!!!!!!!!!!!");
         bytes32 hash = keccak256(payload);
         require(!accepts[hash], 'Token already accepted');
 //        if (accepts[hash]) revert RetransferAttempt(origin, token, symbol, amount, owner);
         BnsVerifier.verify(signature, signerPublicKey, hash);
 //        (uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner, , , ) = abi.decode(payload, (uint64, address, string, string, uint8, uint, address, uint64, uint64, uint));
         (uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner, uint64 from, uint64 to, ) = abi.decode(payload, (uint64, address, string, string, uint8, uint, address, uint64, uint64, uint));
-        console.log("Accepting <<< %s %s for %s", amount, symbol, owner);
-        console.log("<<<<<<<<<<<<< from chain %s to chain %s [origin %s]", from, to, origin);
+        console.log("<<<<<<<<<<<< Accepting <<<<<<<<<<<< %s %s for %s", amount, symbol, owner);
+        console.log("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< from chain %s to chain %s [origin %s]", from, to, origin);
         mintOrDisburse(origin, token, name, symbol, decimals, amount, owner);
         accepts[hash] = true;
     }
@@ -116,6 +116,7 @@ contract Vault {
         ERC20 erc20 = ERC20(token);
         uint balance = erc20.balanceOf(to);
         from == address(this) ? erc20.transfer(to, amount) : erc20.transferFrom(from, to, amount);
-        if (erc20.balanceOf(to) == balance + amount) revert TokenDisburseFailure(token, from, to, amount);
+        if (erc20.balanceOf(to) != balance + amount) revert TokenDisburseFailure(token, from, to, amount);
+//        require(erc20.balanceOf(to) == (balance + amount), 'Invalid transfer');
     }
 }
