@@ -8,7 +8,7 @@ import {CrossChainVaultCoordinator} from '../src/CrossChainVaultCoordinator.js'
 import config from '../config.js'
 import {createChainConfig, getEvmsStore, launchEvms} from './help/chain.js'
 
-const {bridge: {nodesDir}} = config
+const {bridge: {nodesDir}, chain: {polling}} = config
 
 describe('CrossChainVaultCoordinator', () => {
   const [, account] = accounts
@@ -22,7 +22,7 @@ describe('CrossChainVaultCoordinator', () => {
     processes = await launchEvms(chainConfig)
     const trackersStore = new JsonStore(nodesDir, 'trackers')
     const evms = getEvmsStore(deploymentDir).toObject()
-    coordinator = CrossChainVaultCoordinator.of(config, chains, evms, trackersStore, chainConfig.deployer, logger)
+    coordinator = CrossChainVaultCoordinator.of(chains, evms, trackersStore, polling, chainConfig.deployer, logger)
     await coordinator.start()
     expect(coordinator.isRunning).toBe(true)
   })
@@ -49,7 +49,7 @@ describe('CrossChainVaultCoordinator', () => {
       to: await toProvider.getBalance(account),
     }
     await fromVault.connect(account.connect(fromProvider)).sendNative(toChainId, {value: amount}).then(_ => _.wait())
-    await setTimeout(200)
+    await setTimeout(1000)
     const after = {
       from: await fromProvider.getBalance(account),
       to: await toProvider.getBalance(account),

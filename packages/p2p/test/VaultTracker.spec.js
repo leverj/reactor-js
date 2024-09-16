@@ -23,7 +23,7 @@ describe('VaultTracker', () => {
           await toVault.checkIn(signature, publicKey, payload).then(_ => _.wait())
       }
     }
-    tracker = VaultTracker(config, fromChainId, fromVault, new InMemoryStore(), {onEvent}, logger)
+    tracker = VaultTracker(fromChainId, fromVault, new InMemoryStore(), config.chain.polling, {onEvent}, logger)
     await tracker.start()
   })
 

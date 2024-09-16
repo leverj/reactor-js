@@ -4,44 +4,38 @@ import {publicKey, signedBy, signer} from '@leverj/reactor.chain/test'
 import {JsonRpcProvider} from 'ethers'
 import {Map} from 'immutable'
 
-export const VaultTracker = (config, chainId, contract, store, actor, logger = console) => {
-  const {chain: {polling}} = config
-  return ContractTracker.of(chainId, contract, store, polling, _ => actor.onEvent(_), logger)
+export const VaultTracker = (chainId, contract, store, polling, actor, logger = console) => {
+   return ContractTracker.of(chainId, contract, store, polling, _ => actor.onEvent(_), logger)
 }
 
 export class Actor {
   constructor (signer) {
     this.signer = signer
   }
-
   async actOn(event, contract, parameters) {
     switch (event.name) {
       case 'Transfer':
         const {signature, publicKey, payload} = parameters
-        console.log(event.name, contract.target, {signature, publicKey, payload})
         const provider = contract.runner.provider
-        const runner = contract.connect(this.signer.connect(provider))
-        return runner.checkIn(signature, publicKey, payload).then(_ => _.wait())
+        await contract.connect(this.signer.connect(provider)).checkIn(signature, publicKey, payload).then(_ => _.wait())
     }
   }
 }
 
 export class CrossChainVaultCoordinator {
-  static of(config, chains, evms, store, signer, logger = console) {
+  static of(chains, evms, store, polling, signer, logger = console) {
     // fixme: affirm evms includes all of chains
     const networks = Map(evms).filter(_ => chains.includes(_.label)).map(_ => ({
       id: BigInt(_.id),
       label: _.label,
       provider: new JsonRpcProvider(_.providerURL),
       Vault: _.contracts.Vault,
-    }))
-    const chains_ = networks.keySeq().toArray()
-    const networks_ = networks.valueSeq().toArray()
-    return new this(config, chains_, networks_, store, signer, logger)
+    })).valueSeq().toArray()
+    return new this(chains, networks, store, polling, signer, logger)
   }
 
-  constructor(config, chains, networks, store, signer, logger) {
-    this.config = config
+  constructor(chains, networks, store, polling, signer, logger) {
+    this.polling = polling
     this.chains = chains
     this.networks = networks
     this.store = store
@@ -66,15 +60,9 @@ export class CrossChainVaultCoordinator {
 
     this.logger.log(`starting cross-chain Vault tracking for [${this.chains}]`)
     this.isRunning = true
-    this.contracts = Map().asMutable()
-    this.contracts = Map().asMutable()
-    this.trackers = []
-    this.networks.forEach(_ => {
-      const contract = stubs.Vault(_.Vault.address, _.provider)
-      const tracker = VaultTracker(this.config, _.id, contract, this.store, this, this.logger)
-      this.contracts.set(_.id, contract)
-      this.trackers.push(tracker)
-    })
+    this.contracts = Map(this.networks.map(_ => [_.id, stubs.Vault(_.Vault.address, _.provider)]))
+    this.trackers = this.contracts.map((contract, id) => VaultTracker(id, contract, this.store, this.polling, this, this.logger)).valueSeq().toArray()
+    for (let each of this.trackers) await each.start()
   }
 
   stop() {
@@ -82,6 +70,6 @@ export class CrossChainVaultCoordinator {
 
     this.logger.log(`stopping cross-chain Vault tracking for [${this.chains}]`)
     this.isRunning = false
-    this.trackers.forEach(_ => _.stop())
+    for (let each of this.trackers) each.stop()
   }
 }
