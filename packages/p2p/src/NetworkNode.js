@@ -4,20 +4,18 @@ import {logger} from '@leverj/common'
 import {pipe} from 'it-pipe'
 import {fromString as uint8ArrayFromString} from 'uint8arrays/from-string'
 import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
-import config from '../config.js'
 import {events, PEER_CONNECT, PEER_DISCOVERY, tryAgainIfError} from './utils.js'
 import {P2P} from './P2P.js'
 
-const {externalIp, tryCount, timeout, port} = config
-
 export class NetworkNode {
-  static async from(port, peerIdJson, bootstrapNodes) {
+  static async from(config, port, peerIdJson, bootstrapNodes) {
     const ip = '0.0.0.0'
-    const p2p = await P2P(peerIdJson, ip, port, externalIp, bootstrapNodes)
-    return new this(port, bootstrapNodes, p2p)
+    const p2p = await P2P(peerIdJson, ip, port, config.externalIp, bootstrapNodes)
+    return new this(config, port, bootstrapNodes, p2p)
   }
 
-  constructor(port, bootstrapNodes, p2p) {
+  constructor(config, port, bootstrapNodes, p2p) {
+    this.config = config
     this.port = port
     this.bootstrapNodes = bootstrapNodes
     this.p2p = p2p
@@ -37,9 +35,9 @@ export class NetworkNode {
     }
   }
 
-  async start() { return this.p2p.start() }
+  async start() { return await this.p2p.start() }
 
-  async stop() { return this.p2p.stop() }
+  async stop() { return await this.p2p.stop() }
 
   async connect(peerId) { return this.p2p.dial(peerIdFromString(peerId)) }
 
@@ -83,7 +81,7 @@ export class NetworkNode {
   }
 
   async createStream(peerId, protocol) {
-    return tryAgainIfError(_ => this.p2p.dialProtocol(peerIdFromString(peerId), protocol), tryCount, timeout, port)
+    return tryAgainIfError(_ => this.p2p.dialProtocol(peerIdFromString(peerId), protocol), this.config.tryCount, this.config.timeout, this.config.port)
   }
 
   async sendMessageOnStream(stream, message) { return stream.sink([uint8ArrayFromString(message)]) }

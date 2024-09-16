@@ -26,7 +26,7 @@ describe('NetworkNode', () => {
   const startNetworkNodes = async (count) => {
     let bootstrapNodes = []
     for (let i = 0; i < count; i++) {
-      const node = await NetworkNode.from(10000 + i, peerIdJsons[i], bootstrapNodes)
+      const node = await NetworkNode.from(config, 10000 + i, peerIdJsons[i], bootstrapNodes)
       await node.start()
       nodes.push(node)
       if (i === 0) bootstrapNodes = node.multiaddrs
@@ -34,6 +34,7 @@ describe('NetworkNode', () => {
     await waitToSync([_ => nodes[count - 1].peers.length === nodes.length - 1], tryCount, timeout, port)
   }
 
+  //fixme: fails when running with all tests
   it('can ping a node', async () => {
     await startNetworkNodes(2)
     const [node1, node2] = nodes

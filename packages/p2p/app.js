@@ -1,7 +1,8 @@
 import {logger} from '@leverj/common'
 import {ApiApp} from './src/ApiApp.js'
+import config from './config.js'
 
-const api = await ApiApp.new()
+const api = await ApiApp.new(config)
 api.start()
 process.on('SIGTERM', () => {
   logger.log('SIGTERM signal received')

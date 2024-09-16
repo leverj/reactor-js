@@ -23,13 +23,13 @@ const ErrorCodes = ['ERR_ENCRYPTION_FAILED', 'ENOENT'].concat(ConnectionErrorCod
 export const tryAgainIfError = async (fn, tryCount, timeout, port) => tryFor(fn, ErrorCodes, tryCount, timeout, port)
 
 async function tryFor(fn, errorCode, tryCount, timeout, port) {
-  if (tryCount === 0) throw Error(`Try for failed... ${errorCode}, ${tryCount}, ${port}`)
+  if (tryCount === 0) throw Error(`Try for failed... ${errorCode}, ${port}`)
   try {
     return await fn()
   } catch (e) {
     if (e.code === errorCode || (Array.isArray(errorCode) && errorCode.includes(e.code))) {
       await setTimeout(timeout)
-      return tryFor(fn, errorCode, tryCount - 1, timeout)
+      return tryFor(fn, errorCode, tryCount - 1, timeout, port)
     }
     throw e
   }

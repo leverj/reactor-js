@@ -1,6 +1,6 @@
-import {configure} from '@leverj/config/src/index.js'
+import {configure} from '@leverj/config'
 
-const dataDir = `${process.env.PWD}/data`
+const dataDir = `${import.meta.dirname}/../../data`
 
 const schema = {
   env: {
@@ -72,8 +72,4 @@ const schema = {
   }
 }
 
-function postLoad(config) {
-  return config
-}
-
-export default await configure(schema, postLoad)
+export default await configure(schema)

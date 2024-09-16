@@ -8,10 +8,7 @@
   "scripts": {
     "test": "npx mocha",
     "dependency:check": "npx depcheck",
-    "generate:nascent:hardhat:configs": "node scripts/generate-nascent-hardhat-configs.js",
-    "generate:forked:hardhat:configs": "node scripts/generate-forked-hardhat-configs.js",
-    "start": "node app.js",
-    "docker:build": "./scripts/docker-build.sh"
+    "start": "node app.js"
   },
   "dependencies": {
     "@chainsafe/libp2p-gossipsub": "13.2.0",
@@ -43,6 +40,7 @@
     "@noble/curves": "^1.6.0",
     "aes-encryption": "^1.0.4",
     "axios": "^1.7.7",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "ganache-cli": "^6.12.2"
   }
 }

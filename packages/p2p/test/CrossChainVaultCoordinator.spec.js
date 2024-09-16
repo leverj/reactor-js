@@ -16,13 +16,13 @@ describe('CrossChainVaultCoordinator', () => {
   let processes, coordinator
 
   before(async () => {
-    const config = await createChainConfig(chains)
-    const deploymentDir = `${config.deploymentDir}/env/${config.env}`
+    const chainConfig = await createChainConfig(chains)
+    const deploymentDir = `${chainConfig.deploymentDir}/env/${(chainConfig.env)}`
     rmSync(deploymentDir, {recursive: true, force: true})
-    processes = await launchEvms(config)
+    processes = await launchEvms(chainConfig)
     const trackersStore = new JsonStore(nodesDir, 'trackers')
     const evms = getEvmsStore(deploymentDir).toObject()
-    coordinator = CrossChainVaultCoordinator.of(chains, evms, trackersStore, config.deployer, logger)
+    coordinator = CrossChainVaultCoordinator.of(config, chains, evms, trackersStore, chainConfig.deployer, logger)
     await coordinator.start()
     expect(coordinator.isRunning).toBe(true)
   })
