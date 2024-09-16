@@ -31,7 +31,7 @@ describe('VaultTracker', () => {
 
   it('acts on a Transfer event', async () => {
     const before = await provider.getBalance(account)
-    await fromVault.connect(account).checkOutNative(toChainId, {value: amount}).then(_ => _.wait())
+    await fromVault.connect(account).sendNative(toChainId, {value: amount}).then(_ => _.wait())
     const afterCheckingOut = await provider.getBalance(account)
     expect(afterCheckingOut).toEqual(before - amount)
 

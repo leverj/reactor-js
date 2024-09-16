@@ -48,7 +48,7 @@ describe('CrossChainVaultCoordinator', () => {
       from: await fromProvider.getBalance(account),
       to: await toProvider.getBalance(account),
     }
-    await fromVault.connect(account.connect(fromProvider)).checkOutNative(toChainId, {value: amount}).then(_ => _.wait())
+    await fromVault.connect(account.connect(fromProvider)).sendNative(toChainId, {value: amount}).then(_ => _.wait())
     await setTimeout(200)
     const after = {
       from: await fromProvider.getBalance(account),

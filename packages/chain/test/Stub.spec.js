@@ -20,7 +20,7 @@ describe('Contract stub', () => {
     const [chainId, chainName, nativeSymbol, nativeDecimals] = await stub.home(), NATIVE = await stub.NATIVE()
     const startingAtBlock = await provider.getBlockNumber()
     const howMany = 5
-    for (let i = 0; i < howMany; i++) await stub.checkOutNative(toChainId, {value: deposit + uint(i)}).then(_ => _.wait())
+    for (let i = 0; i < howMany; i++) await stub.sendNative(toChainId, {value: deposit + uint(i)}).then(_ => _.wait())
 
     const events = await stub.runner.provider.getLogs({
       fromBlock: startingAtBlock,
@@ -42,8 +42,8 @@ describe('Contract stub', () => {
       expect(from).toEqual(chainId)
       expect(to).toEqual(toChainId)
       expect(tag).toEqual(uint(i + 1))
-      expect(await stub.checkouts(transferHash)).toEqual(true)
+      expect(await stub.sends(transferHash)).toEqual(true)
     }
-    expect(await stub.checkoutCounter()).toEqual(uint(howMany))
+    expect(await stub.sendCounter()).toEqual(uint(howMany))
   })
 })

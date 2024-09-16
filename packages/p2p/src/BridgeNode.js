@@ -131,7 +131,7 @@ export class BridgeNode {
     if (this.leader !== peerId) return logger.log('ignoring signature start from non-leader', peerId, this.leader)
 
     //note: for local e2e testing, which will not have any contracts or hardhat, till we expand the scope of e2e
-    const verifyTransferHash = async (chainId, transferHash) => chainId === -1 || this.vaults[chainId].checkouts(transferHash)
+    const verifyTransferHash = async (chainId, transferHash) => chainId === -1 || this.vaults[chainId].sends(transferHash)
     const {message: transferHash, chainId} = data
     if (await verifyTransferHash(chainId, transferHash)) {
       const signature = this.tss.sign(transferHash).serializeToHexStr()
@@ -201,7 +201,7 @@ class Leader {
     //fixme:make sure it is a Transfer event
     const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = event.args
     const payload = encodeTransfer(origin, token, name, symbol, decimals, amount, owner, from, to, tag)
-    if (await this.self.vaults[from].checkouts(transferHash)) {
+    if (await this.self.vaults[from].sends(transferHash)) {
       await this.self.aggregateSignature(
         transferHash,
         from,

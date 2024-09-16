@@ -32,9 +32,9 @@ contract Vault {
 
     Chain public home;
     uint[4] public publicKey;
-    uint public checkoutCounter = 0;
+    uint public sendCounter = 0;
     mapping(address => uint) public balances;
-    mapping(bytes32 => bool) public checkouts;
+    mapping(bytes32 => bool) public sends;
     mapping(bytes32 => bool) public checkins;
     mapping(uint64 => mapping(address => address)) public proxies;
     mapping(address => bool) public isCheckedIn;
@@ -46,28 +46,28 @@ contract Vault {
 
     function chainId() public view returns (uint64) { return home.id; } //fixme:chainId: use block.chainid instead
 
-    function checkOutNative(uint64 to) external payable {
+    function sendNative(uint64 to) external payable {
         balances[NATIVE] += msg.value;
-        checkOut(chainId(), NATIVE, home.name, home.symbol, home.decimals, msg.value, msg.sender, to);
+        send(chainId(), NATIVE, home.name, home.symbol, home.decimals, msg.value, msg.sender, to);
     }
 
-    function checkOutToken(uint64 to, address token, uint amount) external {
+    function sendToken(uint64 to, address token, uint amount) external {
         if (isCheckedIn[token]) {
             ERC20Proxy proxy = ERC20Proxy(token);
             proxy.burn(msg.sender, amount);
-            checkOut(proxy.chain(), proxy.token(), proxy.name(), proxy.symbol(), proxy.decimals(), amount, msg.sender, to);
+            send(proxy.chain(), proxy.token(), proxy.name(), proxy.symbol(), proxy.decimals(), amount, msg.sender, to);
         } else {
             ERC20 erc20 = ERC20(token);
             disburseToken(token, msg.sender, address(this), amount);
             balances[token] += amount;
-            checkOut(chainId(), token, erc20.name(), erc20.symbol(), erc20.decimals(), amount, msg.sender, to);
+            send(chainId(), token, erc20.name(), erc20.symbol(), erc20.decimals(), amount, msg.sender, to);
         }
     }
 
-    function checkOut(uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner, uint64 to) private {
-        uint tag = ++checkoutCounter;
+    function send(uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner, uint64 to) private {
+        uint tag = ++sendCounter;
         bytes32 hash = keccak256(abi.encode(origin, token, name, symbol, decimals, amount, owner, chainId(), to, tag));
-        checkouts[hash] = true;
+        sends[hash] = true;
         emit Transfer(hash, origin, token, name, symbol, decimals, amount, owner, chainId(), to, tag);
     }
 

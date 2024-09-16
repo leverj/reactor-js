@@ -56,7 +56,7 @@ describe('deploy across multiple chains', () => {
       const currency = await contract.NATIVE(), amount = 1000n
       const toChainId = await contract.chainId() + 1n
       const before = await contract.balances(currency)
-      await contract.connect(account.connect(provider)).checkOutNative(toChainId, {value: amount}).then(_ => _.wait())
+      await contract.connect(account.connect(provider)).sendNative(toChainId, {value: amount}).then(_ => _.wait())
       const after = await contract.balances(currency)
       expect(after).toEqual(before + amount)
     }

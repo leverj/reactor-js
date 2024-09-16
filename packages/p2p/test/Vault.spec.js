@@ -36,8 +36,8 @@ describe('Vault', () => {
     if (token) await token.connect(account).approve(fromVault.target, amount).then(_ => _.wait())
     const to = await toVault.chainId()
     token ?
-      await fromVault.connect(account).checkOutToken(to, token.target, amount).then(_ => _.wait()) :
-      await fromVault.connect(account).checkOutNative(to, {value: amount}).then(_ => _.wait())
+      await fromVault.connect(account).sendToken(to, token.target, amount).then(_ => _.wait()) :
+      await fromVault.connect(account).sendNative(to, {value: amount}).then(_ => _.wait())
     await onEvent(fromVault)
   }
 
@@ -57,7 +57,7 @@ describe('Vault', () => {
       expect(await proxy.balanceOf(account.address)).toEqual(amount)
       expect(await provider.getBalance(account)).toEqual(before - amount)
 
-      await toVault.connect(account).checkOutToken(L1, proxy.target, amount).then(_ => _.wait())
+      await toVault.connect(account).sendToken(L1, proxy.target, amount).then(_ => _.wait())
       expect(await proxy.balanceOf(account.address)).toEqual(0n)
 
       await onEvent(toVault)
@@ -75,7 +75,7 @@ describe('Vault', () => {
       expect(await proxy.balanceOf(account.address)).toEqual(amount)
       expect(await erc20.balanceOf(account.address)).toEqual(balance - amount)
 
-      await toVault.connect(account).checkOutToken(L1, proxy.target, amount).then(_ => _.wait())
+      await toVault.connect(account).sendToken(L1, proxy.target, amount).then(_ => _.wait())
       expect(await proxy.balanceOf(account.address)).toEqual(0n)
 
       await onEvent(toVault)
@@ -91,7 +91,7 @@ describe('Vault', () => {
 
     it('Native', async () => {
       const before = await provider.getBalance(account)
-      await vaults[0].connect(account).checkOutNative(chains[1], {value: amount}).then(_ => _.wait())
+      await vaults[0].connect(account).sendNative(chains[1], {value: amount}).then(_ => _.wait())
       await onEvent(vaults[0])
       const proxies = {}
       for (let i = 1; i < chains.length; i++) {
@@ -103,7 +103,7 @@ describe('Vault', () => {
 
         const targetChainIndex = (i === chains.length - 1) ? 0 : (i + 1)
         const targetChain = chains[targetChainIndex]
-        await vaults[i].connect(account).checkOutToken(targetChain, proxyAddress, amount).then(_ => _.wait())
+        await vaults[i].connect(account).sendToken(targetChain, proxyAddress, amount).then(_ => _.wait())
         await onEvent(vaults[i])
         expect(await proxies[chains[i]].balanceOf(account.address)).toEqual(0n)
       }
