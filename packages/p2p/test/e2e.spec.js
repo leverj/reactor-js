@@ -1,7 +1,7 @@
 import {CodedError, logger} from '@leverj/common'
 import axios from 'axios'
-import {fork} from 'child_process'
 import {expect} from 'expect'
+import {fork} from 'node:child_process'
 import {rmSync} from 'node:fs'
 import {setTimeout} from 'node:timers/promises'
 import {JsonDirStore} from '../src/ApiApp.js'

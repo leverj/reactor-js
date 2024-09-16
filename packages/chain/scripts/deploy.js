@@ -1,6 +1,6 @@
 import {Deploy} from '@leverj/chain-deployment'
 import {logger} from '@leverj/common'
-import {execSync} from 'child_process'
+import {execSync} from 'node:child_process'
 import {hideBin} from 'yargs/helpers'
 import yargs from 'yargs/yargs'
 import config from '../config.js'

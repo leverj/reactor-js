@@ -1,7 +1,7 @@
 import {JsonStore} from '@leverj/common'
-import {execSync} from 'child_process'
 import {default as hardhat} from 'hardhat'
 import {Map} from 'immutable'
+import {execSync} from 'node:child_process'
 import {setTimeout} from 'node:timers/promises'
 
 export const {ethers: {deployContract, JsonRpcProvider, Wallet}} = hardhat

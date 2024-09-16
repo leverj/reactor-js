@@ -54,7 +54,7 @@ describe('deploy across multiple chains', () => {
       const {provider, Vault} = each
       const contract = stubs.Vault(Vault.address, provider)
       const currency = await contract.NATIVE(), amount = 1000n
-      const toChainId = await contract.chainId() + 1n
+      const toChainId = await contract.chainId() + BigInt(1e+12)
       const before = await contract.balances(currency)
       await contract.connect(account.connect(provider)).sendNative(toChainId, {value: amount}).then(_ => _.wait())
       const after = await contract.balances(currency)

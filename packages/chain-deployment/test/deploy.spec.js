@@ -1,11 +1,11 @@
 import info from '../package.json' assert {type: 'json'}
 import {Deploy, networks} from '@leverj/chain-deployment'
 import {logger} from '@leverj/common'
-import {exec} from 'child_process'
 import {isAddress} from 'ethers'
 import {expect} from 'expect'
 import {Map} from 'immutable'
 import {cloneDeep, zip} from 'lodash-es'
+import {exec} from 'node:child_process'
 import {rmSync} from 'node:fs'
 import {setTimeout} from 'node:timers/promises'
 import waitOn from 'wait-on'

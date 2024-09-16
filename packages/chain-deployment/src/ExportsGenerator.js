@@ -1,7 +1,7 @@
 import {Interface} from 'ethers'
 import * as glob from 'glob'
+import {execSync} from 'node:child_process'
 import {mkdirSync, rmSync, writeFileSync} from 'node:fs'
-import {execSync} from 'child_process'
 
 function establishCleanDir(dir) {
   rmSync(dir, {recursive: true, force: true})
