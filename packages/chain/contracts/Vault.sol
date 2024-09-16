@@ -5,6 +5,7 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import {ERC20Proxy} from "./token/ERC20/ERC20Proxy.sol";
 import {BnsVerifier} from "./BnsVerifier.sol";
+import "hardhat/console.sol";
 
 contract Vault {
 
@@ -71,14 +72,21 @@ contract Vault {
         uint tag = ++sendCounter;
         bytes32 hash = keccak256(abi.encode(origin, token, name, symbol, decimals, amount, owner, chainId(), to, tag));
         sends[hash] = true;
+        console.log("Sending >>> %s %s for %s", amount, symbol, owner);
+        console.log(">>>>>>>>>>> from chain %s to chain %s", origin, to);
         emit Transfer(hash, origin, token, name, symbol, decimals, amount, owner, chainId(), to, tag);
     }
 
     function accept(uint[2] calldata signature, uint[4] calldata signerPublicKey, bytes calldata payload) isValidPublicKey(signerPublicKey) external {
+        console.log("Transferring ...");
         bytes32 hash = keccak256(payload);
-        (uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner, , ,) = abi.decode(payload, (uint64, address, string, string, uint8, uint, address, uint, uint, uint));
-        if (accepts[hash]) revert RetransferAttempt(origin, token, symbol, amount, owner);
+        require(!accepts[hash], 'Token already accepted');
+//        if (accepts[hash]) revert RetransferAttempt(origin, token, symbol, amount, owner);
         BnsVerifier.verify(signature, signerPublicKey, hash);
+//        (uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner, , , ) = abi.decode(payload, (uint64, address, string, string, uint8, uint, address, uint64, uint64, uint));
+        (uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner, uint64 from, uint64 to, ) = abi.decode(payload, (uint64, address, string, string, uint8, uint, address, uint64, uint64, uint));
+        console.log("Accepting <<< %s %s for %s", amount, symbol, owner);
+        console.log("<<<<<<<<<<<<< from chain %s to chain %s [origin %s]", from, to, origin);
         mintOrDisburse(origin, token, name, symbol, decimals, amount, owner);
         accepts[hash] = true;
     }
