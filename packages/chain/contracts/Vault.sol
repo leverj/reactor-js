@@ -27,8 +27,9 @@ contract Vault {
      */
     event Transfer(bytes32 transferHash, uint64 origin, address token, string name, string symbol, uint8 decimals, uint amount, address owner, uint64 from, uint64 to, uint tag);
 
-    /// key[index] is invalid
     error InvalidPublicKey(uint8 index);
+    error TokenDisburseFailure(address token, address from, address to, uint amount);
+    error RetransferAttempt(uint64 origin, address token, string symbol, uint amount, address owner);
 
     Chain public home;
     uint[4] public publicKey;
@@ -38,6 +39,8 @@ contract Vault {
     mapping(bytes32 => bool) public accepts;
     mapping(uint64 => mapping(address => address)) public proxies;
     mapping(address => bool) public wasAccepted;
+
+    modifier isValidPublicKey(uint[4] calldata key) { for (uint8 i = 0; i < 4; i++) if (publicKey[i] != key[i]) revert InvalidPublicKey(i); _; }
 
     constructor(uint64 chainId_, string memory chainName_, string memory nativeSymbol_, uint8 nativeDecimals_, uint[4] memory publicKey_) {
         home = Chain(chainId_, chainName_, nativeSymbol_, nativeDecimals_); //fixme:chainId: use block.chainid instead
@@ -71,16 +74,11 @@ contract Vault {
         emit Transfer(hash, origin, token, name, symbol, decimals, amount, owner, chainId(), to, tag);
     }
 
-    function validatePublicKey(uint[4] calldata key) private view {
-        for (uint8 i = 0; i < 4; i++) if (publicKey[i] != key[i]) revert InvalidPublicKey(i);
-    }
-
-    function accept(uint[2] calldata signature, uint[4] calldata signerPublicKey, bytes calldata payload) external {
-        validatePublicKey(signerPublicKey);
+    function accept(uint[2] calldata signature, uint[4] calldata signerPublicKey, bytes calldata payload) isValidPublicKey(signerPublicKey) external {
         bytes32 hash = keccak256(payload);
-        require(!accepts[hash], 'Token already accepted');
-        BnsVerifier.verify(signature, signerPublicKey, hash);
         (uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner, , ,) = abi.decode(payload, (uint64, address, string, string, uint8, uint, address, uint, uint, uint));
+        if (accepts[hash]) revert RetransferAttempt(origin, token, symbol, amount, owner);
+        BnsVerifier.verify(signature, signerPublicKey, hash);
         mintOrDisburse(origin, token, name, symbol, decimals, amount, owner);
         accepts[hash] = true;
     }
@@ -110,6 +108,6 @@ contract Vault {
         ERC20 erc20 = ERC20(token);
         uint balance = erc20.balanceOf(to);
         from == address(this) ? erc20.transfer(to, amount) : erc20.transferFrom(from, to, amount);
-        require(erc20.balanceOf(to) == (balance + amount), 'Invalid transfer');
+        if (erc20.balanceOf(to) == balance + amount) revert TokenDisburseFailure(token, from, to, amount);
     }
 }
