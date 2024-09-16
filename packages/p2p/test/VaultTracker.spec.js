@@ -25,6 +25,7 @@ describe('VaultTracker', () => {
     tracker = VaultTracker(fromChainId, fromVault, new InMemoryStore(), {onEvent}, logger)
     await tracker.start()
   })
+
   afterEach(async () => tracker.stop())
 
   it('acts on a Transfer event', async () => {

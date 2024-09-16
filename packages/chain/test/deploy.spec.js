@@ -17,6 +17,7 @@ describe('deploy to hardhat chain', () => {
     evm = exec(`npx hardhat node`)
     await waitOn({resources: [config.networks[chain].providerURL], timeout: 1000})
   })
+
   after(async () => {
     evm.kill()
     while(!evm.killed) await setTimeout(10)

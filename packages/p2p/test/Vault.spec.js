@@ -16,6 +16,7 @@ describe('Vault', () => {
     await leader.startDKG(4)
     await setTimeout(100)
   })
+
   afterEach(async () => { for (let each of nodes) await each.stop() })
 
   const deployVaultPerChainOnNodes = async (chains) => {

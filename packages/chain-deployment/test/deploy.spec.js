@@ -19,6 +19,7 @@ describe('deploy to multiple chains', () => {
     const {ports, providerURLs} = configureDeployment()
     processes = await launchEvms(ports, providerURLs)
   })
+
   after(async () => {
     for (let each of processes) {
       each.kill()

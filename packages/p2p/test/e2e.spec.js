@@ -19,6 +19,7 @@ describe('e2e', () => {
     rmSync(bridge.nodesDir, {recursive: true, force: true})
     store = new JsonDirStore(bridge.nodesDir, 'nodes')
   })
+
   afterEach(async () => {
     for (let each of processes) {
       each.kill()

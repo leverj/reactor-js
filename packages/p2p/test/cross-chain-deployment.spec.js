@@ -17,6 +17,7 @@ describe('deploy across multiple chains', () => {
     processes = await launchEvms(config)
     deployments = getDeployedNetworks(deploymentDir)
   })
+
   after(async () => {
     for (let each of processes) {
       each.kill()

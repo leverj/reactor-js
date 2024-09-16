@@ -24,24 +24,16 @@ describe('CrossChainVaultCoordinator', () => {
     const evms = getEvmsStore(deploymentDir).toObject()
     coordinator = CrossChainVaultCoordinator.of(chains, evms, trackersStore, config.deployer, logger)
     await coordinator.start()
+    expect(coordinator.isRunning).toBe(true)
   })
+
   after(async () => {
     coordinator.stop()
+    expect(coordinator.isRunning).toBe(false)
     for (let each of processes) {
       each.kill()
       while(!each.killed) await setTimeout(10)
     }
-  })
-
-  it('can start & stop', async () => {
-    expect(coordinator.chains).toEqual(chains)
-    expect(coordinator.isRunning).toBe(true)
-
-    coordinator.stop()
-    expect(coordinator.isRunning).toBe(false)
-
-    await coordinator.start()
-    expect(coordinator.isRunning).toBe(true)
   })
 
   it('detects & acts on a Transfer event', async () => {

@@ -13,6 +13,7 @@ describe('MultiContractTracker', () => {
     const polling = {interval: 10, attempts: 5}
     tracker = MultiContractTracker.from(chainId, provider, new InMemoryStore(), polling, _ => events.push(_), logger)
   })
+
   afterEach(() => tracker.stop())
 
   describe('single kind / single contract', () => {

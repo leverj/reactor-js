@@ -14,6 +14,7 @@ describe('ContractTracker', () => {
     const polling = {interval: 10, attempts: 5}
     tracker = ContractTracker.of(chainId, contract, new InMemoryStore(), polling, _ => _, logger)
   })
+
   afterEach(() => tracker.stop())
 
   it('can track events when polling', async () => {
