@@ -24,7 +24,7 @@ export class Actor {
 
 export class CrossChainVaultCoordinator {
   static of(chains, evms, store, polling, signer, logger = console) {
-    // fixme: affirm evms includes all of chains
+    // fixme:chains: affirm evms includes all of chains
     const networks = Map(evms).filter(_ => chains.includes(_.label)).map(_ => ({
       id: BigInt(_.id),
       label: _.label,
@@ -35,10 +35,10 @@ export class CrossChainVaultCoordinator {
   }
 
   constructor(chains, networks, store, polling, signer, logger) {
-    this.polling = polling
     this.chains = chains
     this.networks = networks
     this.store = store
+    this.polling = polling
     this.actor = new Actor(signer)
     this.logger = logger
     this.isRunning = false

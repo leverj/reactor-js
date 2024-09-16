@@ -30,9 +30,9 @@ describe('Vault', () => {
     return vaults
   }
 
-  const checkOutNativeFromTo = async (fromVault, toVault, amount) => checkOutFromTo(fromVault, toVault, amount)
-  const checkOutTokenFromTo = async (fromVault, toVault, amount, token) => checkOutFromTo(fromVault, toVault, amount, token)
-  const checkOutFromTo = async (fromVault, toVault, amount, token) => {
+  const sendNativeFromTo = async (fromVault, toVault, amount) => sendFromTo(fromVault, toVault, amount)
+  const sendTokenFromTo = async (fromVault, toVault, amount, token) => sendFromTo(fromVault, toVault, amount, token)
+  const sendFromTo = async (fromVault, toVault, amount, token) => {
     if (token) await token.connect(account).approve(fromVault.target, amount).then(_ => _.wait())
     const to = await toVault.chainId()
     token ?
@@ -52,7 +52,7 @@ describe('Vault', () => {
 
     it('Native', async () => {
       const before = await provider.getBalance(account)
-      await checkOutNativeFromTo(fromVault, toVault, amount)
+      await sendNativeFromTo(fromVault, toVault, amount)
       const proxy = await getContractAt('ERC20Proxy', await toVault.proxies(L1, ETH))
       expect(await proxy.balanceOf(account.address)).toEqual(amount)
       expect(await provider.getBalance(account)).toEqual(before - amount)
@@ -66,20 +66,20 @@ describe('Vault', () => {
 
     it('Token', async () => {
       const balance = amount * 10n
-      const erc20 = await ERC20()
-      await erc20.mint(account.address, balance)
-      await erc20.connect(account).approve(fromVault.target, amount).then(_ => _.wait())
-      const before = await erc20.balanceOf(account.address)
-      await checkOutTokenFromTo(fromVault, toVault, amount, erc20)
-      const proxy = await getContractAt('ERC20Proxy', await toVault.proxies(L1, erc20.target))
+      const token = await ERC20()
+      await token.mint(account.address, balance)
+      await token.connect(account).approve(fromVault.target, amount).then(_ => _.wait())
+      const before = await token.balanceOf(account.address)
+      await sendTokenFromTo(fromVault, toVault, amount, token)
+      const proxy = await getContractAt('ERC20Proxy', await toVault.proxies(L1, token.target))
       expect(await proxy.balanceOf(account.address)).toEqual(amount)
-      expect(await erc20.balanceOf(account.address)).toEqual(balance - amount)
+      expect(await token.balanceOf(account.address)).toEqual(balance - amount)
 
       await toVault.connect(account).sendToken(L1, proxy.target, amount).then(_ => _.wait())
       expect(await proxy.balanceOf(account.address)).toEqual(0n)
 
       await onEvent(toVault)
-      expect(await erc20.balanceOf(account.address)).toEqual(before)
+      expect(await token.balanceOf(account.address)).toEqual(before)
     })
   })
 

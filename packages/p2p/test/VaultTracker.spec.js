@@ -1,7 +1,7 @@
 import {accounts, ETH, getContractAt, provider} from '@leverj/chain-deployment/test'
 import {InMemoryStore, logger} from '@leverj/common'
 import {encodeTransfer} from '@leverj/reactor.chain/contracts'
-import {publicKey, signedBy, signer, Vault} from '@leverj/reactor.chain/test'
+import {ERC20, publicKey, signedBy, signer, Vault} from '@leverj/reactor.chain/test'
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
 import {VaultTracker} from '../src/CrossChainVaultCoordinator.js'
@@ -9,7 +9,7 @@ import config from '../config.js'
 
 describe('VaultTracker', () => {
   const [, account] = accounts
-  const fromChainId = 10101n, toChainId = 98989n, amount = 1_000_000n
+  const fromChainId = 10101n, toChainId = 98989n, amount = 1000n
   let fromVault, toVault, tracker
 
   beforeEach(async () => {
@@ -29,16 +29,34 @@ describe('VaultTracker', () => {
 
   afterEach(async () => tracker.stop())
 
-  it('acts on a Transfer event', async () => {
-    const before = await provider.getBalance(account)
-    await fromVault.connect(account).sendNative(toChainId, {value: amount}).then(_ => _.wait())
-    const afterCheckingOut = await provider.getBalance(account)
-    expect(afterCheckingOut).toEqual(before - amount)
+  describe('detects & acts on a Transfer event', () => {
+    it('Native', async () => {
+      const before = await provider.getBalance(account)
+      await fromVault.connect(account).sendNative(toChainId, {value: amount}).then(_ => _.wait())
+      const afterCheckingOut = await provider.getBalance(account)
+      expect(afterCheckingOut).toEqual(before - amount)
 
-    await setTimeout(200)
-    const proxyAddress = await toVault.proxies(fromChainId, ETH)
-    expect(proxyAddress).not.toEqual(ETH)
-    const proxy = await getContractAt('ERC20Proxy', proxyAddress)
-    expect(await proxy.balanceOf(account.address)).toEqual(amount)
+      await setTimeout(200)
+      const proxyAddress = await toVault.proxies(fromChainId, ETH)
+      expect(proxyAddress).not.toEqual(ETH)
+      const proxy = await getContractAt('ERC20Proxy', proxyAddress)
+      expect(await proxy.balanceOf(account.address)).toEqual(amount)
+    })
+
+    it('Token', async () => {
+      const token = await ERC20('Gold', '💰')
+      await token.mint(account.address, amount)
+      await token.connect(account).approve(fromVault.target, amount).then(_ => _.wait())
+      const before = await token.balanceOf(account.address)
+      await fromVault.connect(account).sendToken(toChainId, token.target, amount).then(_ => _.wait())
+      const afterCheckingOut = await token.balanceOf(account.address)
+      expect(afterCheckingOut).toEqual(before - amount)
+
+      await setTimeout(200)
+      const proxyAddress = await toVault.proxies(fromChainId, token.target)
+      expect(proxyAddress).not.toEqual(token.target)
+      const proxy = await getContractAt('ERC20Proxy', proxyAddress)
+      expect(await proxy.balanceOf(account.address)).toEqual(amount)
+    })
   })
 })

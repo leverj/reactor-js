@@ -1,16 +1,25 @@
 import {Deploy} from '@leverj/chain-deployment'
 import {JsonStore, logger} from '@leverj/common'
 import {configure} from '@leverj/config'
-import {postLoad, schema} from '@leverj/reactor.chain/config.schema'
+import * as reactor_chain_config from '@leverj/reactor.chain/config.schema'
 import {JsonRpcProvider} from 'ethers'
 import {Map} from 'immutable'
-import {zip} from 'lodash-es'
+import {merge, zip} from 'lodash-es'
 import {exec} from 'node:child_process'
 import {readFileSync, rmSync, writeFileSync} from 'node:fs'
 import waitOn from 'wait-on'
 
 /*** manufacture a config just like the one in @leverj/reactor.chain ***/
 export const createChainConfig = async (chains) => {
+  const postLoad = (config) => {
+    config = reactor_chain_config.postLoad(config)
+    merge(config.contracts, Map(config.networks).map(({id, label}) => ({
+      ERC20Mock: {
+        params: [`Gold-${label}`, `💰-${id}`],
+      },
+    })).toJS())
+    return config
+  }
   // override chain/config/env with ^^^ chains
   const env = process.env.NODE_ENV
   const chain_dir = `${import.meta.dirname}/../../../chain`
@@ -18,7 +27,7 @@ export const createChainConfig = async (chains) => {
   const override_file = `${chain_dir}/config/local-${env}.js`
   const override = `$1${chains.map(_ => `'${_}'`)}$3`
   writeFileSync(override_file, readFileSync(config_file, 'utf8').replace(/(.*chains:\s*\[)(.+)(].*)/, override))
-  const config = await configure(schema, postLoad, {env: {PWD: chain_dir, NODE_ENV: env}})
+  const config = await configure(reactor_chain_config.schema, postLoad, {env: {PWD: chain_dir, NODE_ENV: env}})
   rmSync(override_file)
   return config
 }
@@ -41,7 +50,7 @@ const launchEvm = (networks, chain, port, forked = false) => {
   const dir = `${forked ? 'forked' : 'nascent'}/${networks[chain].testnet ? 'testnets' : 'mainnets'}`
   const hardhatConfigFileFor = `test/hardhat/${dir}/${chain}.config.cjs`
   const process = exec(`npx hardhat node --config ${hardhatConfigFileFor} --port ${port}`)
-  process.stdout.on('data', console.log)
+  process.stdout.on('data', logger.log)
   return process
 }
 const launchGanacheEvm = (providerUrl, port) => exec(`npx ganache-cli --fork ${providerUrl}  --port ${port}`) //fixme: experimental
