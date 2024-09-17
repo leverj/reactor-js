@@ -15,24 +15,24 @@ export class CrossChainVaultCoordinator {
       provider: new JsonRpcProvider(_.providerURL),
       Vault: _.contracts.Vault,
     })).valueSeq().toArray()
-    return this.ofNetworks(networks, chains, store, polling, verifier, wallet, logger)
+    const vaults = Map(networks.map(_ => [_.id, stubs.Vault(_.Vault.address, _.provider)]))
+    return this.ofVaults(networks.map(_ => _.id), vaults, store, polling, verifier, wallet, logger)
   }
 
-  static ofNetworks(networks, chains, store, polling, verifier, wallet, logger = console) {
-    // fixme:chains: affirm evms includes all of chains
-    return new this(networks.filter(_ => chains.includes(_.label)), store, polling, verifier, wallet, logger)
+  static ofVaults(chainIds, vaults, store, polling, verifier, wallet, logger = console) {
+    // fixme:chains: affirm vaults includes all of chainIds
+    return new this(chainIds, vaults, store, polling, verifier, wallet, logger)
   }
 
-  constructor(networks, store, polling, verifier, wallet, logger) {
-    this.networks = networks
-    this.vaults = Map(networks.map(_ => [_.id, stubs.Vault(_.Vault.address, _.provider)]))
+  constructor(chainIds, vaults, store, polling, verifier, wallet, logger) {
+    this.chainIds = chainIds
+    this.vaults = vaults
     this.trackers = this.vaults.map((vault, id) => VaultTracker(id, vault, store, polling, this, logger)).valueSeq().toArray()
     this.verifier = verifier
     this.wallet = wallet
     this.logger = logger
     this.isRunning = false
   }
-  get chains() { return this.networks.map(_ => _.id) }
 
   async onEvent(event) {
     switch (event.name) {
@@ -49,7 +49,7 @@ export class CrossChainVaultCoordinator {
   async start() {
     if (this.isRunning) return
 
-    this.logger.log(`starting cross-chain Vault tracking for [${this.chains}]`)
+    this.logger.log(`starting cross-chain Vault tracking for [${this.chainIds}]`)
     this.isRunning = true
     for (let each of this.trackers) await each.start()
   }
@@ -57,7 +57,7 @@ export class CrossChainVaultCoordinator {
   stop() {
     if (!this.isRunning) return
 
-    this.logger.log(`stopping cross-chain Vault tracking for [${this.chains}]`)
+    this.logger.log(`stopping cross-chain Vault tracking for [${this.chainIds}]`)
     this.isRunning = false
     for (let each of this.trackers) each.stop()
   }

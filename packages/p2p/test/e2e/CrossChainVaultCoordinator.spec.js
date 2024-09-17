@@ -45,7 +45,7 @@ describe('CrossChainVaultCoordinator', () => {
   const ERC20 = (chain, provider) => new Contract(evms[chain].contracts.ERC20Mock.address, ERC20_abi, provider)
 
   it('detects & acts on a Transfer events for both Token & Native, across chains', async () => {
-    const [L1_id, L2_id] = coordinator.networks.map(_ => _.id)
+    const [L1_id, L2_id] = coordinator.chainIds
     const [L1_vault, L2_vault] = [L1_id, L2_id].map(_ => coordinator.vaults.get(_))
     const [L1_provider, L2_provider] = [L1_vault, L2_vault].map(_ => _.runner.provider)
     const L2_token = ERC20(L2, L2_provider)
