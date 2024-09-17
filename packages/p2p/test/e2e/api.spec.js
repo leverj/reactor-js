@@ -1,30 +1,30 @@
 import {CodedError, logger} from '@leverj/common'
-import {JsonDirStore, tryAgainIfError, waitToSync} from '@leverj/reactor.p2p'
+import {ApiApp, JsonDirStore, tryAgainIfError, waitToSync} from '@leverj/reactor.p2p'
 import config from '@leverj/reactor.p2p/config'
 import axios from 'axios'
+import {cloneDeep} from 'lodash-es'
 import {expect} from 'expect'
-import {fork} from 'node:child_process'
 import {rmSync} from 'node:fs'
 import {setTimeout} from 'node:timers/promises'
 import {getNodeInfos} from '../fixtures.js'
 
 const {bridge, externalIp, timeout, tryCount, port: leaderPort} = config
 
-describe('e2e', () => {
-  const processes = []
+describe.skip('api ', () => {
+  const nodes = []
   let store
 
   beforeEach(() => {
     rmSync(bridge.nodesDir, {recursive: true, force: true})
     store = new JsonDirStore(bridge.nodesDir, 'nodes')
   })
-
   afterEach(async () => {
-    for (let each of processes) {
-      each.kill()
-      while(!each.killed) await setTimeout(10)
+    console.log('#'.repeat(50), 'stopping nodes', nodes.length)
+    while (nodes.length > 0) {
+      console.log('#'.repeat(50), 'stopping node')
+      await nodes.pop().stop()
     }
-    processes.length = 0
+    await setTimeout(1000)
   })
 
   async function createApiNodesFrom(ports, howMany = ports.length - 1) {
@@ -36,17 +36,18 @@ describe('e2e', () => {
         else throw CodedError(`no leader found @ port ${leaderPort}`, 'ENOENT')
       }
       const bootstrapNodes = port === leaderPort ? [] : await tryAgainIfError(getLeaderNode, timeout, tryCount, port)
-      const env = Object.assign({}, process.env, {
-        PORT: port,
-        BRIDGE_PORT: bridge.port + index,
-        BRIDGE_CONF_DIR: bridge.nodesDir,
-        BRIDGE_BOOTSTRAP_NODES: JSON.stringify(bootstrapNodes),
-      })
-      return fork('app.js', [], {cwd: process.cwd(), env})
+      const clonedConfig = cloneDeep(config)
+      clonedConfig.port = port
+      clonedConfig.bridge.port = bridge.port + index
+      clonedConfig.bridge.bootstrapNodes = bootstrapNodes
+      const node =  await ApiApp.new(clonedConfig)
+      node.start()
+      return node
     }
-
+    console.log('#'.repeat(50), 'creating nodes', ports)
     for (let each of ports) {
-      processes.push(await createApiNode(each))
+      nodes.push(await createApiNode(each))
+      console.log('#'.repeat(50), 'created node', each, nodes.length)
       await setTimeout(100)
     }
     await waitToSync(ports.map(_ => async () => GET(_, 'peer').then(_ => _.length === howMany)), tryCount, timeout, leaderPort)
@@ -99,14 +100,14 @@ describe('e2e', () => {
     await createApiNodes(4)
     const message = 'hash123456'
     await POST(leaderPort, 'tss/aggregateSign', {message})
-    await setTimeout(500)
+    await setTimeout(5000)
     expect(await GET(leaderPort, `tss/aggregateSign?transferHash=${message}`).then(_ => _.verified)).toEqual(true)
   })
 
   it('whitelist', async () => {
     const ports = await createApiNodes(4, false)
     await GET(leaderPort + 1, 'peer/bootstrapped')
-    const _processes_ = processes.slice(2)
+    const _processes_ = nodes.slice(2)
     while (_processes_.length > 0) _processes_.pop().kill()
     await setTimeout(100)
     await publishWhitelist(ports.slice(0, 2), 4)

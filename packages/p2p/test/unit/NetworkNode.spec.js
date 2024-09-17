@@ -9,7 +9,7 @@ import AesEncryption from 'aes-encryption'
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
 import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
-import {peerIdJsons} from './help/fixtures.js'
+import {peerIdJsons} from '../fixtures.js'
 
 const {timeout, tryCount, port} = config
 
