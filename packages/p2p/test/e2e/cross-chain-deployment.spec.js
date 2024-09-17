@@ -3,7 +3,7 @@ import {stubs} from '@leverj/reactor.chain/contracts'
 import {expect} from 'expect'
 import {rmSync} from 'node:fs'
 import {setTimeout} from 'node:timers/promises'
-import {createChainConfig, getDeployedNetworks, launchEvms} from './help/chain.js'
+import {createChainConfig, getDeployedNetworks, launchEvms} from './chain.js'
 
 describe('deploy across multiple chains', () => {
   const [, account] = accounts

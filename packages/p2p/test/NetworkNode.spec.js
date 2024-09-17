@@ -10,7 +10,7 @@ import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
 import {NetworkNode} from '../src/NetworkNode.js'
 import {waitToSync} from '../src/utils.js'
 import config from '../config.js'
-import {peerIdJsons} from './fixtures.js'
+import {peerIdJsons} from './help/fixtures.js'
 
 const {timeout, tryCount, port} = config
 

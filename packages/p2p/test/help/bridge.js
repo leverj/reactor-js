@@ -1,6 +1,6 @@
 import {BridgeNode} from '../../src/BridgeNode.js'
 import config from '../../config.js'
-import {peerIdJsons} from '../fixtures.js'
+import {peerIdJsons} from './fixtures.js'
 
 export const createBridgeNodes = async (howMany) => {
   const results = []

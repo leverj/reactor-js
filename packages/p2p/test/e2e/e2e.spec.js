@@ -4,10 +4,10 @@ import {expect} from 'expect'
 import {fork} from 'node:child_process'
 import {rmSync} from 'node:fs'
 import {setTimeout} from 'node:timers/promises'
-import {JsonDirStore} from '../src/ApiApp.js'
-import {tryAgainIfError, waitToSync} from '../src/utils.js'
-import config from '../config.js'
-import {getNodeInfos} from './fixtures.js'
+import {JsonDirStore} from '../../src/ApiApp.js'
+import {tryAgainIfError, waitToSync} from '../../src/utils.js'
+import config from '../../config.js'
+import {getNodeInfos} from '../help/fixtures.js'
 
 const {bridge, externalIp, timeout, tryCount, port: leaderPort} = config
 
