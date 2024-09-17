@@ -8,9 +8,9 @@ import {
   PublicKey,
   Signature,
 } from '@leverj/reactor.mcl'
+import {TssNode} from '@leverj/reactor.p2p'
 import {expect} from 'expect'
 import {AbiCoder, keccak256} from 'ethers'
-import {TssNode} from '../src/TssNode.js'
 
 describe('TssNode', () => {
   const message = 'hello world'

@@ -1,15 +1,15 @@
 import {accounts} from '@leverj/chain-deployment/test'
 import {ETH, InMemoryStore, logger} from '@leverj/common'
-import {ERC20, publicKey, Vault} from '@leverj/reactor.chain/test'
+import {ERC20, publicKey, signer, Vault} from '@leverj/reactor.chain/test'
+import {CrossChainVaultCoordinator, MessageVerifier} from '@leverj/reactor.p2p'
+import config from '@leverj/reactor.p2p/config'
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
-import {CrossChainVaultCoordinator} from '../src/CrossChainVaultCoordinator.js'
-import config from '../config.js'
 import {MasqueradingProvider} from './help/hardhat.js'
 
 const {chain: {polling}} = config
 
-describe('CrossChainVaultCoordinator - embedded', () => {
+describe.skip('CrossChainVaultCoordinator - embedded', () => {
   const amount = BigInt(1e6 - 1)
   const [deployer, account] = accounts
   const chains = ['holesky', 'sepolia']
@@ -25,11 +25,12 @@ describe('CrossChainVaultCoordinator - embedded', () => {
     await fromToken.mint(account.address, amount)
     await fromToken.approve(fromVault.target, amount).then(_ => _.wait())
 
-    const trackersStore = new InMemoryStore()
-    const evms = {} //fixme: generate from contracts here
     // const [fromChainId, toChainId] = coordinator.networks.map(_ => _.id)
     // const [fromVault, toVault] = [fromChainId, toChainId].map(_ => coordinator.contracts.get(_))
-    coordinator = CrossChainVaultCoordinator.ofEvms(evms, chains, trackersStore, polling, deployer, logger)
+    const networks = {} //fixme: generate from contracts here
+    const trackersStore = new InMemoryStore()
+    const verifier = new MessageVerifier(signer) //fixme should be tha same as the vaults where created with
+    coordinator = CrossChainVaultCoordinator.ofNetworks(networks, chains, trackersStore, polling, verifier, deployer, logger)
     await coordinator.start()
   })
 

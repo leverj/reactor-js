@@ -7,9 +7,8 @@ import {
   G2ToNumbers,
   SecretKey,
 } from '@leverj/reactor.mcl'
+import {NetworkNode, TssNode} from '@leverj/reactor.p2p'
 import {setTimeout} from 'node:timers/promises'
-import {NetworkNode} from './NetworkNode.js'
-import {TssNode} from './TssNode.js'
 import {events, NODE_INFO_CHANGED, PEER_DISCOVERY, waitToSync} from './utils.js'
 
 const TSS_RECEIVE_SIGNATURE_SHARE = 'TSS_RECEIVE_SIGNATURE_SHARE'
@@ -192,12 +191,13 @@ class Leader {
   async onVaultEvent(event) {
     const transferPayloadVerified = async (to, payload, aggregateSignature) => {
       if (aggregateSignature.verified) {
-        const {signature, publicKey} = verify(aggregateSignature)
-        //fixme: this part should be done by the coordinator with the wallet
+        const signature = G1ToNumbers(deserializeHexStrToSignature(aggregateSignature.groupSign))
+        const publicKey = this.self.publicKey
         const toContract = this.self.vaults[to]
         await toContract.accept(signature, publicKey, payload).then(_ => _.wait())
       }
     }
+    //fixme: not working
     const verify = async (aggregateSignature) => {
       if (aggregateSignature.verified) {
         return {
@@ -206,7 +206,7 @@ class Leader {
         }
       }
     }
-    //fixme:make sure it is a Transfer event
+    //fixme: make sure it is a Transfer event
     const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = event.args
     const payload = encodeTransfer(origin, token, name, symbol, decimals, amount, owner, from, to, tag)
     if (await this.self.vaults[from].sends(transferHash)) {

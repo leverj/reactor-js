@@ -2,10 +2,10 @@ import {accounts, ETH, getContractAt, provider} from '@leverj/chain-deployment/t
 import {InMemoryStore, logger} from '@leverj/common'
 import {encodeTransfer} from '@leverj/reactor.chain/contracts'
 import {ERC20, publicKey, signedBy, signer, Vault} from '@leverj/reactor.chain/test'
+import {VaultTracker} from '@leverj/reactor.p2p'
+import config from '@leverj/reactor.p2p/config'
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
-import {VaultTracker} from '../src/CrossChainVaultCoordinator.js'
-import config from '../config.js'
 
 describe('VaultTracker', () => {
   const [, account] = accounts

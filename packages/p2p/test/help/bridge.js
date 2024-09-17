@@ -1,5 +1,5 @@
-import {BridgeNode} from '../../src/BridgeNode.js'
-import config from '../../config.js'
+import {BridgeNode} from '@leverj/reactor.p2p'
+import config from '@leverj/reactor.p2p/config'
 import {peerIdJsons} from './fixtures.js'
 
 export const createBridgeNodes = async (howMany) => {

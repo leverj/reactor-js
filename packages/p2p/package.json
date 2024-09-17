@@ -1,10 +1,14 @@
 {
   "name": "@leverj/reactor.p2p",
   "version": "0.1.0",
+  "license": "UNLICENSED",
   "type": "module",
   "private": true,
-  "license": "UNLICENSED",
-  "main": "app.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./app.js": "./app.js",
+    "./config": "./config.js"
+  },
   "scripts": {
     "test": "npx mocha",
     "dependency:check": "npx depcheck",

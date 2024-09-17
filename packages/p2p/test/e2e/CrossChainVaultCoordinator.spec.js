@@ -1,13 +1,12 @@
 import {accounts} from '@leverj/chain-deployment/test'
 import {ETH, JsonStore, logger} from '@leverj/common'
 import {signer} from '@leverj/reactor.chain/test'
+import {CrossChainVaultCoordinator, MessageVerifier} from '@leverj/reactor.p2p'
+import config from '@leverj/reactor.p2p/config'
 import {Contract} from 'ethers'
 import {expect} from 'expect'
 import {rmSync} from 'node:fs'
 import {setTimeout} from 'node:timers/promises'
-import {CrossChainVaultCoordinator} from '../../src/CrossChainVaultCoordinator.js'
-import {MessageVerifier} from '../../src/MessageVerifier.js'
-import config from '../../config.js'
 import {createChainConfig, getEvmsStore, launchEvms} from './chain.js'
 import ERC20_abi from './ERC20.abi.json' assert {type: 'json'}
 
@@ -27,7 +26,7 @@ describe('CrossChainVaultCoordinator', () => {
 
     evms = getEvmsStore(deploymentDir).toObject()
     const trackersStore = new JsonStore(nodesDir, 'trackers')
-    const verifier = new MessageVerifier(signer)
+    const verifier = new MessageVerifier(signer) //fixme should be tha same as the vaults where created with
     coordinator = CrossChainVaultCoordinator.ofEvms(evms, chains, trackersStore, polling, verifier, deployer, logger)
     await coordinator.start()
     expect(coordinator.isRunning).toBe(true);
