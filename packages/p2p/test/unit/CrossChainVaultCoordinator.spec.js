@@ -17,7 +17,8 @@ describe('CrossChainVaultCoordinator - embedded', () => {
 
   before(async () => {
     networks = zipWith(['holesky', 'sepolia'], [10101n, 98989n]).map(
-      ([label, id]) => ({id, label, provider: MasqueradingProvider(id, label)}),
+      ([label, id]) => ({id, label, provider}),
+      // ([label, id]) => ({id, label, provider: MasqueradingProvider(id, label)}),
     )
     for (let each of networks) {
       const {id, provider} = each

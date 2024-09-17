@@ -6,7 +6,7 @@ import {rmSync} from 'node:fs'
 import {setTimeout} from 'node:timers/promises'
 import {JsonDirStore, tryAgainIfError, waitToSync} from '@leverj/reactor.p2p'
 import config from '../../config.js'
-import {getNodeInfos} from '../help/fixtures.js'
+import {getNodeInfos} from '../unit/help/fixtures.js'
 
 const {bridge, externalIp, timeout, tryCount, port: leaderPort} = config
 

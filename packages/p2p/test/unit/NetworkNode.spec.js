@@ -1,5 +1,6 @@
 import {logger} from '@leverj/common'
 import {NetworkNode, waitToSync} from '@leverj/reactor.p2p'
+import config from '@leverj/reactor.p2p/config'
 import {unmarshalPrivateKey, unmarshalPublicKey} from '@libp2p/crypto/keys'
 import {peerIdFromString} from '@libp2p/peer-id'
 import {createFromJSON} from '@libp2p/peer-id-factory'
@@ -8,7 +9,6 @@ import AesEncryption from 'aes-encryption'
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
 import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
-import config from '../config.js'
 import {peerIdJsons} from './help/fixtures.js'
 
 const {timeout, tryCount, port} = config
