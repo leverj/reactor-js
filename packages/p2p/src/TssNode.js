@@ -1,4 +1,4 @@
-import {affirm, logger} from '@leverj/common/utils'
+import {affirm, logger} from '@leverj/common'
 import {
   deserializeHexStrToPublicKey,
   deserializeHexStrToSecretKey,
@@ -7,7 +7,7 @@ import {
   SecretKey,
   Signature,
 } from '@leverj/reactor.mcl'
-import {events, INFO_CHANGED} from './utils/index.js'
+import {events, NODE_INFO_CHANGED} from './utils.js'
 
 /**
  * Adds secret key contribution together to produce a single secret key
@@ -157,7 +157,7 @@ export class TssNode {
     this.secretKeyShare = addContributionShares(this.previouslyShared ? [this.secretKeyShare, ...receivedShares] : receivedShares)
     this.vvec = addVerificationVectors(this.previouslyShared ? [this.vvec, ...vvecs] : vvecs)
     this.previouslyShared = true
-    events.emit(INFO_CHANGED)
+    events.emit(NODE_INFO_CHANGED)
   }
 
   sign(message) { return this.secretKeyShare.sign(message) }
@@ -177,7 +177,7 @@ export class TssNode {
     logger.log([this.id, this.secretKeyShare, this.groupPublicKey].map(_ => _?.serializeToHexStr()).join('\n\t'))
   }
 
-  exportJson() {
+  info() {
     if (!this.previouslyShared) return
     return {
       id: this.idHex,

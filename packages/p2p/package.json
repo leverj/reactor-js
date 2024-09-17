@@ -6,19 +6,17 @@
   "license": "UNLICENSED",
   "main": "app.js",
   "scripts": {
-    "test": "yarn contracts:copy && yarn contracts:compile && npx mocha && yarn contracts:delete",
+    "test": "npx mocha",
     "dependency:check": "npx depcheck",
-    "contracts:copy": "cp -R ../chain/contracts .",
-    "contracts:compile": "npx hardhat compile",
-    "contracts:delete": "rm -rf artifacts cache contracts",
-    "start": "node app.js",
-    "docker:build": "./scripts/docker-build.sh"
+    "start": "node app.js"
   },
   "dependencies": {
     "@chainsafe/libp2p-gossipsub": "13.2.0",
-    "@chainsafe/libp2p-noise": "^15.1.1",
+    "@chainsafe/libp2p-noise": "^15.1.2",
     "@chainsafe/libp2p-yamux": "^6.0.2",
-    "@leverj/common": "^1.1.1",
+    "@leverj/chain-tracking": "1.2.0",
+    "@leverj/common": "1.2.0",
+    "@leverj/config": "1.2.0",
     "@leverj/reactor.chain": "0.1.0",
     "@leverj/reactor.mcl": "0.1.0",
     "@libp2p/bootstrap": "10.1.5",
@@ -26,23 +24,23 @@
     "@libp2p/kad-dht": "12.1.5",
     "@libp2p/peer-id": "^4.2.4",
     "@libp2p/peer-id-factory": "^4.2.4",
-    "@libp2p/ping": "^1.1.5",
-    "@libp2p/tcp": "^9.1.5",
-    "body-parser": "^1.20.2",
-    "config": "^3.3.12",
+    "@libp2p/ping": "^1.1.6",
+    "@libp2p/tcp": "^9.1.6",
+    "body-parser": "^1.20.3",
     "ethers": "^6.13.2",
-    "express": "^4.19.2",
+    "express": "^4.20.0",
+    "immutable": "^5.0.0-rc.1",
     "it-map": "^3.1.1",
     "it-pipe": "^3.0.1",
-    "libp2p": "^1.9.2",
+    "libp2p": "^1.9.4",
     "uint8arrays": "^5.1.0"
   },
   "devDependencies": {
-    "@noble/curves": "^1.5.0",
+    "@leverj/chain-deployment": "1.2.0",
+    "@noble/curves": "^1.6.0",
     "aes-encryption": "^1.0.4",
-    "axios": "^1.7.4",
-    "dkg": "^0.0.3",
-    "lodash-es": "^4.17.21",
-    "multiaddr": "^10.0.1"
+    "axios": "^1.7.7",
+    "dotenv": "^16.4.5",
+    "ganache-cli": "^6.12.2"
   }
 }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {modexp_3064_fd54, modexp_c191_3f52} from "./modexp.sol";
 

@@ -1,7 +1,7 @@
 import {gossipsub} from '@chainsafe/libp2p-gossipsub'
 import {noise} from '@chainsafe/libp2p-noise'
 import {yamux} from '@chainsafe/libp2p-yamux'
-import {seconds} from '@leverj/common/utils'
+import {seconds} from '@leverj/common'
 import {bootstrap} from '@libp2p/bootstrap'
 import {identify} from '@libp2p/identify'
 import {kadDHT, passthroughMapper} from '@libp2p/kad-dht'

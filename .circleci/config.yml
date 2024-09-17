@@ -46,23 +46,15 @@ jobs:
     <<: *docker-image
     steps:
       - checkout
-      - run:
-          name: copy << parameters.copy >> to dist/
-          command: |
-            cd packages/<< parameters.package >>
-            mkdir -p dist
-            cd ../mcl && npm pack && mv leverj-reactor.mcl-*.tgz ../p2p/dist/leverj-reactor.mcl.tgz && cd ../p2p 
-            cd ../chain && npm pack && mv leverj-reactor.chain-*.tgz ../p2p/dist/leverj-reactor.chain.tgz && cd ../p2p 
-            cp -r << parameters.copy >> dist/
       - setup_remote_docker: { docker_layer_caching: true}
       - run:
           name: create and publish leverj/gallery-<< parameters.package >>:$CIRCLE_BRANCH
           command: |
             docker info
-            docker build  -t leverj/<< parameters.package >>:$CIRCLE_BRANCH packages/<< parameters.package >>
-            docker login -u $DOCKER_USER -p $DOCKER_PASS
-            docker push leverj/<< parameters.package >>:$CIRCLE_BRANCH
-            docker logout
+            docker build  -t leverj/<< parameters.package >>:$CIRCLE_BRANCH .
+#            docker login -u $DOCKER_USER -p $DOCKER_PASS
+#            docker push leverj/<< parameters.package >>:$CIRCLE_BRANCH
+#            docker logout
 
 
 workflows:

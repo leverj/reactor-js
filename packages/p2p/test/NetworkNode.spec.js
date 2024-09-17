@@ -1,4 +1,4 @@
-import {logger} from '@leverj/common/utils'
+import {logger} from '@leverj/common'
 import {unmarshalPrivateKey, unmarshalPublicKey} from '@libp2p/crypto/keys'
 import {peerIdFromString} from '@libp2p/peer-id'
 import {createFromJSON} from '@libp2p/peer-id-factory'
@@ -8,8 +8,11 @@ import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
 import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
 import {NetworkNode} from '../src/NetworkNode.js'
-import {waitToSync} from '../src/utils/index.js'
-import {peerIdJsons} from './help/fixtures.js'
+import {waitToSync} from '../src/utils.js'
+import config from '../config.js'
+import {peerIdJsons} from './fixtures.js'
+
+const {timeout, tryCount, port} = config
 
 describe('NetworkNode', () => {
   const meshProtocol = '/mesh/1.0.0'
@@ -23,26 +26,22 @@ describe('NetworkNode', () => {
   const startNetworkNodes = async (count) => {
     let bootstrapNodes = []
     for (let i = 0; i < count; i++) {
-      const node = await NetworkNode.from({
-        port: 9000 + i,
-        peerIdJson: peerIdJsons[i],
-        bootstrapNodes,
-      })
+      const node = await NetworkNode.from(config, 10000 + i, peerIdJsons[i], bootstrapNodes)
       await node.start()
       nodes.push(node)
       if (i === 0) bootstrapNodes = node.multiaddrs
     }
-    await waitToSync([_ => nodes[count - 1].peers.length === nodes.length - 1])
+    await waitToSync([_ => nodes[count - 1].peers.length === nodes.length - 1], tryCount, timeout, port)
   }
 
-  it('should be able to ping a node', async () => {
+  it('can ping a node', async () => {
     await startNetworkNodes(2)
     const [node1, node2] = nodes
     const latency = await node1.ping(node2.peerId)
     expect(latency).toBeGreaterThan(0)
   })
 
-  it('it should send data across stream from node1 to node2', async () => {
+  it('sends data across stream from node1 to node2', async () => {
     const messages = {}
     const responses = {}
     await startNetworkNodes(6)
@@ -67,9 +66,9 @@ describe('NetworkNode', () => {
     }
   })
 
-  it('it should send data using gossipsub', async () => {
-    const transferReceipts = {} // each node will just save the hash and ack. later children will sign and attest point to point
-    await startNetworkNodes(4, true)
+  it('sends data using gossipsub', async () => {
+    const transferReceipts = {} // each node will just save the transferHash and ack. later children will sign and attest point to point
+    await startNetworkNodes(4)
     const [leader, node2, node3, node4] = nodes
     for (let each of [node2, node3, node4]) {
       await each.connectPubSub(
@@ -85,7 +84,7 @@ describe('NetworkNode', () => {
     expect(leader.peers.length).toEqual(3)
     for (let each of leader.peers) expect(transferReceipts[each]).toEqual(transferHash)
 
-    await leader.publish('TransferHash', transferHash + transferHash)
+    await leader.publish('TransferHash', transferHash + transferHash) //fixme: reason for duplication?
     await setTimeout(10)
     expect(leader.peers.length).toEqual(3)
     for (let each of leader.peers) expect(transferReceipts[each]).toEqual(transferHash + transferHash)
@@ -106,6 +105,7 @@ describe('NetworkNode', () => {
   })
 
   //FIXME If this test case approach is ok, then p2p occurences can move to NetworkNode
+
   //basically createAndSendMessage function can be changed to take PeerId as opposed to address (current impl)
   it('should create p2p nodes and send stream message to peers without using their address', async () => {
     const numNodes = 6
@@ -114,7 +114,7 @@ describe('NetworkNode', () => {
     for (let each of nodes) logger.log('Peers of Node', each.peers.length)
     for (let each of nodes) {
       await each.registerStreamHandler(meshProtocol, function (stream, peerId, msgStr) {
-        logger.log(each.peerId, 'Recd stream msg from', peerId, msgStr)
+        logger.log(each.peerId, 'Recd stream message from', peerId, msgStr)
       })
     }
     const sender = nodes[0]
@@ -128,12 +128,12 @@ describe('NetworkNode', () => {
     const peerInfo = await nodes[0].findPeer(peerId)
     const peerAddress = peerInfo.multiaddrs[0]
     const addressToSend = peerAddress + '/p2p/' + peerId
-    await nodes[0].createAndSendMessage(addressToSend, meshProtocol, "HI", (msg) => {logger.log("ACK RESP", msg)})*/
+    await nodes[0].createAndSendMessage(addressToSend, meshProtocol, 'HI', (message) => {logger.log('ACK RESP', message)})*/
     // await setTimeout(10)
   })
 
-  // fixme: to be implemented
-  it.skip('should not allow to connect a node if not approved', async () => {
+  //fixme: to be implemented
+  it.skip('disallow to connect a node if not approved', async () => {
     const [node1, node2] = await startNetworkNodes(2)
     node1.connect(node2.peerId)
     await setTimeout(10)
@@ -146,7 +146,6 @@ describe('NetworkNode', () => {
     expect(node1.peers.length).toEqual(1)
     expect(node2.peers.length).toEqual(1)
   })
-
   it('should get public key from peerId', async () => {
     const {pubKey, id} = peerIdJsons[0]
     const peerId = peerIdFromString(id)

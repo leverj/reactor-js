@@ -1,4 +1,4 @@
-import {logger} from '@leverj/common/utils'
+import {logger} from '@leverj/common'
 import {BnsVerifier} from '@leverj/reactor.chain/test'
 import {
   deserializeHexStrToPublicKey,
@@ -51,7 +51,7 @@ describe('TssNode', () => {
     return members
   }
 
-  it('should be able to match member pub key derived from member pvt key', async () => {
+  it('can match member pub key derived from member pvt key', async () => {
     for (let each of await createDkgMembers(memberIds)) {
       expect(each.publicKey.serializeToHexStr()).toEqual(each.secretKeyShare.getPublicKey().serializeToHexStr())
     }
@@ -76,7 +76,7 @@ describe('TssNode', () => {
     await expect(() => verifyInContract(members)).not.toThrow()
   })
 
-  it('should be able to create distributed keys and sign message', async () => {
+  it('can create distributed keys and sign message', async () => {
     const members = await createDkgMembers(memberIds)
     members.forEach(_ => expect(_.groupPublicKey.serializeToHexStr()).toEqual(members[0].groupPublicKey.serializeToHexStr()))
     expect(await signAndVerify(members.slice(0, 3))).toBe(false)
@@ -86,7 +86,7 @@ describe('TssNode', () => {
     expect(await signAndVerify(members.slice(0, 7))).toBe(true)
   })
 
-  it('should be able to add new member retaining old public key and sign messages', async () => {
+  it('can add new member retaining old public key and sign messages', async () => {
     const members = await createDkgMembers(memberIds)
     const groupPublicKeyHex = members[0].vvec[0].serializeToHexStr()
     await addMember(members, new TssNode('100'))
@@ -106,7 +106,7 @@ describe('TssNode', () => {
     ]) expect(await signAndVerify(members.slice(start, start + total))).toBe(expected)
   })
 
-  it('should be able to increase threshold', async () => {
+  it('can increase threshold', async () => {
     const threshold = 4
     const members = await createDkgMembers(memberIds, threshold)
     expect(await signAndVerify(members.slice(0, 4))).toBe(true)
@@ -121,7 +121,7 @@ describe('TssNode', () => {
     expect(await signAndVerify(members.slice(2, 7))).toBe(true)
   })
 
-  it('should be able to add member and increase threshold without changing group public key', async () => {
+  it('can add member and increase threshold without changing group public key', async () => {
     const threshold = 4
     const members = await createDkgMembers(memberIds.slice(0, memberIds.length), threshold)
     expect(await signAndVerify(members.slice(0, 4))).toBe(true)
@@ -137,7 +137,7 @@ describe('TssNode', () => {
     expect(await signAndVerify(members.slice(3, 8))).toBe(true)
   })
 
-  it('should be able to get shared public key from verification vector', async () => {
+  it('can get shared public key from verification vector', async () => {
     const members = await createDkgMembers(memberIds, 4)
     const member = members[4]
     const pk1 = new PublicKey().share(member.vvec, member.id)
@@ -161,7 +161,7 @@ describe('TssNode', () => {
     expect(members[0].groupPublicKey.verify(newGroupsSign, message)).toBe(true)
   })
 
-  it('should be able to remove a member', async () => {
+  it('can remove a member', async () => {
     const threshold = 4
     const members = await createDkgMembers(memberIds.concat(138473), threshold)
     const groupsPublicKey = members[0].groupPublicKey
@@ -176,7 +176,7 @@ describe('TssNode', () => {
     expect(await signAndVerify(members.slice(4, 7))).toBe(false)
   })
 
-  it.skip('should be able to decrease threshold', async () => {
+  it.skip('can decrease threshold', async () => {
     const threshold = 5
     const members = await createDkgMembers(memberIds, threshold)
     expect(await signAndVerify(members.slice(0, 4))).toBe(false)
@@ -187,7 +187,7 @@ describe('TssNode', () => {
     await setupMembersThreshold(members, threshold - 1)
     members.forEach(_ => expect(_.groupPublicKey.serializeToHexStr()).toEqual(groupsPublicKey.serializeToHexStr()))
     expect(await signAndVerify(members.slice(0, 3))).toBe(false)
-    // fixme: test fails here
+    //fixme: test fails here
     expect(await signAndVerify(members.slice(0, 4))).toBe(true)
     expect(await signAndVerify(members.slice(0, 5))).toBe(true)
   })

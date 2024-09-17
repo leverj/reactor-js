@@ -1,22 +1,21 @@
 import map from 'it-map'
 import {peerIdFromString} from '@libp2p/peer-id'
-import {logger} from '@leverj/common/utils'
-import config from 'config'
+import {logger} from '@leverj/common'
 import {pipe} from 'it-pipe'
 import {fromString as uint8ArrayFromString} from 'uint8arrays/from-string'
 import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
-import {events, PEER_CONNECT, PEER_DISCOVERY, tryAgainIfError} from './utils/index.js'
+import {events, PEER_CONNECT, PEER_DISCOVERY, tryAgainIfError} from './utils.js'
 import {P2P} from './P2P.js'
 
-const {externalIp} = config
-
 export class NetworkNode {
-  static async from({ip = '0.0.0.0', port = 0, peerIdJson, bootstrapNodes = []}) {
-    const p2p = await P2P(peerIdJson, ip, port, externalIp, bootstrapNodes)
-    return new this(port, bootstrapNodes, p2p)
+  static async from(config, port, peerIdJson, bootstrapNodes) {
+    const ip = '0.0.0.0'
+    const p2p = await P2P(peerIdJson, ip, port, config.externalIp, bootstrapNodes)
+    return new this(config, port, bootstrapNodes, p2p)
   }
 
-  constructor(port, bootstrapNodes, p2p) {
+  constructor(config, port, bootstrapNodes, p2p) {
+    this.config = config
     this.port = port
     this.bootstrapNodes = bootstrapNodes
     this.p2p = p2p
@@ -28,7 +27,7 @@ export class NetworkNode {
   get peerId() { return this.p2p.peerId.toString() }
   get peers() { return this.p2p.getPeers().map(_ => _.toString()) }
 
-  exportJson() {
+  info() {
     return {
       privKey: uint8ArrayToString(this.p2p.peerId.privateKey, 'base64'),
       pubKey: uint8ArrayToString(this.p2p.peerId.publicKey, 'base64'),
@@ -36,9 +35,9 @@ export class NetworkNode {
     }
   }
 
-  async start() { return this.p2p.start() }
+  async start() { return await this.p2p.start() }
 
-  async stop() { return this.p2p.stop() }
+  async stop() { return await this.p2p.stop() }
 
   async connect(peerId) { return this.p2p.dial(peerIdFromString(peerId)) }
 
@@ -46,7 +45,7 @@ export class NetworkNode {
 
   peerDiscovered(event) { events.emit(PEER_DISCOVERY, event.detail.id.toString()) }
 
-  // fixme: remove this peer from the network
+  //fixme: remove this peer from the network
   peerConnected(event) {
     const peerId = event.detail.toString()
     // if (!this.knownPeers[peerId]) {
@@ -58,7 +57,7 @@ export class NetworkNode {
   async connectPubSub(peerId, handler) {
     this.p2p.services.pubsub.addEventListener('message', message => {
       const {from: peerId, topic, data, signature} = message.detail
-      // fixme: signature verification
+      //fixme: signature verification
       handler({peerId: peerId.toString(), topic, data: new TextDecoder().decode(data)})
     })
     await this.p2p.services.pubsub.connect(peerId)
@@ -81,7 +80,9 @@ export class NetworkNode {
     }
   }
 
-  async createStream(peerId, protocol) { return tryAgainIfError(_ => this.p2p.dialProtocol(peerIdFromString(peerId), protocol)) }
+  async createStream(peerId, protocol) {
+    return tryAgainIfError(_ => this.p2p.dialProtocol(peerIdFromString(peerId), protocol), this.config.tryCount, this.config.timeout, this.config.port)
+  }
 
   async sendMessageOnStream(stream, message) { return stream.sink([uint8ArrayFromString(message)]) }
 

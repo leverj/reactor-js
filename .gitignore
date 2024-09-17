@@ -7,6 +7,7 @@
 !.yarn/versions
 .DS_Store/
 packages/chain/.env
+.env
 .env.*
 .evms.json
 .idea/
@@ -35,4 +36,3 @@ lib/
 logs/
 misc/
 node_modules/
-.ipfs/

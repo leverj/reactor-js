@@ -1,5 +1,6 @@
 {
   "ignore-patterns": [
+    "hardhat.config.cjs",
     "config",
     "test"
   ],
@@ -7,8 +8,6 @@
     "@noble/curves",
     "aes-encryption",
     "axios",
-    "dkg",
-    "lodash-es",
-    "multiaddr"
+    "dotenv"
   ]
 }

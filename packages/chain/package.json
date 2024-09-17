@@ -5,19 +5,25 @@
   "type": "module",
   "exports": {
     "./contracts": "./src/contracts/index.js",
-    "./test": "./test/help/index.js"
+    "./test": "./test/contracts/help/index.js"
   },
   "scripts": {
-    "test": "yarn contracts:compile && npx mocha",
+    "test": "npx mocha",
     "dependency:check": "npx depcheck",
-    "contracts:compile": "npx hardhat compile",
-    "contracts:generate:exports": "rm -rf src/contracts/abi && mkdir -p src/contracts/abi && yarn contracts:compile && node scripts/generate-contract-exports"
+    "contracts:generate:exports": "NODE_NO_WARNINGS=1 node scripts/generate-contract-exports",
+    "deploy": "NODE_NO_WARNINGS=1 node scripts/deploy",
+    "deploy:local:chain": "yarn deploy --reset --skip-verify --chain=localhost",
+    "start:local:chain": "npx hardhat node"
   },
   "dependencies": {
-    "ethers": "^6.13.2"
+    "@leverj/config": "1.2.0",
+    "@leverj/reactor.mcl": "0.1.0",
+    "ethers": "^6.13.2",
+    "immutable": "^5.0.0-rc.1"
   },
   "devDependencies": {
-    "@leverj/chain-deployment": "1.1.1",
+    "@leverj/chain-deployment": "1.2.0",
+    "@leverj/common": "1.2.0",
     "@openzeppelin/contracts": "^5.0.2"
   }
 }

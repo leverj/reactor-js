@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.24;
 
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
@@ -25,8 +25,7 @@ contract Vault {
      *
      * ... and the hash of the whole payload to precede it all.
      */
-    event Transfer(bytes32 hash, uint64 origin, address token, string name, string symbol, uint8 decimals, uint amount, address owner, uint64 from, uint64 to, uint tag);
-
+    event Transfer(bytes32 transferHash, uint64 origin, address token, string name, string symbol, uint8 decimals, uint amount, address owner, uint64 from, uint64 to, uint tag);
 
     /// key[index] is invalid
     error InvalidPublicKey(uint8 index);
@@ -41,15 +40,15 @@ contract Vault {
     mapping(address => bool) public isCheckedIn;
 
     constructor(uint64 chainId_, string memory chainName_, string memory nativeSymbol_, uint8 nativeDecimals_, uint[4] memory publicKey_) {
-        home = Chain(chainId_, chainName_, nativeSymbol_, nativeDecimals_);
+        home = Chain(chainId_, chainName_, nativeSymbol_, nativeDecimals_); //fixme:chainId: use block.chainid instead
         publicKey = publicKey_;
     }
 
-    function chainId() external view returns (uint64) { return home.id; }
+    function chainId() public view returns (uint64) { return home.id; } //fixme:chainId: use block.chainid instead
 
     function checkOutNative(uint64 to) external payable {
         balances[NATIVE] += msg.value;
-        checkOut(home.id, NATIVE, home.name, home.symbol, home.decimals, msg.value, msg.sender, to);
+        checkOut(chainId(), NATIVE, home.name, home.symbol, home.decimals, msg.value, msg.sender, to);
     }
 
     function checkOutToken(uint64 to, address token, uint amount) external {
@@ -61,15 +60,15 @@ contract Vault {
             ERC20 erc20 = ERC20(token);
             disburseToken(token, msg.sender, address(this), amount);
             balances[token] += amount;
-            checkOut(home.id, token, erc20.name(), erc20.symbol(), erc20.decimals(), amount, msg.sender, to);
+            checkOut(chainId(), token, erc20.name(), erc20.symbol(), erc20.decimals(), amount, msg.sender, to);
         }
     }
 
     function checkOut(uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner, uint64 to) private {
         uint tag = ++checkoutCounter;
-        bytes32 hash = keccak256(abi.encode(origin, token, name, symbol, decimals, amount, owner, home.id, to, tag));
+        bytes32 hash = keccak256(abi.encode(origin, token, name, symbol, decimals, amount, owner, chainId(), to, tag));
         checkouts[hash] = true;
-        emit Transfer(hash, origin, token, name, symbol, decimals, amount, owner, home.id, to, tag);
+        emit Transfer(hash, origin, token, name, symbol, decimals, amount, owner, chainId(), to, tag);
     }
 
     function validatePublicKey(uint[4] calldata key) private view {
@@ -87,7 +86,7 @@ contract Vault {
     }
 
     function mintOrDisburse(uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner) private {
-        home.id == origin ?                                             // if token is coming back home (to originating chain) ...
+        chainId() == origin ?                                           // if token is coming back home (to originating chain) ...
             disburse(token, address(this), owner, amount) :             // ... disburse amount back to the owner
             mint(origin, token, name, symbol, decimals, amount, owner); // ... it's a foreign country, mint proxy for the owner
     }

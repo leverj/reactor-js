@@ -1,5 +1,5 @@
 {
-  "name": "reactor",
+  "name": "@leverj/reactor",
   "type": "module",
   "private": true,
   "engines": {
@@ -17,14 +17,15 @@
     "publish:patch": "up=patch yarn publish:up",
     "publish:minor": "up=minor yarn publish:up",
     "publish:major": "up=major yarn publish:up",
-    "publish:up": "lerna version $up --force-publish --exact --git-tag-version --push --yes && lerna publish from-git --yes"
+    "publish:up": "lerna version $up --force-publish --exact --git-tag-version --push --yes && lerna publish from-git --yes",
+    "docker:build": "./scripts/docker-build.sh"
   },
   "devDependencies": {
-    "@istanbuljs/esm-loader-hook": "^0.2.0",
     "depcheck": "^1.4.7",
     "expect": "^29.7.0",
     "lerna": "^8.1.8",
     "mocha": "^10.7.3",
+    "wait-on": "^8.0.1",
     "yargs": "^17.7.2"
   }
 }

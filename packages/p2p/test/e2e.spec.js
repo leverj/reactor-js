@@ -1,155 +1,122 @@
-import {logger} from '@leverj/common/utils'
+import {CodedError, logger} from '@leverj/common'
 import axios from 'axios'
 import {fork} from 'child_process'
-import config from 'config'
 import {expect} from 'expect'
-import {mkdirSync, readFileSync, rmdirSync, writeFileSync} from 'node:fs'
+import {rmSync} from 'node:fs'
 import {setTimeout} from 'node:timers/promises'
-import path from 'path'
-import {tryAgainIfError, waitToSync} from '../src/utils/index.js'
-import {getBridgeInfos} from './help/fixtures.js'
+import {JsonDirStore} from '../src/ApiApp.js'
+import {tryAgainIfError, waitToSync} from '../src/utils.js'
+import config from '../config.js'
+import {getNodeInfos} from './fixtures.js'
 
-const {bridgeNode, externalIp} = config
-const __dirname = process.cwd()
-const e2ePath = path.join(__dirname, '.e2e')
+const {bridge, externalIp, timeout, tryCount, port: leaderPort} = config
 
 describe('e2e', () => {
-  const processes = {}
+  const processes = []
+  let store
 
-  afterEach(async () => await stop(...Object.keys(processes)).then(_ => rmdirSync(e2ePath, {recursive: true, force: true})))
+  beforeEach(() => {
+    rmSync(bridge.confDir, {recursive: true, force: true})
+    store = new JsonDirStore(bridge.confDir, 'nodes')
+  })
+  afterEach(async () => {
+    while (processes.length > 0) processes.pop().kill()
+    await setTimeout(100)
+  })
 
-  const dirPath = (i) => path.join(e2ePath, i.toString())
-  const filePath = (i) => path.join(dirPath(i), 'info.json')
-
-  const stop = async (...ports) => {
-    for (let each of ports) {
-      await processes[each].kill()
-      delete processes[each]
-    }
-    await setTimeout(10)
-  }
-
-  async function getBootstrapNodes() {
-    const leader = await tryAgainIfError(_ => JSON.parse(readFileSync(filePath(0)).toString()).p2p.id)
-    return [`/ip4/${externalIp}/tcp/10000/p2p/${leader}`]
-  }
-
-  async function publishWhitelist(ports, total, available) {
-    await tryAgainIfError(_ => axios.post(`http://127.0.0.1:${ports[0]}/api/whitelist/publish`))
-    await waitForWhitelistSync(ports, total, available)
-  }
-
-  async function createFrom(ports, count) {
-    for (let each of ports) {
-      const index = each - 9000
-      const bootstrapNodes = index === 0 ? [] : await getBootstrapNodes()
-      processes[each] = await createApiNode({
-        index,
-        bootstrapNodes: JSON.stringify(bootstrapNodes),
+  async function createApiNodesFrom(ports, howMany = ports.length - 1) {
+    const createApiNode = async (port) => {
+      const index = port - leaderPort
+      const getLeaderNode = async _ => {
+        const leader = store.get(leaderPort)?.p2p.id
+        if (leader) return [`/ip4/${externalIp}/tcp/${bridge.port}/p2p/${leader}`]
+        else throw CodedError(`no leader found @ port ${leaderPort}`, 'ENOENT')
+      }
+      const bootstrapNodes = port === leaderPort ? [] : await tryAgainIfError(getLeaderNode, timeout, tryCount, port)
+      const env = Object.assign({}, process.env, {
+        PORT: port,
+        BRIDGE_PORT: bridge.port + index,
+        BRIDGE_CONF_DIR: bridge.confDir,
+        BRIDGE_BOOTSTRAP_NODES: JSON.stringify(bootstrapNodes),
       })
+      return fork('app.js', [], {cwd: process.cwd(), env})
+    }
+
+    for (let each of ports) {
+      processes.push(await createApiNode(each))
       await setTimeout(100)
     }
-    await waitForBootstrapSync(ports, count)
+    await waitToSync(ports.map(_ => async () => GET(_, 'peer').then(_ => _.length === howMany)), tryCount, timeout, leaderPort)
+    logger.log('bootstrap synced...')
     return ports
   }
 
-  async function createApiNodes(count, whitelist = true) {
-    const ports = new Array(count).fill(0).map((_, i) => 9000 + i)
-    await createFrom(ports)
+  async function createApiNodes(howMany, whitelist = true) {
+    const ports = new Array(howMany).fill(0).map((_, i) => leaderPort + i)
+    await createApiNodesFrom(ports)
     if (whitelist) await publishWhitelist(ports)
     return ports
   }
 
-  async function createApiNode({index, bootstrapNodes}) {
-    const env = Object.assign({}, process.env, {
-      PORT: 9000 + index,
-      BRIDGE_CONF_DIR: './.e2e/' + index,
-      BRIDGE_PORT: bridgeNode.port + index,
-      BRIDGE_BOOTSTRAP_NODES: bootstrapNodes,
-    })
-    mkdirSync(env.BRIDGE_CONF_DIR, {recursive: true})
-    return fork(`app.js`, [], {cwd: __dirname, env})
+  const createNodeInfos = async (howMany) => {
+    for (let [i, info] of getNodeInfos(howMany).entries()) store.set(leaderPort + i, info)
   }
+  const GET = (port, endpoint) => axios.get(`http://127.0.0.1:${port}/api/${endpoint}`).then(_ => _.data)
+  const POST = (port, endpoint, payload) => axios.post(`http://127.0.0.1:${port}/api/${endpoint}`, payload || {})
 
-  async function createInfo_json(count) {
-    for (let [i, info] of Object.entries(getBridgeInfos(count))) {
-      mkdirSync(dirPath(i), {recursive: true})
-      writeFileSync(filePath(i), JSON.stringify(info, null, 2))
-    }
-  }
-
-  async function waitForBootstrapSync(ports, count = ports.length - 1) {
-    const fn = (port) => async () => {
-      const {data: peers} = await axios.get(`http://127.0.0.1:${port}/api/peer`)
-      return peers.length === count
-    }
-    await waitToSync(ports.map(fn))
-    logger.log('bootstrap synced...')
-  }
-
-  async function waitForWhitelistSync(ports, total = ports.length) {
-    const getWhitelist = async (port) => axios.get(`http://127.0.0.1:${port}/api/whitelist`).then(_ => _.data)
-    const fn = (port) => async () => getWhitelist(port).then(_ => _.length === total)
-    await waitToSync(ports.map(fn))
+  async function waitForWhitelistSync(ports, howMany = ports.length) {
+    await waitToSync(ports.map(_ => async () => GET(_, 'whitelist').then(_ => _.length === howMany)), tryCount, timeout, leaderPort)
     logger.log('whitelisted synced...')
   }
 
-  it('should create new nodes, connect and init DKG', async () => {
-    const startDkg = async () => axios.post(`http://127.0.0.1:9000/api/dkg/start`)
-    const getPublicKey = (port) => JSON.parse(readFileSync(filePath(port - 9000)).toString()).tssNode.groupPublicKey
+  const publishWhitelist = async (ports, total, available) =>
+    tryAgainIfError(_ => POST(leaderPort, 'whitelist/publish'), timeout, tryCount, leaderPort).then(_ => waitForWhitelistSync(ports, total, available))
 
-    const allNodes = await createApiNodes(2)
-    await startDkg()
+  it('create new nodes, connect and init DKG', async () => {
+    const ports = await createApiNodes(2)
+    await POST(leaderPort, 'dkg/start')
     await setTimeout(100)
-    const publicKeys = allNodes.map(node => getPublicKey(node))
+    const nodes = await Promise.all(ports.map(_ => store.get(_)))
+    const publicKeys = nodes.map(_ => _.tssNode.groupPublicKey)
     for (let each of publicKeys) {
       expect(each).not.toBeNull()
       expect(each).toEqual(publicKeys[0])
     }
   })
 
-  it('should be able to create node with already existing info.json', async () => {
-    const getInfo = (port) => JSON.parse(readFileSync(filePath(port - 9000)).toString())
-
-    const nodes = [9000, 9001, 9002]
-    await createInfo_json(nodes.length)
-    const bridgeInfos = getBridgeInfos(nodes.length)
-    await createApiNodes(nodes.length)
-    for (let i = 0; i < nodes.length; i++) {
-      const node = nodes[i]
-      const info = getInfo(node)
-      expect(info).toEqual(bridgeInfos[i])
-    }
+  it('can create node with already existing info.json', async () => {
+    await createNodeInfos(3)
+    const infos = getNodeInfos(3)
+    const ports = await createApiNodes(3)
+    for (let [i, port] of ports.entries()) expect(store.get(port)).toEqual(infos[i])
   })
 
   it('aggregate signatures over pubsub topic', async () => {
-    const allNodes = [9000, 9001, 9002, 9003]
-    await createInfo_json(allNodes.length)
-    await createApiNodes(allNodes.length)
-    const endpoint = 'http://127.0.0.1:9000/api/tss/aggregateSign', txnHash = 'hash123456'
-    await axios.post(endpoint, {msg: txnHash})
-    await setTimeout(100)
-    expect(await axios.get(`${endpoint}?txnHash=${txnHash}`).then(_ => _.data.verified)).toEqual(true)
+    await createNodeInfos(4)
+    await createApiNodes(4)
+    const message = 'hash123456'
+    await POST(leaderPort, 'tss/aggregateSign', {message})
+    await setTimeout(500)
+    expect(await GET(leaderPort, `tss/aggregateSign?transferHash=${message}`).then(_ => _.verified)).toEqual(true)
   })
 
-  describe('stability', () => {
-    it('whitelist', async () => {
-      const getWhitelists = (port) => JSON.parse(readFileSync(filePath(port - 9000)).toString()).whitelist
+  it('whitelist', async () => {
+    const ports = await createApiNodes(4, false)
+    await GET(leaderPort + 1, 'peer/bootstrapped')
+    const _processes_ = processes.slice(2)
+    while (_processes_.length > 0) _processes_.pop().kill()
+    await setTimeout(100)
+    await publishWhitelist(ports.slice(0, 2), 4)
+    expect(store.get(ports[0]).whitelist).toHaveLength(4)
+    expect(store.get(ports[1]).whitelist).toHaveLength(4)
+    expect(store.get(ports[2]).whitelist).toHaveLength(1)
+    expect(store.get(ports[3]).whitelist).toHaveLength(1)
 
-      const ports = await createApiNodes(4, false)
-      await axios.get(`http://127.0.0.1:9001/api/peer/bootstrapped`)
-      await stop(...ports.slice(2))
-      await publishWhitelist(ports.slice(0, 2), 4)
-      expect(getWhitelists(ports[0]).length).toEqual(4)
-      expect(getWhitelists(ports[1]).length).toEqual(4)
-      expect(getWhitelists(ports[2]).length).toEqual(1)
-      expect(getWhitelists(ports[3]).length).toEqual(1)
-      await createFrom(ports.slice(2), 3)
-      await waitForWhitelistSync(ports)
-      expect(getWhitelists(ports[0]).length).toEqual(4)
-      expect(getWhitelists(ports[1]).length).toEqual(4)
-      expect(getWhitelists(ports[2]).length).toEqual(4)
-      expect(getWhitelists(ports[3]).length).toEqual(4)
-    })
+    await createApiNodesFrom(ports.slice(2), 3)
+    await waitForWhitelistSync(ports)
+    expect(store.get(ports[0]).whitelist).toHaveLength(4)
+    expect(store.get(ports[1]).whitelist).toHaveLength(4)
+    expect(store.get(ports[2]).whitelist).toHaveLength(4)
+    expect(store.get(ports[3]).whitelist).toHaveLength(4)
   })
 })

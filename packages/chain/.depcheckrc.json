@@ -6,6 +6,7 @@
   ],
   "ignores": [
     "@leverj/chain-deployment",
+    "@leverj/common",
     "@openzeppelin/contracts"
   ]
 }

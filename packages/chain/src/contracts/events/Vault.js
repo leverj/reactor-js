@@ -3,7 +3,7 @@ export class Transfer {
   static topic = '0x225befdad5da5115af4962e80b572a17f383a2d8bd750c1edfd940806a518b02'
 
   /**
-   * @param {bytes32} hash
+   * @param {bytes32} transferHash
    * @param {uint64} origin
    * @param {address} token
    * @param {string} name
@@ -15,8 +15,8 @@ export class Transfer {
    * @param {uint64} to
    * @param {uint256} tag
    */
-  constructor(hash, origin, token, name, symbol, decimals, amount, owner, from, to, tag) {
-    this.hash = hash
+  constructor(transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag) {
+    this.transferHash = transferHash
     this.origin = origin
     this.token = token
     this.name = name

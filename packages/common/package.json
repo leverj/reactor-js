@@ -1,0 +1,20 @@
+{
+  "name": "@leverj/common",
+  "version": "1.2.0",
+  "license": "UNLICENSED",
+  "type": "module",
+  "main": "./src/index.js",
+  "scripts": {
+    "test": "npx mocha",
+    "dependency:check": "npx depcheck"
+  },
+  "dependencies": {
+    "ethers": "^6.13.2",
+    "immutable": "^5.0.0-rc.1",
+    "lodash-es": "^4.17.21",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "randomhex": "^0.1.5"
+  }
+}

@@ -1,7 +1,10 @@
-import config from 'config'
-import yargs from 'yargs/yargs'
 import {Deploy} from '@leverj/chain-deployment'
+import {logger} from '@leverj/common'
+import {execSync} from 'child_process'
+import yargs from 'yargs/yargs'
+import config from '../config.js'
 
-
-const {reset, skipVerify, network} = yargs(process.argv.slice(2)).usage('Usage: $0 --reset --skip-verify --network=[network]').argv
-new Deploy(process.env.PWD, config, {reset, skipVerify, network}).run().catch(console.error)
+execSync('npx hardhat compile')
+const {reset, chain} = yargs(process.argv.slice(2)).usage('Usage: $0 --reset --chain=[chain]').argv
+if (chain) config.chain = chain // override chain if supplied
+await Deploy.from(config, {reset, logger}).run().catch(logger.error)

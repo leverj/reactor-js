@@ -1,7 +1,8 @@
-import {logger} from '@leverj/common/utils'
+import {logger} from '@leverj/common'
 import {ApiApp} from './src/ApiApp.js'
+import config from './config.js'
 
-const api = new ApiApp()
+const api = await ApiApp.new(config)
 api.start()
 process.on('SIGTERM', () => {
   logger.log('SIGTERM signal received')
@@ -9,7 +10,7 @@ process.on('SIGTERM', () => {
   process.exit()
 })
 
-// enable in case you start getting unhandled rejections
+// note: enable in case you start getting unhandled rejections
 // process.on('unhandledRejection', (reason, promise) => {
 //   logger.error('Unhandled Rejection caught at:', promise, 'reason:', reason)
 // })
