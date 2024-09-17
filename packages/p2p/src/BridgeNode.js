@@ -192,10 +192,18 @@ class Leader {
   async onVaultEvent(event) {
     const transferPayloadVerified = async (to, payload, aggregateSignature) => {
       if (aggregateSignature.verified) {
-        const signature = G1ToNumbers(deserializeHexStrToSignature(aggregateSignature.groupSign))
-        const publicKey = this.self.publicKey
+        const {signature, publicKey} = verify(aggregateSignature)
+        //fixme: this part should be done by the coordinator with the wallet
         const toContract = this.self.vaults[to]
         await toContract.accept(signature, publicKey, payload).then(_ => _.wait())
+      }
+    }
+    const verify = async (aggregateSignature) => {
+      if (aggregateSignature.verified) {
+        return {
+          signature: G1ToNumbers(deserializeHexStrToSignature(aggregateSignature.groupSign)),
+          publicKey: this.self.publicKey,
+        }
       }
     }
     //fixme:make sure it is a Transfer event

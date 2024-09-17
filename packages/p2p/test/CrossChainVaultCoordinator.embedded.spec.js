@@ -29,7 +29,7 @@ describe('CrossChainVaultCoordinator - embedded', () => {
     const evms = {} //fixme: generate from contracts here
     // const [fromChainId, toChainId] = coordinator.networks.map(_ => _.id)
     // const [fromVault, toVault] = [fromChainId, toChainId].map(_ => coordinator.contracts.get(_))
-    coordinator = CrossChainVaultCoordinator.of(chains, evms, trackersStore, polling, deployer, logger)
+    coordinator = CrossChainVaultCoordinator.ofEvms(evms, chains, trackersStore, polling, deployer, logger)
     await coordinator.start()
   })
 

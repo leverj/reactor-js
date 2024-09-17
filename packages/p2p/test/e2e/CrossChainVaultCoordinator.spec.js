@@ -1,10 +1,12 @@
 import {accounts} from '@leverj/chain-deployment/test'
 import {ETH, JsonStore, logger} from '@leverj/common'
+import {signer} from '@leverj/reactor.chain/test'
 import {Contract} from 'ethers'
 import {expect} from 'expect'
 import {rmSync} from 'node:fs'
 import {setTimeout} from 'node:timers/promises'
 import {CrossChainVaultCoordinator} from '../../src/CrossChainVaultCoordinator.js'
+import {MessageVerifier} from '../../src/MessageVerifier.js'
 import config from '../../config.js'
 import {createChainConfig, getEvmsStore, launchEvms} from './chain.js'
 import ERC20_abi from './ERC20.abi.json' assert {type: 'json'}
@@ -23,9 +25,10 @@ describe('CrossChainVaultCoordinator', () => {
     rmSync(deploymentDir, {recursive: true, force: true})
     processes = await launchEvms(chainConfig)
 
-    const trackersStore = new JsonStore(nodesDir, 'trackers')
     evms = getEvmsStore(deploymentDir).toObject()
-    coordinator = CrossChainVaultCoordinator.of(chains, evms, trackersStore, polling, deployer, logger)
+    const trackersStore = new JsonStore(nodesDir, 'trackers')
+    const verifier = new MessageVerifier(signer)
+    coordinator = CrossChainVaultCoordinator.ofEvms(evms, chains, trackersStore, polling, verifier, deployer, logger)
     await coordinator.start()
     expect(coordinator.isRunning).toBe(true);
   })
@@ -44,7 +47,7 @@ describe('CrossChainVaultCoordinator', () => {
 
   it('detects & acts on a Transfer events for both Token & Native, across chains', async () => {
     const [L1_id, L2_id] = coordinator.networks.map(_ => _.id)
-    const [L1_vault, L2_vault] = [L1_id, L2_id].map(_ => coordinator.contracts.get(_))
+    const [L1_vault, L2_vault] = [L1_id, L2_id].map(_ => coordinator.vaults.get(_))
     const [L1_provider, L2_provider] = [L1_vault, L2_vault].map(_ => _.runner.provider)
     const L2_token = ERC20(L2, L2_provider)
     await connect(L2_token, deployer, L2_provider).mint(account.address, amount)
