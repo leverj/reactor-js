@@ -46,12 +46,9 @@ export const launchEvms = async (config, forked = false) => {
   return processes
 }
 
-const launchEvm = (networks, chain, port, forked = false) => {
-  const dir = `${forked ? 'forked' : 'nascent'}/${networks[chain].testnet ? 'testnets' : 'mainnets'}`
-  const hardhatConfigFileFor = `test/hardhat/${dir}/${chain}.config.cjs`
-  const process = exec(`npx hardhat node --config ${hardhatConfigFileFor} --port ${port}`)
-  process.stdout.on('data', logger.log)
-  return process
+const launchEvm = (networks, chain, port) => {
+  const hardhatConfigFileFor = `${import.meta.dirname}/hardhat/nascent/testnets/${chain}.config.cjs`
+  return exec(`npx hardhat node --config ${hardhatConfigFileFor} --port ${port}`)
 }
 
 export const getEvmsStore = (path) => new JsonStore(path, '.evms')

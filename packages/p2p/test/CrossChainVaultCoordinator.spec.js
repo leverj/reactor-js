@@ -4,10 +4,10 @@ import {publicKey, signer, Vault} from '@leverj/reactor.chain/test'
 import {CrossChainVaultCoordinator, MessageVerifier} from '@leverj/reactor.p2p'
 import config from '@leverj/reactor.p2p/config'
 import {expect} from 'expect'
-import {setTimeout} from 'node:timers/promises'
-import {MasqueradingProvider} from './help/hardhat.js'
-import {zip, zipWith} from 'lodash-es'
 import {Map} from 'immutable'
+import {zip, zipWith} from 'lodash-es'
+import {setTimeout} from 'node:timers/promises'
+import {MasqueradingProvider} from './help/MasqueradingProvider.js'
 
 //note: a limitation of the embedded test is only contracts on L1 (embedded hardhat) can be transacted upon
 describe('CrossChainVaultCoordinator - embedded', () => {
@@ -37,8 +37,6 @@ describe('CrossChainVaultCoordinator - embedded', () => {
   })
 
   after(() => coordinator.stop())
-
-  // const connect = (contract, account, provider) => contract.connect(account.connect(provider))
 
   it('detects & acts on a Transfer events for both Token & Native, from one chain to another', async () => {
     const [L1_id, L2_id] = networks.map(_ => _.id)
