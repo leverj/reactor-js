@@ -1,9 +1,12 @@
 import {provider} from '@leverj/chain-deployment/test'
 
 export const MasqueradingProvider = (chainId, name = 'hardhat') => ({
-  getNetwork: async () => ({chainId, name}),
+  estimateGas: async (...args) => provider.estimateGas(...args),
+  getBalance: async (...args) => provider.getBalance(...args),
   getBlockNumber: async () => provider.getBlockNumber(),
-  getLogs: async (filter) => provider.getLogs(filter),
+  getLogs: async (...args) => provider.getLogs(...args),
+  getNetwork: async () => ({chainId, name}),
+  send: async (...args) => provider.send(...args),
 })
 
 export class Chain {

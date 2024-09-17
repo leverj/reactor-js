@@ -2,7 +2,6 @@ import {Deploy} from '@leverj/chain-deployment'
 import {JsonStore, logger} from '@leverj/common'
 import {configure} from '@leverj/config'
 import * as reactor_chain_config from '@leverj/reactor.chain/config.schema'
-import {publicKey, signedBy, signer} from '@leverj/reactor.chain/test' //fixme: these must be supplied / handled by a node / actor
 import {JsonRpcProvider} from 'ethers'
 import {Map} from 'immutable'
 import {merge, zip} from 'lodash-es'

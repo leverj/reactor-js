@@ -1,12 +1,14 @@
 import {deployContract} from '@leverj/chain-deployment/test'
 
-export const ERC20 = async (name = 'Crap', symbol = 'CRAP') => deployContract('ERC20Mock', [name, symbol])
+export const ERC20 = async (name = 'Crap', symbol = 'CRAP', signer) => deployContract('ERC20Mock', [name, symbol], signer)
 export const ERC20Proxy = async (chain, token, name, symbol, decimals) => deployContract('ERC20Proxy', [chain, token, name, symbol, decimals])
 export const BnsVerifier = async () => {
   const verifier = await deployContract('BnsVerifier', [])
   return deployContract('BnsVerifierMock', [], {libraries: {BnsVerifier: verifier.target}})
 }
-export const Vault = async (chainId, publicKey, chainName = 'ETHER', nativeSymbol = 'ETH', nativeDecimals = 18) => {
+export const Vault = async (chainId, publicKey, signer) => {
   const verifier = await deployContract('BnsVerifier', [])
-  return deployContract('Vault', [chainId, chainName, nativeSymbol, nativeDecimals, publicKey], {libraries: {BnsVerifier: verifier.target}})
+  const libraries = {BnsVerifier: verifier.target}
+  const factoryOptions = Object.assign({libraries}, signer ? {signer} : {})
+  return deployContract('Vault', [chainId, 'ETHER', 'ETH', 18, publicKey], factoryOptions)
 }

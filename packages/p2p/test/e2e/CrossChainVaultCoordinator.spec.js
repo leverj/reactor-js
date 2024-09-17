@@ -5,6 +5,7 @@ import {CrossChainVaultCoordinator, MessageVerifier} from '@leverj/reactor.p2p'
 import config from '@leverj/reactor.p2p/config'
 import {Contract} from 'ethers'
 import {expect} from 'expect'
+import {zip} from 'lodash-es'
 import {rmSync} from 'node:fs'
 import {setTimeout} from 'node:timers/promises'
 import {createChainConfig, getEvmsStore, launchEvms} from './chain.js'
@@ -12,7 +13,7 @@ import ERC20_abi from './ERC20.abi.json' assert {type: 'json'}
 
 const {bridge: {nodesDir}, chain: {polling}} = config
 
-describe('CrossChainVaultCoordinator', () => {
+describe('CrossChainVaultCoordinator - e2e', () => {
   const amount = BigInt(1e6 - 1)
   const [deployer, account] = accounts
   const chains = ['holesky', 'sepolia'], [L1, L2] = chains
@@ -25,11 +26,17 @@ describe('CrossChainVaultCoordinator', () => {
     processes = await launchEvms(chainConfig)
 
     evms = getEvmsStore(deploymentDir).toObject()
-    const trackersStore = new JsonStore(nodesDir, 'trackers')
-    const verifier = new MessageVerifier(signer) //fixme should be tha same as the vaults where created with
-    coordinator = CrossChainVaultCoordinator.ofEvms(evms, chains, trackersStore, polling, verifier, deployer, logger)
+    coordinator = CrossChainVaultCoordinator.ofEvms(
+      evms,
+      chains,
+      new JsonStore(nodesDir, 'trackers'),
+      polling,
+      new MessageVerifier(signer),  //fixme: should be the same as the vaults where created with
+      deployer,
+      logger,
+    )
     await coordinator.start()
-    expect(coordinator.isRunning).toBe(true);
+    expect(coordinator.isRunning).toBe(true)
   })
 
   after(async () => {
@@ -48,6 +55,8 @@ describe('CrossChainVaultCoordinator', () => {
     const [L1_id, L2_id] = coordinator.chainIds
     const [L1_vault, L2_vault] = [L1_id, L2_id].map(_ => coordinator.vaults.get(_))
     const [L1_provider, L2_provider] = [L1_vault, L2_vault].map(_ => _.runner.provider)
+    for (let [vault, id] of zip([L1_vault, L2_vault], coordinator.chainIds)) expect(await vault.chainId()).toEqual(id)
+
     const L2_token = ERC20(L2, L2_provider)
     await connect(L2_token, deployer, L2_provider).mint(account.address, amount)
     await connect(L2_token, account, L2_provider).approve(L2_vault.target, amount).then(_ => _.wait())

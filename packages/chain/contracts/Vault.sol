@@ -41,7 +41,6 @@ contract Vault {
     mapping(uint64 => mapping(address => address)) public proxies;
     mapping(address => bool) public wasAccepted;
 
-//    modifier isValidPublicKey(uint[4] calldata key) { _; }
     modifier isValidPublicKey(uint[4] calldata key) { for (uint8 i = 0; i < 4; i++) if (publicKey[i] != key[i]) revert InvalidPublicKey(i); _; }
 
     constructor(uint64 chainId_, string memory chainName, string memory nativeSymbol, uint8 nativeDecimals, uint[4] memory publicKey_) {
