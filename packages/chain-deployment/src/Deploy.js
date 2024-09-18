@@ -66,7 +66,7 @@ export class Deploy {
       params = translateAddresses(params)
       const contract = await deployContract(name, params, {libraries, signer})
       const address = contract.target
-      const blockCreated = await provider.getTransactionReceipt(contract.deploymentTransaction().hash).then(_ => _.blockNumber)
+      const blockCreated = await provider.getTransactionReceipt(contract.deploymentTransaction().hash).then(_ => _?.blockNumber || -1)
       this.store.update(chain, {contracts: {[name]: {address, blockCreated}}})
       await setTimeout(200) // note: must wait a bit to avoid "Nonce too low" error
     }
