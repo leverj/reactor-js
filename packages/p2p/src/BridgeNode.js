@@ -34,7 +34,7 @@ export class BridgeNode {
     this.tss = tss
     this.whitelist = whitelist
     this.leader = leader
-    this.leadership = isLeader ? new Leader(this) : new Follower(config, this) //fixme: no need to pass config; it's accessible from self
+    this.leadership = isLeader ? new Leader(this) : new Follower(this)
     this.messageMap = {}
     this.vaults = {}
     this.monitor = new Monitor()
@@ -255,15 +255,14 @@ class Leader {
 }
 
 class Follower {
-  constructor(config, self) {
-    this.config = config
+  constructor(self) {
     this.self = self
   }
 
   async addLeader() {
     this.self.leader = this.self.network.bootstrapNodes[0].split('/').pop()
     this.self.addPeersToWhiteList(this.self.leader)
-    await waitToSync([_ => this.self.peers.includes(this.self.leader)], -1, this.config.timeout, this.config.port)
+    await waitToSync([_ => this.self.peers.includes(this.self.leader)], -1, this.self.config.timeout, this.self.config.port)
     await this.self.sendMessageToPeer(this.self.leader, WHITELIST_REQUEST, '')
   }
   listenToPeerDiscovery() {}

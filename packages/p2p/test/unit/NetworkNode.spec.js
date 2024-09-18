@@ -146,6 +146,7 @@ describe('NetworkNode', () => {
     expect(node1.peers.length).toEqual(1)
     expect(node2.peers.length).toEqual(1)
   })
+
   it('should get public key from peerId', async () => {
     const {pubKey, id} = peerIdJsons[0]
     const peerId = peerIdFromString(id)
