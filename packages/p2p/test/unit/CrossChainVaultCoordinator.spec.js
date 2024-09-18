@@ -7,7 +7,7 @@ import {expect} from 'expect'
 import {Map} from 'immutable'
 import {zip, zipWith} from 'lodash-es'
 import {setTimeout} from 'node:timers/promises'
-import {MasqueradingProvider} from './help/MasqueradingProvider.js'
+// import {MasqueradingProvider} from './help/MasqueradingProvider.js'
 
 //note: a limitation of the embedded test is only contracts on L1 (embedded hardhat) can be transacted upon
 describe('CrossChainVaultCoordinator - embedded', () => {

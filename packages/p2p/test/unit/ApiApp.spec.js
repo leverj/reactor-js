@@ -1,55 +1,40 @@
-import {CodedError, logger} from '@leverj/common'
-import {ApiApp, JsonDirStore, tryAgainIfError, waitToSync} from '@leverj/reactor.p2p'
+import {CodedError, InMemoryStore, logger} from '@leverj/common'
+import {ApiApp, tryAgainIfError, waitToSync} from '@leverj/reactor.p2p'
 import config from '@leverj/reactor.p2p/config'
 import axios from 'axios'
-import {cloneDeep} from 'lodash-es'
 import {expect} from 'expect'
-import {rmSync} from 'node:fs'
+import {cloneDeep, merge} from 'lodash-es'
 import {setTimeout} from 'node:timers/promises'
 import {getNodeInfos} from '../fixtures.js'
 
 const {bridge, externalIp, timeout, tryCount, port: leaderPort} = config
 
-describe.skip('api ', () => {
+describe('ApiApp', () => {
   const nodes = []
   let store
 
-  beforeEach(() => {
-    rmSync(bridge.nodesDir, {recursive: true, force: true})
-    store = new JsonDirStore(bridge.nodesDir, 'nodes')
-  })
-  afterEach(async () => {
-    console.log('#'.repeat(50), 'stopping nodes', nodes.length)
-    while (nodes.length > 0) {
-      console.log('#'.repeat(50), 'stopping node')
-      await nodes.pop().stop()
+  beforeEach(() => store = new InMemoryStore())
+  afterEach(async () => { for (let each of nodes) await each.stop() })
+
+  async function createApiNode(port) {
+    const index = port - leaderPort
+    const getLeaderNode = async _ => {
+      const leader = store.get(leaderPort)?.p2p.id
+      if (leader) return [`/ip4/${externalIp}/tcp/${bridge.port}/p2p/${leader}`]
+      else throw CodedError(`no leader found @ port ${leaderPort}`, 'ENOENT')
     }
-    await setTimeout(1000)
-  })
+    const bootstrapNodes = port === leaderPort ? [] : await tryAgainIfError(getLeaderNode, timeout, tryCount, port)
+    const p2pConfig = merge(cloneDeep(config), {port, bridge: {port: bridge.port + index, bootstrapNodes}})
+    return ApiApp.with(p2pConfig, store).then(_ => _.start())
+  }
 
   async function createApiNodesFrom(ports, howMany = ports.length - 1) {
-    const createApiNode = async (port) => {
-      const index = port - leaderPort
-      const getLeaderNode = async _ => {
-        const leader = store.get(leaderPort)?.p2p.id
-        if (leader) return [`/ip4/${externalIp}/tcp/${bridge.port}/p2p/${leader}`]
-        else throw CodedError(`no leader found @ port ${leaderPort}`, 'ENOENT')
-      }
-      const bootstrapNodes = port === leaderPort ? [] : await tryAgainIfError(getLeaderNode, timeout, tryCount, port)
-      const clonedConfig = cloneDeep(config)
-      clonedConfig.port = port
-      clonedConfig.bridge.port = bridge.port + index
-      clonedConfig.bridge.bootstrapNodes = bootstrapNodes
-      const node =  await ApiApp.new(clonedConfig)
-      node.start()
-      return node
-    }
-    console.log('#'.repeat(50), 'creating nodes', ports)
+    logger.log('#'.repeat(50), 'creating nodes', ports)
     for (let each of ports) {
       nodes.push(await createApiNode(each))
-      console.log('#'.repeat(50), 'created node', each, nodes.length)
-      await setTimeout(100)
+      logger.log('#'.repeat(50), 'created node', each, nodes.length)
     }
+    await setTimeout(10)
     await waitToSync(ports.map(_ => async () => GET(_, 'peer').then(_ => _.length === howMany)), tryCount, timeout, leaderPort)
     logger.log('bootstrap synced...')
     return ports
@@ -65,8 +50,8 @@ describe.skip('api ', () => {
   const createNodeInfos = async (howMany) => {
     for (let [i, info] of getNodeInfos(howMany).entries()) store.set(leaderPort + i, info)
   }
-  const GET = (port, endpoint) => axios.get(`http://127.0.0.1:${port}/api/${endpoint}`).then(_ => _.data)
-  const POST = (port, endpoint, payload) => axios.post(`http://127.0.0.1:${port}/api/${endpoint}`, payload || {})
+  const GET = (port, endpoint) => axios.get(`http://localhost:${port}/api/${endpoint}`).then(_ => _.data)
+  const POST = (port, endpoint, payload) => axios.post(`http://localhost:${port}/api/${endpoint}`, payload || {})
 
   async function waitForWhitelistSync(ports, howMany = ports.length) {
     await waitToSync(ports.map(_ => async () => GET(_, 'whitelist').then(_ => _.length === howMany)), tryCount, timeout, leaderPort)
@@ -74,7 +59,8 @@ describe.skip('api ', () => {
   }
 
   const publishWhitelist = async (ports, total, available) =>
-    tryAgainIfError(_ => POST(leaderPort, 'whitelist/publish'), timeout, tryCount, leaderPort).then(_ => waitForWhitelistSync(ports, total, available))
+    tryAgainIfError(_ => POST(leaderPort, 'whitelist/publish'), timeout, tryCount, leaderPort).
+    then(_ => waitForWhitelistSync(ports, total, available))
 
   it('create new nodes, connect and init DKG', async () => {
     const ports = await createApiNodes(2)
@@ -100,22 +86,23 @@ describe.skip('api ', () => {
     await createApiNodes(4)
     const message = 'hash123456'
     await POST(leaderPort, 'tss/aggregateSign', {message})
-    await setTimeout(5000)
+    await setTimeout(10)
     expect(await GET(leaderPort, `tss/aggregateSign?transferHash=${message}`).then(_ => _.verified)).toEqual(true)
   })
 
-  it('whitelist', async () => {
+  it.skip('whitelist', async () => { // fixme: fails when running with above tests
     const ports = await createApiNodes(4, false)
     await GET(leaderPort + 1, 'peer/bootstrapped')
-    const _processes_ = nodes.slice(2)
-    while (_processes_.length > 0) _processes_.pop().kill()
-    await setTimeout(100)
-    await publishWhitelist(ports.slice(0, 2), 4)
+    for (let each of nodes.slice(2)) await each.stop()
+
+    await setTimeout(10)
+    await publishWhitelist(ports.slice(0, 2), 4) // fixme: Error: Try for failed... ERR_ENCRYPTION_FAILED,ENOENT,ECONNREFUSED,ECONNRESET, 9000
     expect(store.get(ports[0]).whitelist).toHaveLength(4)
     expect(store.get(ports[1]).whitelist).toHaveLength(4)
     expect(store.get(ports[2]).whitelist).toHaveLength(1)
     expect(store.get(ports[3]).whitelist).toHaveLength(1)
 
+    await setTimeout(10)
     await createApiNodesFrom(ports.slice(2), 3)
     await waitForWhitelistSync(ports)
     expect(store.get(ports[0]).whitelist).toHaveLength(4)

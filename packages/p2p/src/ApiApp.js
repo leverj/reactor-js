@@ -5,17 +5,13 @@ import {createApp} from './rest/app.js'
 import {BridgeNode} from './BridgeNode.js'
 import {events, NODE_INFO_CHANGED} from './utils.js'
 
-
 export class JsonDirStore {
   constructor(path, type) {
     this.path = `${path}/${type}`
     ensureExistsSync(this.path)
   }
-
   fileOf(key) { return `${this.path}/${key}.json` }
-
   get(key) { return existsSync(this.fileOf(key)) ? JSON.parse(readFileSync(this.fileOf(key)).toString()) : undefined }
-
   set(key, value) { writeFileSync(this.fileOf(key), JSON.stringify(value, null, 2)) }
 }
 
@@ -26,9 +22,7 @@ class NodePersistence {
     this.store = store
     events.on(NODE_INFO_CHANGED, () => this.set())
   }
-
   get() { return this.store.get(this.name) }
-
   set() {
     if (this.timer) clearTimeout(this.timer)
     this.timer = setTimeout(() => this.store.set(this.name, this.node.info()), 10)
@@ -36,12 +30,10 @@ class NodePersistence {
 }
 
 export class ApiApp {
-  static async new(config) {
-    const {bridge} = config
-    const store = new JsonDirStore(bridge.nodesDir, 'nodes')
-    const node = await BridgeNode.from(config, bridge.port, bridge.bootstrapNodes, store.get(config.port))
-    new NodePersistence(config.port, node, store) // ... start listening to NODE_INFO_CHANGED
-    await node.start()
+  static async with(config, store) {
+    const {bridge, port} = config
+    const node = await BridgeNode.from(config, bridge.port, bridge.bootstrapNodes, store.get(port))
+    new NodePersistence(port, node, store) // ... start listening to NODE_INFO_CHANGED
     return new this(config, node)
   }
 
@@ -53,16 +45,14 @@ export class ApiApp {
     this.server = createServer(this.app)
   }
 
-  start() {
+  async start() {
+    await this.node.start()
     this.server.listen(this.port, this.ip, () => logger.log(`Bridge api server is running at port ${this.port}`))
+    return this
   }
 
   async stop() {
+    this.server.close()
     await this.node.stop()
-    const promise = new Promise((resolve, reject) => this.server.close(function (err) {
-      if (err) reject(err)
-      else resolve()
-    }))
-    await promise
   }
 }

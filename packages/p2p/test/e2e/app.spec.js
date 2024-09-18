@@ -10,7 +10,7 @@ import {getNodeInfos} from '../fixtures.js'
 
 const {bridge, externalIp, timeout, tryCount, port: leaderPort} = config
 
-describe('e2e', () => {
+describe('app', () => {
   const processes = []
   let store
 
