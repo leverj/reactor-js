@@ -3,18 +3,17 @@ import {ApiApp, tryAgainIfError, waitToSync} from '@leverj/reactor.p2p'
 import config from '@leverj/reactor.p2p/config'
 import axios from 'axios'
 import {expect} from 'expect'
-import {cloneDeep, merge} from 'lodash-es'
+import {merge} from 'lodash-es'
 import {setTimeout} from 'node:timers/promises'
 import {getNodeInfos} from '../fixtures.js'
 
 const {bridge, externalIp, timeout, tryCount, port: leaderPort} = config
 
 describe('ApiApp', () => {
-  const nodes = []
-  let store
+  let store, nodes = []
 
   beforeEach(() => store = new InMemoryStore())
-  afterEach(async () => { for (let each of nodes) await each.stop() })
+  afterEach(async () => { while (nodes.length > 0) await nodes.pop().stop() })
 
   async function createApiNode(port) {
     const index = port - leaderPort
@@ -24,7 +23,7 @@ describe('ApiApp', () => {
       else throw CodedError(`no leader found @ port ${leaderPort}`, 'ENOENT')
     }
     const bootstrapNodes = port === leaderPort ? [] : await tryAgainIfError(getLeaderNode, timeout, tryCount, port)
-    const p2pConfig = merge(cloneDeep(config), {port, bridge: {port: bridge.port + index, bootstrapNodes}})
+    const p2pConfig = merge({}, config, {port, bridge: {port: bridge.port + index, bootstrapNodes}})
     return ApiApp.with(p2pConfig, store).then(_ => _.start())
   }
 
@@ -90,13 +89,13 @@ describe('ApiApp', () => {
     expect(await GET(leaderPort, `tss/aggregateSign?transferHash=${message}`).then(_ => _.verified)).toEqual(true)
   })
 
-  it.skip('whitelist', async () => { // fixme: fails when running with above tests
+  it('whitelist', async () => {
     const ports = await createApiNodes(4, false)
     await GET(leaderPort + 1, 'peer/bootstrapped')
     for (let each of nodes.slice(2)) await each.stop()
 
     await setTimeout(10)
-    await publishWhitelist(ports.slice(0, 2), 4) // fixme: Error: Try for failed... ERR_ENCRYPTION_FAILED,ENOENT,ECONNREFUSED,ECONNRESET, 9000
+    await publishWhitelist(ports.slice(0, 2), 4)
     expect(store.get(ports[0]).whitelist).toHaveLength(4)
     expect(store.get(ports[1]).whitelist).toHaveLength(4)
     expect(store.get(ports[2]).whitelist).toHaveLength(1)
