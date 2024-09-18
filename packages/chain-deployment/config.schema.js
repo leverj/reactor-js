@@ -9,7 +9,7 @@ export const schema = {
     env: 'NODE_ENV',
   },
   deploymentDir: {
-    doc: 'will output the .evms.json file under `${deploymentDir}/env/${env}',
+    doc: 'will output the .evms.json file under `${deploymentDir}/${env}',
     format: String,
     default: `${process.env.PWD}/data/chain`,
     env: 'DEPLOYMENT_DIR',

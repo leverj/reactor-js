@@ -14,7 +14,7 @@ export class Deploy {
 
   static getStore(config) {
     const {deploymentDir, env, networks} = config
-    const store = new JsonStore(`${deploymentDir}/env/${env}`, '.evms')
+    const store = new JsonStore(`${deploymentDir}/${env}`, '.evms')
     if (!store.exists) Map(networks).forEach((value, key) => store.set(key, value))
     return store
   }
