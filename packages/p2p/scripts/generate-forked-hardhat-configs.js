@@ -59,7 +59,7 @@ const infura_supported_chains = Map([
   ['zksyncSepoliaTestnet', 'zksync-sepolia', 300n],
 ].map(([label, infura_label, id]) => [label, {label, infura_label, id}]))
 
-const targetDir = `${process.env.PWD}/test/hardhat/forked`
+const targetDir = `${import.meta.dirname}/../test/e2e/hardhat/forked`
 const template = (chainId, infura_label, blockNumber) => `require('dotenv').config()
 const root = \`\${process.env.PWD}/../chain\`
 

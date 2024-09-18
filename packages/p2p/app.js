@@ -1,8 +1,9 @@
 import {logger} from '@leverj/common'
-import {ApiApp} from './src/ApiApp.js'
-import config from './config.js'
+import {ApiApp, JsonDirStore} from '@leverj/reactor.p2p'
+import config from '@leverj/reactor.p2p/config'
 
-const api = await ApiApp.new(config)
+const store = new JsonDirStore(config.bridge.nodesDir, 'nodes')
+const api = await ApiApp.with(config, store)
 api.start()
 process.on('SIGTERM', () => {
   logger.log('SIGTERM signal received')

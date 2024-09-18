@@ -47,9 +47,8 @@ export const launchEvms = async (config, forked = false) => {
 }
 
 const launchEvm = (networks, chain, port, forked = false) => {
-  const dir = `${forked ? 'forked' : 'nascent'}/${networks[chain].testnet ? 'testnets' : 'mainnets'}`
-  const hardhatConfigFileFor = `test/hardhat/${dir}/${chain}.config.cjs`
-  const process = exec(`npx hardhat node --config ${hardhatConfigFileFor} --port ${port}`)
+  const dir = `${import.meta.dirname}/hardhat/${forked ? 'forked' : 'nascent'}/${networks[chain].testnet ? 'testnets' : 'mainnets'}`
+  const process = exec(`npx hardhat node --config ${dir}/${chain}.config.cjs --port ${port}`)
   process.stdout.on('data', logger.log)
   return process
 }

@@ -17,7 +17,8 @@
     "publish:patch": "up=patch yarn publish:up",
     "publish:minor": "up=minor yarn publish:up",
     "publish:major": "up=major yarn publish:up",
-    "publish:up": "lerna version $up --force-publish --exact --git-tag-version --push --yes && lerna publish from-git --yes"
+    "publish:up": "lerna version $up --force-publish --exact --git-tag-version --push --yes && lerna publish from-git --yes",
+    "docker:build": "./scripts/docker-build.sh"
   },
   "devDependencies": {
     "depcheck": "^1.4.7",

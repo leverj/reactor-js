@@ -6,7 +6,6 @@
   "private": true,
   "exports": {
     ".": "./src/index.js",
-    "./app.js": "./app.js",
     "./config": "./config.js"
   },
   "scripts": {
@@ -32,7 +31,7 @@
     "@libp2p/tcp": "^9.1.6",
     "body-parser": "^1.20.3",
     "ethers": "^6.13.2",
-    "express": "^4.20.0",
+    "express": "^4.21.0",
     "immutable": "^5.0.0-rc.1",
     "it-map": "^3.1.1",
     "it-pipe": "^3.0.1",

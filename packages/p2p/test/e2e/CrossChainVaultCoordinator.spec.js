@@ -13,7 +13,7 @@ import ERC20_abi from './ERC20.abi.json' assert {type: 'json'}
 
 const {bridge: {nodesDir}, chain: {polling}} = config
 
-describe('CrossChainVaultCoordinator - e2e', () => {
+describe('e2e - CrossChainVaultCoordinator', () => {
   const amount = BigInt(1e6 - 1)
   const [deployer, account] = accounts
   const chains = ['holesky', 'sepolia'], [L1, L2] = chains

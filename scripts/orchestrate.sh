@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-
+CURR_DIR=$(realpath $(dirname $0))
+cd $CURR_DIR
 REMOTE_IPS=$REACTOR_REMOTE_IPS
 BRANCH=$(git branch | grep \* | cut -d ' ' -f2)
 BRIDGE_BOOTSTRAP_NODES='[]'
 
 function local_build() {
-    cd ..
-    yarn docker:build
+    cd $CURR_DIR
+    ./docker-build.sh
     cd scripts
 }
 
@@ -56,16 +57,18 @@ function deployDocker() {
 }
 
 function local_install() {
+    cd $CURR_DIR
     local_build
     local COUNT=$1
     local BRIDGE_THRESHOLD=$(($COUNT/2 + 1))
     local EXTERNAL_IP=$(ifconfig en0 inet | grep  inet |awk '{print $2}')
-    rm -rf ../.node.ignore
+    local DATA_DIR=${CURR_DIR}/../data/p2p/e2e
+    rm -rf $DATA_DIR
     local total=$(($COUNT + 9000))
     docker ps -aq -f NAME=p2p-node | xargs docker stop | xargs docker rm
 #    echo \
     EXTERNAL_IP=$EXTERNAL_IP BRIDGE_THRESHOLD=$BRIDGE_THRESHOLD \
-      DATA_DIR=${PWD}/../.node.ignore deployDocker 9000 $(($COUNT + 9000 - 1))
+      DATA_DIR=${DATA_DIR} deployDocker 9000 $(($COUNT + 9000 - 1))
 
     sleep 10
     local_whitelist

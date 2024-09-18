@@ -5,7 +5,7 @@ import {rmSync} from 'node:fs'
 import {setTimeout} from 'node:timers/promises'
 import {createChainConfig, getDeployedNetworks, launchEvms} from './chain.js'
 
-describe('deploy across multiple chains', () => {
+describe('e2e - deploy across multiple chains', () => {
   const [, account] = accounts
   const chains = ['holesky', 'sepolia']
   let processes, deployments
