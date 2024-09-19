@@ -33,8 +33,7 @@ describe('NetworkNode', () => {
     await waitToSync([_ => nodes[count - 1].peers.length === nodes.length - 1], tryCount, timeout, port)
   }
 
-  //fixme: fails when running with all tests
-  it.skip('can ping a node', async () => {
+  it('can ping a node', async () => {
     await startNetworkNodes(2)
     const [node1, node2] = nodes
     const latency = await node1.ping(node2.peerId)
