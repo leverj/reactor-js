@@ -8,7 +8,7 @@ import {Map} from 'immutable'
 import {zip, zipWith} from 'lodash-es'
 import {setTimeout} from 'node:timers/promises'
 
-describe('CrossChainVaultCoordinator - embedded, both from L1 => L2 & L2 => L1', () => {
+describe('CrossChainVaultCoordinator, both from L1 => L2 & L2 => L1', () => {
   const amount = BigInt(1e6 - 1)
   const [deployer, account] = accounts
   let networks, coordinator
