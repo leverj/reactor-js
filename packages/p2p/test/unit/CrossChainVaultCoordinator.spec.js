@@ -1,7 +1,7 @@
 import {accounts, deployContract, provider} from '@leverj/chain-deployment/test'
 import {ETH, InMemoryStore, logger} from '@leverj/common'
 import {publicKey, signer, Vault} from '@leverj/reactor.chain/test'
-import {CrossChainVaultCoordinator, MessageVerifier} from '@leverj/reactor.p2p'
+import {CrossChainVaultCoordinator, MessageSigner} from '@leverj/reactor.p2p'
 import config from '@leverj/reactor.p2p/config'
 import {expect} from 'expect'
 import {Map} from 'immutable'
@@ -30,7 +30,7 @@ describe('CrossChainVaultCoordinator - embedded', () => {
       Map(networks.map(_ => [_.id, _.Vault])),
       new InMemoryStore(),
       config.chain.polling,
-      new MessageVerifier(signer), //fixme: should be the same as the vaults where created with
+      new MessageSigner(signer), //fixme: should be the same as the vaults where created with
       deployer,
       logger,
     )

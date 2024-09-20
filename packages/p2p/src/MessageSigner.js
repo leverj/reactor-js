@@ -1,6 +1,6 @@
 import {G1ToNumbers, G2ToNumbers, sign} from '@leverj/reactor.mcl'
 
-export class MessageVerifier {
+export class MessageSigner {
   constructor(signer) {
     this.signer = signer
   }

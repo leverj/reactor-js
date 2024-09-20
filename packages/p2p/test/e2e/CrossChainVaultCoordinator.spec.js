@@ -1,7 +1,7 @@
 import {accounts} from '@leverj/chain-deployment/test'
 import {ETH, JsonStore, logger} from '@leverj/common'
 import {signer} from '@leverj/reactor.chain/test'
-import {CrossChainVaultCoordinator, MessageVerifier} from '@leverj/reactor.p2p'
+import {CrossChainVaultCoordinator, MessageSigner} from '@leverj/reactor.p2p'
 import config from '@leverj/reactor.p2p/config'
 import {Contract} from 'ethers'
 import {expect} from 'expect'
@@ -31,7 +31,7 @@ describe('e2e - CrossChainVaultCoordinator', () => {
       chains,
       new JsonStore(nodesDir, 'trackers'),
       polling,
-      new MessageVerifier(signer),  //fixme: should be the same as the vaults where created with
+      new MessageSigner(signer),  //fixme: should be the same as the vaults where created with
       deployer,
       logger,
     )
