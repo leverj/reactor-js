@@ -873,11 +873,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@leverj/chain-deployment@npm:1.2.0, @leverj/chain-deployment@workspace:packages/chain-deployment":
-  version: 0.0.0-use.local
-  resolution: "@leverj/chain-deployment@workspace:packages/chain-deployment"
+"@leverj/chain-deployment@npm:2.0.1":
+  version: 2.0.1
+  resolution: "@leverj/chain-deployment@npm:2.0.1"
   dependencies:
-    "@leverj/config": "npm:1.2.0"
     "@nomicfoundation/hardhat-ethers": "npm:^3.0.8"
     "@nomicfoundation/hardhat-network-helpers": "npm:^1.0.11"
     "@nomicfoundation/hardhat-verify": "npm:^2.0.10"
@@ -890,54 +889,53 @@ __metadata:
     hardhat-gas-reporter: "npm:^2.2.1"
     hardhat-switch-network: "npm:^1.1.1"
     solidity-coverage: "npm:^0.8.13"
-    viem: "npm:^2.21.9"
-    wait-on: "npm:^8.0.1"
-  languageName: unknown
-  linkType: soft
+  checksum: 9c08848041417dac81553cb3e79d327f72df4e5ce2a542898214bcec584d0bb6e8bebb60b05d7ced42fc3fe938b6e1797ca4b16b06093929c90c6ba30706e847
+  languageName: node
+  linkType: hard
 
-"@leverj/chain-tracking@npm:1.2.0, @leverj/chain-tracking@workspace:packages/chain-tracking":
-  version: 0.0.0-use.local
-  resolution: "@leverj/chain-tracking@workspace:packages/chain-tracking"
+"@leverj/chain-tracking@npm:2.0.1":
+  version: 2.0.1
+  resolution: "@leverj/chain-tracking@npm:2.0.1"
   dependencies:
-    "@leverj/chain-deployment": "npm:1.2.0"
-    "@leverj/common": "npm:1.2.0"
-    "@openzeppelin/contracts": "npm:^5.0.2"
+    "@leverj/common": "npm:2.0.1"
     async-exit-hook: "npm:^2.0.1"
     ethers: "npm:^6.13.2"
     immutable: "npm:^5.0.0-rc.1"
     lodash-es: "npm:^4.17.21"
-  languageName: unknown
-  linkType: soft
+  checksum: 29018a70ed59cf008f796701d1862d28e7196b00a764a8a6a2b69e87e44afb884a75750018ca7588bbd39be45c40840272533e646d430b99269f35f0cedda5c3
+  languageName: node
+  linkType: hard
 
-"@leverj/common@npm:1.2.0, @leverj/common@workspace:packages/common":
-  version: 0.0.0-use.local
-  resolution: "@leverj/common@workspace:packages/common"
+"@leverj/common@npm:2.0.1":
+  version: 2.0.1
+  resolution: "@leverj/common@npm:2.0.1"
   dependencies:
     ethers: "npm:^6.13.2"
     immutable: "npm:^5.0.0-rc.1"
     lodash-es: "npm:^4.17.21"
-    randomhex: "npm:^0.1.5"
     uuid: "npm:^10.0.0"
-  languageName: unknown
-  linkType: soft
+  checksum: 5e91f3b0425c956b83f83a9b0811082aab0af12e33687bda987f1b62bad0573b42c8251735bb4e9452f85f94c926fe65d75e6ca831308fcd12b1f94ced3d5f7b
+  languageName: node
+  linkType: hard
 
-"@leverj/config@npm:1.2.0, @leverj/config@workspace:packages/config":
-  version: 0.0.0-use.local
-  resolution: "@leverj/config@workspace:packages/config"
+"@leverj/config@npm:2.0.1":
+  version: 2.0.1
+  resolution: "@leverj/config@npm:2.0.1"
   dependencies:
     convict: "npm:^6.2.4"
     convict-format-with-validator: "npm:^6.2.0"
     lodash-es: "npm:^4.17.21"
-  languageName: unknown
-  linkType: soft
+  checksum: 4ffe3d4f0fff509f12660abbfd6e84dade054118b5bd06641da42c6476cafd52f76c0e4c938e92d699e5a705930e31cb5eb1834ad950409e72b7061ec075c555
+  languageName: node
+  linkType: hard
 
 "@leverj/reactor.chain@npm:0.1.0, @leverj/reactor.chain@workspace:packages/chain":
   version: 0.0.0-use.local
   resolution: "@leverj/reactor.chain@workspace:packages/chain"
   dependencies:
-    "@leverj/chain-deployment": "npm:1.2.0"
-    "@leverj/common": "npm:1.2.0"
-    "@leverj/config": "npm:1.2.0"
+    "@leverj/chain-deployment": "npm:2.0.1"
+    "@leverj/common": "npm:2.0.1"
+    "@leverj/config": "npm:2.0.1"
     "@leverj/reactor.mcl": "npm:0.1.0"
     "@openzeppelin/contracts": "npm:^5.0.2"
     ethers: "npm:^6.13.2"
@@ -953,7 +951,7 @@ __metadata:
     "@ethersproject/bytes": "npm:^5.7.0"
     "@ethersproject/random": "npm:^5.7.0"
     "@ethersproject/sha2": "npm:^5.7.0"
-    "@leverj/common": "npm:1.2.0"
+    "@leverj/common": "npm:2.0.1"
     bls-wasm: "npm:^1.3.0"
     mcl-wasm: "npm:^1.6.0"
   languageName: unknown
@@ -966,10 +964,10 @@ __metadata:
     "@chainsafe/libp2p-gossipsub": "npm:13.2.0"
     "@chainsafe/libp2p-noise": "npm:^15.1.2"
     "@chainsafe/libp2p-yamux": "npm:^6.0.2"
-    "@leverj/chain-deployment": "npm:1.2.0"
-    "@leverj/chain-tracking": "npm:1.2.0"
-    "@leverj/common": "npm:1.2.0"
-    "@leverj/config": "npm:1.2.0"
+    "@leverj/chain-deployment": "npm:2.0.1"
+    "@leverj/chain-tracking": "npm:2.0.1"
+    "@leverj/common": "npm:2.0.1"
+    "@leverj/config": "npm:2.0.1"
     "@leverj/reactor.chain": "npm:0.1.0"
     "@leverj/reactor.mcl": "npm:0.1.0"
     "@libp2p/bootstrap": "npm:10.1.5"
@@ -1431,15 +1429,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@noble/curves@npm:1.4.0":
-  version: 1.4.0
-  resolution: "@noble/curves@npm:1.4.0"
-  dependencies:
-    "@noble/hashes": "npm:1.4.0"
-  checksum: 31fbc370df91bcc5a920ca3f2ce69c8cf26dc94775a36124ed8a5a3faf0453badafd2ee4337061ffea1b43c623a90ee8b286a5a81604aaf9563bdad7ff795d18
-  languageName: node
-  linkType: hard
-
 "@noble/curves@npm:1.4.2, @noble/curves@npm:^1.1.0, @noble/curves@npm:^1.4.0, @noble/curves@npm:~1.4.0":
   version: 1.4.2
   resolution: "@noble/curves@npm:1.4.2"
@@ -1479,7 +1468,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@noble/hashes@npm:1.5.0, @noble/hashes@npm:~1.5.0":
+"@noble/hashes@npm:1.5.0":
   version: 1.5.0
   resolution: "@noble/hashes@npm:1.5.0"
   checksum: 1b46539695fbfe4477c0822d90c881a04d4fa2921c08c552375b444a48cac9930cb1ee68de0a3c7859e676554d0f3771999716606dc4d8f826e414c11692cdd9
@@ -2255,13 +2244,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@scure/base@npm:~1.1.8":
-  version: 1.1.8
-  resolution: "@scure/base@npm:1.1.8"
-  checksum: f7a1d2b14bcccf263068210dde1237ad23f7b2381f5d4ac33b9377a077aa41327983863f86562651c4407bbf65e3e9e81f4ae565b045109d21acbcdb29d69cd9
-  languageName: node
-  linkType: hard
-
 "@scure/bip32@npm:1.1.5":
   version: 1.1.5
   resolution: "@scure/bip32@npm:1.1.5"
@@ -2322,16 +2304,6 @@ __metadata:
     "@noble/hashes": "npm:~1.4.0"
     "@scure/base": "npm:~1.1.6"
   checksum: 1ae1545a7384a4d9e33e12d9e9f8824f29b0279eb175b0f0657c0a782c217920054f9a1d28eb316a417dfc6c4e0b700d6fbdc6da160670107426d52fcbe017a8
-  languageName: node
-  linkType: hard
-
-"@scure/bip39@npm:1.4.0":
-  version: 1.4.0
-  resolution: "@scure/bip39@npm:1.4.0"
-  dependencies:
-    "@noble/hashes": "npm:~1.5.0"
-    "@scure/base": "npm:~1.1.8"
-  checksum: dcdceeac348ed9c0f545c1a7ef8854ef62d6eb4e7b7aaafa4e2ef27f7e1c5744b0cd26292afd04e1ee59ae035b19abdd65174a444b8db8c238ccc662f6b90eac
   languageName: node
   linkType: hard
 
@@ -2866,21 +2838,6 @@ __metadata:
     zod:
       optional: true
   checksum: d685351a725c49f81bdc588e2f3825c28ad96c59048d4f36bf5e4ef30935c31f7e60b5553c70177b77a9e4d8b04290eea43d3d9c1c2562cb130381c88b15d39f
-  languageName: node
-  linkType: hard
-
-"abitype@npm:1.0.5":
-  version: 1.0.5
-  resolution: "abitype@npm:1.0.5"
-  peerDependencies:
-    typescript: ">=5.0.4"
-    zod: ^3 >=3.22.0
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-    zod:
-      optional: true
-  checksum: dc954877fba19e2b7a70f1025807d69fa5aabec8bd58ce94e68d1a5ec1697fff3fe5214b4392508db7191762150f19a2396cf66ffb1d3ba8c1f37a89fd25e598
   languageName: node
   linkType: hard
 
@@ -6498,15 +6455,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"isows@npm:1.0.4":
-  version: 1.0.4
-  resolution: "isows@npm:1.0.4"
-  peerDependencies:
-    ws: "*"
-  checksum: 46f43b07edcf148acba735ddfc6ed985e1e124446043ea32b71023e67671e46619c8818eda8c34a9ac91cb37c475af12a3aeeee676a88a0aceb5d67a3082313f
-  languageName: node
-  linkType: hard
-
 "it-all@npm:^3.0.0, it-all@npm:^3.0.6":
   version: 3.0.6
   resolution: "it-all@npm:3.0.6"
@@ -9050,13 +8998,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"randomhex@npm:^0.1.5":
-  version: 0.1.5
-  resolution: "randomhex@npm:0.1.5"
-  checksum: 8ee035261404f849811ab090912e4c50e6b0822d65b0bd3e3f85969bc24c752ecfbdeeb527765e9080baf4223c537e59c8a518275f8afcdde1ffc7329809eb2b
-  languageName: node
-  linkType: hard
-
 "range-parser@npm:~1.2.1":
   version: 1.2.1
   resolution: "range-parser@npm:1.2.1"
@@ -10590,28 +10531,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"viem@npm:^2.21.9":
-  version: 2.21.9
-  resolution: "viem@npm:2.21.9"
-  dependencies:
-    "@adraffy/ens-normalize": "npm:1.10.0"
-    "@noble/curves": "npm:1.4.0"
-    "@noble/hashes": "npm:1.4.0"
-    "@scure/bip32": "npm:1.4.0"
-    "@scure/bip39": "npm:1.4.0"
-    abitype: "npm:1.0.5"
-    isows: "npm:1.0.4"
-    webauthn-p256: "npm:0.0.5"
-    ws: "npm:8.17.1"
-  peerDependencies:
-    typescript: ">=5.0.4"
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  checksum: 342d85595bd1a646bc51b222dbfc046501ffacd7c5b7da28c4bc936248063a0dc26256187a5d2ea048be05785f2e9daf8af27faea315a425e5cb6105a7d1d2d2
-  languageName: node
-  linkType: hard
-
 "wait-on@npm:^8.0.1":
   version: 8.0.1
   resolution: "wait-on@npm:8.0.1"
@@ -10666,16 +10585,6 @@ __metadata:
     randombytes: "npm:^2.1.0"
     utf8: "npm:3.0.0"
   checksum: fbd5c8ec71e944e9e66e3436dbd4446927c3edc95f81928723f9ac137e0d821c5cbb92dba0ed5bbac766f919f919c9d8e316e459c51d876d5188321642676677
-  languageName: node
-  linkType: hard
-
-"webauthn-p256@npm:0.0.5":
-  version: 0.0.5
-  resolution: "webauthn-p256@npm:0.0.5"
-  dependencies:
-    "@noble/curves": "npm:^1.4.0"
-    "@noble/hashes": "npm:^1.4.0"
-  checksum: 8a445dddaf0e699363a0a7bca51742f672dbbec427c1a97618465bfc418df0eff10d3f1cf5e43bcd0cd0dc5abcdaad7914916c06c84107eaf226f5a1d0690c13
   languageName: node
   linkType: hard
 
