@@ -17,9 +17,9 @@
     "@chainsafe/libp2p-gossipsub": "13.2.0",
     "@chainsafe/libp2p-noise": "^15.1.2",
     "@chainsafe/libp2p-yamux": "^6.0.2",
-    "@leverj/chain-tracking": "2.0.1",
-    "@leverj/common": "2.0.1",
-    "@leverj/config": "2.0.1",
+    "@leverj/chain-tracking": "2.0.2",
+    "@leverj/common": "2.0.2",
+    "@leverj/config": "2.0.2",
     "@leverj/reactor.chain": "0.1.0",
     "@leverj/reactor.mcl": "0.1.0",
     "@libp2p/bootstrap": "10.1.5",
@@ -39,7 +39,7 @@
     "uint8arrays": "^5.1.0"
   },
   "devDependencies": {
-    "@leverj/chain-deployment": "2.0.1",
+    "@leverj/chain-deployment": "2.0.2",
     "@noble/curves": "^1.6.0",
     "aes-encryption": "^1.0.4",
     "axios": "^1.7.7"

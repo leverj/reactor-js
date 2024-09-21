@@ -1,4 +1,4 @@
-import {provider} from '@leverj/chain-deployment/test'
+import {provider} from '@leverj/chain-deployment/hardhat.help'
 
 export const MasqueradingProvider = (chainId, name = 'hardhat') => ({
   estimateGas: async (...args) => provider.estimateGas(...args),

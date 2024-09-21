@@ -1,4 +1,4 @@
-import {accounts, deployContract, provider} from '@leverj/chain-deployment/test'
+import {accounts, deployContract, provider} from '@leverj/chain-deployment/hardhat.help'
 import {ETH, InMemoryStore, logger} from '@leverj/common'
 import {publicKey, signer, Vault} from '@leverj/reactor.chain/test'
 import {CrossChainVaultCoordinator, MessageSigner} from '@leverj/reactor.p2p'

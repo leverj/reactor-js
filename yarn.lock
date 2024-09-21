@@ -873,9 +873,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@leverj/chain-deployment@npm:2.0.1":
-  version: 2.0.1
-  resolution: "@leverj/chain-deployment@npm:2.0.1"
+"@leverj/chain-deployment@npm:2.0.2":
+  version: 2.0.2
+  resolution: "@leverj/chain-deployment@npm:2.0.2"
   dependencies:
     "@nomicfoundation/hardhat-ethers": "npm:^3.0.8"
     "@nomicfoundation/hardhat-network-helpers": "npm:^1.0.11"
@@ -889,43 +889,43 @@ __metadata:
     hardhat-gas-reporter: "npm:^2.2.1"
     hardhat-switch-network: "npm:^1.1.1"
     solidity-coverage: "npm:^0.8.13"
-  checksum: 9c08848041417dac81553cb3e79d327f72df4e5ce2a542898214bcec584d0bb6e8bebb60b05d7ced42fc3fe938b6e1797ca4b16b06093929c90c6ba30706e847
+  checksum: f34975671ff4db9c763c294814c97a9e77a4a60b173ad237853abc362bda0ff2895d246f2206388621db19fb366bf059b084731d405064cba4528770fbd919fc
   languageName: node
   linkType: hard
 
-"@leverj/chain-tracking@npm:2.0.1":
-  version: 2.0.1
-  resolution: "@leverj/chain-tracking@npm:2.0.1"
+"@leverj/chain-tracking@npm:2.0.2":
+  version: 2.0.2
+  resolution: "@leverj/chain-tracking@npm:2.0.2"
   dependencies:
-    "@leverj/common": "npm:2.0.1"
+    "@leverj/common": "npm:2.0.2"
     async-exit-hook: "npm:^2.0.1"
     ethers: "npm:^6.13.2"
     immutable: "npm:^5.0.0-rc.1"
     lodash-es: "npm:^4.17.21"
-  checksum: 29018a70ed59cf008f796701d1862d28e7196b00a764a8a6a2b69e87e44afb884a75750018ca7588bbd39be45c40840272533e646d430b99269f35f0cedda5c3
+  checksum: 7d6ae99c9d6c074de77352da9becf5ee3e7bd99d92549b77929e799868b148cf8c8061df114946bd8bf447b9f72df4a8c9ac9d1c92967e7b11f23546d6f31d91
   languageName: node
   linkType: hard
 
-"@leverj/common@npm:2.0.1":
-  version: 2.0.1
-  resolution: "@leverj/common@npm:2.0.1"
+"@leverj/common@npm:2.0.2":
+  version: 2.0.2
+  resolution: "@leverj/common@npm:2.0.2"
   dependencies:
     ethers: "npm:^6.13.2"
     immutable: "npm:^5.0.0-rc.1"
     lodash-es: "npm:^4.17.21"
     uuid: "npm:^10.0.0"
-  checksum: 5e91f3b0425c956b83f83a9b0811082aab0af12e33687bda987f1b62bad0573b42c8251735bb4e9452f85f94c926fe65d75e6ca831308fcd12b1f94ced3d5f7b
+  checksum: c4972837282c684487ee4eb2ab84df8f9338416aa73c9ba2f56ad7ea45a2539df67a2c126000d5ce281b861b159816d1fab57360b1f43bbb7fb1915cd22e84df
   languageName: node
   linkType: hard
 
-"@leverj/config@npm:2.0.1":
-  version: 2.0.1
-  resolution: "@leverj/config@npm:2.0.1"
+"@leverj/config@npm:2.0.2":
+  version: 2.0.2
+  resolution: "@leverj/config@npm:2.0.2"
   dependencies:
     convict: "npm:^6.2.4"
     convict-format-with-validator: "npm:^6.2.0"
     lodash-es: "npm:^4.17.21"
-  checksum: 4ffe3d4f0fff509f12660abbfd6e84dade054118b5bd06641da42c6476cafd52f76c0e4c938e92d699e5a705930e31cb5eb1834ad950409e72b7061ec075c555
+  checksum: 9aefc27580fdce2a45e77d5f6554544c6cf43c68a3b6969474e10708789db87b0948209176e2cde9062434e1c517eaa539714bbd11d458d35aa03cf96a205180
   languageName: node
   linkType: hard
 
@@ -933,9 +933,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@leverj/reactor.chain@workspace:packages/chain"
   dependencies:
-    "@leverj/chain-deployment": "npm:2.0.1"
-    "@leverj/common": "npm:2.0.1"
-    "@leverj/config": "npm:2.0.1"
+    "@leverj/chain-deployment": "npm:2.0.2"
+    "@leverj/common": "npm:2.0.2"
+    "@leverj/config": "npm:2.0.2"
     "@leverj/reactor.mcl": "npm:0.1.0"
     "@openzeppelin/contracts": "npm:^5.0.2"
     ethers: "npm:^6.13.2"
@@ -951,7 +951,7 @@ __metadata:
     "@ethersproject/bytes": "npm:^5.7.0"
     "@ethersproject/random": "npm:^5.7.0"
     "@ethersproject/sha2": "npm:^5.7.0"
-    "@leverj/common": "npm:2.0.1"
+    "@leverj/common": "npm:2.0.2"
     bls-wasm: "npm:^1.3.0"
     mcl-wasm: "npm:^1.6.0"
   languageName: unknown
@@ -964,10 +964,10 @@ __metadata:
     "@chainsafe/libp2p-gossipsub": "npm:13.2.0"
     "@chainsafe/libp2p-noise": "npm:^15.1.2"
     "@chainsafe/libp2p-yamux": "npm:^6.0.2"
-    "@leverj/chain-deployment": "npm:2.0.1"
-    "@leverj/chain-tracking": "npm:2.0.1"
-    "@leverj/common": "npm:2.0.1"
-    "@leverj/config": "npm:2.0.1"
+    "@leverj/chain-deployment": "npm:2.0.2"
+    "@leverj/chain-tracking": "npm:2.0.2"
+    "@leverj/common": "npm:2.0.2"
+    "@leverj/config": "npm:2.0.2"
     "@leverj/reactor.chain": "npm:0.1.0"
     "@leverj/reactor.mcl": "npm:0.1.0"
     "@libp2p/bootstrap": "npm:10.1.5"

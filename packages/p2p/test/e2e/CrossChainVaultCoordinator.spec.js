@@ -1,4 +1,4 @@
-import {accounts} from '@leverj/chain-deployment/test'
+import {accounts} from '@leverj/chain-deployment/hardhat.help'
 import {ETH, JsonStore, logger} from '@leverj/common'
 import {signer} from '@leverj/reactor.chain/test'
 import {CrossChainVaultCoordinator, MessageSigner} from '@leverj/reactor.p2p'
@@ -21,7 +21,7 @@ describe('e2e - CrossChainVaultCoordinator', () => {
 
   before(async () => {
     const chainConfig = await createChainConfig(chains)
-    const deploymentDir = `${chainConfig.deploymentDir}/env/${chainConfig.env}`
+    const deploymentDir = `${chainConfig.deploymentDir}/${chainConfig.env}`
     rmSync(deploymentDir, {recursive: true, force: true})
     processes = await launchEvms(chainConfig)
 

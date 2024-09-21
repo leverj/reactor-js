@@ -1,5 +1,5 @@
 import info from '../package.json' assert {type: 'json'}
-import {wallets} from '@leverj/chain-deployment/test'
+import {wallets} from '@leverj/chain-deployment/hardhat.help'
 
 export const dataDir = `${import.meta.dirname}/../../../data`
 

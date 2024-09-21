@@ -1,4 +1,4 @@
-import {accounts} from '@leverj/chain-deployment/test'
+import {accounts} from '@leverj/chain-deployment/hardhat.help'
 import {stubs} from '@leverj/reactor.chain/contracts'
 import {expect} from 'expect'
 import {rmSync} from 'node:fs'
@@ -12,7 +12,7 @@ describe('e2e - deploy across multiple chains', () => {
 
   before(async () => {
     const config = await createChainConfig(chains)
-    const deploymentDir = `${config.deploymentDir}/env/${config.env}`
+    const deploymentDir = `${config.deploymentDir}/${config.env}`
     rmSync(deploymentDir, {recursive: true, force: true})
     processes = await launchEvms(config)
     deployments = getDeployedNetworks(deploymentDir)

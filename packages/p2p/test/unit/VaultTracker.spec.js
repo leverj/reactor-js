@@ -1,9 +1,10 @@
-import {accounts, ETH, getContractAt, provider} from '@leverj/chain-deployment/test'
+import {accounts, getContractAt, provider} from '@leverj/chain-deployment/hardhat.help'
 import {InMemoryStore, logger} from '@leverj/common'
 import {encodeTransfer} from '@leverj/reactor.chain/contracts'
 import {ERC20, publicKey, signedBy, signer, Vault} from '@leverj/reactor.chain/test'
 import {VaultTracker} from '@leverj/reactor.p2p'
 import config from '@leverj/reactor.p2p/config'
+import {ZeroAddress as ETH} from 'ethers'
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
 

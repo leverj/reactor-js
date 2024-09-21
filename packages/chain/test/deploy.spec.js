@@ -24,7 +24,7 @@ describe('deploy to hardhat chain', () => {
   })
 
   it('deploy', async () => {
-    rmSync(`${config.deploymentDir}/env/test`, {recursive: true, force: true})
+    rmSync(`${config.deploymentDir}/test`, {recursive: true, force: true})
     const deploy = Deploy.from(config, logger)
     expect(deploy.config).toMatchObject(config)
 

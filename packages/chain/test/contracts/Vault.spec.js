@@ -1,6 +1,6 @@
 import {ETH} from '@leverj/common'
 import {abi, encodeTransfer, events} from '@leverj/reactor.chain/contracts'
-import {accounts, getContractAt, provider} from '@leverj/chain-deployment/test'
+import {accounts, getContractAt, provider} from '@leverj/chain-deployment/hardhat.help'
 import {ERC20, publicKey, signedBy, signer, Vault} from '@leverj/reactor.chain/test'
 import {Interface} from 'ethers'
 import {expect} from 'expect'

@@ -1,5 +1,6 @@
-import {accounts, ETH, getContractAt, provider} from '@leverj/chain-deployment/test'
+import {accounts, getContractAt, provider} from '@leverj/chain-deployment/hardhat.help'
 import {ERC20, ERC20Proxy, Vault} from '@leverj/reactor.chain/test'
+import {ZeroAddress as ETH} from 'ethers'
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
 import {createBridgeNodes} from './help/bridge.js'
