@@ -34,7 +34,7 @@ export class BridgeNode {
     this.tss = tss
     this.whitelist = whitelist
     this.leader = leader
-    this.leadership = isLeader ? new Leader(this) : new Follower(config, this) //fixme: no need to pass config; it's accessible from self
+    this.leadership = isLeader ? new Leader(this) : new Follower(this)
     this.messageMap = {}
     this.vaults = {}
     this.monitor = new Monitor()
@@ -64,7 +64,10 @@ export class BridgeNode {
     }
   }
 
-  async onVaultEvent(event) { return this.leadership.onVaultEvent(event) }
+  async onVaultTransferEvent(event) {
+
+    return this.leadership.onVaultTransferEvent(event)
+  }
   async aggregateSignature(message, chainId, transferCallback) { return this.leadership.aggregateSignature(message, chainId, transferCallback) }
   async publishWhitelist() { return this.leadership.publishWhitelist() }
   async startDKG(threshold) { return this.leadership.startDKG(threshold) }
@@ -185,10 +188,11 @@ class Leader {
     this.self.leader = this.self.peerId
     this.self.addPeersToWhiteList(this.self.leader)
   }
+  get isLeader() { return true }
 
   listenToPeerDiscovery() { events.on(PEER_DISCOVERY, _ => this.self.addPeersToWhiteList(_)) }
 
-  async onVaultEvent(event) {
+  async onVaultTransferEvent(event) {
     const transferPayloadVerified = async (to, payload, aggregateSignature) => {
       if (aggregateSignature.verified) {
         const signature = G1ToNumbers(deserializeHexStrToSignature(aggregateSignature.groupSign))
@@ -198,7 +202,7 @@ class Leader {
       }
     }
     //fixme: not working
-    const verify = async (aggregateSignature) => {
+    const sign = async (aggregateSignature) => {
       if (aggregateSignature.verified) {
         return {
           signature: G1ToNumbers(deserializeHexStrToSignature(aggregateSignature.groupSign)),
@@ -255,22 +259,21 @@ class Leader {
 }
 
 class Follower {
-  constructor(config, self) {
-    this.config = config
+  constructor(self) {
     this.self = self
   }
-
+  get isLeader() { return false }
   async addLeader() {
     this.self.leader = this.self.network.bootstrapNodes[0].split('/').pop()
     this.self.addPeersToWhiteList(this.self.leader)
-    await waitToSync([_ => this.self.peers.includes(this.self.leader)], -1, this.config.timeout, this.config.port)
+    await waitToSync([_ => this.self.peers.includes(this.self.leader)], -1, this.self.config.timeout, this.self.config.port)
     await this.self.sendMessageToPeer(this.self.leader, WHITELIST_REQUEST, '')
   }
   listenToPeerDiscovery() {}
-  async onVaultEvent(log) {}
-  async aggregateSignature(message, chainId, transferCallback) {}
-  async publishWhitelist() {}
-  async startDKG(threshold) {}
+  async onVaultTransferEvent() { throw Error('illegal non-leader operation') }
+  async aggregateSignature() { throw Error('illegal non-leader operation') }
+  async publishWhitelist() { throw Error('illegal non-leader operation') }
+  async startDKG() { throw Error('illegal non-leader operation') }
 }
 
 class Whitelist {

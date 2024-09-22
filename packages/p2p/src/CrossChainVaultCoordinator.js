@@ -8,7 +8,7 @@ export const VaultTracker = (chainId, contract, store, polling, actor, logger = 
 }
 
 export class CrossChainVaultCoordinator {
-  static ofEvms(evms, chains, store, polling, verifier, wallet, logger = console) {
+  static ofEvms(evms, chains, store, polling, signer, wallet, logger = console) {
     const networks = Map(evms).filter(_ => chains.includes(_.label)).map(_ => ({
       id: BigInt(_.id),
       label: _.label,
@@ -16,19 +16,19 @@ export class CrossChainVaultCoordinator {
       Vault: _.contracts.Vault,
     })).valueSeq().toArray()
     const vaults = Map(networks.map(_ => [_.id, stubs.Vault(_.Vault.address, _.provider)]))
-    return this.ofVaults(networks.map(_ => _.id), vaults, store, polling, verifier, wallet, logger)
+    return this.ofVaults(networks.map(_ => _.id), vaults, store, polling, signer, wallet, logger)
   }
 
-  static ofVaults(chainIds, vaults, store, polling, verifier, wallet, logger = console) {
+  static ofVaults(chainIds, vaults, store, polling, signer, wallet, logger = console) {
     // fixme:chains: affirm vaults includes all of chainIds
-    return new this(chainIds, vaults, store, polling, verifier, wallet, logger)
+    return new this(chainIds, vaults, store, polling, signer, wallet, logger)
   }
 
-  constructor(chainIds, vaults, store, polling, verifier, wallet, logger) {
+  constructor(chainIds, vaults, store, polling, signer, wallet, logger) {
     this.chainIds = chainIds
     this.vaults = vaults
     this.trackers = this.vaults.map((vault, id) => VaultTracker(id, vault, store, polling, this, logger)).valueSeq().toArray()
-    this.verifier = verifier
+    this.signer = signer
     this.wallet = wallet
     this.logger = logger
     this.isRunning = false
@@ -39,7 +39,7 @@ export class CrossChainVaultCoordinator {
       case 'Transfer':
         const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = event.args
         const payload = encodeTransfer(origin, token, name, symbol, decimals, amount, owner, from, to, tag)
-        const {signature, publicKey} = await this.verifier.verify(transferHash)
+        const {signature, publicKey} = await this.signer.sign(transferHash)
         const toVault = this.vaults.get(to)
         const runner = toVault.connect(this.wallet.connect(toVault.runner.provider))
         await runner.accept(signature, publicKey, payload).then(_ => _.wait())

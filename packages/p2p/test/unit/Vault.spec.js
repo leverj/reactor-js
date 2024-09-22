@@ -43,7 +43,7 @@ describe('Vault', () => {
   }
 
   const onEvent = async (vault) => vault.queryFilter('Transfer').
-    then(_ => leader.onVaultEvent(vault.interface.parseLog(_[0]))).
+    then(_ => leader.onVaultTransferEvent(vault.interface.parseLog(_[0]))).
     then(_ => setTimeout(100))
 
   describe('should disburse currency when transferred from originating chain', () => {
