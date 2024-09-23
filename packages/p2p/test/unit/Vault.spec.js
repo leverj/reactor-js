@@ -4,6 +4,7 @@ import {ZeroAddress as ETH} from 'ethers'
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
 import {createBridgeNodes} from './help/bridge.js'
+import {encodeTransfer} from '@leverj/reactor.chain/contracts'
 
 describe('Vault', () => {
   const [, account] = accounts
@@ -43,7 +44,14 @@ describe('Vault', () => {
   }
 
   const onEvent = async (vault) => vault.queryFilter('Transfer').
-    then(_ => leader.onVaultTransferEvent(vault.interface.parseLog(_[0]))).
+    then(async _ => {
+      const event = vault.interface.parseLog(_[0])
+      const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = event.args
+      const signature = await leader.onVaultTransferEvent(from, transferHash)
+      const payload = encodeTransfer(origin, token, name, symbol, decimals, amount, owner, from, to, tag)
+      const toContract = leader.vaults[to]
+      return toContract.accept(signature, leader.publicKey, payload).then(_ => _.wait())
+    }).
     then(_ => setTimeout(100))
 
   describe('should disburse currency when transferred from originating chain', () => {

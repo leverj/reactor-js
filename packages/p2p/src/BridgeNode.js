@@ -1,5 +1,4 @@
-import {affirm, logger} from '@leverj/common'
-import {encodeTransfer} from '@leverj/reactor.chain/contracts'
+import {affirm, logger, until} from '@leverj/common'
 import {
   deserializeHexStrToPublicKey,
   deserializeHexStrToSignature,
@@ -50,8 +49,16 @@ export class BridgeNode {
   get secretKeyShare() { return this.tss.secretKeyShare.serializeToHexStr() }
   get groupPublicKey() { return this.tss.groupPublicKey.serializeToHexStr() }
   get publicKey() { return G2ToNumbers(deserializeHexStrToPublicKey(this.groupPublicKey)) }
+  get isLeader() { return this.leadership.isLeader }
+
+  async onVaultTransferEvent(from, transferHash) { return this.leadership.onVaultTransferEvent(from, transferHash) }
+  async aggregateSignature(from, transferHash) { return this.leadership.aggregateSignature(from, transferHash) }
+  async publishWhitelist() { return this.leadership.publishWhitelist() }
+  async startDKG(threshold) { return this.leadership.startDKG(threshold) }
 
   getAggregateSignature(transferHash) { return this.messageMap[transferHash] }
+
+  setVaultForChain(chainId, vault) { this.vaults[chainId] = vault }
 
   print() { this.tss.print() }
 
@@ -63,14 +70,6 @@ export class BridgeNode {
       leader: this.leader,
     }
   }
-
-  async onVaultTransferEvent(event) {
-
-    return this.leadership.onVaultTransferEvent(event)
-  }
-  async aggregateSignature(message, chainId, transferCallback) { return this.leadership.aggregateSignature(message, chainId, transferCallback) }
-  async publishWhitelist() { return this.leadership.publishWhitelist() }
-  async startDKG(threshold) { return this.leadership.startDKG(threshold) }
 
   async start() {
     await this.network.start()
@@ -126,9 +125,6 @@ export class BridgeNode {
       logger.log('ignoring whitelist from non-leader', peerId)
   }
 
-  //fixme:tracker: vaults should not be in node; handled by coordinator
-  setVaultForChain(chainId, vault) { this.vaults[chainId] = vault }
-
   async handleSignatureStart(peerId, data) {
     if (this.leader !== peerId) return logger.log('ignoring signature start from non-leader', peerId, this.leader)
 
@@ -148,6 +144,20 @@ export class BridgeNode {
     }
   }
 
+  async handleSignatureShare(message) {
+    const {transferHash, signature, signer} = message
+    const info = this.messageMap[transferHash]
+    info.signatures[signer] = {signature, signer}
+    logger.log('Received signature', transferHash, signature)
+    if (Object.keys(info.signatures).length === this.tss.threshold) {
+      const groupSign = this.tss.groupSign(Object.values(info.signatures))
+      const verified = this.tss.verify(groupSign, info.signatures[this.signer].message)
+      logger.log('Verified', transferHash, verified, groupSign)
+      info.groupSign = groupSign
+      info.verified = verified
+    }
+  }
+
   async onStreamMessage(stream, peerId, msgStr) {
     const message = JSON.parse(msgStr)
     affirm(this.whitelist.exists(peerId, `Unknown peer ${peerId}`))
@@ -161,18 +171,7 @@ export class BridgeNode {
       case DKG_RECEIVE_KEY_SHARE:
         return this.tss.onDkgShare(message.message)
       case TSS_RECEIVE_SIGNATURE_SHARE:
-        const {transferHash, signature, signer} = message
-        const info = this.messageMap[transferHash]
-        info.signatures[signer] = {signature, signer}
-        logger.log('Received signature', transferHash, signature)
-        if (Object.keys(info.signatures).length === this.tss.threshold) {
-          const groupSign = this.tss.groupSign(Object.values(info.signatures))
-          info.groupSign = groupSign
-          info.verified = this.tss.verify(groupSign, info.signatures[this.signer].message)
-          logger.log('Verified', transferHash, info.verified, groupSign)
-          info.transferCallback(info)
-        }
-        return
+        return this.handleSignatureShare(message)
       case SIGNATURE_START:
         return this.handleSignatureStart(peerId, JSON.parse(message.message))
       default:
@@ -192,60 +191,43 @@ class Leader {
 
   listenToPeerDiscovery() { events.on(PEER_DISCOVERY, _ => this.self.addPeersToWhiteList(_)) }
 
-  async onVaultTransferEvent(event) {
-    const transferPayloadVerified = async (to, payload, aggregateSignature) => {
-      if (aggregateSignature.verified) {
-        const signature = G1ToNumbers(deserializeHexStrToSignature(aggregateSignature.groupSign))
-        const publicKey = this.self.publicKey
-        const toContract = this.self.vaults[to]
-        await toContract.accept(signature, publicKey, payload).then(_ => _.wait())
-      }
-    }
-    //fixme: not working
-    const sign = async (aggregateSignature) => {
-      if (aggregateSignature.verified) {
-        return {
-          signature: G1ToNumbers(deserializeHexStrToSignature(aggregateSignature.groupSign)),
-          publicKey: this.self.publicKey,
-        }
-      }
-    }
-    //fixme: make sure it is a Transfer event
-    const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = event.args
-    const payload = encodeTransfer(origin, token, name, symbol, decimals, amount, owner, from, to, tag)
-    if (await this.self.vaults[from].sends(transferHash)) {
-      await this.self.aggregateSignature(
-        transferHash,
-        from,
-        async (signature) => transferPayloadVerified(to, payload, signature),
-      )
-      return transferHash
-    }
+  async onVaultTransferEvent(from, transferHash) {
+    if (await this.self.vaults[from].sends(transferHash)) return this.aggregateSignature(from, transferHash)
   }
 
-  async aggregateSignature(message, chainId, transferCallback) {
-    const signature = this.self.tss.sign(message).serializeToHexStr()
-    const signer = this.self.signer
-    this.self.messageMap[message] = {
-      signatures: {
-        [signer]: {message, signature, signer}
-      },
-      verified: false,
-      transferCallback,
+  async aggregateSignature(from, transferHash) {
+    const {vaults, signer, messageMap, tss, monitor, whitelist, config} = this.self
+    if (await vaults[from].sends(transferHash)) {
+       messageMap[transferHash] = {
+        signatures: {
+          [signer]: {
+            message: transferHash,
+            signature: tss.sign(transferHash).serializeToHexStr(),
+            signer,
+          },
+        },
+        verified: false,
+      }
+      await this.fanOut(SIGNATURE_START, JSON.stringify({
+        message: transferHash,
+        chainId: from,
+      }), monitor.filter(whitelist.get()))
+      const interval = 10, timeout = 100 //config.timeout
+      await until(() => messageMap[transferHash].verified, interval, timeout)
     }
-    await this.publishOrFanOut(SIGNATURE_START, JSON.stringify({message, chainId}), this.self.monitor.filter(this.self.whitelist.get()))
+    return messageMap[transferHash].verified ?
+      G1ToNumbers(deserializeHexStrToSignature(messageMap[transferHash].groupSign)) :
+      null
   }
 
   async publishWhitelist() {
     this.self.whitelist.canPublish = true
     const message = this.self.whitelist.get()
-    await this.publishOrFanOut(WHITELIST_TOPIC, message, this.self.monitor.filter(message))
+    await this.fanOut(WHITELIST_TOPIC, message, this.self.monitor.filter(message))
   }
 
-  async publishOrFanOut(topic, message, peerIds, fanOut = true) {
-    if (fanOut) {
-      for (let each of peerIds) if (each !== this.self.peerId) await this.self.sendMessageToPeer(each, topic, message)
-    } else await this.self.network.publish(topic, message)
+  async fanOut(topic, message, peerIds) {
+    for (let each of peerIds) if (each !== this.self.peerId) await this.self.sendMessageToPeer(each, topic, message)
   }
 
   async startDKG(threshold) {

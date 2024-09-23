@@ -24,7 +24,8 @@ export function createRouter(config, node) {
   }
 
   async function aggregateSignature(req, res) {
-    await node.aggregateSignature(req.body.message, -1, _ => _).then(_ => res.send('ok'))
+    res.send('ok') //fixme: not ready for e2e. not clear what it should actually accomplish when ready ...
+    if (false) await node.aggregateSignature(-1, req.body.message).then(_ => res.send('ok'))
   }
 
   async function getAggregateSignature(req, res) {
