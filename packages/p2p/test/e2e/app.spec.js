@@ -27,28 +27,27 @@ describe('e2e - app', () => {
     processes.length = 0
   })
 
-  async function createApiNodesFrom(ports, howMany = ports.length - 1) {
-    const createApiNode = async (port) => {
-      const index = port - leaderPort
-      const getLeaderNode = async _ => {
-        const leader = store.get(leaderPort)?.p2p.id
-        if (leader) return [`/ip4/${externalIp}/tcp/${bridge.port}/p2p/${leader}`]
-        else throw CodedError(`no leader found @ port ${leaderPort}`, 'ENOENT')
-      }
-      const bootstrapNodes = port === leaderPort ? [] : await tryAgainIfError(getLeaderNode, timeout, tryCount, port)
-      const env = Object.assign({}, process.env, {
-        PORT: port,
-        BRIDGE_PORT: bridge.port + index,
-        BRIDGE_CONF_DIR: bridge.nodesDir,
-        BRIDGE_BOOTSTRAP_NODES: JSON.stringify(bootstrapNodes),
-      })
-      return fork('app.js', [], {cwd: process.cwd(), env})
+  const createApiNode = async (port) => {
+    const getLeaderNode = async () => {
+      const leader = store.get(leaderPort)?.p2p.id
+      if (leader) return [`/ip4/${externalIp}/tcp/${bridge.port}/p2p/${leader}`]
+      else throw CodedError(`no leader found @ port ${leaderPort}`, 'ENOENT')
     }
 
-    for (let each of ports) {
-      processes.push(await createApiNode(each))
-      await setTimeout(100)
-    }
+    const index = port - leaderPort
+    const bootstrapNodes = port === leaderPort ? [] : await tryAgainIfError(getLeaderNode, timeout, tryCount, port)
+    const env = Object.assign({}, process.env, {
+      PORT: port,
+      BRIDGE_PORT: bridge.port + index,
+      BRIDGE_THRESHOLD: bridge.threshold,
+      BRIDGE_CONF_DIR: bridge.nodesDir,
+      BRIDGE_BOOTSTRAP_NODES: JSON.stringify(bootstrapNodes),
+    })
+    return fork('app.js', [], {cwd: process.cwd(), env})
+  }
+
+  async function createApiNodesFrom(ports, howMany = ports.length - 1) {
+    for (let each of ports) processes.push(await createApiNode(each))
     await waitToSync(ports.map(_ => async () => GET(_, 'peer').then(_ => _.length === howMany)), tryCount, timeout, leaderPort)
     logger.log('bootstrap synced...')
     return ports
@@ -64,6 +63,7 @@ describe('e2e - app', () => {
   const createNodeInfos = async (howMany) => {
     for (let [i, info] of getNodeInfos(howMany).entries()) store.set(leaderPort + i, info)
   }
+
   const GET = (port, endpoint) => axios.get(`http://127.0.0.1:${port}/api/${endpoint}`).then(_ => _.data)
   const POST = (port, endpoint, payload) => axios.post(`http://127.0.0.1:${port}/api/${endpoint}`, payload || {})
 
@@ -117,6 +117,7 @@ describe('e2e - app', () => {
     expect(store.get(ports[3]).whitelist).toHaveLength(1)
 
     await createApiNodesFrom(ports.slice(2), 3)
+    await setTimeout(100)
     await waitForWhitelistSync(ports)
     expect(store.get(ports[0]).whitelist).toHaveLength(4)
     expect(store.get(ports[1]).whitelist).toHaveLength(4)
