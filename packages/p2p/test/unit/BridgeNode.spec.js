@@ -11,18 +11,16 @@ describe('BridgeNode', () => {
     const howMany = 7
     nodes = await createBridgeNodes(howMany)
     const leader = nodes[0]
-    await leader.publishWhitelist() // whitelisted nodes
+    await leader.leadership.publishWhitelist() // whitelisted nodes
     nodes.forEach(_ => expect(_.whitelist.get().length).toEqual(howMany))
 
-    await leader.startDKG(4)
-    const leaderGroupKey = leader.groupPublicKey
-    const leaderSecretKey = leader.secretKeyShare
+    await leader.leadership.startDKG(4)
     await setTimeout(10)
     for (let each of nodes) {
       each.print()
       if (leader.peerId === each.peerId) continue
-      expect(leaderGroupKey).toEqual(each.groupPublicKey)
-      expect(leaderSecretKey).not.toBe(each.secretKeyShare)
+      expect(leader.groupPublicKey).toEqual(each.groupPublicKey)
+      expect(leader.secretKeyShare).not.toBe(each.secretKeyShare)
     }
   })
 })

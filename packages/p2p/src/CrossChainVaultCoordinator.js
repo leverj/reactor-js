@@ -39,7 +39,7 @@ export class CrossChainVaultCoordinator {
       case 'Transfer':
         const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = event.args
         const payload = encodeTransfer(origin, token, name, symbol, decimals, amount, owner, from, to, tag)
-        const {signature, publicKey} = await this.signer.sign(transferHash)
+        const {signature, publicKey} = await this.signer.sign(from, transferHash)
         const toVault = this.vaults.get(to)
         const runner = toVault.connect(this.wallet.connect(toVault.runner.provider))
         await runner.accept(signature, publicKey, payload).then(_ => _.wait())

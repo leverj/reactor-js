@@ -1,15 +1,16 @@
 import {accounts} from '@leverj/chain-deployment/hardhat.help'
 import {ETH, JsonStore, logger} from '@leverj/common'
 import {signer} from '@leverj/reactor.chain/test'
-import {CrossChainVaultCoordinator, MessageSigner} from '@leverj/reactor.p2p'
+import {CrossChainVaultCoordinator} from '@leverj/reactor.p2p'
 import config from '@leverj/reactor.p2p/config'
 import {Contract} from 'ethers'
 import {expect} from 'expect'
 import {zip} from 'lodash-es'
 import {rmSync} from 'node:fs'
 import {setTimeout} from 'node:timers/promises'
-import {createChainConfig, getEvmsStore, launchEvms} from './chain.js'
-import ERC20_abi from './ERC20.abi.json' assert {type: 'json'}
+import {createChainConfig, getEvmsStore, launchEvms} from './help/chain.js'
+import ERC20_abi from './help/ERC20.abi.json' assert {type: 'json'}
+import {MessageSigner} from './help/MessageSigner.js'
 
 const {bridge: {nodesDir}, chain: {polling}} = config
 
@@ -31,7 +32,7 @@ describe('e2e - CrossChainVaultCoordinator', () => {
       chains,
       new JsonStore(nodesDir, 'trackers'),
       polling,
-      new MessageSigner(signer),  //fixme: should be the same as the vaults where created with
+      new MessageSigner(signer), //fixme: replace with leader node
       deployer,
       logger,
     )

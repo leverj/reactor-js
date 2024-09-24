@@ -98,7 +98,7 @@ describe('NetworkNode', () => {
       for (let peer of node.peers) {
         const peerInfo = await node.findPeer(peer)
         const found = peerInfo.multiaddrs[0].toString()
-        const expected = nodes.find(node => node.peerId === peer).multiaddrs[0]
+        const expected = nodes.find(_ => _.peerId === peer).multiaddrs[0]
         expect(found.split('/')[3]).toEqual(expected.split('/')[3])
       }
     }

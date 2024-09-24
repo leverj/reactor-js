@@ -5,7 +5,7 @@ export class MessageSigner {
     this.signer = signer
   }
 
-  async sign(message) {
+  async sign(from, message) {
     return {
       signature: G1ToNumbers(sign(message, this.signer.secret).signature),
       publicKey: G2ToNumbers(this.signer.pubkey),

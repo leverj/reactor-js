@@ -22,7 +22,7 @@ export const createChainConfig = async (chains) => {
   }
   // override chain/config/env with ^^^ chains
   const env = process.env.NODE_ENV
-  const chain_dir = `${import.meta.dirname}/../../../chain`
+  const chain_dir = `${import.meta.dirname}/../../../../chain`
   const config_file = `${chain_dir}/config/${env}.js`
   const override_file = `${chain_dir}/config/local-${env}.js`
   const override = `$1${chains.map(_ => `'${_}'`)}$3`

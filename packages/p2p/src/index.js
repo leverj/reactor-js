@@ -1,7 +1,6 @@
 export * from './ApiApp.js'
 export * from './BridgeNode.js'
 export * from './CrossChainVaultCoordinator.js'
-export * from './MessageSigner.js'
 export * from './NetworkNode.js'
 export * from './TssNode.js'
 export * from './utils.js'

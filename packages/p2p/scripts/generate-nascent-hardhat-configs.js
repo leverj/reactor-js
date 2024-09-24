@@ -59,7 +59,7 @@ const targetChains = Set([
   'zksync',
   'zksyncSepoliaTestnet',
 ])
-const targetDir = `${import.meta.dirname}/../test/e2e/hardhat/nascent`
+const targetDir = `${import.meta.dirname}/../test/e2e/help/hardhat/nascent`
 const template = (chainId, label) => `const root = \`\${process.env.PWD}/../chain\`
 
 module.exports = Object.assign(require(\`\${root}/hardhat.config.cjs\`), {
