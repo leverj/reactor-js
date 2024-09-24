@@ -7,9 +7,8 @@ import {
   G2ToNumbers,
   SecretKey,
 } from '@leverj/reactor.mcl'
+import {NetworkNode, TssNode} from '@leverj/reactor.p2p'
 import {setTimeout} from 'node:timers/promises'
-import {NetworkNode} from './NetworkNode.js'
-import {TssNode} from './TssNode.js'
 import {events, NODE_INFO_CHANGED, PEER_DISCOVERY, waitToSync} from './utils.js'
 
 const TSS_RECEIVE_SIGNATURE_SHARE = 'TSS_RECEIVE_SIGNATURE_SHARE'
@@ -30,12 +29,12 @@ export class BridgeNode {
   }
 
   constructor(config, network, tss, whitelist, leader, isLeader) {
-    this.network = network
     this.config = config
+    this.network = network
     this.tss = tss
     this.whitelist = whitelist
     this.leader = leader
-    this.leadership = isLeader ? new Leader(this) : new Follower(config, this)
+    this.leadership = isLeader ? new Leader(this) : new Follower(this)
     this.messageMap = {}
     this.vaults = {}
     this.monitor = new Monitor()
@@ -131,7 +130,7 @@ export class BridgeNode {
     if (this.leader !== peerId) return logger.log('ignoring signature start from non-leader', peerId, this.leader)
 
     //note: for local e2e testing, which will not have any contracts or hardhat, till we expand the scope of e2e
-    const verifyTransferHash = async (chainId, transferHash) => chainId === -1 || this.vaults[chainId].checkouts(transferHash)
+    const verifyTransferHash = async (chainId, transferHash) => chainId === -1 || this.vaults[chainId].sends(transferHash)
     const {message: transferHash, chainId} = data
     if (await verifyTransferHash(chainId, transferHash)) {
       const signature = this.tss.sign(transferHash).serializeToHexStr()
@@ -195,13 +194,22 @@ class Leader {
         const signature = G1ToNumbers(deserializeHexStrToSignature(aggregateSignature.groupSign))
         const publicKey = this.self.publicKey
         const toContract = this.self.vaults[to]
-        await toContract.checkIn(signature, publicKey, payload).then(_ => _.wait())
+        await toContract.accept(signature, publicKey, payload).then(_ => _.wait())
       }
     }
-    //fixme:make sure it is a Transfer event
+    //fixme: not working
+    const verify = async (aggregateSignature) => {
+      if (aggregateSignature.verified) {
+        return {
+          signature: G1ToNumbers(deserializeHexStrToSignature(aggregateSignature.groupSign)),
+          publicKey: this.self.publicKey,
+        }
+      }
+    }
+    //fixme: make sure it is a Transfer event
     const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = event.args
     const payload = encodeTransfer(origin, token, name, symbol, decimals, amount, owner, from, to, tag)
-    if (await this.self.vaults[from].checkouts(transferHash)) {
+    if (await this.self.vaults[from].sends(transferHash)) {
       await this.self.aggregateSignature(
         transferHash,
         from,
@@ -247,15 +255,14 @@ class Leader {
 }
 
 class Follower {
-  constructor(config, self) {
-    this.config = config
+  constructor(self) {
     this.self = self
   }
 
   async addLeader() {
     this.self.leader = this.self.network.bootstrapNodes[0].split('/').pop()
     this.self.addPeersToWhiteList(this.self.leader)
-    await waitToSync([_ => this.self.peers.includes(this.self.leader)], -1, this.config.timeout, this.config.port)
+    await waitToSync([_ => this.self.peers.includes(this.self.leader)], -1, this.self.config.timeout, this.self.config.port)
     await this.self.sendMessageToPeer(this.self.leader, WHITELIST_REQUEST, '')
   }
   listenToPeerDiscovery() {}

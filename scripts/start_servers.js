@@ -1,5 +1,5 @@
 import {JsonStore} from '@leverj/common'
-import {execSync, spawn} from 'child_process'
+import {execSync, spawn} from 'node:child_process'
 import {openSync} from 'node:fs'
 import {fileURLToPath} from 'url'
 import waitOn from 'wait-on'

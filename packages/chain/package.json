@@ -4,15 +4,16 @@
   "license": "UNLICENSED",
   "type": "module",
   "exports": {
+    "./config.schema": "./config.schema.js",
     "./contracts": "./src/contracts/index.js",
     "./test": "./test/contracts/help/index.js"
   },
   "scripts": {
     "test": "npx mocha",
     "dependency:check": "npx depcheck",
-    "contracts:generate:exports": "NODE_NO_WARNINGS=1 node scripts/generate-contract-exports",
     "deploy": "NODE_NO_WARNINGS=1 node scripts/deploy",
-    "deploy:local:chain": "yarn deploy --reset --skip-verify --chain=localhost",
+    "deploy:local:chain": "yarn deploy --reset --chain=localhost",
+    "generate:contract:exports": "NODE_NO_WARNINGS=1 node scripts/generate-contract-exports",
     "start:local:chain": "npx hardhat node"
   },
   "dependencies": {

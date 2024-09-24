@@ -1,4 +1,4 @@
-import {accounts, chainId, ETH, provider} from '@leverj/chain-deployment'
+import {accounts, chainId, ETH, provider} from '@leverj/chain-deployment/test'
 import {MultiContractTracker} from '@leverj/chain-tracking'
 import {ERC20, ERC721, expectEventsToMatch} from '@leverj/chain-tracking/test'
 import {InMemoryStore, logger} from '@leverj/common'
@@ -13,6 +13,7 @@ describe('MultiContractTracker', () => {
     const polling = {interval: 10, attempts: 5}
     tracker = MultiContractTracker.from(chainId, provider, new InMemoryStore(), polling, _ => events.push(_), logger)
   })
+
   afterEach(() => tracker.stop())
 
   describe('single kind / single contract', () => {

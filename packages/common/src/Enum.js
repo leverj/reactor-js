@@ -1,4 +1,4 @@
-import {zipWith} from 'lodash-es'
+import {zip} from 'lodash-es'
 
 /** a general purpose Enum a-la-java style */
 export class Enum {
@@ -26,14 +26,13 @@ export class Enum {
   nameOf(value) { return this.names[this.values.indexOf(value)] }
   valueOf(name) { return this.values[this.names.indexOf(name)] }
   ordinalOf(value) { return this.values.indexOf(value) }
-  toMap() { return new Map(zipWith(this.names, this.values, (name, value) => [name, value])) }
+  toMap() { return new Map(zip(this.names, this.values)) }
 
   expandWith(members) {
     const [names, values]  = [Object.keys(members), Object.values(members)]
     for (let each in names) if (this.names.includes(each)) throw Error(`attempt to duplicate name ${each}`)
     for (let each in values) if (this.values.includes(each)) throw Error(`attempt to duplicate value ${each}`)
-    const expanded = zipWith(this.names.concat(names), this.values.concat(values), (name, value) => [name, value]).
-      reduce((obj, [key, value]) => (obj[key] = value, obj), {})
+    const expanded = zip(this.names.concat(names), this.values.concat(values)).reduce((obj, [key, value]) => (obj[key] = value, obj), {})
     return Enum.of(expanded)
   }
 }

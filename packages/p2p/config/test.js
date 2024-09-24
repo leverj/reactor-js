@@ -1,13 +1,13 @@
-const dataDir = `${import.meta.dirname}/../../../data`
+import {defaults} from './defaults.js'
 
-export default {
-  bridge: {
-    confDir: `${dataDir}/p2p/test`,
-  },
-  chain: {
-    polling: {
-      interval: 10,
-      attempts: 5,
-    },
+export default Object.assign(
+  defaults,
+  {
+    chain: {
+      polling: {
+        interval: 10,
+        attempts: 5,
+      }
+    }
   }
-}
+)

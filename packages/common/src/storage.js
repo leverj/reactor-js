@@ -22,7 +22,7 @@ export class JsonStore {
     ensureExistsSync(path)
     this.file = `${path}/${type}.json`
     this.cache = existsSync(this.file) ?
-      new InMemoryStore(JSON.parse(readFileSync(this.file).toString())) :
+      new InMemoryStore(JSON.parse(readFileSync(this.file, 'utf8'))) :
       new InMemoryStore()
   }
   get exists() { return existsSync(this.file) }

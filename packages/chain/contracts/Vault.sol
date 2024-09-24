@@ -27,62 +27,64 @@ contract Vault {
      */
     event Transfer(bytes32 transferHash, uint64 origin, address token, string name, string symbol, uint8 decimals, uint amount, address owner, uint64 from, uint64 to, uint tag);
 
-    /// key[index] is invalid
     error InvalidPublicKey(uint8 index);
+    error TokenDisburseFailure(address token, address from, address to, uint amount);
+    error RetransferAttempt(uint64 origin, address token, string symbol, uint amount, address owner);
 
     Chain public home;
     uint[4] public publicKey;
-    uint public checkoutCounter = 0;
+    uint public sendCounter = 0;
     mapping(address => uint) public balances;
-    mapping(bytes32 => bool) public checkouts;
-    mapping(bytes32 => bool) public checkins;
+    mapping(bytes32 => bool) public sends;
+    mapping(bytes32 => bool) public accepts;
     mapping(uint64 => mapping(address => address)) public proxies;
-    mapping(address => bool) public isCheckedIn;
+    mapping(address => bool) public wasAccepted;
 
-    constructor(uint64 chainId_, string memory chainName_, string memory nativeSymbol_, uint8 nativeDecimals_, uint[4] memory publicKey_) {
-        home = Chain(chainId_, chainName_, nativeSymbol_, nativeDecimals_); //fixme:chainId: use block.chainid instead
+    modifier isValidPublicKey(uint[4] calldata key) { for (uint8 i = 0; i < 4; i++) if (publicKey[i] != key[i]) revert InvalidPublicKey(i); _; }
+
+    constructor(uint64 chainId_, string memory chainName, string memory nativeSymbol, uint8 nativeDecimals, uint[4] memory publicKey_) {
+        home = Chain(chainId_, chainName, nativeSymbol, nativeDecimals); //fixme:chainId: use block.chainid instead
         publicKey = publicKey_;
     }
 
     function chainId() public view returns (uint64) { return home.id; } //fixme:chainId: use block.chainid instead
 
-    function checkOutNative(uint64 to) external payable {
-        balances[NATIVE] += msg.value;
-        checkOut(chainId(), NATIVE, home.name, home.symbol, home.decimals, msg.value, msg.sender, to);
+    function proxyBalanceOf(uint64 chainId_, address token, address account) public view returns (uint) {
+        return proxies[chainId_][token] == address(0) ? 0 : ERC20Proxy(proxies[chainId_][token]).balanceOf(account);
     }
 
-    function checkOutToken(uint64 to, address token, uint amount) external {
-        if (isCheckedIn[token]) {
+    function sendNative(uint64 to) external payable {
+        balances[NATIVE] += msg.value;
+        send(chainId(), NATIVE, home.name, home.symbol, home.decimals, msg.value, msg.sender, to);
+    }
+
+    function sendToken(uint64 to, address token, uint amount) external {
+        if (wasAccepted[token]) {
             ERC20Proxy proxy = ERC20Proxy(token);
             proxy.burn(msg.sender, amount);
-            checkOut(proxy.chain(), proxy.token(), proxy.name(), proxy.symbol(), proxy.decimals(), amount, msg.sender, to);
+            send(proxy.chain(), proxy.token(), proxy.name(), proxy.symbol(), proxy.decimals(), amount, msg.sender, to);
         } else {
             ERC20 erc20 = ERC20(token);
             disburseToken(token, msg.sender, address(this), amount);
             balances[token] += amount;
-            checkOut(chainId(), token, erc20.name(), erc20.symbol(), erc20.decimals(), amount, msg.sender, to);
+            send(chainId(), token, erc20.name(), erc20.symbol(), erc20.decimals(), amount, msg.sender, to);
         }
     }
 
-    function checkOut(uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner, uint64 to) private {
-        uint tag = ++checkoutCounter;
+    function send(uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner, uint64 to) private {
+        uint tag = ++sendCounter;
         bytes32 hash = keccak256(abi.encode(origin, token, name, symbol, decimals, amount, owner, chainId(), to, tag));
-        checkouts[hash] = true;
+        sends[hash] = true;
         emit Transfer(hash, origin, token, name, symbol, decimals, amount, owner, chainId(), to, tag);
     }
 
-    function validatePublicKey(uint[4] calldata key) private view {
-        for (uint8 i = 0; i < 4; i++) if (publicKey[i] != key[i]) revert InvalidPublicKey(i);
-    }
-
-    function checkIn(uint[2] calldata signature, uint[4] calldata signerPublicKey, bytes calldata payload) external {
-        validatePublicKey(signerPublicKey);
+    function accept(uint[2] calldata signature, uint[4] calldata signerPublicKey, bytes calldata payload) isValidPublicKey(signerPublicKey) external {
+        (uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner, , , ) = abi.decode(payload, (uint64, address, string, string, uint8, uint, address, uint64, uint64, uint));
         bytes32 hash = keccak256(payload);
-        require(!checkins[hash], 'Token already checked-in');
+        if (accepts[hash]) revert RetransferAttempt(origin, token, symbol, amount, owner);
         BnsVerifier.verify(signature, signerPublicKey, hash);
-        (uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner, , ,) = abi.decode(payload, (uint64, address, string, string, uint8, uint, address, uint, uint, uint));
         mintOrDisburse(origin, token, name, symbol, decimals, amount, owner);
-        checkins[hash] = true;
+        accepts[hash] = true;
     }
 
     function mintOrDisburse(uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner) private {
@@ -94,7 +96,7 @@ contract Vault {
     function mint(uint64 origin, address token, string memory name, string memory symbol, uint8 decimals, uint amount, address owner) private {
         if (proxies[origin][token] == address(0)) { // if proxy yet to exist
             proxies[origin][token] = address(new ERC20Proxy(origin, token, name, symbol, decimals));
-            isCheckedIn[proxies[origin][token]] = true;
+            wasAccepted[proxies[origin][token]] = true;
         }
         ERC20Proxy(proxies[origin][token]).mint(owner, amount);
     }
@@ -110,6 +112,6 @@ contract Vault {
         ERC20 erc20 = ERC20(token);
         uint balance = erc20.balanceOf(to);
         from == address(this) ? erc20.transfer(to, amount) : erc20.transferFrom(from, to, amount);
-        require(erc20.balanceOf(to) == (balance + amount), 'Invalid transfer');
+        if (erc20.balanceOf(to) != balance + amount) revert TokenDisburseFailure(token, from, to, amount);
     }
 }

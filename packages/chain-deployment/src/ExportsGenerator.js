@@ -1,5 +1,6 @@
 import {Interface} from 'ethers'
 import * as glob from 'glob'
+import {execSync} from 'node:child_process'
 import {mkdirSync, rmSync, writeFileSync} from 'node:fs'
 
 function establishCleanDir(dir) {
@@ -24,6 +25,7 @@ export class ExportsGenerator {
   async exportAbi() {
     this.logger.log(`${'-'.repeat(30)} generating contracts abi exports `.padEnd(120, '-'))
     const targetDir = establishCleanDir(`${this.projectDir}/src/contracts/abi`)
+    execSync(`npx hardhat compile --quiet --config ${this.projectDir}/hardhat.config.cjs`)
     const dirs = glob.sync(`${this.projectDir}/artifacts/contracts/**/*.sol`)
     for (let name of this.contracts) {
       const path = dirs.find(_ => _.endsWith(`/${name}.sol`))
