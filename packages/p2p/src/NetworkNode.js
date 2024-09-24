@@ -68,7 +68,7 @@ export class NetworkNode {
   async publish(topic, data) { return this.p2p.services.pubsub.publish(topic, new TextEncoder().encode(data)) }
 
   // p2p connection
-  async createAndSendMessage(peerId, protocol, message, responseHandler) {
+  async sendMessageTo(peerId, protocol, message, responseHandler) {
     logger.log('Sending', peerId, message)
     try {
       const stream = await this.createStream(peerId, protocol)
@@ -81,7 +81,8 @@ export class NetworkNode {
   }
 
   async createStream(peerId, protocol) {
-    return tryAgainIfError(_ => this.p2p.dialProtocol(peerIdFromString(peerId), protocol), this.config.tryCount, this.config.timeout, this.config.port)
+    const {tryCount, timeout, port} = this.config
+    return tryAgainIfError(_ => this.p2p.dialProtocol(peerIdFromString(peerId), protocol), tryCount, timeout, port)
   }
 
   async sendMessageOnStream(stream, message) { return stream.sink([uint8ArrayFromString(message)]) }

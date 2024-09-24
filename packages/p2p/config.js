@@ -24,17 +24,17 @@ const schema = {
     default: '0.0.0.0',
     env: 'IP',
   },
-  timeout: {
+  timeout: { //fixme: what is this about? need a more descriptive name
     format: 'nat',
     default: 100,
     env: 'TIMEOUT',
   },
-  tryCount: {
+  tryCount: { //fixme: what is this about? need a more descriptive name
     format: 'nat',
     default: 50,
     env: 'TRY_COUNT',
   },
-  bridge: {
+  bridge: { //fixme: is this more about the rest api?
     nodesDir: {
       format: String,
       default: `${dataDir}/p2p`,

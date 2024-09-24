@@ -50,7 +50,7 @@ describe('NetworkNode', () => {
       messages[peerId] = message
       leader.sendMessageOnStream(stream, `responding ${message}`)
     })
-    const sendMessage = async (node, message) => node.createAndSendMessage(leader.peerId, meshProtocol, message, _ => responses[node.peerId] = _)
+    const sendMessage = async (node, message) => node.sendMessageTo(leader.peerId, meshProtocol, message, _ => responses[node.peerId] = _)
     for (let each of nodes.slice(1)) await sendMessage(each, `Verified Transfer Hash ${each.port}`)
     await setTimeout(10)
     for (let each of nodes.slice(1)) {
@@ -106,7 +106,7 @@ describe('NetworkNode', () => {
 
   //FIXME If this test case approach is ok, then p2p occurences can move to NetworkNode
 
-  //basically createAndSendMessage function can be changed to take PeerId as opposed to address (current impl)
+  //basically sendMessageTo function can be changed to take PeerId as opposed to address (current impl)
   it('should create p2p nodes and send stream message to peers without using their address', async () => {
     const numNodes = 6
     const mesgPrefix = 'Hello from sender '
@@ -128,7 +128,7 @@ describe('NetworkNode', () => {
     const peerInfo = await nodes[0].findPeer(peerId)
     const peerAddress = peerInfo.multiaddrs[0]
     const addressToSend = peerAddress + '/p2p/' + peerId
-    await nodes[0].createAndSendMessage(addressToSend, meshProtocol, 'HI', (message) => {logger.log('ACK RESP', message)})*/
+    await nodes[0].sendMessageTo(addressToSend, meshProtocol, 'HI', (message) => {logger.log('ACK RESP', message)})*/
     // await setTimeout(10)
   })
 
