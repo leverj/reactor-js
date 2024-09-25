@@ -1,35 +1,48 @@
 import {accounts, deployContract, provider} from '@leverj/chain-deployment/hardhat.help'
 import {ETH, InMemoryStore, logger} from '@leverj/common'
-import {publicKey, signer, Vault} from '@leverj/reactor.chain/test'
+import {Vault} from '@leverj/reactor.chain/test'
 import {CrossChainVaultCoordinator} from '@leverj/reactor.p2p'
 import config from '@leverj/reactor.p2p/config'
 import {expect} from 'expect'
 import {Map} from 'immutable'
 import {zip, zipWith} from 'lodash-es'
 import {setTimeout} from 'node:timers/promises'
-import {MessageSigner} from './help/MessageSigner.js'
+import {createBridgeNodes} from './help/bridge.js'
 
-describe('CrossChainVaultCoordinator - embedded', () => {
+const {bridge: {threshold}, chain: {polling}} = config
+
+describe('CrossChainVaultCoordinator', () => {
   const amount = BigInt(1e6 - 1)
   const [deployer, account] = accounts
-  let networks, coordinator
+  let nodes, networks, coordinator
 
-  before(async () => {
+  beforeEach(async () => {
+    // establish nodes
+    const howMany = threshold + 1
+    nodes = await createBridgeNodes(howMany)
+    const leader = nodes[0]
+    await leader.publishWhitelist()
+    await leader.startDKG(howMany)
+    await setTimeout(100)
+    expect(leader.publicKey).toBeDefined()
+
+    // establish vaults
     networks = zipWith(['holesky', 'sepolia'], [10101n, 98989n]).map(([label, id]) => ({id, label, provider}))
-    for (let each of networks) each.Vault = await Vault(each.id, publicKey)
-    coordinator = CrossChainVaultCoordinator.ofVaults(
-      networks.map(_ => _.id),
-      Map(networks.map(_ => [_.id, _.Vault])),
-      new InMemoryStore(),
-      config.chain.polling,
-      new MessageSigner(signer),
-      deployer,
-      logger,
-    )
+    for (let each of networks) each.Vault = await Vault(each.id, leader.publicKey)
+    const vaults = Map(networks.map(_ => [_.id, _.Vault])).toJS()
+    nodes.forEach(_ => _.setVaults(vaults))
+
+    // establish coordinator
+    const chainIds = networks.map(_ => _.id)
+    const store = new InMemoryStore()
+    coordinator = CrossChainVaultCoordinator.ofVaults(chainIds, vaults, store, polling, leader, deployer, logger)
     await coordinator.start()
   })
 
-  after(() => coordinator.stop())
+  afterEach(async () => {
+    coordinator.stop()
+    for (let each of nodes) await each.stop()
+  })
 
   it('detects & acts on a Transfer events for both Token & Native, from one chain to another', async () => {
     const [L1_id, L2_id] = networks.map(_ => _.id)

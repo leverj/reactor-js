@@ -20,16 +20,16 @@ export function createRouter(config, leader) {
   }
 
   async function startDkg(req, res) {
-    await leader.leadership.startDKG(threshold).then(_ => res.send('ok'))
+    await leader.startDKG(threshold).then(_ => res.send('ok'))
   }
 
   async function aggregateSignature(req, res) {
     res.send('ok') //fixme: not ready for e2e. not clear what it should actually accomplish when ready ...
-    if (false) await leader.leadership.aggregateSignature(-1, req.body.message).then(_ => res.send('ok'))
+    if (false) await leader.sign(-1, req.body.message).then(_ => res.send('ok'))
   }
 
   async function getAggregateSignature(req, res) {
-    res.send(leader.leadership.aggregateSignatures[req.query.transferHash])
+    res.send(leader.aggregateSignatures[req.query.transferHash])
   }
 
   async function getWhitelists(req, res) {
@@ -37,7 +37,7 @@ export function createRouter(config, leader) {
   }
 
   async function publishWhitelist(req, res) {
-    await leader.leadership.publishWhitelist().then(_ => res.send('ok'))
+    await leader.publishWhitelist().then(_ => res.send('ok'))
   }
 
   async function getBootstrapPeers(req, res) {

@@ -9,14 +9,13 @@ import {
   Signature,
 } from '@leverj/reactor.mcl'
 import {TssNode} from '@leverj/reactor.p2p'
-import config from '@leverj/reactor.p2p/config'
 import {expect} from 'expect'
 import {AbiCoder, keccak256} from 'ethers'
 
 describe('TssNode', () => {
   const message = 'hello world'
   const memberIds = [10314, 30911, 25411, 8608, 31524, 15441, 23399]
-  const threshold = config.bridge.threshold
+  const threshold = 4, bridge = {threshold}
 
   const signMessage = (members) => [
     members.map(_ => _.sign(message)),
@@ -43,7 +42,7 @@ describe('TssNode', () => {
     for (let each of members) await each.generateVectorsAndContribution(threshold)
   }
 
-  const createDkgMembers = async (memberIds, threshold = config.bridge.threshold) => {
+  const createDkgMembers = async (memberIds, threshold = bridge.threshold) => {
     const members = memberIds.map(id => new TssNode(id.toString()))
     for (let member1 of members)
       for (let member2 of members)
@@ -110,7 +109,7 @@ describe('TssNode', () => {
 
   it('can increase threshold', async () => {
     const members = await createDkgMembers(memberIds, threshold)
-    expect(await signAndVerify(members.slice(0, threshold))).toBe(true)
+    expect(await signAndVerify(members.slice(0, 4))).toBe(true)
 
     const groupsPublicKeyHex = members[0].groupPublicKey.serializeToHexStr()
     members.forEach(_ => _.reinitiate())
@@ -175,6 +174,7 @@ describe('TssNode', () => {
   })
 
   it.skip('can decrease threshold', async () => {
+    const threshold = 5
     const members = await createDkgMembers(memberIds, threshold)
     expect(await signAndVerify(members.slice(0, 4))).toBe(false)
     expect(await signAndVerify(members.slice(0, 5))).toBe(true)

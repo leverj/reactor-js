@@ -15,19 +15,19 @@ export class CrossChainVaultCoordinator {
       provider: new JsonRpcProvider(_.providerURL),
       Vault: _.contracts.Vault,
     })).valueSeq().toArray()
-    const vaults = Map(networks.map(_ => [_.id, stubs.Vault(_.Vault.address, _.provider)]))
+    const vaults = Map(networks.map(_ => [_.id, stubs.Vault(_.Vault.address, _.provider)])).toJS()
     return this.ofVaults(networks.map(_ => _.id), vaults, store, polling, signer, wallet, logger)
   }
 
+  // note: for use by tests
   static ofVaults(chainIds, vaults, store, polling, signer, wallet, logger = console) {
-    // fixme:chains: affirm vaults includes all of chainIds
     return new this(chainIds, vaults, store, polling, signer, wallet, logger)
   }
 
   constructor(chainIds, vaults, store, polling, signer, wallet, logger) {
     this.chainIds = chainIds
     this.vaults = vaults
-    this.trackers = this.vaults.map((vault, id) => VaultTracker(id, vault, store, polling, this, logger)).valueSeq().toArray()
+    this.trackers = Object.entries(this.vaults).map(([id, vault]) => VaultTracker(id, vault, store, polling, this, logger))
     this.signer = signer
     this.wallet = wallet
     this.logger = logger
@@ -39,10 +39,10 @@ export class CrossChainVaultCoordinator {
       case 'Transfer':
         const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = event.args
         const payload = encodeTransfer(origin, token, name, symbol, decimals, amount, owner, from, to, tag)
-        const {signature, publicKey} = await this.signer.sign(from, transferHash)
-        const toVault = this.vaults.get(to)
+        const signature = await this.signer.sign(from, transferHash)
+        const toVault = this.vaults[to]
         const runner = toVault.connect(this.wallet.connect(toVault.runner.provider))
-        await runner.accept(signature, publicKey, payload).then(_ => _.wait())
+        await runner.accept(signature, this.signer.publicKey, payload).then(_ => _.wait())
     }
   }
 

@@ -14,8 +14,8 @@ describe('Vault', () => {
   beforeEach(async () => {
     nodes = await createBridgeNodes(7)
     leader = nodes[0]
-    await leader.leadership.publishWhitelist()
-    await leader.leadership.startDKG(4)
+    await leader.publishWhitelist()
+    await leader.startDKG(4)
     await setTimeout(100)
   })
 
@@ -47,7 +47,7 @@ describe('Vault', () => {
     then(async _ => {
       const event = vault.interface.parseLog(_[0])
       const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = event.args
-      const signature = await leader.leadership.aggregateSignature(from, transferHash)
+      const signature = await leader.sign(from, transferHash)
       const payload = encodeTransfer(origin, token, name, symbol, decimals, amount, owner, from, to, tag)
       const toContract = leader.vaults[to]
       return toContract.accept(signature, leader.publicKey, payload).then(_ => _.wait())

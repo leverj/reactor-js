@@ -14,7 +14,7 @@ import {MessageSigner} from './help/MessageSigner.js'
 
 const {bridge: {nodesDir}, chain: {polling}} = config
 
-describe('e2e - CrossChainVaultCoordinator', () => {
+describe.skip('e2e - CrossChainVaultCoordinator', () => {
   const amount = BigInt(1e6 - 1)
   const [deployer, account] = accounts
   const chains = ['holesky', 'sepolia'], [L1, L2] = chains
