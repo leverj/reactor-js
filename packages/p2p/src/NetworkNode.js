@@ -27,7 +27,7 @@ export class NetworkNode {
   get peerId() { return this.p2p.peerId.toString() }
   get peers() { return this.p2p.getPeers().map(_ => _.toString()) }
 
-  info() {
+  state() {
     return {
       privKey: uint8ArrayToString(this.p2p.peerId.privateKey, 'base64'),
       pubKey: uint8ArrayToString(this.p2p.peerId.publicKey, 'base64'),

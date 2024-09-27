@@ -7,7 +7,7 @@ import {
   SecretKey,
   Signature,
 } from '@leverj/reactor.mcl'
-import {events, NODE_INFO_CHANGED} from './utils.js'
+import {events, NODE_STATE_CHANGED} from './utils.js'
 
 /**
  * Adds secret key contribution together to produce a single secret key
@@ -157,7 +157,7 @@ export class TssNode {
     this.secretKeyShare = addContributionShares(this.previouslyShared ? [this.secretKeyShare, ...receivedShares] : receivedShares)
     this.vvec = addVerificationVectors(this.previouslyShared ? [this.vvec, ...vvecs] : vvecs)
     this.previouslyShared = true
-    events.emit(NODE_INFO_CHANGED)
+    events.emit(NODE_STATE_CHANGED)
   }
 
   sign(message) { return this.secretKeyShare.sign(message) }
@@ -173,11 +173,7 @@ export class TssNode {
     return this.groupPublicKey.verify(deserializeHexStrToSignature(signature), message)
   }
 
-  print() {
-    logger.log([this.id, this.secretKeyShare, this.groupPublicKey].map(_ => _?.serializeToHexStr()).join('\n\t'))
-  }
-
-  info() {
+  state() {
     if (!this.previouslyShared) return
     return {
       id: this.idHex,

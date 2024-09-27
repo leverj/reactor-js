@@ -2,7 +2,7 @@ import {EventEmitter} from 'node:events'
 import {setTimeout} from 'node:timers/promises'
 
 export const events = new EventEmitter()
-export const NODE_INFO_CHANGED = 'NODE_INFO_CHANGED'
+export const NODE_STATE_CHANGED = 'node:state:changed'
 export const PEER_DISCOVERY = 'peer:discovery'
 export const PEER_CONNECT = 'peer:connect'
 

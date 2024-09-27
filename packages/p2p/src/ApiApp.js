@@ -3,7 +3,7 @@ import {createServer} from 'http'
 import {existsSync, readFileSync, writeFileSync} from 'node:fs'
 import {createApp} from './rest/app.js'
 import {BridgeNode} from './BridgeNode.js'
-import {events, NODE_INFO_CHANGED} from './utils.js'
+import {events, NODE_STATE_CHANGED} from './utils.js'
 
 export class JsonDirStore {
   constructor(path, type) {
@@ -20,12 +20,12 @@ class NodePersistence {
     this.name = name
     this.node = node
     this.store = store
-    events.on(NODE_INFO_CHANGED, () => this.set())
+    events.on(NODE_STATE_CHANGED, () => this.set())
   }
   get() { return this.store.get(this.name) }
   set() {
     if (this.timer) clearTimeout(this.timer)
-    this.timer = setTimeout(() => this.store.set(this.name, this.node.info()), 10)
+    this.timer = setTimeout(() => this.store.set(this.name, this.node.state()), 10)
   }
 }
 
@@ -33,7 +33,7 @@ export class ApiApp {
   static async with(config, store) {
     const {bridge, port} = config
     const node = await BridgeNode.from(config, bridge.port, bridge.bootstrapNodes, store.get(port))
-    new NodePersistence(port, node, store) // ... start listening to NODE_INFO_CHANGED
+    new NodePersistence(port, node, store) // ... start listening to NODE_STATE_CHANGED
     return new this(config, node)
   }
 
