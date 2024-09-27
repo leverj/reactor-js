@@ -11,6 +11,14 @@ import {setTimeout} from 'node:timers/promises'
 import {events, NODE_STATE_CHANGED, PEER_DISCOVERY, waitToSync} from './utils.js'
 
 const meshProtocol = '/bridge/0.0.1'
+const topics = {
+  WHITELIST: 'whitelist',
+  WHITELIST_REQUEST: 'whitelist:request',
+  SIGNATURE_START: 'signature:start',
+  SIGNATURE_RECEIVE_SHARE: 'signature:receive:share',
+  DKG_START: 'dkg:start',
+  DKG_RECEIVE_SHARE: 'dkg:receive:share',
+}
 
 export class BridgeNode {
   static async from(config, port, bootstrapNodes, data = {}) {
@@ -83,7 +91,7 @@ export class BridgeNode {
     if (peerIds.length > 0) {
       for (let each of peerIds) {
         const dkgId = this.whitelist.add(each)
-        if (each !== this.peerId) this.tss.addMember(dkgId, this.sendMessageTo.bind(this, each, 'dkg:receive:share'))
+        if (each !== this.peerId) this.tss.addMember(dkgId, this.sendMessageTo.bind(this, each, topics.DKG_RECEIVE_SHARE))
       }
       logger.log('Added to whitelist', peerIds.map(_ => `${_.slice(0, 4)}..${_.slice(-3)}`).join(', '))
       events.emit(NODE_STATE_CHANGED)
@@ -96,15 +104,15 @@ export class BridgeNode {
   }
 
   async onStreamMessage(stream, peerId, payload) {
-    const message = JSON.parse(payload)
+    const {topic, message} = JSON.parse(payload)
     affirm(this.whitelist.exists(peerId, `Unknown peer ${peerId}`))
-    switch (message.topic) {
-      case 'whitelist': return this.onWhitelist(peerId, message.message)
-      case 'whitelist:request': return this.onWhitelistRequest(peerId)
-      case 'signature:start': return this.onSignatureStart(peerId, JSON.parse(message.message))
-      case 'signature:receive:share': return this.onSignatureShare(message)
-      case 'dkg:start': return this.onDkgStart(message.threshold)
-      case 'dkg:receive:share': return this.onDkgShare(message.message)
+    switch (topic) {
+      case topics.WHITELIST: return this.onWhitelist(peerId, message)
+      case topics.WHITELIST_REQUEST: return this.onWhitelistRequest(peerId)
+      case topics.SIGNATURE_START: return this.onSignatureStart(peerId, message)
+      case topics.SIGNATURE_RECEIVE_SHARE: return this.onSignatureShare(message)
+      case topics.DKG_START: return this.onDkgStart(message)
+      case topics.DKG_RECEIVE_SHARE: return this.onDkgShare(message)
       default: logger.log('Unknown message', message)
     }
   }
@@ -116,7 +124,7 @@ export class BridgeNode {
   }
 
   onWhitelistRequest(peerId) {
-    return this.whitelist.canPublish ? this.sendMessageTo(peerId, 'whitelist', this.whitelist.get()) : {}
+    return this.whitelist.canPublish ? this.sendMessageTo(peerId, topics.WHITELIST, this.whitelist.get()) : {}
   }
 
   async onSignatureStart(peerId, data) {
@@ -125,14 +133,13 @@ export class BridgeNode {
       if (!this.vaults[from]) throw Error(`missing vault for chain ${from}`)
       if (await this.vaults[from].sends(transferHash)) {
         const signature = this.tss.sign(transferHash).serializeToHexStr()
-        logger.log('signature:start', transferHash, signature)
-        const signaturePayloadToLeader = {
-          topic: 'signature:receive:share',
+        logger.log(topics.SIGNATURE_START, transferHash, signature)
+        const message = {
           signature,
           signer: this.signer,
           transferHash,
         }
-        await this.network.sendMessageTo(peerId, meshProtocol, JSON.stringify(signaturePayloadToLeader), _ => logger.log('SignaturePayload Ack', _))
+        await this.sendMessageTo(peerId, topics.SIGNATURE_RECEIVE_SHARE, message)
       }
     }
   }
@@ -149,7 +156,7 @@ export class BridgeNode {
     }
   }
 
-  onDkgStart(threshold) { return this.tss.generateVectorsAndContribution(threshold) }
+  onDkgStart(message) { return this.tss.onDkgStart(message) }
 
   onDkgShare(message) { return this.tss.onDkgShare(message) }
 }
@@ -176,7 +183,7 @@ class Leader {
         transferHash,
         verified: false,
       }
-      await this.fanout('signature:start', JSON.stringify({transferHash, from}), monitor.filter(whitelist.get()))
+      await this.fanout(topics.SIGNATURE_START, {transferHash, from}, monitor.filter(whitelist.get()))
       //fixme:config: these should come from config
       const interval = 10, timeout = config.timeout
       await until(() => aggregateSignatures[transferHash].verified, interval, timeout)
@@ -190,7 +197,7 @@ class Leader {
     const {whitelist, monitor} = this.self
     whitelist.canPublish = true
     const message = whitelist.get()
-    await this.fanout('whitelist', message, monitor.filter(message))
+    await this.fanout(topics.WHITELIST, message, monitor.filter(message))
   }
 
   async fanout(topic, message, peerIds) {
@@ -200,8 +207,7 @@ class Leader {
   async startDKG(threshold) {
     const {whitelist, peerId, network, tss} = this.self
     for (let each of whitelist.get()) if (each !== peerId) {
-      const message = JSON.stringify({topic: 'dkg:start', threshold})
-      await network.sendMessageTo(each, meshProtocol, message, _ => logger.log('dkg received', _))
+      await this.self.sendMessageTo(each, topics.DKG_START, {threshold})
     }
     await tss.generateVectorsAndContribution(threshold)
   }
@@ -217,7 +223,7 @@ class Follower {
     this.self.leader = this.self.network.bootstrapNodes[0].split('/').pop()
     this.self.whitelistPeers(this.self.leader)
     await waitToSync([_ => this.self.peers.includes(this.self.leader)], -1, this.self.config.timeout, this.self.config.port)
-    await this.self.sendMessageTo(this.self.leader, 'whitelist:request', '')
+    await this.self.sendMessageTo(this.self.leader, topics.WHITELIST_REQUEST, '')
   }
 }
 

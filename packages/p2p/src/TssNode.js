@@ -110,11 +110,16 @@ export class TssNode {
 
   addMember(memberId, dkgHandler) { this.members[memberId] = dkgHandler }
 
-  onDkgShare(dkgShareMessage) {
-    const {id, secretKeyContribution, verificationVector} = JSON.parse(dkgShareMessage)
+  onDkgShare(message) {
+    const {id, secretKeyContribution, verificationVector} = JSON.parse(message)
     this.verifyAndAddShare(id, SecretKey.from(secretKeyContribution), verificationVector.map(_ => PublicKey.from(_)))
     this.vvecs[id] = verificationVector.map(_ => PublicKey.from(_))
     if (Object.keys(this.vvecs).length === Object.keys(this.members).length) this.dkgDone()
+  }
+
+  onDkgStart(message) {
+    const {threshold} = message
+    return this.generateVectorsAndContribution(threshold)
   }
 
   async generateVectorsAndContribution(threshold) {
