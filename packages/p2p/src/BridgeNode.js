@@ -95,18 +95,6 @@ export class BridgeNode {
     await this.network.sendMessageTo(peerId, meshProtocol, JSON.stringify({topic, message}), responseHandler)
   }
 
-  async connectPubSub(peerId) {
-    return this.network.connectPubSub(peerId, this.onPubSubMessage.bind(this))
-  }
-  //fixme: some tests are using pubsub
-  async onPubSubMessage({peerId, topic, data}) {
-    switch (topic) {
-      case 'whitelist': return this.onWhitelist(peerId, JSON.parse(data))
-      case 'signature:start': return this.onSignatureStart(peerId, JSON.parse(data))
-      default: logger.log('Unknown topic', topic)
-    }
-  }
-
   async onStreamMessage(stream, peerId, payload) {
     const message = JSON.parse(payload)
     affirm(this.whitelist.exists(peerId, `Unknown peer ${peerId}`))
