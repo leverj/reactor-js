@@ -175,7 +175,7 @@ class Leader {
   }
 
   async aggregateSignature(from, transferHash) {
-    const {vaults, signer, aggregateSignatures, tss, monitor, whitelist, config} = this.self
+    const {vaults, signer, aggregateSignatures, tss, config} = this.self
     if (await vaults[from].sends(transferHash)) {
       const signature = tss.sign(transferHash).serializeToHexStr()
       aggregateSignatures[transferHash] = {
@@ -183,9 +183,8 @@ class Leader {
         transferHash,
         verified: false,
       }
-      await this.fanout(topics.SIGNATURE_START, {transferHash, from}, monitor.filter(whitelist.get()))
-      //fixme:config: these should come from config
-      const interval = 10, timeout = config.timeout
+      await this.fanout(topics.SIGNATURE_START, {transferHash, from})
+      const interval = 10, timeout = config.timeout //fixme:config: these should come from config
       await until(() => aggregateSignatures[transferHash].verified, interval, timeout)
     }
     return aggregateSignatures[transferHash].verified ?
@@ -194,22 +193,21 @@ class Leader {
   }
 
   async publishWhitelist() {
-    const {whitelist, monitor} = this.self
+    const {whitelist} = this.self
     whitelist.canPublish = true
     const message = whitelist.get()
-    await this.fanout(topics.WHITELIST, message, monitor.filter(message))
-  }
-
-  async fanout(topic, message, peerIds) {
-    for (let each of peerIds) if (each !== this.self.peerId) await this.self.sendMessageTo(each, topic, message)
+    await this.fanout(topics.WHITELIST, message)
   }
 
   async startDKG(threshold) {
-    const {whitelist, peerId, network, tss} = this.self
-    for (let each of whitelist.get()) if (each !== peerId) {
-      await this.self.sendMessageTo(each, topics.DKG_START, {threshold})
-    }
-    await tss.generateVectorsAndContribution(threshold)
+    await this.fanout(topics.DKG_START, {threshold})
+    await this.self.tss.generateVectorsAndContribution(threshold)
+  }
+
+  async fanout(topic, message) {
+    const {whitelist, monitor, peerId} = this.self
+    const peerIds = monitor.filter(whitelist.get()).filter(_ => _ !== peerId)
+    for (let each of peerIds) await this.self.sendMessageTo(each, topic, message)
   }
 }
 
