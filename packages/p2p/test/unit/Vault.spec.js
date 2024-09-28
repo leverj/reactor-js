@@ -5,6 +5,7 @@ import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
 import {createBridgeNodes} from './help/bridge.js'
 import {encodeTransfer} from '@leverj/reactor.chain/contracts'
+import {Map} from 'immutable'
 
 describe('Vault', () => {
   const [, account] = accounts
@@ -23,13 +24,10 @@ describe('Vault', () => {
 
   const deployVaultPerChainOnNodes = async (chains) => {
     const publicKey = leader.publicKey
-    const vaults = []
-    for (let each of chains) {
-      const vault = await Vault(each, publicKey)
-      nodes.forEach(_ => _.vaults[each] = vault)
-      vaults.push(vault)
-    }
-    return vaults
+    const vaults = Map().asMutable()
+    for (let each of chains) vaults.set(each, await Vault(each, publicKey))
+    nodes.forEach(_ => _.setVaults(vaults))
+    return vaults.valueSeq().toArray()
   }
 
   const sendNativeFromTo = async (fromVault, toVault, amount) => sendFromTo(fromVault, toVault, amount)
@@ -49,7 +47,7 @@ describe('Vault', () => {
       const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = event.args
       const signature = await leader.sign(from, transferHash)
       const payload = encodeTransfer(origin, token, name, symbol, decimals, amount, owner, from, to, tag)
-      const toContract = leader.vaults[to]
+      const toContract = leader.vaults.get(to)
       return toContract.accept(signature, leader.publicKey, payload).then(_ => _.wait())
     }).
     then(_ => setTimeout(100))
@@ -93,7 +91,7 @@ describe('Vault', () => {
   })
 
   describe('multi-chain scenarios with currency transfer on first chain', () => {
-    const chains = [1, 2, 3, 4, 5, 6, 7]
+    const chains = [1, 2, 3, 4, 5, 6, 7].map(_ => BigInt(_))
     let vaults
 
     beforeEach(async () => vaults = await deployVaultPerChainOnNodes(chains))

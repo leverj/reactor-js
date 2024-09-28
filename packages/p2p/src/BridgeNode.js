@@ -7,6 +7,7 @@ import {
   SecretKey,
 } from '@leverj/reactor.mcl'
 import {NetworkNode, TssNode} from '@leverj/reactor.p2p'
+import {Map} from 'immutable'
 import {setTimeout} from 'node:timers/promises'
 import {events, NODE_STATE_CHANGED, PEER_DISCOVERY, waitToSync} from './utils.js'
 
@@ -14,6 +15,8 @@ const meshProtocol = '/bridge/0.0.1'
 const topics = {
   WHITELIST: 'whitelist',
   WHITELIST_REQUEST: 'whitelist:request',
+  VAULTS: 'vaults',
+  VAULTS_REQUEST: 'vaults:request',
   SIGNATURE_START: 'signature:start',
   SIGNATURE_RECEIVE_SHARE: 'signature:receive:share',
   DKG_START: 'dkg:start',
@@ -37,7 +40,7 @@ export class BridgeNode {
     this.leader = leader
     this.leadership = isLeader ? new Leader(this) : new Follower(this)
     this.aggregateSignatures = {}
-    this.vaults = {}
+    this.vaults = Map().asMutable()
     this.monitor = new Monitor()
     this.network.registerStreamHandler(meshProtocol, this.onStreamMessage.bind(this))
     this.whitelistPeers(...this.whitelist.initial)
@@ -109,6 +112,8 @@ export class BridgeNode {
     switch (topic) {
       case topics.WHITELIST: return this.onWhitelist(peerId, message)
       case topics.WHITELIST_REQUEST: return this.onWhitelistRequest(peerId)
+      case topics.VAULTS: return this.onVaults(peerId, message)
+      case topics.VAULTS_REQUEST: return this.onVaultsRequest(peerId)
       case topics.SIGNATURE_START: return this.onSignatureStart(peerId, message)
       case topics.SIGNATURE_RECEIVE_SHARE: return this.onSignatureShare(message)
       case topics.DKG_START: return this.onDkgStart(message)
@@ -118,29 +123,39 @@ export class BridgeNode {
   }
 
   onWhitelist(peerId, peerIds) {
-    this.leader === peerId ?
-      this.whitelistPeers(...peerIds) :
-      logger.log('ignoring whitelist from non-leader', peerId)
+    if (peerId !== this.leader) return logger.log(`ignoring ${topics.WHITELIST} from non-leader`, peerId)
+
+    this.whitelistPeers(...peerIds)
   }
 
   onWhitelistRequest(peerId) {
     return this.whitelist.canPublish ? this.sendMessageTo(peerId, topics.WHITELIST, this.whitelist.get()) : {}
   }
 
+  onVaults(peerId, message) {
+    if (peerId !== this.leader) return logger.log(`ignoring ${topics.VAULTS} from non-leader`, peerId)
+
+    // fixme: message should contain evms
+  }
+
+  onVaultsRequest(peerId) {
+  }
+
   async onSignatureStart(peerId, data) {
-    if (this.leader === peerId) {
-      const {transferHash, from} = data
-      if (!this.vaults[from]) throw Error(`missing vault for chain ${from}`)
-      if (await this.vaults[from].sends(transferHash)) {
-        const signature = this.tss.sign(transferHash).serializeToHexStr()
-        logger.log(topics.SIGNATURE_START, transferHash, signature)
-        const message = {
-          signature,
-          signer: this.signer,
-          transferHash,
-        }
-        await this.sendMessageTo(peerId, topics.SIGNATURE_RECEIVE_SHARE, message)
+    if (peerId !== this.leader) return logger.log(`ignoring ${topics.SIGNATURE_START} from non-leader`, peerId)
+
+    let {transferHash, from} = data
+    from = BigInt(from)
+    if (!this.vaults.has(from)) throw Error(`missing vault for chain ${from}`)
+    if (await this.vaults.get(from).sends(transferHash)) {
+      const signature = this.tss.sign(transferHash).serializeToHexStr()
+      logger.log(topics.SIGNATURE_START, transferHash, signature)
+      const message = {
+        signature,
+        signer: this.signer,
+        transferHash,
       }
+      await this.sendMessageTo(peerId, topics.SIGNATURE_RECEIVE_SHARE, message)
     }
   }
 
@@ -176,7 +191,8 @@ class Leader {
 
   async aggregateSignature(from, transferHash) {
     const {vaults, signer, aggregateSignatures, tss, config} = this.self
-    if (await vaults[from].sends(transferHash)) {
+    if (!vaults.has(from)) throw Error(`missing vault for chain ${from}`)
+    if (await vaults.get(from).sends(transferHash)) {
       const signature = tss.sign(transferHash).serializeToHexStr()
       aggregateSignatures[transferHash] = {
         signatures: [{signer, signature}],

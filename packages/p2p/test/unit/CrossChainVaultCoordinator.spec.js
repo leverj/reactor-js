@@ -27,15 +27,13 @@ describe('CrossChainVaultCoordinator', () => {
     expect(leader.publicKey).toBeDefined()
 
     // establish vaults
-    networks = zipWith(['holesky', 'sepolia'], [10101n, 98989n]).map(([label, id]) => ({id, label, provider}))
-    for (let each of networks) each.Vault = await Vault(each.id, leader.publicKey)
-    const vaults = Map(networks.map(_ => [_.id, _.Vault])).toJS()
-    nodes.forEach(_ => _.setVaults(vaults))
+    networks = [10101n, 98989n].map(id => ({id, provider}))
+    const vaults = Map(await Promise.all([10101n, 98989n].map(async (id) => [id, await Vault(id, leader.publicKey)])))
 
     // establish coordinator
-    const chainIds = networks.map(_ => _.id)
     const store = new InMemoryStore()
-    coordinator = CrossChainVaultCoordinator.ofVaults(chainIds, vaults, store, polling, leader, deployer, logger)
+    coordinator = CrossChainVaultCoordinator.ofVaults(vaults, store, polling, leader, deployer, logger)
+    nodes.forEach(_ => _.setVaults(coordinator.vaults))
     await coordinator.start()
   })
 
@@ -45,9 +43,9 @@ describe('CrossChainVaultCoordinator', () => {
   })
 
   it('detects & acts on a Transfer events for both Token & Native, from one chain to another', async () => {
-    const [L1_id, L2_id] = networks.map(_ => _.id)
-    const [L1_vault, L2_vault] = networks.map(_ => _.Vault)
-    const [L1_provider, L2_provider] = networks.map(_ => _.provider)
+    const [L1_id, L2_id] = [10101n, 98989n]
+    const [L1_vault, L2_vault] = coordinator.vaults.valueSeq().toArray()
+    const [L1_provider, L2_provider] = [provider, provider]
     for (let [vault, id] of zip([L1_vault, L2_vault], coordinator.chainIds)) expect(await vault.chainId()).toEqual(id)
 
     const L1_token = await deployContract('ERC20Mock', ['Gold', '💰'])

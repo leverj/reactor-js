@@ -9,30 +9,32 @@ export const VaultTracker = (chainId, contract, store, polling, actor, logger = 
 
 export class CrossChainVaultCoordinator {
   static ofEvms(evms, chains, store, polling, signer, wallet, logger = console) {
-    const networks = Map(evms).filter(_ => chains.includes(_.label)).map(_ => ({
-      id: BigInt(_.id),
-      label: _.label,
-      provider: new JsonRpcProvider(_.providerURL),
-      Vault: _.contracts.Vault,
-    })).valueSeq().toArray()
-    const vaults = Map(networks.map(_ => [_.id, stubs.Vault(_.Vault.address, _.provider)])).toJS()
-    return this.ofVaults(networks.map(_ => _.id), vaults, store, polling, signer, wallet, logger)
+    const networks = Map(evms).
+      filter(_ => chains.includes(_.label)).
+      mapKeys(_ => BigInt(_)).
+      map(_ => ({providerURL: _.providerURL, Vault: _.contracts.Vault}))
+    return this.ofNetworks(networks, store, polling, signer, wallet, logger)
+  }
+
+  static ofNetworks(networks, store, polling, signer, wallet, logger = console) {
+    const vaults = networks.map(_ => stubs.Vault(_.Vault.address, new JsonRpcProvider(_.providerURL)))
+    return this.ofVaults(vaults, store, polling, signer, wallet, logger)
   }
 
   // note: for use by tests
-  static ofVaults(chainIds, vaults, store, polling, signer, wallet, logger = console) {
-    return new this(chainIds, vaults, store, polling, signer, wallet, logger)
+  static ofVaults(vaults, store, polling, signer, wallet, logger = console) {
+    return new this(vaults, store, polling, signer, wallet, logger)
   }
 
-  constructor(chainIds, vaults, store, polling, signer, wallet, logger) {
-    this.chainIds = chainIds
+  constructor(vaults, store, polling, signer, wallet, logger) {
     this.vaults = vaults
-    this.trackers = Object.entries(this.vaults).map(([id, vault]) => VaultTracker(id, vault, store, polling, this, logger))
+    this.trackers = this.vaults.map((vault, id) => VaultTracker(id, vault, store, polling, this, logger)).valueSeq().toArray()
     this.signer = signer
     this.wallet = wallet
     this.logger = logger
     this.isRunning = false
   }
+  get chainIds() { return this.vaults.keySeq().toArray() }
 
   async onEvent(event) {
     switch (event.name) {
@@ -40,7 +42,7 @@ export class CrossChainVaultCoordinator {
         const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = event.args
         const payload = encodeTransfer(origin, token, name, symbol, decimals, amount, owner, from, to, tag)
         const signature = await this.signer.sign(from, transferHash)
-        const toVault = this.vaults[to]
+        const toVault = this.vaults.get(to)
         const runner = toVault.connect(this.wallet.connect(toVault.runner.provider))
         await runner.accept(signature, this.signer.publicKey, payload).then(_ => _.wait())
     }
