@@ -28,7 +28,7 @@ export class BridgeNode {
     const {p2p, tssNode, whitelist, leader} = data
     const network = await NetworkNode.from(config, port, p2p, bootstrapNodes)
     const tss = new TssNode(network.peerId, tssNode)
-    tss.addMember(tss.idHex, tss.onDkgShare.bind(tss)) // making self dkg share
+    tss.addMember(tss.idHex, _ => tss.onDkgShare(_)) // making self dkg share
     return new this(config, network, tss,  new Whitelist(whitelist || []), leader, bootstrapNodes.length === 0)
   }
 
@@ -85,16 +85,16 @@ export class BridgeNode {
     const peerIds = this.whitelist.get()
     for (let each of peerIds) if (each !== this.peerId) {
       this.monitor.updateLatency(each, await this.network.ping(each))
-      await setTimeout(this.config.timeout) //fixme: why the timeout?
+      await setTimeout(this.config.timeout)
     }
-    setTimeout(this.config.timeout).then(this.ping.bind(this)) //fixme: why the timeout?
+    setTimeout(this.config.timeout).then(_ => this.ping())
   }
 
   whitelistPeers(...peerIds) {
     if (peerIds.length > 0) {
       for (let each of peerIds) {
         const dkgId = this.whitelist.add(each)
-        if (each !== this.peerId) this.tss.addMember(dkgId, this.sendMessageTo.bind(this, each, topics.DKG_RECEIVE_SHARE))
+        if (each !== this.peerId) this.tss.addMember(dkgId, _ => this.sendMessageTo(each, topics.DKG_RECEIVE_SHARE, _))
       }
       logger.log('Added to whitelist', peerIds.map(_ => `${_.slice(0, 4)}..${_.slice(-3)}`).join(', '))
       events.emit(NODE_STATE_CHANGED)
