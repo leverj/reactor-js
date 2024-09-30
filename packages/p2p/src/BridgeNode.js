@@ -39,7 +39,6 @@ export class BridgeNode {
     this.whitelist = whitelist
     this.leader = leader
     this.leadership = isLeader ? new Leader(this) : new Follower(this)
-    this.aggregateSignatures = {}
     this.vaults = Map().asMutable()
     this.monitor = new Monitor()
     this.network.registerStreamHandler(meshProtocol, this.onStreamMessage.bind(this))
@@ -159,17 +158,7 @@ export class BridgeNode {
     }
   }
 
-  async onSignatureShare(message) {
-    const {transferHash, signature, signer} = message
-    const info = this.aggregateSignatures[transferHash]
-    info.signatures.push({signature, signer})
-    logger.log('Received signature', transferHash, signature)
-    if (info.signatures.length === this.tss.threshold) {
-      info.groupSign = this.tss.groupSign(info.signatures)
-      info.verified = this.tss.verify(info.groupSign, transferHash)
-      logger.log('Verified', transferHash, info.verified, info.groupSign)
-    }
-  }
+  async onSignatureShare(message) { return this.leadership.onSignatureShare(message) }
 
   onDkgStart(message) { return this.tss.onDkgStart(message) }
 
@@ -177,8 +166,11 @@ export class BridgeNode {
 }
 
 class Leader {
-  constructor(self) { this.self = self}
-  get isLeader() { return true }
+  constructor(self) {
+    this.self = self
+    this.isLeader = true
+    this.aggregateSignatures = {}
+  }
 
   async addLeader() {
     this.self.leader = this.self.peerId
@@ -190,7 +182,8 @@ class Leader {
   }
 
   async aggregateSignature(from, transferHash) {
-    const {vaults, signer, aggregateSignatures, tss, config} = this.self
+    const aggregateSignatures = this.aggregateSignatures
+    const {vaults, signer, tss, config} = this.self
     if (!vaults.has(from)) throw Error(`missing vault for chain ${from}`)
     if (await vaults.get(from).sends(transferHash)) {
       const signature = tss.sign(transferHash).serializeToHexStr()
@@ -206,6 +199,18 @@ class Leader {
     return aggregateSignatures[transferHash].verified ?
       G1ToNumbers(deserializeHexStrToSignature(aggregateSignatures[transferHash].groupSign)) :
       null
+  }
+
+  async onSignatureShare(message) {
+    const {transferHash, signature, signer} = message
+    const aggregateSignature = this.aggregateSignatures[transferHash]
+    aggregateSignature.signatures.push({signature, signer})
+    logger.log('Received signature', transferHash, signature)
+    if (aggregateSignature.signatures.length === this.self.tss.threshold) {
+      aggregateSignature.groupSign = this.self.tss.groupSign(aggregateSignature.signatures)
+      aggregateSignature.verified = this.self.tss.verify(aggregateSignature.groupSign, transferHash)
+      logger.log('Verified', transferHash, aggregateSignature.verified, aggregateSignature.groupSign)
+    }
   }
 
   async publishWhitelist() {
@@ -228,10 +233,10 @@ class Leader {
 }
 
 class Follower {
-  constructor(self) { this.self = self}
-  get isLeader() { return false }
-
-  listenToPeerDiscovery() {}
+  constructor(self) {
+    this.self = self
+    this.isLeader = false
+  }
 
   async addLeader() {
     this.self.leader = this.self.network.bootstrapNodes[0].split('/').pop()
@@ -239,6 +244,9 @@ class Follower {
     await waitToSync([_ => this.self.peers.includes(this.self.leader)], -1, this.self.config.timeout, this.self.config.port)
     await this.self.sendMessageTo(this.self.leader, topics.WHITELIST_REQUEST, '')
   }
+
+  listenToPeerDiscovery() { /* do nothing */ }
+  async onSignatureShare(message) { /* do nothing */ }
 }
 
 class Whitelist {
