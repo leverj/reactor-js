@@ -11,7 +11,7 @@ import {createBridgeNodes} from './help/bridge.js'
 
 const {bridge: {threshold}, chain: {polling}} = config
 
-describe.skip('CrossChainVaultCoordinator', () => {
+describe('CrossChainVaultCoordinator', () => {
   const amount = BigInt(1e6 - 1)
   const [deployer, account] = accounts
   let nodes, networks, coordinator
@@ -20,7 +20,7 @@ describe.skip('CrossChainVaultCoordinator', () => {
     // establish nodes
     const howMany = threshold + 1
     nodes = await createBridgeNodes(howMany)
-    const leader = nodes[0]
+    const leader = nodes[0].leadership
     await leader.publishWhitelist()
     await leader.startDKG(howMany)
     await setTimeout(100)

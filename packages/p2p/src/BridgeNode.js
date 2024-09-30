@@ -6,10 +6,12 @@ import {
   G2ToNumbers,
   SecretKey,
 } from '@leverj/reactor.mcl'
+import {stubs} from '@leverj/reactor.chain/contracts'
 import {NetworkNode, TssNode} from '@leverj/reactor.p2p'
 import {Map} from 'immutable'
 import {setTimeout} from 'node:timers/promises'
 import {events, NODE_STATE_CHANGED, PEER_DISCOVERY, waitToSync} from './utils.js'
+import {JsonRpcProvider} from 'ethers'
 
 const meshProtocol = '/bridge/0.0.1'
 const topics = {
@@ -51,14 +53,9 @@ export class BridgeNode {
   get signer() { return this.tss.idHex }
   get secretKeyShare() { return this.tss.secretKeyShare?.serializeToHexStr() }
   get groupPublicKey() { return this.tss.groupPublicKey?.serializeToHexStr() }
-  get publicKey() { return G2ToNumbers(deserializeHexStrToPublicKey(this.groupPublicKey)) }
   get isLeader() { return this.leadership.isLeader }
 
   setVaults(vaults) { this.vaults = vaults }
-
-  async publishWhitelist() { return this.leadership.publishWhitelist() }
-  async startDKG(threshold) { return this.leadership.startDKG(threshold) }
-  async sign(from, transferHash) { return this.leadership.aggregateSignature(from, transferHash) }
 
   state() {
     return {
@@ -131,11 +128,19 @@ export class BridgeNode {
     return this.whitelist.canPublish ? this.sendMessageTo(peerId, topics.WHITELIST, this.whitelist.get()) : {}
   }
 
-  onVaults(peerId, message) {
-     // fixme: message should contain vaults[chainId, address]
+  onVaults(peerId, data) {
+    if (peerId !== this.leader) return logger.log(`ignoring ${topics.VAULTS} from non-leader`, peerId)
+
+    const {evms, chains} = data
+    const vaults = Map(evms).
+      filter(_ => chains.includes(_.label)).
+      mapKeys(_ => BigInt(_)).
+      map(_ => stubs.Vault(_.contracts.Vault.address, new JsonRpcProvider(_.providerURL)))
+    this.setVaults(vaults)
   }
 
   onVaultsRequest(peerId) {
+    // ... not implemented for now
   }
 
   async onSignatureStart(peerId, data) {
@@ -164,6 +169,10 @@ class Leader {
     this.isLeader = true
     this.aggregateSignatures = {}
   }
+  get groupPublicKey() { return this.self.groupPublicKey }
+  get secretKeyShare() { return this.self.secretKeyShare }
+  get publicKey() { return G2ToNumbers(deserializeHexStrToPublicKey(this.groupPublicKey)) }
+  get vaults() { return this.self.vaults }
 
   async addLeader() {
     const {self} = this
@@ -175,13 +184,16 @@ class Leader {
     events.on(PEER_DISCOVERY, _ => this.self.whitelistPeers(_))
   }
 
-  async aggregateSignature(from, transferHash) {
+  async sign(from, transferHash) {
     const {self, aggregateSignatures} = this
     if (!self.vaults.has(from)) throw Error(`missing vault for chain ${from}`)
     aggregateSignatures[transferHash] = {
       signatures: [],
       verified: false,
     }
+    const signature = self.tss.sign(transferHash).serializeToHexStr()
+    const signer = self.signer
+    await this.onSignatureShare({transferHash, signature, signer}) // send to self
     await this.fanout(topics.SIGNATURE_START, {transferHash, from})
     const interval = 10, timeout = self.config.timeout //fixme:config: these should come from config
     await until(() => aggregateSignatures[transferHash].verified, interval, timeout)
@@ -206,17 +218,22 @@ class Leader {
   async publishWhitelist() {
     const {self} = this
     self.whitelist.canPublish = true
+    self.onWhitelist(self.peerId, self.whitelist.get()) // send to self
     await this.fanout(topics.WHITELIST, self.whitelist.get())
   }
 
   async startDKG(threshold) {
+    await this.self.onDkgStart({threshold}) // send to self
     await this.fanout(topics.DKG_START, {threshold})
-    await this.self.tss.generateVectorsAndContribution(threshold) //fixme:fanout: this should no longer be needed, as the message is sent to self too
+  }
+
+  async setupVaults(evms, chains) {
+    await this.fanout(topics.VAULTS, {evms, chains})
   }
 
   async fanout(topic, message) {
     const {self} = this
-    const peerIds = self.monitor.filter(self.whitelist.get())
+    const peerIds = self.monitor.filter(self.whitelist.get()).filter(_ => _ !== self.peerId)
     for (let each of peerIds) await self.sendMessageTo(each, topic, message)
   }
 }
@@ -263,5 +280,4 @@ class Monitor {
   }
   getPeersStatus() { return Object.entries(this.peers).map(([peerId, {latency}]) => ({peerId, latency})) }
   filter(peerIds) { return peerIds.filter(_ => this.peers[_]?.latency !== -1)}
-  print() { logger.table(this.peers) }
 }

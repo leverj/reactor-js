@@ -14,7 +14,7 @@ describe('Vault', () => {
 
   beforeEach(async () => {
     nodes = await createBridgeNodes(7)
-    leader = nodes[0]
+    leader = nodes[0].leadership
     await leader.publishWhitelist()
     await leader.startDKG(4)
     await setTimeout(100)

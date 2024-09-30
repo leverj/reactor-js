@@ -80,17 +80,6 @@ describe('ApiApp', () => {
     for (let [i, port] of ports.entries()) expect(store.get(port)).toEqual(infos[i])
   })
 
-//fixme: incorrect test
-  it.skip
-  ('aggregate signatures over pubsub topic', async () => {
-    await createNodeInfos(4)
-    await createApiNodes(4)
-    const message = 'hash123456'
-    await POST(leaderPort, 'tss/aggregateSign', {message})
-    await setTimeout(10)
-    expect(await GET(leaderPort, `tss/aggregateSign?transferHash=${message}`).then(_ => _.verified)).toEqual(true)
-  })
-
   it('whitelist', async () => {
     const ports = await createApiNodes(4, false)
     await GET(leaderPort + 1, 'peer/bootstrapped')

@@ -11,7 +11,7 @@ describe('BridgeNode', () => {
 
   beforeEach(async () => {
     nodes = await createBridgeNodes(howMany)
-    leader = nodes[0]
+    leader = nodes[0].leadership
   })
   afterEach(async () => {
     for (let each of nodes) await each.stop()

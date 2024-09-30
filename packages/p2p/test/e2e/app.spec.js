@@ -94,16 +94,6 @@ describe('e2e - app', () => {
     for (let [i, port] of ports.entries()) expect(store.get(port)).toEqual(infos[i])
   })
 
-  //fixme: incorrect test
-  it.skip('aggregate signatures over pubsub topic', async () => {
-    await createNodeInfos(4)
-    await createApiNodes(4)
-    const message = 'hash123456'
-    await POST(leaderPort, 'tss/aggregateSign', {message})
-    await setTimeout(500)
-    expect(await GET(leaderPort, `tss/aggregateSign?transferHash=${message}`).then(_ => _.verified)).toEqual(true)
-  })
-
   //fixme: fails when being run with all tests
   it.skip('whitelist', async () => {
     const ports = await createApiNodes(4, false)
