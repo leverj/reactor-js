@@ -19,8 +19,8 @@ export class NetworkNode {
     this.port = port
     this.bootstrapNodes = bootstrapNodes
     this.p2p = p2p
-    this.p2p.addEventListener(PEER_CONNECT, this.peerConnected.bind(this))
-    this.p2p.addEventListener(PEER_DISCOVERY, this.peerDiscovered.bind(this))
+    this.p2p.addEventListener(PEER_CONNECT, _ => this.peerConnected(_))
+    this.p2p.addEventListener(PEER_DISCOVERY, _ => this.peerDiscovered(_))
   }
 
   get multiaddrs() { return this.p2p.getMultiaddrs().map(_ => _.toString()) }

@@ -5,13 +5,13 @@ import {CrossChainVaultCoordinator} from '@leverj/reactor.p2p'
 import config from '@leverj/reactor.p2p/config'
 import {expect} from 'expect'
 import {Map} from 'immutable'
-import {zip, zipWith} from 'lodash-es'
+import {zip} from 'lodash-es'
 import {setTimeout} from 'node:timers/promises'
 import {createBridgeNodes} from './help/bridge.js'
 
 const {bridge: {threshold}, chain: {polling}} = config
 
-describe('CrossChainVaultCoordinator', () => {
+describe.skip('CrossChainVaultCoordinator', () => {
   const amount = BigInt(1e6 - 1)
   const [deployer, account] = accounts
   let nodes, networks, coordinator

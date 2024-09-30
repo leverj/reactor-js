@@ -132,9 +132,7 @@ export class BridgeNode {
   }
 
   onVaults(peerId, message) {
-    if (peerId !== this.leader) return logger.log(`ignoring ${topics.VAULTS} from non-leader`, peerId)
-
-    // fixme: message should contain evms
+     // fixme: message should contain vaults[chainId, address]
   }
 
   onVaultsRequest(peerId) {
@@ -143,17 +141,12 @@ export class BridgeNode {
   async onSignatureStart(peerId, data) {
     if (peerId !== this.leader) return logger.log(`ignoring ${topics.SIGNATURE_START} from non-leader`, peerId)
 
-    let {transferHash, from} = data
-    from = BigInt(from)
-    if (!this.vaults.has(from)) throw Error(`missing vault for chain ${from}`)
-    if (await this.vaults.get(from).sends(transferHash)) {
-      const signature = this.tss.sign(transferHash).serializeToHexStr()
+    const {transferHash, from} = data
+    const {vaults, signer, tss} = this
+    if (await vaults.get(BigInt(from)).sends(transferHash)) {
+      const signature = tss.sign(transferHash).serializeToHexStr()
       logger.log(topics.SIGNATURE_START, transferHash, signature)
-      const message = {
-        signature,
-        signer: this.signer,
-        transferHash,
-      }
+      const message = {signature, signer, transferHash}
       await this.sendMessageTo(peerId, topics.SIGNATURE_RECEIVE_SHARE, message)
     }
   }
@@ -173,8 +166,9 @@ class Leader {
   }
 
   async addLeader() {
-    this.self.leader = this.self.peerId
-    this.self.whitelistPeers(this.self.leader)
+    const {self} = this
+    self.leader = self.peerId
+    self.whitelistPeers(self.leader)
   }
 
   listenToPeerDiscovery() {
@@ -182,20 +176,15 @@ class Leader {
   }
 
   async aggregateSignature(from, transferHash) {
-    const aggregateSignatures = this.aggregateSignatures
-    const {vaults, signer, tss, config} = this.self
-    if (!vaults.has(from)) throw Error(`missing vault for chain ${from}`)
-    if (await vaults.get(from).sends(transferHash)) {
-      const signature = tss.sign(transferHash).serializeToHexStr()
-      aggregateSignatures[transferHash] = {
-        signatures: [{signer, signature}],
-        transferHash,
-        verified: false,
-      }
-      await this.fanout(topics.SIGNATURE_START, {transferHash, from})
-      const interval = 10, timeout = config.timeout //fixme:config: these should come from config
-      await until(() => aggregateSignatures[transferHash].verified, interval, timeout)
+    const {self, aggregateSignatures} = this
+    if (!self.vaults.has(from)) throw Error(`missing vault for chain ${from}`)
+    aggregateSignatures[transferHash] = {
+      signatures: [],
+      verified: false,
     }
+    await this.fanout(topics.SIGNATURE_START, {transferHash, from})
+    const interval = 10, timeout = self.config.timeout //fixme:config: these should come from config
+    await until(() => aggregateSignatures[transferHash].verified, interval, timeout)
     return aggregateSignatures[transferHash].verified ?
       G1ToNumbers(deserializeHexStrToSignature(aggregateSignatures[transferHash].groupSign)) :
       null
@@ -206,29 +195,29 @@ class Leader {
     const aggregateSignature = this.aggregateSignatures[transferHash]
     aggregateSignature.signatures.push({signature, signer})
     logger.log('Received signature', transferHash, signature)
-    if (aggregateSignature.signatures.length === this.self.tss.threshold) {
-      aggregateSignature.groupSign = this.self.tss.groupSign(aggregateSignature.signatures)
-      aggregateSignature.verified = this.self.tss.verify(aggregateSignature.groupSign, transferHash)
+    const {self} = this
+    if (aggregateSignature.signatures.length === self.tss.threshold) {
+      aggregateSignature.groupSign = self.tss.groupSign(aggregateSignature.signatures)
+      aggregateSignature.verified = self.tss.verify(aggregateSignature.groupSign, transferHash)
       logger.log('Verified', transferHash, aggregateSignature.verified, aggregateSignature.groupSign)
     }
   }
 
   async publishWhitelist() {
-    const {whitelist} = this.self
-    whitelist.canPublish = true
-    const message = whitelist.get()
-    await this.fanout(topics.WHITELIST, message)
+    const {self} = this
+    self.whitelist.canPublish = true
+    await this.fanout(topics.WHITELIST, self.whitelist.get())
   }
 
   async startDKG(threshold) {
     await this.fanout(topics.DKG_START, {threshold})
-    await this.self.tss.generateVectorsAndContribution(threshold)
+    await this.self.tss.generateVectorsAndContribution(threshold) //fixme:fanout: this should no longer be needed, as the message is sent to self too
   }
 
   async fanout(topic, message) {
-    const {whitelist, monitor, peerId} = this.self
-    const peerIds = monitor.filter(whitelist.get()).filter(_ => _ !== peerId)
-    for (let each of peerIds) await this.self.sendMessageTo(each, topic, message)
+    const {self} = this
+    const peerIds = self.monitor.filter(self.whitelist.get())
+    for (let each of peerIds) await self.sendMessageTo(each, topic, message)
   }
 }
 
@@ -239,10 +228,11 @@ class Follower {
   }
 
   async addLeader() {
-    this.self.leader = this.self.network.bootstrapNodes[0].split('/').pop()
-    this.self.whitelistPeers(this.self.leader)
-    await waitToSync([_ => this.self.peers.includes(this.self.leader)], -1, this.self.config.timeout, this.self.config.port)
-    await this.self.sendMessageTo(this.self.leader, topics.WHITELIST_REQUEST, '')
+    const {self} = this
+    self.leader = self.network.bootstrapNodes[0].split('/').pop()
+    self.whitelistPeers(self.leader)
+    await waitToSync([_ => self.peers.includes(self.leader)], -1, self.config.timeout, self.config.port)
+    await self.sendMessageTo(self.leader, topics.WHITELIST_REQUEST, '')
   }
 
   listenToPeerDiscovery() { /* do nothing */ }
