@@ -112,7 +112,7 @@ export class TssNode {
 
   onDkgStart(message) {
     const {threshold} = message
-    return this.generateVectorsAndContribution(threshold)
+    this.generateVectorsAndContribution(threshold)
   }
 
   onDkgShare(message) {
@@ -122,9 +122,9 @@ export class TssNode {
     if (Object.keys(this.vvecs).length === Object.keys(this.members).length) this.dkgDone()
   }
 
-  async generateVectorsAndContribution(threshold) {
+  generateVectorsAndContribution(threshold) {
     this.generateVectors(threshold)
-    return this.generateContribution()
+    this.generateContribution()
   }
 
   generateVectors(threshold) {
@@ -136,8 +136,8 @@ export class TssNode {
     }
   }
 
-  async generateContribution() {
-    for (let [id, dkgHandler] of Object.entries(this.members)) await this.generateContributionForId(id, dkgHandler)
+  generateContribution() {
+    for (let [id, dkgHandler] of Object.entries(this.members)) this.generateContributionForId(id, dkgHandler)
   }
 
   verifyAndAddShare(id, receivedShare, verificationVector) {
@@ -146,15 +146,14 @@ export class TssNode {
     this.receivedShares[id] = receivedShare
   }
 
-  async generateContributionForId(id, dkgHandler) {
-    const result = new SecretKey().share(this.secretVector, SecretKey.from(id))
-    const dkgSharePayload = {
+  generateContributionForId(id, dkgHandler) {
+    const secret = new SecretKey().share(this.secretVector, SecretKey.from(id))
+    const payload = {
       id: this.idHex,
-      secretKeyContribution: result.serializeToHexStr(),
+      secretKeyContribution: secret.serializeToHexStr(),
       verificationVector: this.verificationVector.map(_ => _.serializeToHexStr()),
     }
-    await dkgHandler(JSON.stringify(dkgSharePayload))
-    return result
+    dkgHandler(JSON.stringify(payload))
   }
 
   dkgDone() {

@@ -29,7 +29,7 @@ describe('TssNode', () => {
 
   const addMember = async (members, joiner) => {
     for (let each of members) {
-      await each.generateContributionForId(joiner.idHex, joiner.onDkgShare.bind(joiner))
+      each.generateContributionForId(joiner.idHex, joiner.onDkgShare.bind(joiner))
       each.addMember(joiner.idHex, joiner.onDkgShare.bind(joiner))
       joiner.addMember(each.idHex, each.onDkgShare.bind(each))
     }
@@ -38,9 +38,7 @@ describe('TssNode', () => {
     members.push(joiner)
   }
 
-  const setupMembersThreshold = async (members, threshold) => {
-    for (let each of members) await each.generateVectorsAndContribution(threshold)
-  }
+  const setupMembersThreshold = (members, threshold) => members.forEach(_ => _.generateVectorsAndContribution(threshold))
 
   const createDkgMembers = async (memberIds, threshold = bridge.threshold) => {
     const members = memberIds.map(id => new TssNode(id.toString()))

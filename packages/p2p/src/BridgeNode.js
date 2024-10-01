@@ -158,9 +158,9 @@ export class BridgeNode {
 
   async onSignatureShare(message) { return this.leadership.onSignatureShare(message) }
 
-  onDkgStart(message) { return this.tss.onDkgStart(message) }
+  onDkgStart(message) { this.tss.onDkgStart(message) }
 
-  onDkgShare(message) { return this.tss.onDkgShare(message) }
+  onDkgShare(message) { this.tss.onDkgShare(message) }
 }
 
 class Leader {
@@ -193,7 +193,7 @@ class Leader {
     }
     const signature = self.tss.sign(transferHash).serializeToHexStr()
     const signer = self.signer
-    await this.onSignatureShare({transferHash, signature, signer}) // send to self
+    await this.onSignatureShare({transferHash, signature, signer}) // fan to self
     await this.fanout(topics.SIGNATURE_START, {transferHash, from})
     const interval = 10, timeout = self.config.timeout //fixme:config: these should come from config
     await until(() => aggregateSignatures[transferHash].verified, interval, timeout)
@@ -218,12 +218,12 @@ class Leader {
   async establishWhitelist() {
     const {self} = this
     self.whitelist.canPublish = true
-    self.onWhitelist(self.peerId, self.whitelist.get()) // send to self
+    self.onWhitelist(self.peerId, self.whitelist.get()) // fan to self
     await this.fanout(topics.WHITELIST, self.whitelist.get())
   }
 
   async establishGroupPublicKey(threshold) {
-    await this.self.onDkgStart({threshold}) // send to self
+    this.self.onDkgStart({threshold}) // fan to self
     await this.fanout(topics.DKG_START, {threshold})
   }
 
