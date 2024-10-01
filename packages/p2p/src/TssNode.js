@@ -16,9 +16,9 @@ import {events, NODE_STATE_CHANGED} from './utils.js'
  */
 const addContributionShares = (secretKeyShares) => {
   const result = secretKeyShares.pop()
-  secretKeyShares.forEach(sk => {
-    result.add(sk)
-    sk.clear()
+  secretKeyShares.forEach(_ => {
+    result.add(_)
+    _.clear()
   })
   return result
 }
@@ -35,8 +35,8 @@ const verifyContributionShare = (id, contribution, vvec) => {
   const pk1 = new PublicKey().share(vvec, id)
   const pk2 = contribution.getPublicKey()
   const result = pk1.isEqual(pk2)
-  pk1.clear()
-  pk2.clear()
+  pk1.clear() //fixme: why clear?
+  pk2.clear() //fixme: why clear?
   return result
 }
 
@@ -78,8 +78,8 @@ export class TssNode {
   }
 
   get threshold() { return this.vvec?.length }
-  get groupPublicKey() { return this.vvec ? this.vvec[0] : null }
-  get publicKey() { return new PublicKey().share(this.vvec, this.id) }
+  get groupPublicKey() { return this.vvec ? this.vvec[0] : undefined }
+  // get publicKey() { return new PublicKey().share(this.vvec, this.id) } //fixme: why have this
   get idHex() { return this.id.serializeToHexStr() }
 
   reset() {
@@ -87,8 +87,8 @@ export class TssNode {
     this.verificationVector = []
     this.receivedShares = {}
     this.vvecs = {}
-    this.secretKeyShare = null
-    this.vvec = null
+    this.secretKeyShare = undefined
+    this.vvec = undefined
     this.previouslyShared = false
   }
 
@@ -129,10 +129,10 @@ export class TssNode {
 
   generateVectors(threshold) {
     for (let i = 0; i < threshold; i++) {
-      const sk = new SecretKey()
-      this.previouslyShared && i === 0 ? sk.deserialize(Buffer.alloc(32)) : sk.setByCSPRNG()
-      this.secretVector.push(sk)
-      this.verificationVector.push(sk.getPublicKey())
+      const secretKey = new SecretKey()
+      this.previouslyShared && i === 0 ? secretKey.deserialize(Buffer.alloc(32)) : secretKey.setByCSPRNG()
+      this.secretVector.push(secretKey)
+      this.verificationVector.push(secretKey.getPublicKey())
     }
   }
 
@@ -141,16 +141,15 @@ export class TssNode {
   }
 
   verifyAndAddShare(id, receivedShare, verificationVector) {
-    const verified = verifyContributionShare(this.id, receivedShare, verificationVector)
-    if (!verified) throw Error('invalid share!')
+    if (!verifyContributionShare(this.id, receivedShare, verificationVector)) throw Error('invalid share!')
     this.receivedShares[id] = receivedShare
   }
 
   generateContributionForId(id, dkgHandler) {
-    const secret = new SecretKey().share(this.secretVector, SecretKey.from(id))
+    const contribution = new SecretKey().share(this.secretVector, SecretKey.from(id))
     const payload = {
       id: this.idHex,
-      secretKeyContribution: secret.serializeToHexStr(),
+      secretKeyContribution: contribution.serializeToHexStr(),
       verificationVector: this.verificationVector.map(_ => _.serializeToHexStr()),
     }
     dkgHandler(JSON.stringify(payload))

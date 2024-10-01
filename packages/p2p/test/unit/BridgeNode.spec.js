@@ -25,16 +25,16 @@ describe('BridgeNode', () => {
     nodes.forEach(_ => expect(_.whitelist.get().length).toEqual(howMany))
   })
 
-  it('can generate DKG', async () => {
+  it('can complete DKG', async () => {
     await leader.establishWhitelist()
-    expect(leader?.groupPublicKey).toBeUndefined()
+    expect(leader?.publicKey).toBeUndefined()
 
     await leader.establishGroupPublicKey(howMany)
     await setTimeout(100)
-    expect(leader.groupPublicKey).toBeDefined()
+    expect(leader.publicKey).toBeDefined()
     nodes.filter(_ => !_.isLeader).forEach(_ => {
-      expect(leader.groupPublicKey).toEqual(_.groupPublicKey)
-      expect(leader.secretKeyShare).not.toBe(_.secretKeyShare)
+      expect(leader.self.groupPublicKey).toEqual(_.groupPublicKey)
+      expect(leader.self.secretKeyShare).not.toBe(_.secretKeyShare)
     })
   })
 })

@@ -169,9 +169,7 @@ class Leader {
     this.isLeader = true
     this.aggregateSignatures = {}
   }
-  get groupPublicKey() { return this.self.groupPublicKey }
-  get secretKeyShare() { return this.self.secretKeyShare }
-  get publicKey() { return G2ToNumbers(deserializeHexStrToPublicKey(this.groupPublicKey)) }
+  get publicKey() { return this.self.groupPublicKey ? G2ToNumbers(deserializeHexStrToPublicKey(this.self.groupPublicKey)) : undefined }
   get vaults() { return this.self.vaults }
 
   async addLeader() {
@@ -199,7 +197,7 @@ class Leader {
     await until(() => aggregateSignatures[transferHash].verified, interval, timeout)
     return aggregateSignatures[transferHash].verified ?
       G1ToNumbers(deserializeHexStrToSignature(aggregateSignatures[transferHash].groupSign)) :
-      null
+      undefined
   }
 
   async onSignatureShare(message) {

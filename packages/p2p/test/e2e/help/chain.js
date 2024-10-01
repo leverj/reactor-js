@@ -6,11 +6,12 @@ import {JsonRpcProvider} from 'ethers'
 import {Map} from 'immutable'
 import {merge, zip} from 'lodash-es'
 import {exec} from 'node:child_process'
-import {readFileSync, rmSync, writeFileSync} from 'node:fs'
+import {rmSync, writeFileSync} from 'node:fs'
+import {inspect} from 'util'
 import waitOn from 'wait-on'
 
 /*** manufacture a config just like the one in @leverj/reactor.chain ***/
-export const createChainConfig = async (chains) => {
+export const createChainConfig = async (chains, vault = {}) => {
   const postLoad = (config) => {
     config = reactor_chain_config.postLoad(config)
     merge(config.contracts, Map(config.networks).map(({id, label}) => ({
@@ -23,10 +24,8 @@ export const createChainConfig = async (chains) => {
   // override chain/config/env with ^^^ chains
   const env = process.env.NODE_ENV
   const chain_dir = `${import.meta.dirname}/../../../../chain`
-  const config_file = `${chain_dir}/config/${env}.js`
   const override_file = `${chain_dir}/config/local-${env}.js`
-  const override = `$1${chains.map(_ => `'${_}'`)}$3`
-  writeFileSync(override_file, readFileSync(config_file, 'utf8').replace(/(.*chains:\s*\[)(.+)(].*)/, override))
+  writeFileSync(override_file, `export default ${inspect({chains, vault}, {showHidden: false, compact: false})}`)
   const config = await configure(reactor_chain_config.schema, postLoad, {env: {PWD: chain_dir, NODE_ENV: env}})
   rmSync(override_file)
   return config

@@ -16,7 +16,7 @@ describe('CrossChainVaultCoordinator', () => {
   const [deployer, account] = accounts
   let nodes, networks, coordinator
 
-  beforeEach(async () => {
+  before(async () => {
     // establish nodes
     const howMany = threshold + 1
     nodes = await createBridgeNodes(howMany)
@@ -37,20 +37,20 @@ describe('CrossChainVaultCoordinator', () => {
     await coordinator.start()
   })
 
-  afterEach(async () => {
+  after(async () => {
     coordinator.stop()
     for (let each of nodes) await each.stop()
   })
 
   it('detects & acts on a Transfer events for both Token & Native, from one chain to another', async () => {
-    const [L1_id, L2_id] = [10101n, 98989n]
+    const [L1_id, L2_id] = coordinator.chainIds
     const [L1_vault, L2_vault] = coordinator.vaults.valueSeq().toArray()
-    const [L1_provider, L2_provider] = [provider, provider]
+    const [L1_provider, L2_provider] = [L1_vault, L2_vault].map(_ => _.runner.provider)
     for (let [vault, id] of zip([L1_vault, L2_vault], coordinator.chainIds)) expect(await vault.chainId()).toEqual(id)
 
-    const L1_token = await deployContract('ERC20Mock', ['Gold', '💰'])
-    await L1_token.mint(account.address, amount)
-    await L1_token.connect(account).approve(L1_vault.target, amount).then(_ => _.wait())
+    const L2_token = await deployContract('ERC20Mock', ['Gold', '💰'])
+    await L2_token.mint(account.address, amount)
+    await L2_token.connect(account).approve(L2_vault.target, amount).then(_ => _.wait())
 
     const before = {
       Native: {
@@ -58,13 +58,13 @@ describe('CrossChainVaultCoordinator', () => {
         to: await L2_vault.proxyBalanceOf(L1_id, ETH, account.address),
       },
       Token: {
-        from: await L1_token.connect(account).balanceOf(account.address),
-        to: await L2_vault.proxyBalanceOf(L1_id, L1_token.target, account.address),
+        from: await L2_token.connect(account).balanceOf(account.address),
+        to: await L1_vault.proxyBalanceOf(L2_id, L2_token.target, account.address),
       },
     }
 
     /** L1 => L2 **/ await L1_vault.connect(account).sendNative(L2_id, {value: amount}).then(_ => _.wait())
-    /** L1 => L2 **/ await L1_vault.connect(account).sendToken(L2_id, L1_token.target, amount).then(_ => _.wait())
+    /** L2 => L1 **/ await L2_vault.connect(account).sendToken(L1_id, L2_token.target, amount).then(_ => _.wait())
     await setTimeout(100)
     const after = {
       Native: {
@@ -72,8 +72,8 @@ describe('CrossChainVaultCoordinator', () => {
         to: await L2_vault.proxyBalanceOf(L1_id, ETH, account.address),
       },
       Token: {
-        from: await L1_token.connect(account).balanceOf(account.address),
-        to: await L2_vault.proxyBalanceOf(L1_id, L1_token.target, account.address),
+        from: await L2_token.connect(account).balanceOf(account.address),
+        to: await L1_vault.proxyBalanceOf(L2_id, L2_token.target, account.address),
       },
     }
     expect(after.Native.from).toEqual(before.Native.from - amount)

@@ -9,6 +9,6 @@ export const defaults = {
   },
   deploymentDir: `${dataDir}/${info.name}/chain`,
   vault: {
-    publicKey: 'CAESIOf1KYYMB/P5g7E2vR3m6wbgyehLcTcJxAIxFcgPzkI1',
+    publicKey: 'aaefd7f4788ba7f19e2d8be297f6ea91e04c850d16f80e08be4cb768d08f192a60afe4481f4f9cf8faac59ed801b1543ad491097be5d08235ea1298fed864720',
   },
 }
