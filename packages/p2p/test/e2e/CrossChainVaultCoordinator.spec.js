@@ -1,6 +1,7 @@
 import {accounts} from '@leverj/chain-deployment/hardhat.help'
 import {ETH, JsonStore, logger} from '@leverj/common'
 import {signer} from '@leverj/reactor.chain/test'
+import {G1ToNumbers, G2ToNumbers} from '@leverj/reactor.mcl'
 import {CrossChainVaultCoordinator} from '@leverj/reactor.p2p'
 import config from '@leverj/reactor.p2p/config'
 import {Contract} from 'ethers'
@@ -10,10 +11,21 @@ import {rmSync} from 'node:fs'
 import {setTimeout} from 'node:timers/promises'
 import {createChainConfig, getEvmsStore, launchEvms} from './help/chain.js'
 import ERC20_abi from './help/ERC20.abi.json' assert {type: 'json'}
-import {MessageSigner} from './help/MessageSigner.js'
+import {killAll} from './help/processes.js'
 
 const {bridge: {nodesDir}, chain: {polling}} = config
 
+class MessageSigner {
+  constructor(signer) { this.signer = signer }
+  async sign(from, message) {
+    return {
+      signature: G1ToNumbers(sign(message, this.signer.secret).signature),
+      publicKey: G2ToNumbers(this.signer.pubkey),
+    }
+  }
+}
+
+//fixme: not ready
 describe.skip('e2e - CrossChainVaultCoordinator', () => {
   const amount = BigInt(1e6 - 1)
   const [deployer, account] = accounts
@@ -50,10 +62,7 @@ describe.skip('e2e - CrossChainVaultCoordinator', () => {
 
   after(async () => {
     coordinator.stop()
-    for (let each of processes) {
-      each.kill()
-      while (!each.killed) await setTimeout(10)
-    }
+    await killAll(processes)
   })
 
   const connect = (contract, account, provider) => contract.connect(account.connect(provider))

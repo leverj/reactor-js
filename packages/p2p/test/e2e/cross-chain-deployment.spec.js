@@ -2,8 +2,8 @@ import {accounts} from '@leverj/chain-deployment/hardhat.help'
 import {stubs} from '@leverj/reactor.chain/contracts'
 import {expect} from 'expect'
 import {rmSync} from 'node:fs'
-import {setTimeout} from 'node:timers/promises'
 import {createChainConfig, getDeployedNetworks, launchEvms} from './help/chain.js'
+import {killAll} from './help/processes.js'
 
 describe('e2e - deploy across multiple chains', () => {
   const [, account] = accounts
@@ -18,12 +18,7 @@ describe('e2e - deploy across multiple chains', () => {
     deployments = getDeployedNetworks(deploymentDir)
   })
 
-  after(async () => {
-    for (let each of processes) {
-      each.kill()
-      while(!each.killed) await setTimeout(10)
-    }
-  })
+  after(async () => await killAll(processes))
 
   it('connect to provider and query balances on each chain', async () => {
     for (let each of deployments) {

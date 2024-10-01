@@ -1,39 +1,22 @@
-import {JsonDirStore} from '@leverj/reactor.p2p'
 import config from '@leverj/reactor.p2p/config'
 import {expect} from 'expect'
-import {rmSync} from 'node:fs'
 import {setTimeout} from 'node:timers/promises'
 import {getNodeInfos} from '../fixtures.js'
-import {
-  createApiNodes,
-  createApiNodesFrom,
-  establishWhitelist,
-  GET, killAll,
-  POST,
-  waitForWhitelistSync,
-} from './help/nodes.js'
-
-const {bridge, port: leaderPort} = config
+import {Nodes} from './help/nodes.js'
+import {killAll} from './help/processes.js'
 
 describe('e2e - app', () => {
-  let store, ports, processes = []
+  let nodes
 
-  beforeEach(() => {
-    rmSync(bridge.nodesDir, {recursive: true, force: true})
-    store = new JsonDirStore(bridge.nodesDir, 'nodes')
-  })
-
-  afterEach(async () => {
-    await killAll(processes)
-    processes.length = 0
-  })
+  before(() => nodes = new Nodes(config))
+  beforeEach(() => nodes.reset())
+  afterEach(async () => await nodes.stop())
 
   it('create new nodes, connect and init DKG', async () => {
-    ({ports, processes} = await createApiNodes(config, store, 2))
-    await POST(leaderPort, 'dkg/start')
+    const ports = await nodes.createApiNodes(2)
+    await nodes.POST(nodes.leaderPort, 'dkg/start')
     await setTimeout(100)
-    const nodes = await Promise.all(ports.map(_ => store.get(_)))
-    const publicKeys = nodes.map(_ => _.tssNode.groupPublicKey)
+    const publicKeys = ports.map(_ => nodes.get(_).tssNode.groupPublicKey)
     for (let each of publicKeys) {
       expect(each).not.toBeNull()
       expect(each).toEqual(publicKeys[0])
@@ -42,30 +25,30 @@ describe('e2e - app', () => {
 
   it('can create node with already existing info.json', async () => {
     const howMany = 3
-    for (let [i, info] of getNodeInfos(howMany).entries()) store.set(leaderPort + i, info)
+    for (let [i, info] of getNodeInfos(howMany).entries()) nodes.set(nodes.leaderPort + i, info)
     const infos = getNodeInfos(howMany)
-    ;({ports, processes} = await createApiNodes(config, store, howMany))
-    for (let [i, port] of ports.entries()) expect(store.get(port)).toEqual(infos[i])
+    const ports = await nodes.createApiNodes(howMany)
+    for (let [i, port] of ports.entries()) expect(nodes.get(port)).toEqual(infos[i])
   })
 
   //fixme: fails when being run with all tests
   it.skip('whitelist', async () => {
-    ({ports, processes} = await createApiNodes(config, store, 4, false))
-    await GET(leaderPort + 1, 'peer/bootstrapped')
-    await killAll(processes.slice(2))
-    await establishWhitelist(config, ports.slice(0, 2), 4)
-    expect(store.get(ports[0]).whitelist).toHaveLength(4)
-    expect(store.get(ports[1]).whitelist).toHaveLength(4)
-    expect(store.get(ports[2]).whitelist).toHaveLength(1)
-    expect(store.get(ports[3]).whitelist).toHaveLength(1)
+    const ports = await nodes.createApiNodes(4, false)
+    await nodes.GET(nodes.leaderPort + 1, 'peer/bootstrapped')
+    await killAll(nodes.processes.slice(2))
+    await nodes.establishWhitelist(ports.slice(0, 2), 4)
+    expect(nodes.get(ports[0]).whitelist).toHaveLength(4)
+    expect(nodes.get(ports[1]).whitelist).toHaveLength(4)
+    expect(nodes.get(ports[2]).whitelist).toHaveLength(1)
+    expect(nodes.get(ports[3]).whitelist).toHaveLength(1)
 
-    const _processes_ = await createApiNodesFrom(config, store, ports.slice(2), 3)
+    const _processes_ = await nodes.createApiNodesFrom(ports.slice(2), 3)
     try {
-      await waitForWhitelistSync(config, ports)
-      expect(store.get(ports[0]).whitelist).toHaveLength(4)
-      expect(store.get(ports[1]).whitelist).toHaveLength(4)
-      expect(store.get(ports[2]).whitelist).toHaveLength(4)
-      expect(store.get(ports[3]).whitelist).toHaveLength(4)
+      await nodes.waitForWhitelistSync(ports)
+      expect(nodes.get(ports[0]).whitelist).toHaveLength(4)
+      expect(nodes.get(ports[1]).whitelist).toHaveLength(4)
+      expect(nodes.get(ports[2]).whitelist).toHaveLength(4)
+      expect(nodes.get(ports[3]).whitelist).toHaveLength(4)
     } finally {
       await killAll(_processes_)
     }
