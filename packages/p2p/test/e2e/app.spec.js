@@ -56,7 +56,7 @@ describe('e2e - app', () => {
   async function createApiNodes(howMany, whitelist = true) {
     const ports = new Array(howMany).fill(0).map((_, i) => leaderPort + i)
     await createApiNodesFrom(ports)
-    if (whitelist) await publishWhitelist(ports)
+    if (whitelist) await establishWhitelist(ports)
     return ports
   }
 
@@ -72,7 +72,7 @@ describe('e2e - app', () => {
     logger.log('whitelisted synced...')
   }
 
-  const publishWhitelist = async (ports, total, available) =>
+  const establishWhitelist = async (ports, total, available) =>
     tryAgainIfError(_ => POST(leaderPort, 'whitelist/publish'), timeout, tryCount, leaderPort).then(_ => waitForWhitelistSync(ports, total, available))
 
   it('create new nodes, connect and init DKG', async () => {
@@ -101,7 +101,7 @@ describe('e2e - app', () => {
     const _processes_ = processes.slice(2)
     while (_processes_.length > 0) _processes_.pop().kill()
     await setTimeout(100)
-    await publishWhitelist(ports.slice(0, 2), 4)
+    await establishWhitelist(ports.slice(0, 2), 4)
     expect(store.get(ports[0]).whitelist).toHaveLength(4)
     expect(store.get(ports[1]).whitelist).toHaveLength(4)
     expect(store.get(ports[2]).whitelist).toHaveLength(1)

@@ -215,19 +215,19 @@ class Leader {
     }
   }
 
-  async publishWhitelist() {
+  async establishWhitelist() {
     const {self} = this
     self.whitelist.canPublish = true
     self.onWhitelist(self.peerId, self.whitelist.get()) // send to self
     await this.fanout(topics.WHITELIST, self.whitelist.get())
   }
 
-  async startDKG(threshold) {
+  async establishGroupPublicKey(threshold) {
     await this.self.onDkgStart({threshold}) // send to self
     await this.fanout(topics.DKG_START, {threshold})
   }
 
-  async setupVaults(evms, chains) {
+  async establishVaults(evms, chains) {
     await this.fanout(topics.VAULTS, {evms, chains})
   }
 

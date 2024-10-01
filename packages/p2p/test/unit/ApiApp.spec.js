@@ -42,7 +42,7 @@ describe('ApiApp', () => {
   async function createApiNodes(howMany, whitelist = true) {
     const ports = new Array(howMany).fill(0).map((_, i) => leaderPort + i)
     await createApiNodesFrom(ports)
-    if (whitelist) await publishWhitelist(ports)
+    if (whitelist) await establishWhitelist(ports)
     return ports
   }
 
@@ -57,7 +57,7 @@ describe('ApiApp', () => {
     logger.log('whitelisted synced...')
   }
 
-  const publishWhitelist = async (ports, total, available) =>
+  const establishWhitelist = async (ports, total, available) =>
     tryAgainIfError(_ => POST(leaderPort, 'whitelist/publish'), timeout, tryCount, leaderPort).
     then(_ => waitForWhitelistSync(ports, total, available))
 
@@ -86,7 +86,7 @@ describe('ApiApp', () => {
     for (let each of nodes.slice(2)) await each.stop()
 
     await setTimeout(10)
-    await publishWhitelist(ports.slice(0, 2), 4)
+    await establishWhitelist(ports.slice(0, 2), 4)
     expect(store.get(ports[0]).whitelist).toHaveLength(4)
     expect(store.get(ports[1]).whitelist).toHaveLength(4)
     expect(store.get(ports[2]).whitelist).toHaveLength(1)

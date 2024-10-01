@@ -43,7 +43,7 @@ function deployDocker() {
      fi
      if [ "$i" -eq "9000" ]; then
        sleep 10
-       local LEADER_ADDR=$(curl -s http://$EXTERNAL_IP:9000/api/fixme/bridge/multiaddr | jq -r .multiaddr)
+       local LEADER_ADDR=$(curl -s http://$EXTERNAL_IP:9000/api/bridge/multiaddr | jq -r .multiaddr)
        if [ -n "$REMOTE" ]; then
          echo remote
          BRIDGE_BOOTSTRAP_NODES=[\\\"$LEADER_ADDR\\\"]

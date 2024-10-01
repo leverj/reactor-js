@@ -21,8 +21,8 @@ describe('CrossChainVaultCoordinator', () => {
     const howMany = threshold + 1
     nodes = await createBridgeNodes(howMany)
     const leader = nodes[0].leadership
-    await leader.publishWhitelist()
-    await leader.startDKG(howMany)
+    await leader.establishWhitelist()
+    await leader.establishGroupPublicKey(howMany)
     await setTimeout(100)
     expect(leader.publicKey).toBeDefined()
 

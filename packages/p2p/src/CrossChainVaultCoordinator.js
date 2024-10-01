@@ -9,7 +9,7 @@ export const VaultTracker = (chainId, contract, store, polling, actor, logger = 
 
 export class CrossChainVaultCoordinator {
   static ofEvms(evms, chains, store, polling, signer, wallet, logger = console) {
-    signer.setupVaults(evms, chains)
+    signer.establishVaults(evms, chains)
     const vaults = Map(evms).
       filter(_ => chains.includes(_.label)).
       mapKeys(_ => BigInt(_)).
