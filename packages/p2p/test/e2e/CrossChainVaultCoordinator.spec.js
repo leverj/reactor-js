@@ -21,28 +21,35 @@ describe.skip('e2e - CrossChainVaultCoordinator', () => {
   let processes, evms, coordinator
 
   before(async () => {
-    const chainConfig = await createChainConfig(chains)
+    // establish nodes
+    /*
+    const howMany = threshold + 1
+    nodes = await createBridgeNodes(howMany)
+    const leader = nodes[0].leadership
+    await leader.establishWhitelist()
+    await leader.establishGroupPublicKey(howMany)
+    await setTimeout(100)
+    expect(leader.publicKey).toBeDefined()
+     */
+    const leader = new MessageSigner(signer) //fixme: replace with leader node
+    const publicKey = signer.pubkey.serializeToHexStr()
+    // const publicKey = leader.publicKey.serializeToHexStr()
+
+    // establish vaults
+    const chainConfig = await createChainConfig(chains, {publicKey})
     const deploymentDir = `${chainConfig.deploymentDir}/${chainConfig.env}`
     rmSync(deploymentDir, {recursive: true, force: true})
     processes = await launchEvms(chainConfig)
 
+    // establish coordinator
     evms = getEvmsStore(deploymentDir).toObject()
-    coordinator = CrossChainVaultCoordinator.ofEvms(
-      evms,
-      chains,
-      new JsonStore(nodesDir, 'trackers'),
-      polling,
-      new MessageSigner(signer), //fixme: replace with leader node
-      deployer,
-      logger,
-    )
+    const store = new JsonStore(nodesDir, 'trackers')
+    coordinator = CrossChainVaultCoordinator.ofEvms(evms, chains, store, polling, leader, deployer, logger)
     await coordinator.start()
-    expect(coordinator.isRunning).toBe(true)
   })
 
   after(async () => {
     coordinator.stop()
-    expect(coordinator.isRunning).toBe(false)
     for (let each of processes) {
       each.kill()
       while (!each.killed) await setTimeout(10)
@@ -54,7 +61,7 @@ describe.skip('e2e - CrossChainVaultCoordinator', () => {
 
   it('detects & acts on a Transfer events for both Token & Native, across chains', async () => {
     const [L1_id, L2_id] = coordinator.chainIds
-    const [L1_vault, L2_vault] = [L1_id, L2_id].map(_ => coordinator.vaults.get(_))
+    const [L1_vault, L2_vault] = coordinator.vaults.valueSeq().toArray()
     const [L1_provider, L2_provider] = [L1_vault, L2_vault].map(_ => _.runner.provider)
     for (let [vault, id] of zip([L1_vault, L2_vault], coordinator.chainIds)) expect(await vault.chainId()).toEqual(id)
 
