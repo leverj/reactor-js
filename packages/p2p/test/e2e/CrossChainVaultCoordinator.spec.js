@@ -12,8 +12,9 @@ import {setTimeout} from 'node:timers/promises'
 import {createChainConfig, getEvmsStore, launchEvms} from './help/chain.js'
 import ERC20_abi from './help/ERC20.abi.json' assert {type: 'json'}
 import {killAll} from './help/processes.js'
+import {Nodes} from './help/nodes.js'
 
-const {bridge: {nodesDir}, chain: {polling}} = config
+const {bridge: {nodesDir, threshold}, chain: {polling}} = config
 
 class MessageSigner {
   constructor(signer) { this.signer = signer }
@@ -30,18 +31,19 @@ describe.skip('e2e - CrossChainVaultCoordinator', () => {
   const amount = BigInt(1e6 - 1)
   const [deployer, account] = accounts
   const chains = ['holesky', 'sepolia'], [L1, L2] = chains
-  let processes, evms, coordinator
+  let nodes, processes, evms, coordinator
 
-  before(async () => {
+  before(() => nodes = new Nodes(config))
+  beforeEach(async () => {
+    nodes.reset()
     // establish nodes
-    /*
     const howMany = threshold + 1
-    nodes = await createBridgeNodes(howMany)
-    const leader = nodes[0].leadership
-    await leader.establishWhitelist()
-    await leader.establishGroupPublicKey(howMany)
+    const ports = await nodes.createApiNodes(howMany)
+    await nodes.POST(nodes.leaderPort, 'dkg/start')
     await setTimeout(100)
-    expect(leader.publicKey).toBeDefined()
+    /*
+      const leader = nodes.processes[0].leadership
+      expect(leader.publicKey).toBeDefined()
      */
     const leader = new MessageSigner(signer) //fixme: replace with leader node
     const publicKey = signer.pubkey.serializeToHexStr()
@@ -60,9 +62,10 @@ describe.skip('e2e - CrossChainVaultCoordinator', () => {
     await coordinator.start()
   })
 
-  after(async () => {
+  afterEach(async () => {
     coordinator.stop()
     await killAll(processes)
+    await nodes.stop()
   })
 
   const connect = (contract, account, provider) => contract.connect(account.connect(provider))
