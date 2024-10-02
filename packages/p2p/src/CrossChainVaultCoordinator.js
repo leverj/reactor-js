@@ -9,11 +9,11 @@ export const VaultTracker = (chainId, contract, store, polling, actor, logger = 
 
 export class CrossChainVaultCoordinator {
   static ofEvms(evms, chains, store, polling, signer, wallet, logger = console) {
-    signer.establishVaults(evms, chains)
-    const vaults = Map(evms).
+    const networks = Map(evms).
       filter(_ => chains.includes(_.label)).
-      mapKeys(_ => BigInt(_)).
-      map(_ => stubs.Vault(_.contracts.Vault.address, new JsonRpcProvider(_.providerURL)))
+      mapEntries(([k, v]) => [BigInt(v.id), v])
+    signer.establishVaults(networks.toJS())
+    const vaults = networks.map(_ => stubs.Vault(_.contracts.Vault.address, new JsonRpcProvider(_.providerURL)))
     return this.ofVaults(vaults, store, polling, signer, wallet, logger)
   }
 

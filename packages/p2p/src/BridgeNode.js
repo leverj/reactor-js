@@ -131,9 +131,8 @@ export class BridgeNode {
   onVaults(peerId, data) {
     if (peerId !== this.leader) return logger.log(`ignoring ${topics.VAULTS} from non-leader`, peerId)
 
-    const {evms, chains} = data
-    const vaults = Map(evms).
-      filter(_ => chains.includes(_.label)).
+    const {networks} = data
+    const vaults = Map(networks).
       mapKeys(_ => BigInt(_)).
       map(_ => stubs.Vault(_.contracts.Vault.address, new JsonRpcProvider(_.providerURL)))
     this.setVaults(vaults)
@@ -221,12 +220,15 @@ class Leader {
   }
 
   async establishGroupPublicKey(threshold) {
-    this.self.onDkgStart({threshold}) // fan to self
+    const {self} = this
+    self.onDkgStart({threshold}) // fan to self
     await this.fanout(topics.DKG_START, {threshold})
   }
 
-  async establishVaults(evms, chains) {
-    await this.fanout(topics.VAULTS, {evms, chains})
+  async establishVaults(networks) {
+    const {self} = this
+    self.onVaults(self.peerId, {networks}) // fan to self
+    await this.fanout(topics.VAULTS, {networks})
   }
 
   async fanout(topic, message) {

@@ -14,10 +14,10 @@ const {bridge: {threshold}, chain: {polling}} = config
 describe('CrossChainVaultCoordinator', () => {
   const amount = BigInt(1e6 - 1)
   const [deployer, account] = accounts
-  let nodes, networks, coordinator
+  let nodes, coordinator
 
   before(async () => {
-    // establish nodes
+    // start nodes
     const howMany = threshold + 1
     nodes = await createBridgeNodes(howMany)
     const leader = nodes[0].leadership
@@ -26,11 +26,11 @@ describe('CrossChainVaultCoordinator', () => {
     await setTimeout(100)
     expect(leader.publicKey).toBeDefined()
 
-    // establish vaults
-    networks = [10101n, 98989n].map(id => ({id, provider}))
-    const vaults = Map(await Promise.all([10101n, 98989n].map(async (id) => [id, await Vault(id, leader.publicKey)])))
+    // deploy vaults
+    const chainIds = [10101n, 98989n]
+    const vaults = Map(await Promise.all(chainIds.map(async (id) => [id, await Vault(id, leader.publicKey)])))
 
-    // establish coordinator
+    // start coordinator
     const store = new InMemoryStore()
     coordinator = CrossChainVaultCoordinator.ofVaults(vaults, store, polling, leader, deployer, logger)
     nodes.forEach(_ => _.setVaults(coordinator.vaults))
