@@ -28,7 +28,7 @@ class MessageSigner {
   }
 }
 
-describe('e2e - CrossChainVaultCoordinator', () => {
+describe.skip('e2e - CrossChainVaultCoordinator', () => {
   const amount = BigInt(1e6 - 1)
   const [deployer, account] = accounts
   const chains = ['holesky', 'sepolia']

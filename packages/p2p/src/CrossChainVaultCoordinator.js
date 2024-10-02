@@ -1,36 +1,40 @@
 import {ContractTracker} from '@leverj/chain-tracking'
-import {encodeTransfer, stubs} from '@leverj/reactor.chain/contracts'
-import {JsonRpcProvider} from 'ethers'
+import {encodeTransfer} from '@leverj/reactor.chain/contracts'
 import {Map} from 'immutable'
 
-export const VaultTracker = (chainId, contract, store, polling, actor, logger = console) => {
-   return ContractTracker.of(chainId, contract, store, polling, _ => actor.onEvent(_), logger)
+export const VaultTracker = (chainId, contract, store, polling, actor, logger) => {
+  return ContractTracker.of(chainId, contract, store, polling, _ => actor.onEvent(_), logger)
 }
 
 export class CrossChainVaultCoordinator {
-  static ofEvms(evms, chains, store, polling, signer, wallet, logger = console) {
-    const networks = Map(evms).
-      filter(_ => chains.includes(_.label)).
-      mapEntries(([k, v]) => [BigInt(v.id), v])
-    signer.establishVaults(networks.toJS())
-    const vaults = networks.map(_ => stubs.Vault(_.contracts.Vault.address, new JsonRpcProvider(_.providerURL)))
-    return this.ofVaults(vaults, store, polling, signer, wallet, logger)
-  }
-
   // note: for use by tests
   static ofVaults(vaults, store, polling, signer, wallet, logger = console) {
-    return new this(vaults, store, polling, signer, wallet, logger)
+    return new this(vaults || Map().asMutable(), store, polling, signer, wallet, logger)
   }
 
   constructor(vaults, store, polling, signer, wallet, logger) {
     this.vaults = vaults
-    this.trackers = this.vaults.map((vault, id) => VaultTracker(id, vault, store, polling, this, logger)).valueSeq().toArray()
+    this.store = store
+    this.polling = polling
     this.signer = signer
     this.wallet = wallet
     this.logger = logger
     this.isRunning = false
+    this.trackers = []
+    this.vaults.forEach((vault, chainId) => this.addTracker(chainId, vault))
   }
   get chainIds() { return this.vaults.keySeq().toArray() }
+
+  addVault(chainId, vault) {
+    this.vaults.set(chainId, vault)
+    this.addTracker(chainId, vault)
+  }
+
+  addTracker(chainId, vault) {
+    const tracker = VaultTracker(chainId, vault, this.store, this.polling, this, this.logger)
+    this.trackers.push(tracker)
+    if (this.isRunning) tracker.start().catch(this.logger.error)
+  }
 
   async onEvent(event) {
     switch (event.name) {
@@ -47,6 +51,7 @@ export class CrossChainVaultCoordinator {
   async start() {
     if (this.isRunning) return
 
+    //fixme: need to load state of vaults & trackers
     this.logger.log(`starting cross-chain Vault tracking for [${this.chainIds}]`)
     this.isRunning = true
     for (let each of this.trackers) await each.start()
@@ -55,6 +60,7 @@ export class CrossChainVaultCoordinator {
   stop() {
     if (!this.isRunning) return
 
+    //fixme: need to save state of vaults & trackers
     this.logger.log(`stopping cross-chain Vault tracking for [${this.chainIds}]`)
     this.isRunning = false
     for (let each of this.trackers) each.stop()

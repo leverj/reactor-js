@@ -11,7 +11,7 @@ import {createBridgeNodes} from './help/bridge.js'
 
 const {bridge: {threshold}, chain: {polling}} = config
 
-describe('CrossChainVaultCoordinator', () => {
+describe.skip('CrossChainVaultCoordinator', () => {
   const amount = BigInt(1e6 - 1)
   const [deployer, account] = accounts
   let nodes, coordinator

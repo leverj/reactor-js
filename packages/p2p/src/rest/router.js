@@ -29,8 +29,9 @@ export function createRouter(config, leader) {
     await leader.leadership.establishGroupPublicKey(threshold).then(_ => res.send('ok'))
   }
 
-  async function establishVaults(req, res) {
-    await leader.leadership.establishVaults().then(_ => res.send('ok'))
+  async function addVault(req, res) {
+    const {chainId, address, providerURL} = req.body
+    await leader.leadership.addVault(chainId, address, providerURL).then(_ => res.send('ok'))
   }
 
   async function getWhitelists(req, res) {
@@ -48,7 +49,7 @@ export function createRouter(config, leader) {
   router.get('/peer/status', getPeersStatus)
   router.get('/peer/bootstrapped', getBootstrappedPeers)
   router.post('/dkg', establishGroupPublicKey)
-  router.post('/vault', establishVaults)
+  router.post('/vault', addVault)
   router.get('/whitelist', getWhitelists)
   router.post('/whitelist', establishWhitelist)
   return router

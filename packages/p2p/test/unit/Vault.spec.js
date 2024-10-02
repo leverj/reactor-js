@@ -25,8 +25,11 @@ describe('Vault', () => {
   const deployVaultPerChainOnNodes = async (chains) => {
     const publicKey = leader.publicKey
     const vaults = Map().asMutable()
-    for (let each of chains) vaults.set(each, await Vault(each, publicKey))
-    nodes.forEach(_ => _.setVaults(vaults))
+    for (let chainId of chains) {
+      const vault = await Vault(chainId, publicKey)
+      vaults.set(chainId, vault)
+      nodes.forEach(_ => _.addVault(chainId, vault))
+    }
     return vaults.valueSeq().toArray()
   }
 

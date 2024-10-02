@@ -7,23 +7,14 @@ import {
   SecretKey,
 } from '@leverj/reactor.mcl'
 import {stubs} from '@leverj/reactor.chain/contracts'
-import {NetworkNode, TssNode} from '@leverj/reactor.p2p'
+import {CrossChainVaultCoordinator, NetworkNode, TssNode} from '@leverj/reactor.p2p'
+import {JsonRpcProvider} from 'ethers'
 import {Map} from 'immutable'
 import {setTimeout} from 'node:timers/promises'
+import {topics} from './topics.js'
 import {events, NODE_STATE_CHANGED, PEER_DISCOVERY, waitToSync} from './utils.js'
-import {JsonRpcProvider} from 'ethers'
 
 const meshProtocol = '/bridge/0.0.1'
-const topics = {
-  WHITELIST: 'whitelist',
-  WHITELIST_REQUEST: 'whitelist:request',
-  VAULTS: 'vaults',
-  VAULTS_REQUEST: 'vaults:request',
-  SIGNATURE_START: 'signature:start',
-  SIGNATURE_RECEIVE_SHARE: 'signature:receive:share',
-  DKG_START: 'dkg:start',
-  DKG_RECEIVE_SHARE: 'dkg:receive:share',
-}
 
 export class BridgeNode {
   static async from(config, port, bootstrapNodes, data = {}) {
@@ -40,12 +31,11 @@ export class BridgeNode {
     this.tss = tss
     this.whitelist = whitelist
     this.leader = leader
-    this.leadership = isLeader ? new Leader(this) : new Follower(this)
     this.vaults = Map().asMutable()
     this.monitor = new Monitor()
     this.network.registerStreamHandler(meshProtocol, this.onStreamMessage.bind(this))
     this.whitelistPeers(...this.whitelist.initial)
-    this.leadership.listenToPeerDiscovery()
+    this.leadership = isLeader ? new Leader(this) : new Follower(this)
   }
   get multiaddrs() { return this.network.multiaddrs }
   get peerId() { return this.network.peerId }
@@ -55,7 +45,7 @@ export class BridgeNode {
   get groupPublicKey() { return this.tss.groupPublicKey?.serializeToHexStr() }
   get isLeader() { return this.leadership.isLeader }
 
-  setVaults(vaults) { this.vaults = vaults }
+  addVault(chainId, vault) { this.vaults.set(chainId, vault) }
 
   state() {
     return {
@@ -69,7 +59,7 @@ export class BridgeNode {
   async start() {
     await this.network.start()
     await this.leadership.addLeader()
-    events.emit(NODE_STATE_CHANGED)
+    events.emit(NODE_STATE_CHANGED) //fixme: add leader to event?
     this.ping()
   }
 
@@ -93,7 +83,7 @@ export class BridgeNode {
         if (each !== this.peerId) this.tss.addMember(dkgId, _ => this.sendMessageTo(each, topics.DKG_RECEIVE_SHARE, _))
       }
       logger.log('Added to whitelist', peerIds.map(_ => `${_.slice(0, 4)}..${_.slice(-3)}`).join(', '))
-      events.emit(NODE_STATE_CHANGED)
+      events.emit(NODE_STATE_CHANGED) //fixme: add peerIds to event?
     }
   }
 
@@ -108,8 +98,7 @@ export class BridgeNode {
     switch (topic) {
       case topics.WHITELIST: return this.onWhitelist(peerId, message)
       case topics.WHITELIST_REQUEST: return this.onWhitelistRequest(peerId)
-      case topics.VAULTS: return this.onVaults(peerId, message)
-      case topics.VAULTS_REQUEST: return this.onVaultsRequest(peerId)
+      case topics.VAULT: return this.onVault(peerId, message)
       case topics.SIGNATURE_START: return this.onSignatureStart(peerId, message)
       case topics.SIGNATURE_RECEIVE_SHARE: return this.onSignatureShare(message)
       case topics.DKG_START: return this.onDkgStart(message)
@@ -128,24 +117,18 @@ export class BridgeNode {
     return this.whitelist.canPublish ? this.sendMessageTo(peerId, topics.WHITELIST, this.whitelist.get()) : {}
   }
 
-  onVaults(peerId, data) {
-    if (peerId !== this.leader) return logger.log(`ignoring ${topics.VAULTS} from non-leader`, peerId)
+  onVault(peerId, message) {
+    if (peerId !== this.leader) return logger.log(`ignoring ${topics.VAULT} from non-leader`, peerId)
 
-    const {networks} = data
-    const vaults = Map(networks).
-      mapKeys(_ => BigInt(_)).
-      map(_ => stubs.Vault(_.contracts.Vault.address, new JsonRpcProvider(_.providerURL)))
-    this.setVaults(vaults)
+    const {chainId, address, providerURL} = message
+    const vault = stubs.Vault(address, new JsonRpcProvider(providerURL))
+    this.addVault(BigInt(chainId), vault)
   }
 
-  onVaultsRequest(peerId) {
-    // ... not implemented for now
-  }
-
-  async onSignatureStart(peerId, data) {
+  async onSignatureStart(peerId, message) {
     if (peerId !== this.leader) return logger.log(`ignoring ${topics.SIGNATURE_START} from non-leader`, peerId)
 
-    const {transferHash, from} = data
+    const {transferHash, from} = message
     const {vaults, signer, tss} = this
     if (await vaults.get(BigInt(from)).sends(transferHash)) {
       const signature = tss.sign(transferHash).serializeToHexStr()
@@ -167,18 +150,21 @@ class Leader {
     this.self = self
     this.isLeader = true
     this.aggregateSignatures = {}
+    events.on(PEER_DISCOVERY, _ => this.self.whitelistPeers(_))
   }
   get publicKey() { return this.self.groupPublicKey ? G2ToNumbers(deserializeHexStrToPublicKey(this.self.groupPublicKey)) : undefined }
   get vaults() { return this.self.vaults }
+
+  setupCoordinator(store, polling, wallet) {
+    const {self} = this
+    this.coordinator = new CrossChainVaultCoordinator(self.vaults, store, polling, this, wallet, self.logger)
+    this.coordinator.start().catch(self.logger.error)
+  }
 
   async addLeader() {
     const {self} = this
     self.leader = self.peerId
     self.whitelistPeers(self.leader)
-  }
-
-  listenToPeerDiscovery() {
-    events.on(PEER_DISCOVERY, _ => this.self.whitelistPeers(_))
   }
 
   async sign(from, transferHash) {
@@ -220,20 +206,32 @@ class Leader {
   }
 
   async establishGroupPublicKey(threshold) {
-    const {self} = this
-    self.onDkgStart({threshold}) // fan to self
-    await this.fanout(topics.DKG_START, {threshold})
+    const {self} = this, message = {threshold}
+    self.onDkgStart(message) // fan to self
+    await this.fanout(topics.DKG_START, message)
+    //fixme: can we detect dkgDone and establish coordinator here?
+  }
+
+  async addVault(chainId, address, providerURL) {
+    const {self} = this, message = {chainId, address, providerURL}
+    self.onVault(self.peerId, message) // fan to self
+    await this.fanout(topics.VAULT, message)
+
+    const vault = stubs.Vault(address, new JsonRpcProvider(providerURL))
+    this.coordinator.addVault(BigInt(chainId), vault)
   }
 
   async establishVaults(networks) {
     const {self} = this
-    self.onVaults(self.peerId, {networks}) // fan to self
-    await this.fanout(topics.VAULTS, {networks})
+    const message = {networks}
+    self.onVaults(self.peerId, message) // fan to self
+    await this.fanout(topics.VAULT, {networks})
   }
 
   async fanout(topic, message) {
     const {self} = this
-    const peerIds = self.monitor.filter(self.whitelist.get()).filter(_ => _ !== self.peerId)
+    const {monitor, whitelist, peerId} = self
+    const peerIds = monitor.filter(whitelist.get()).filter(_ => _ !== peerId)
     for (let each of peerIds) await self.sendMessageTo(each, topic, message)
   }
 }
@@ -252,7 +250,6 @@ class Follower {
     await self.sendMessageTo(self.leader, topics.WHITELIST_REQUEST, '')
   }
 
-  listenToPeerDiscovery() { /* do nothing */ }
   async onSignatureShare(message) { /* do nothing */ }
 }
 
