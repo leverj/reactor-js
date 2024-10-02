@@ -7,21 +7,22 @@ import config from '@leverj/reactor.p2p/config'
 import {Contract} from 'ethers'
 import {expect} from 'expect'
 import {zip} from 'lodash-es'
-import {rmSync} from 'node:fs'
 import {setTimeout} from 'node:timers/promises'
-import {createChainConfig, getEvmsStore, launchEvms} from './help/chain.js'
 import ERC20_abi from './help/ERC20.abi.json' assert {type: 'json'}
-import {killAll} from './help/processes.js'
+import {Evms} from './help/evms.js'
 import {Nodes} from './help/nodes.js'
 
 const {bridge: {nodesDir, threshold}, chain: {polling}} = config
 
 class MessageSigner {
-  constructor(signer) { this.signer = signer }
+  constructor(signer) {
+    this.signer = signer
+    this.publicKey = signer.pubkey
+  }
   async sign(from, message) {
     return {
       signature: G1ToNumbers(sign(message, this.signer.secret).signature),
-      publicKey: G2ToNumbers(this.signer.pubkey),
+      publicKey: G2ToNumbers(this.publicKey),
     }
   }
 }
@@ -31,7 +32,7 @@ describe.skip('e2e - CrossChainVaultCoordinator', () => {
   const amount = BigInt(1e6 - 1)
   const [deployer, account] = accounts
   const chains = ['holesky', 'sepolia'], [L1, L2] = chains
-  let nodes, processes, evms, coordinator
+  let evms, nodes, coordinator
 
   before(() => nodes = new Nodes(config))
   beforeEach(async () => {
@@ -41,30 +42,23 @@ describe.skip('e2e - CrossChainVaultCoordinator', () => {
     const ports = await nodes.createApiNodes(howMany)
     await nodes.POST(nodes.leaderPort, 'dkg/start')
     await setTimeout(100)
-    /*
-      const leader = nodes.processes[0].leadership
-      expect(leader.publicKey).toBeDefined()
-     */
+    // const leader = nodes.processes[0].leadership
+    // expect(leader.publicKey).toBeDefined()
     const leader = new MessageSigner(signer) //fixme: replace with leader node
-    const publicKey = signer.pubkey.serializeToHexStr()
-    // const publicKey = leader.publicKey.serializeToHexStr()
+    const publicKey = leader.publicKey.serializeToHexStr()
 
     // establish vaults
-    const chainConfig = await createChainConfig(chains, {publicKey})
-    const deploymentDir = `${chainConfig.deploymentDir}/${chainConfig.env}`
-    rmSync(deploymentDir, {recursive: true, force: true})
-    processes = await launchEvms(chainConfig)
+    evms = await Evms.with(chains, {publicKey}).then(_ => _.start())
 
     // establish coordinator
-    evms = getEvmsStore(deploymentDir).toObject()
     const store = new JsonStore(nodesDir, 'trackers')
-    coordinator = CrossChainVaultCoordinator.ofEvms(evms, chains, store, polling, leader, deployer, logger)
+    coordinator = CrossChainVaultCoordinator.ofEvms(evms.deployed, chains, store, polling, leader, deployer, logger)
     await coordinator.start()
   })
 
   afterEach(async () => {
     coordinator.stop()
-    await killAll(processes)
+    await evms.stop()
     await nodes.stop()
   })
 

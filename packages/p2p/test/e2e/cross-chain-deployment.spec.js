@@ -1,27 +1,18 @@
 import {accounts} from '@leverj/chain-deployment/hardhat.help'
 import {stubs} from '@leverj/reactor.chain/contracts'
 import {expect} from 'expect'
-import {rmSync} from 'node:fs'
-import {createChainConfig, getDeployedNetworks, launchEvms} from './help/chain.js'
-import {killAll} from './help/processes.js'
+import {Evms} from './help/evms.js'
 
 describe('e2e - deploy across multiple chains', () => {
   const [, account] = accounts
   const chains = ['holesky', 'sepolia']
-  let processes, deployments
+  let evms
 
-  before(async () => {
-    const config = await createChainConfig(chains)
-    const deploymentDir = `${config.deploymentDir}/${config.env}`
-    rmSync(deploymentDir, {recursive: true, force: true})
-    processes = await launchEvms(config)
-    deployments = getDeployedNetworks(deploymentDir)
-  })
-
-  after(async () => await killAll(processes))
+  before(async () => evms = await Evms.with(chains).then(_ => _.start()))
+  after(async () => await evms.stop())
 
   it('connect to provider and query balances on each chain', async () => {
-    for (let each of deployments) {
+    for (let each of evms.getDeployments()) {
       const {provider, Vault} = each
       const balance = await provider.getBalance(account)
       expect(Vault.address).toBeDefined()
@@ -32,7 +23,7 @@ describe('e2e - deploy across multiple chains', () => {
   })
 
   it('connect to contract and query on each chain', async () => {
-    for (let each of deployments) {
+    for (let each of evms.getDeployments()) {
       const {id, nativeCurrency, provider, Vault} = each
       const contract = stubs.Vault(Vault.address, provider)
       const [chainId, chainName, nativeSymbol, nativeDecimals] = await contract.home()
@@ -45,7 +36,7 @@ describe('e2e - deploy across multiple chains', () => {
   })
 
   it('connect to contract and transact on each chain', async () => {
-    for (let each of deployments) {
+    for (let each of evms.getDeployments()) {
       const {provider, Vault} = each
       const contract = stubs.Vault(Vault.address, provider)
       const currency = await contract.NATIVE(), amount = 1000n
