@@ -126,19 +126,19 @@ function remote_install() {
 
 function local_whitelist() {
     echo "Local whitelist"
-    curl --location --request POST 'http://localhost:9000/api/whitelist/publish'
+    curl --location --request POST 'http://localhost:9000/api/whitelist'
 }
 function remote_whitelist() {
     echo "Remote whitelist"
-    curl --location --request POST $(remote_leader)/api/whitelist/publish
+    curl --location --request POST $(remote_leader)/api/whitelist
 }
 function local_dkg() {
     echo "Local DKG"
-    curl --location --request POST 'http://localhost:9000/api/dkg/start'
+    curl --location --request POST 'http://localhost:9000/api/dkg'
 }
 function remote_dkg() {
     echo "Remote DKG"
-    curl --location --request POST $(remote_leader)/api/dkg/start
+    curl --location --request POST $(remote_leader)/api/dkg
 }
 
 function local_sign() {

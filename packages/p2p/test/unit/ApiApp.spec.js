@@ -58,12 +58,12 @@ describe('ApiApp', () => {
   }
 
   const establishWhitelist = async (ports, total, available) =>
-    tryAgainIfError(_ => POST(leaderPort, 'whitelist/publish'), timeout, tryCount, leaderPort).
+    tryAgainIfError(_ => POST(leaderPort, 'whitelist'), timeout, tryCount, leaderPort).
     then(_ => waitForWhitelistSync(ports, total, available))
 
   it('create new nodes, connect and init DKG', async () => {
     const ports = await createApiNodes(2)
-    await POST(leaderPort, 'dkg/start')
+    await POST(leaderPort, 'dkg')
     await setTimeout(100)
     const nodes = await Promise.all(ports.map(_ => store.get(_)))
     const publicKeys = nodes.map(_ => _.tssNode.groupPublicKey)

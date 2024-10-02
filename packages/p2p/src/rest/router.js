@@ -19,8 +19,18 @@ export function createRouter(config, leader) {
     res.send(leader.monitor.getPeersStatus())
   }
 
+  async function getBootstrappedPeers(req, res) {
+    const results = []
+    for (let each of leader.peers) results.push(await leader.network.findPeer(each))
+    res.send(results)
+  }
+
   async function establishGroupPublicKey(req, res) {
     await leader.leadership.establishGroupPublicKey(threshold).then(_ => res.send('ok'))
+  }
+
+  async function establishVaults(req, res) {
+    await leader.leadership.establishVaults().then(_ => res.send('ok'))
   }
 
   async function getWhitelists(req, res) {
@@ -31,20 +41,15 @@ export function createRouter(config, leader) {
     await leader.leadership.establishWhitelist().then(_ => res.send('ok'))
   }
 
-  async function getBootstrapPeers(req, res) {
-    const results = []
-    for (let each of leader.peers) results.push(await leader.network.findPeer(each))
-    res.send(results)
-  }
-
   const router = Router()
   router.get('/bridge/multiaddr', getMultiaddrs)
   router.get('/bridge/multiaddr/all', getAllMultiaddrs)
   router.get('/peer', getPeers)
   router.get('/peer/status', getPeersStatus)
-  router.get('/peer/bootstrapped', getBootstrapPeers)
-  router.post('/dkg/start', establishGroupPublicKey)
+  router.get('/peer/bootstrapped', getBootstrappedPeers)
+  router.post('/dkg', establishGroupPublicKey)
+  router.post('/vault', establishVaults)
   router.get('/whitelist', getWhitelists)
-  router.post('/whitelist/publish', establishWhitelist)
+  router.post('/whitelist', establishWhitelist)
   return router
 }

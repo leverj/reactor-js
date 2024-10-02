@@ -9,12 +9,12 @@ describe('e2e - app', () => {
   let nodes
 
   before(() => nodes = new Nodes(config))
-  beforeEach(() => nodes.reset())
+  beforeEach(() => nodes.start())
   afterEach(async () => await nodes.stop())
 
   it('create new nodes, connect and init DKG', async () => {
     const ports = await nodes.createApiNodes(2)
-    await nodes.POST(nodes.leaderPort, 'dkg/start')
+    await nodes.POST(nodes.leaderPort, 'dkg')
     await setTimeout(100)
     const publicKeys = ports.map(_ => nodes.get(_).tssNode.groupPublicKey)
     for (let each of publicKeys) {

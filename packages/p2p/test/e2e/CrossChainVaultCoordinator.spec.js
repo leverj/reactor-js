@@ -27,20 +27,18 @@ class MessageSigner {
   }
 }
 
-//fixme: not ready
 describe.skip('e2e - CrossChainVaultCoordinator', () => {
   const amount = BigInt(1e6 - 1)
   const [deployer, account] = accounts
   const chains = ['holesky', 'sepolia'], [L1, L2] = chains
   let evms, nodes, coordinator
 
-  before(() => nodes = new Nodes(config))
-  beforeEach(async () => {
-    nodes.reset()
+  before(async () => {
+    nodes = new Nodes(config).start()
     // establish nodes
     const howMany = threshold + 1
     const ports = await nodes.createApiNodes(howMany)
-    await nodes.POST(nodes.leaderPort, 'dkg/start')
+    await nodes.POST(nodes.leaderPort, 'dkg')
     await setTimeout(100)
     // const leader = nodes.processes[0].leadership
     // expect(leader.publicKey).toBeDefined()
@@ -56,7 +54,7 @@ describe.skip('e2e - CrossChainVaultCoordinator', () => {
     await coordinator.start()
   })
 
-  afterEach(async () => {
+  after(async () => {
     coordinator.stop()
     await evms.stop()
     await nodes.stop()

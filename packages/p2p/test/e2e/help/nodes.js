@@ -16,10 +16,11 @@ export class Nodes {
   get timeout() { return this.config.timeout }
   get tryCount() { return this.config.tryCount }
 
-  reset() {
+  start() {
     rmSync(this.bridge.nodesDir, {recursive: true, force: true})
     this.store = new JsonDirStore(this.bridge.nodesDir, 'nodes')
     this.processes = []
+    return this
   }
 
   async stop() {
@@ -82,7 +83,7 @@ export class Nodes {
 
   async establishWhitelist(ports, howMany) {
     return tryAgainIfError(
-      () => this.POST(this.leaderPort, 'whitelist/publish'),
+      () => this.POST(this.leaderPort, 'whitelist'),
       this.timeout, this.tryCount, this.leaderPort
     ).then(_ => this.waitForWhitelistSync(ports, howMany))
   }
