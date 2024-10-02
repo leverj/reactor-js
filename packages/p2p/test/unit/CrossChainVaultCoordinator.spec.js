@@ -1,52 +1,49 @@
-import {accounts, deployContract, provider} from '@leverj/chain-deployment/hardhat.help'
-import {ETH, InMemoryStore, logger} from '@leverj/common'
+import {accounts, deployContract} from '@leverj/chain-deployment/hardhat.help'
+import {ETH, InMemoryStore} from '@leverj/common'
 import {Vault} from '@leverj/reactor.chain/test'
 import {CrossChainVaultCoordinator} from '@leverj/reactor.p2p'
 import config from '@leverj/reactor.p2p/config'
 import {expect} from 'expect'
-import {Map} from 'immutable'
 import {zip} from 'lodash-es'
 import {setTimeout} from 'node:timers/promises'
 import {createBridgeNodes} from './help/bridge.js'
 
 const {bridge: {threshold}, chain: {polling}} = config
 
-describe.skip('CrossChainVaultCoordinator', () => {
+describe('CrossChainVaultCoordinator', () => {
   const amount = BigInt(1e6 - 1)
   const [deployer, account] = accounts
-  let nodes, coordinator
+  let nodes, leader
 
   before(async () => {
     // start nodes
     const howMany = threshold + 1
     nodes = await createBridgeNodes(howMany)
-    const leader = nodes[0].leadership
+    leader = nodes[0].leadership
     await leader.establishWhitelist()
     await leader.establishGroupPublicKey(howMany)
     await setTimeout(100)
     expect(leader.publicKey).toBeDefined()
 
     // deploy vaults
-    const chainIds = [10101n, 98989n]
-    const vaults = Map(await Promise.all(chainIds.map(async (id) => [id, await Vault(id, leader.publicKey)])))
+    for (let chainId of [10101n, 98989n]) {
+      const vault = await Vault(chainId, leader.publicKey)
+      nodes.forEach(_ => _.addVault(chainId, vault))
+    }
 
-    // start coordinator
-    const store = new InMemoryStore()
-    coordinator = CrossChainVaultCoordinator.ofVaults(vaults, store, polling, leader, deployer, logger)
-    nodes.forEach(_ => _.setVaults(coordinator.vaults))
-    await coordinator.start()
+    leader.setupCoordinator(new InMemoryStore(), polling, deployer)
   })
 
   after(async () => {
-    coordinator.stop()
+    leader.stop()
     for (let each of nodes) await each.stop()
   })
 
   it('detects & acts on a Transfer events for both Token & Native, from one chain to another', async () => {
-    const [L1_id, L2_id] = coordinator.chainIds
-    const [L1_vault, L2_vault] = coordinator.vaults.valueSeq().toArray()
+    const [L1_id, L2_id] = leader.coordinator.chainIds
+    const [L1_vault, L2_vault] = leader.coordinator.vaults.valueSeq().toArray()
     const [L1_provider, L2_provider] = [L1_vault, L2_vault].map(_ => _.runner.provider)
-    for (let [vault, id] of zip([L1_vault, L2_vault], coordinator.chainIds)) expect(await vault.chainId()).toEqual(id)
+    for (let [vault, id] of zip([L1_vault, L2_vault], leader.coordinator.chainIds)) expect(await vault.chainId()).toEqual(id)
 
     const L2_token = await deployContract('ERC20Mock', ['Gold', '💰'])
     await L2_token.mint(account.address, amount)

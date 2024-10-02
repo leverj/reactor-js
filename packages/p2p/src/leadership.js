@@ -23,8 +23,8 @@ export class Leader {
 
   setupCoordinator(store, polling, wallet) {
     const {self} = this
-    this.coordinator = new CrossChainVaultCoordinator(self.vaults, store, polling, this, wallet, self.logger)
-    this.coordinator.start().catch(self.logger.error)
+    this.coordinator = new CrossChainVaultCoordinator(self.vaults, store, polling, this, wallet)
+    this.coordinator.start().catch(logger.error)
   }
 
   async addLeader() {
@@ -87,19 +87,14 @@ export class Leader {
     this.coordinator.addVault(BigInt(chainId), vault)
   }
 
-  async establishVaults(networks) {
-    const {self} = this
-    const message = {networks}
-    self.onVaults(self.peerId, message) // fan to self
-    await this.fanout(topics.VAULT, {networks})
-  }
-
   async fanout(topic, message) {
     const {self} = this
     const {monitor, whitelist, peerId} = self
     const peerIds = monitor.filter(whitelist.get()).filter(_ => _ !== peerId)
     for (let each of peerIds) await self.sendMessageTo(each, topic, message)
   }
+
+  stop() { this.coordinator?.stop() }
 }
 
 export class Follower {

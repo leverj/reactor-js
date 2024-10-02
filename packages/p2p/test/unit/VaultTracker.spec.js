@@ -1,5 +1,5 @@
 import {accounts, getContractAt, provider} from '@leverj/chain-deployment/hardhat.help'
-import {InMemoryStore, logger} from '@leverj/common'
+import {InMemoryStore} from '@leverj/common'
 import {encodeTransfer} from '@leverj/reactor.chain/contracts'
 import {ERC20, publicKey, signedBy, signer, Vault} from '@leverj/reactor.chain/test'
 import {VaultTracker} from '@leverj/reactor.p2p'
@@ -24,7 +24,7 @@ describe('VaultTracker', () => {
           await toVault.accept(signature, publicKey, payload).then(_ => _.wait())
       }
     }
-    tracker = VaultTracker(fromChainId, fromVault, new InMemoryStore(), config.chain.polling, {onEvent}, logger)
+    tracker = VaultTracker(fromChainId, fromVault, new InMemoryStore(), config.chain.polling, {onEvent})
     await tracker.start()
   })
 
