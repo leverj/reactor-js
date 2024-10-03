@@ -4,7 +4,8 @@ import {logger} from '@leverj/common'
 import {pipe} from 'it-pipe'
 import {fromString as uint8ArrayFromString} from 'uint8arrays/from-string'
 import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
-import {events, PEER_CONNECT, PEER_DISCOVERY, tryAgainIfError} from './utils.js'
+import {events, PEER_CONNECT, PEER_DISCOVERY} from './events.js'
+import {tryAgainIfError} from './utils.js'
 import {P2P} from './P2P.js'
 
 export class NetworkNode {
@@ -81,8 +82,8 @@ export class NetworkNode {
   }
 
   async createStream(peerId, protocol) {
-    const {tryCount, timeout, port} = this.config
-    return tryAgainIfError(_ => this.p2p.dialProtocol(peerIdFromString(peerId), protocol), tryCount, timeout, port)
+    const {port, messaging: {attempts, timeout}} = this.config
+    return tryAgainIfError(_ => this.p2p.dialProtocol(peerIdFromString(peerId), protocol), attempts, timeout, port)
   }
 
   async sendMessageOnStream(stream, message) { return stream.sink([uint8ArrayFromString(message)]) }

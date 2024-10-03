@@ -27,7 +27,7 @@ function deployDocker() {
       -e BRIDGE_THRESHOLD=$BRIDGE_THRESHOLD \
       -e BRIDGE_BOOTSTRAP_NODES=$BRIDGE_BOOTSTRAP_NODES \
       -e FAIL=true \
-      -e TRY_COUNT=50 \
+      -e MESSAGING_ATTEMPTS=50 \
       -p $PORT:$PORT \
       -p $BRIDGE_PORT:$BRIDGE_PORT \
       -v $DATA_DIR/$PORT:/dist/data \

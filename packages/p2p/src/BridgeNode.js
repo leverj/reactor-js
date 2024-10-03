@@ -5,9 +5,9 @@ import {NetworkNode, TssNode} from '@leverj/reactor.p2p'
 import {JsonRpcProvider} from 'ethers'
 import {Map} from 'immutable'
 import {setTimeout} from 'node:timers/promises'
+import {events, NODE_STATE_CHANGED} from './events.js'
 import {Follower, Leader} from './leadership.js'
 import {topics} from './topics.js'
-import {events, NODE_STATE_CHANGED} from './utils.js'
 
 const meshProtocol = '/bridge/0.0.1'
 
@@ -63,12 +63,12 @@ export class BridgeNode {
   async connect(peerId) { return this.network.connect(peerId) }
 
   async ping() {
-    const peerIds = this.whitelist.get()
-    for (let each of peerIds) if (each !== this.peerId) {
-      this.monitor.updateLatency(each, await this.network.ping(each))
-      await setTimeout(this.config.timeout)
+    const timeout = this.config.messaging.timeout
+    for (let peerId of this.whitelist.get()) if (peerId !== this.peerId) {
+      this.monitor.updateLatency(peerId, await this.network.ping(peerId))
+      await setTimeout(timeout)
     }
-    setTimeout(this.config.timeout).then(_ => this.ping())
+    setTimeout(timeout).then(_ => this.ping())
   }
 
   whitelistPeers(...peerIds) {
@@ -125,12 +125,10 @@ export class BridgeNode {
 
     const {transferHash, from} = message
     const {vaults, signer, tss} = this
-    if (await vaults.get(BigInt(from)).sends(transferHash)) {
-      const signature = tss.sign(transferHash).serializeToHexStr()
-      logger.log(topics.SIGNATURE_START, transferHash, signature)
-      const message = {signature, signer, transferHash}
-      await this.sendMessageTo(peerId, topics.SIGNATURE_RECEIVE_SHARE, message)
-    }
+    if (!await vaults.get(BigInt(from)).sends(transferHash)) return logger.error(`unable to confirm vault on chain ${from} has a send for ${transferHash}`)
+    const signature = tss.sign(transferHash).serializeToHexStr()
+    logger.log(topics.SIGNATURE_START, transferHash, signature)
+    await this.sendMessageTo(peerId, topics.SIGNATURE_RECEIVE_SHARE, {signature, signer, transferHash})
   }
 
   async onSignatureShare(message) { return this.leadership.onSignatureShare(message) }

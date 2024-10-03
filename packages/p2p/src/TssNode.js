@@ -7,7 +7,7 @@ import {
   SecretKey,
   Signature,
 } from '@leverj/reactor.mcl'
-import {events, NODE_STATE_CHANGED} from './utils.js'
+import {events, NODE_STATE_CHANGED} from './events.js'
 
 /**
  * Adds secret key contribution together to produce a single secret key
@@ -79,7 +79,6 @@ export class TssNode {
 
   get threshold() { return this.vvec?.length }
   get groupPublicKey() { return this.vvec ? this.vvec[0] : undefined }
-  // get publicKey() { return new PublicKey().share(this.vvec, this.id) } //fixme: why have this
   get idHex() { return this.id.serializeToHexStr() }
 
   reset() {

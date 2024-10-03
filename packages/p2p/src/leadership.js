@@ -7,9 +7,10 @@ import {
 } from '@leverj/reactor.mcl'
 import {stubs} from '@leverj/reactor.chain/contracts'
 import {CrossChainVaultCoordinator} from '@leverj/reactor.p2p'
-import {JsonRpcProvider} from 'ethers'
+import {JsonRpcProvider, Wallet} from 'ethers'
+import {events, PEER_DISCOVERY} from './events.js'
 import {topics} from './topics.js'
-import {events, PEER_DISCOVERY, waitToSync} from './utils.js'
+import {waitToSync} from './utils.js'
 
 export class Leader {
   constructor(self) {
@@ -22,10 +23,12 @@ export class Leader {
   get publicKey() { return this.groupPublicKey ? G2ToNumbers(deserializeHexStrToPublicKey(this.groupPublicKey)) : undefined }
   get vaults() { return this.self.vaults }
 
-  setupCoordinator(wallet, store) {
+  setupCoordinator(store) {
     const {self} = this
-    const {bridge: {nodesDir}, chain: {polling}} = self.config
-    this.coordinator = new CrossChainVaultCoordinator(self.vaults, store || new JsonStore(nodesDir, 'trackers'), polling, this, wallet)
+    const {bridge: {nodesDir}, chain: {tracker: {polling}, coordinator: {wallet: {privateKey}}}} = self.config
+    store = store || new JsonStore(nodesDir, 'trackers') //fixme
+    const wallet = new Wallet(privateKey)
+    this.coordinator = new CrossChainVaultCoordinator(self.vaults, store, polling, this, wallet)
     this.coordinator.start().catch(logger.error)
   }
 
@@ -42,11 +45,12 @@ export class Leader {
       signatures: [],
       verified: false,
     }
-    const signature = self.tss.sign(transferHash).serializeToHexStr()
-    const signer = self.signer
+    const {vaults, signer, tss} = self
+    if (!await vaults.get(BigInt(from)).sends(transferHash)) return undefined
+    const signature = tss.sign(transferHash).serializeToHexStr()
     await this.onSignatureShare({transferHash, signature, signer}) // fan to self
     await this.fanout(topics.SIGNATURE_START, {transferHash, from})
-    const interval = 10, timeout = self.config.timeout //fixme:config: these should come from config
+    const {interval, timeout} = self.config.messaging
     await until(() => aggregateSignatures[transferHash].verified, interval, timeout)
     return aggregateSignatures[transferHash].verified ?
       G1ToNumbers(deserializeHexStrToSignature(aggregateSignatures[transferHash].groupSign)) :
@@ -77,7 +81,7 @@ export class Leader {
     const {self} = this, message = {threshold}
     self.onDkgStart(message) // fan to self
     await this.fanout(topics.DKG_START, message)
-    //fixme: can we detect dkgDone and establish coordinator here?
+    //fixme.coordinator: can we detect dkgDone and establish coordinator here?
   }
 
   async addVault(chainId, address, providerURL) {
@@ -107,9 +111,10 @@ export class Follower {
 
   async addLeader() {
     const {self} = this
+    const {port, messaging: {timeout}} = self.config
     self.leader = self.network.bootstrapNodes[0].split('/').pop()
     self.whitelistPeers(self.leader)
-    await waitToSync([_ => self.peers.includes(self.leader)], -1, self.config.timeout, self.config.port)
+    await waitToSync([_ => self.peers.includes(self.leader)], -1, timeout, port)
     await self.sendMessageTo(self.leader, topics.WHITELIST_REQUEST, '')
   }
 

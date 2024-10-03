@@ -24,15 +24,22 @@ const schema = {
     default: '0.0.0.0',
     env: 'IP',
   },
-  timeout: { //fixme: what is this about? need a more descriptive name
-    format: 'nat',
-    default: 100,
-    env: 'TIMEOUT',
-  },
-  tryCount: { //fixme: what is this about? need a more descriptive name
-    format: 'nat',
-    default: 50,
-    env: 'TRY_COUNT',
+  messaging: {
+    attempts: {
+      format: 'nat',
+      default: 50,
+      env: 'MESSAGING_ATTEMPTS',
+    },
+    interval: {
+      format: 'nat',
+      default: 100,
+      env: 'MESSAGING_INTERVAL',
+    },
+    timeout: {
+      format: 'nat',
+      default: 100,
+      env: 'MESSAGING_TIMEOUT',
+    },
   },
   bridge: { //fixme: is this more about the rest api?
     nodesDir: {
@@ -57,16 +64,29 @@ const schema = {
     },
   },
   chain: {
-    polling: {
-      interval: {
-        format: 'nat',
-        default: 15 /* seconds */ * 1000,
-        env: 'CHAIN_POLLING_INTERVAL',
-      },
-      attempts: {
-        format: 'nat',
-        default: 5,
-        env: 'CHAIN_POLLING_ATTEMPTS',
+    coordinator: {
+      wallet: {
+        privateKey: {
+          format: '*',
+          default: null,
+          nullable: false,
+          sensitive: true,
+          env: 'COORDINATOR_WALLET_PRIVATE_KEY',
+        },
+      }
+    },
+    tracker: {
+      polling: {
+          attempts: {
+            format: 'nat',
+            default: 5,
+            env: 'TRACKER_POLLING_ATTEMPTS',
+          },
+        interval: {
+          format: 'nat',
+          default: 15 /* seconds */ * 1000,
+            env: 'TRACKER_POLLING_INTERVAL',
+        },
       },
     },
   }

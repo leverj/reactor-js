@@ -11,7 +11,7 @@ import {setTimeout} from 'node:timers/promises'
 import {toString as uint8ArrayToString} from 'uint8arrays/to-string'
 import {peerIdJsons} from '../fixtures.js'
 
-const {timeout, tryCount, port} = config
+const {port, messaging: {attempts, timeout}} = config
 
 describe('NetworkNode', () => {
   const meshProtocol = '/mesh/1.0.0'
@@ -30,7 +30,7 @@ describe('NetworkNode', () => {
       nodes.push(node)
       if (i === 0) bootstrapNodes = node.multiaddrs
     }
-    await waitToSync([_ => nodes[count - 1].peers.length === nodes.length - 1], tryCount, timeout, port)
+    await waitToSync([_ => nodes[count - 1].peers.length === nodes.length - 1], attempts, timeout, port)
   }
 
   //fixme: fails when running with all tests

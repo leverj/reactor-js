@@ -1,18 +1,12 @@
 import {ContractTracker} from '@leverj/chain-tracking'
 import {logger} from '@leverj/common'
 import {encodeTransfer} from '@leverj/reactor.chain/contracts'
-import {Map} from 'immutable'
 
 export const VaultTracker = (chainId, contract, store, polling, actor) => {
   return ContractTracker.of(chainId, contract, store, polling, _ => actor.onEvent(_), logger)
 }
 
 export class CrossChainVaultCoordinator {
-  // note: for use by tests
-  static ofVaults(vaults, store, polling, signer, wallet) {
-    return new this(vaults || Map().asMutable(), store, polling, signer, wallet)
-  }
-
   constructor(vaults, store, polling, signer, wallet) {
     this.vaults = vaults
     this.store = store
@@ -42,8 +36,10 @@ export class CrossChainVaultCoordinator {
         const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = event.args
         const payload = encodeTransfer(origin, token, name, symbol, decimals, amount, owner, from, to, tag)
         const signature = await this.signer.sign(from, transferHash)
+        if (!signature) return logger.error(`unable to aggregate signature for ${transferHash} on chain ${from}`)
         const toVault = this.vaults.get(to)
-        const runner = toVault.connect(this.wallet.connect(toVault.runner.provider))
+        const wallet = this.wallet.connect(toVault.runner.provider)
+        const runner = toVault.connect(wallet)
         await runner.accept(signature, this.signer.publicKey, payload).then(_ => _.wait())
     }
   }
@@ -51,7 +47,7 @@ export class CrossChainVaultCoordinator {
   async start() {
     if (this.isRunning) return
 
-    //fixme: need to load state of vaults & trackers
+    //fixme.coordinator: need to load state of vaults & trackers
     logger.log(`starting cross-chain Vault tracking for [${this.chainIds}]`)
     this.isRunning = true
     for (let each of this.trackers) await each.start()
@@ -60,7 +56,7 @@ export class CrossChainVaultCoordinator {
   stop() {
     if (!this.isRunning) return
 
-    //fixme: need to save state of vaults & trackers
+    //fixme.coordinator: need to save state of vaults & trackers
     logger.log(`stopping cross-chain Vault tracking for [${this.chainIds}]`)
     this.isRunning = false
     for (let each of this.trackers) each.stop()

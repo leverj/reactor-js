@@ -33,11 +33,6 @@ export function createRouter(config, leader) {
     await leader.leadership.establishGroupPublicKey(threshold).then(_ => res.send('ok'))
   }
 
-  async function setupCoordinator(req, res) {
-    const {store, polling, wallet} = req.body
-    await leader.leadership.setupCoordinator(store, polling, wallet).then(_ => res.send('ok'))
-  }
-
   async function addVault(req, res) {
     const {chainId, address, providerURL} = req.body
     await leader.leadership.addVault(chainId, address, providerURL).then(_ => res.send('ok'))
@@ -59,7 +54,6 @@ export function createRouter(config, leader) {
   router.get('/peer/bootstrapped', getBootstrappedPeers)
   router.get('/dkg', getGroupPublicKey)
   router.post('/dkg', establishGroupPublicKey)
-  router.post('/chain/coordinator', setupCoordinator)
   router.post('/chain/vault', addVault)
   router.get('/whitelist', getWhitelists)
   router.post('/whitelist', establishWhitelist)

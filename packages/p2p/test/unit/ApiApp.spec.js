@@ -7,7 +7,7 @@ import {merge} from 'lodash-es'
 import {setTimeout} from 'node:timers/promises'
 import {getNodeInfos} from '../fixtures.js'
 
-const {bridge, externalIp, timeout, tryCount, port: leaderPort} = config
+const {bridge, externalIp, port: leaderPort, messaging: {attempts, timeout}} = config
 
 describe('ApiApp', () => {
   let store, nodes = []
@@ -22,7 +22,7 @@ describe('ApiApp', () => {
       if (leader) return [`/ip4/${externalIp}/tcp/${bridge.port}/p2p/${leader}`]
       else throw CodedError(`no leader found @ port ${leaderPort}`, 'ENOENT')
     }
-    const bootstrapNodes = port === leaderPort ? [] : await tryAgainIfError(getLeaderNode, timeout, tryCount, port)
+    const bootstrapNodes = port === leaderPort ? [] : await tryAgainIfError(getLeaderNode, timeout, attempts, port)
     const p2pConfig = merge({}, config, {port, bridge: {port: bridge.port + index, bootstrapNodes}})
     return ApiApp.with(p2pConfig, store).then(_ => _.start())
   }
@@ -34,15 +34,15 @@ describe('ApiApp', () => {
       logger.log('#'.repeat(50), 'created node', each, nodes.length)
     }
     await setTimeout(10)
-    await waitToSync(ports.map(_ => async () => GET(_, 'peer').then(_ => _.length === howMany)), tryCount, timeout, leaderPort)
+    await waitToSync(ports.map(_ => async () => GET(_, 'peer').then(_ => _.length === howMany)), attempts, timeout, leaderPort)
     logger.log('bootstrap synced...')
     return ports
   }
 
-  async function createApiNodes(howMany, whitelist = true) {
+  async function createApiNodes(howMany) {
     const ports = new Array(howMany).fill(0).map((_, i) => leaderPort + i)
     await createApiNodesFrom(ports)
-    if (whitelist) await establishWhitelist(ports)
+    await establishWhitelist(ports)
     return ports
   }
 
@@ -53,12 +53,12 @@ describe('ApiApp', () => {
   const POST = (port, endpoint, payload) => axios.post(`http://localhost:${port}/api/${endpoint}`, payload || {})
 
   async function waitForWhitelistSync(ports, howMany = ports.length) {
-    await waitToSync(ports.map(_ => async () => GET(_, 'whitelist').then(_ => _.length === howMany)), tryCount, timeout, leaderPort)
+    await waitToSync(ports.map(_ => async () => GET(_, 'whitelist').then(_ => _.length === howMany)), attempts, timeout, leaderPort)
     logger.log('whitelisted synced...')
   }
 
   const establishWhitelist = async (ports, total, available) =>
-    tryAgainIfError(_ => POST(leaderPort, 'whitelist'), timeout, tryCount, leaderPort).
+    tryAgainIfError(_ => POST(leaderPort, 'whitelist'), timeout, attempts, leaderPort).
     then(_ => waitForWhitelistSync(ports, total, available))
 
   it('create new nodes, connect and init DKG', async () => {
@@ -81,23 +81,25 @@ describe('ApiApp', () => {
   })
 
   it('whitelist', async () => {
-    const ports = await createApiNodes(4, false)
+    const howMany = 4
+    const ports = new Array(howMany).fill(0).map((_, i) => leaderPort + i)
+    await createApiNodesFrom(ports)
     await GET(leaderPort + 1, 'peer/bootstrapped')
     for (let each of nodes.slice(2)) await each.stop()
 
     await setTimeout(10)
-    await establishWhitelist(ports.slice(0, 2), 4)
-    expect(store.get(ports[0]).whitelist).toHaveLength(4)
-    expect(store.get(ports[1]).whitelist).toHaveLength(4)
+    await establishWhitelist(ports.slice(0, 2), howMany)
+    expect(store.get(ports[0]).whitelist).toHaveLength(howMany)
+    expect(store.get(ports[1]).whitelist).toHaveLength(howMany)
     expect(store.get(ports[2]).whitelist).toHaveLength(1)
     expect(store.get(ports[3]).whitelist).toHaveLength(1)
 
     await setTimeout(10)
     await createApiNodesFrom(ports.slice(2), 3)
     await waitForWhitelistSync(ports)
-    expect(store.get(ports[0]).whitelist).toHaveLength(4)
-    expect(store.get(ports[1]).whitelist).toHaveLength(4)
-    expect(store.get(ports[2]).whitelist).toHaveLength(4)
-    expect(store.get(ports[3]).whitelist).toHaveLength(4)
+    expect(store.get(ports[0]).whitelist).toHaveLength(howMany)
+    expect(store.get(ports[1]).whitelist).toHaveLength(howMany)
+    expect(store.get(ports[2]).whitelist).toHaveLength(howMany)
+    expect(store.get(ports[3]).whitelist).toHaveLength(howMany)
   })
 })

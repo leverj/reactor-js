@@ -3,7 +3,7 @@ import {createServer} from 'http'
 import {existsSync, readFileSync, writeFileSync} from 'node:fs'
 import {createApp} from './rest/app.js'
 import {BridgeNode} from './BridgeNode.js'
-import {events, NODE_STATE_CHANGED} from './utils.js'
+import {events, NODE_STATE_CHANGED} from './events.js'
 
 export class JsonDirStore {
   constructor(path, type) {

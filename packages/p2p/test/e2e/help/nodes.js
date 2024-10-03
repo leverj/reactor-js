@@ -10,15 +10,12 @@ export class Nodes {
     this.config = config
     this.processes = []
   }
-  get bridge() { return this.config.bridge }
-  get externalIp() { return this.config.externalIp }
   get leaderPort() { return this.config.port }
-  get timeout() { return this.config.timeout }
-  get tryCount() { return this.config.tryCount }
 
   start() {
-    rmSync(this.bridge.nodesDir, {recursive: true, force: true})
-    this.store = new JsonDirStore(this.bridge.nodesDir, 'nodes')
+    const {bridge: {nodesDir}} = this.config
+    rmSync(nodesDir, {recursive: true, force: true})
+    this.store = new JsonDirStore(nodesDir, 'nodes')
     this.processes = []
     return this
   }
@@ -32,13 +29,13 @@ export class Nodes {
   set(key, value) { this.store.set(key, value) }
 
   async createApiNode(port) {
-    const {store, leaderPort, externalIp, bridge, timeout, tryCount} = this
-    const index = port - leaderPort
-    const bootstrapNodes = (port === leaderPort) ? [] : await tryAgainIfError(async () => {
-      const leader = store.get(leaderPort)?.p2p.id
+    const {externalIp, bridge, messaging: {attempts, timeout}} = this.config
+    const index = port - this.leaderPort
+    const bootstrapNodes = (port === this.leaderPort) ? [] : await tryAgainIfError(async () => {
+      const leader = this.store.get(this.leaderPort)?.p2p.id
       if (leader) return [`/ip4/${externalIp}/tcp/${bridge.port}/p2p/${leader}`]
-      else throw CodedError(`no leader found @ port ${leaderPort}`, 'ENOENT')
-    }, timeout, tryCount, port)
+      else throw CodedError(`no leader found @ port ${this.leaderPort}`, 'ENOENT')
+    }, timeout, attempts, port)
     const env = Object.assign({}, process.env, {
       PORT: port,
       BRIDGE_PORT: bridge.port + index,
@@ -59,17 +56,15 @@ export class Nodes {
   async waitForWhitelistSync(ports, howMany = ports.length) { return this.syncOn('whitelist', ports, howMany) }
 
   async syncOn(endpoint, ports, howMany) {
-    await waitToSync(
-      ports.map(_ => () => this.GET(_, endpoint).then(_ => _.length === howMany)),
-      this.tryCount, this.timeout, this.leaderPort
-    )
+    const {messaging: {attempts, timeout}} = this.config
+    await waitToSync(ports.map(_ => () => this.GET(_, endpoint).then(_ => _.length === howMany)), attempts, timeout, this.leaderPort)
     logger.log(`${endpoint} synced...`)
   }
 
-  async createApiNodes(howMany, whitelist = true) {
+  async createApiNodes(howMany) {
     const ports = new Array(howMany).fill(0).map((_, i) => this.leaderPort + i)
     this.processes = await this.createApiNodesFrom(ports)
-    if (whitelist) await this.establishWhitelist(ports)
+    await this.establishWhitelist(ports)
     return ports
   }
 
@@ -82,9 +77,9 @@ export class Nodes {
   }
 
   async establishWhitelist(ports, howMany) {
+    const {messaging: {attempts, timeout}} = this.config
     return tryAgainIfError(
-      () => this.POST(this.leaderPort, 'whitelist'),
-      this.timeout, this.tryCount, this.leaderPort
+      () => this.POST(this.leaderPort, 'whitelist'), timeout, attempts, this.leaderPort
     ).then(_ => this.waitForWhitelistSync(ports, howMany))
   }
 }
