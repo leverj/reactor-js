@@ -1,21 +1,31 @@
 import config from '@leverj/reactor.p2p/config'
+import {BridgeNode} from '@leverj/reactor.p2p'
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
-import {createBridgeNodes} from './help/bridge.js'
+import {peerIdJsons} from '../fixtures.js'
 
-const {bridge: {threshold}} = config
+async function createBridgeNodes(howMany) {
+  const nodes = []
+  const bootstrapNodes = []
+  for (let i = 0; i < howMany; i++) {
+    const data = {p2p: peerIdJsons[i]}
+    const node = await BridgeNode.from(config, config.bridge.port + i, bootstrapNodes, data)
+    if (i === 0) bootstrapNodes.push(node.multiaddrs[0])
+    nodes.push(node)
+  }
+  return nodes
+}
 
 describe('BridgeNode', () => {
-  const howMany = threshold + 1
+  const howMany = config.bridge.threshold + 1
   let nodes, leader
 
   beforeEach(async () => {
     nodes = await createBridgeNodes(howMany)
     leader = nodes[0].leadership
+    for (let each of nodes) await each.start()
   })
-  afterEach(async () => {
-    for (let each of nodes) await each.stop()
-  })
+  afterEach(async () => { for (let each of nodes) await each.stop() })
 
   it('can whitelisted nodes', async () => {
     nodes.forEach(_ => expect(_.whitelist.get().length).toEqual(_.isLeader ? howMany : 1))

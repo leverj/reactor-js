@@ -8,7 +8,7 @@ import {
 import {stubs} from '@leverj/reactor.chain/contracts'
 import {CrossChainVaultCoordinator} from '@leverj/reactor.p2p'
 import {JsonRpcProvider, Wallet} from 'ethers'
-import {events, PEER_DISCOVERY} from './events.js'
+import {DKG_DONE, events, PEER_DISCOVERY} from './events.js'
 import {topics} from './topics.js'
 import {waitToSync} from './utils.js'
 
@@ -18,21 +18,22 @@ export class Leader {
     this.isLeader = true
     this.aggregateSignatures = {}
     events.on(PEER_DISCOVERY, _ => this.self.whitelistPeers(_))
+    events.on(DKG_DONE, _ => this.setupCoordinator(new JsonStore(this.self.config.bridge.nodesDir, 'trackers')))
   }
   get groupPublicKey() { return this.self.groupPublicKey }
   get publicKey() { return this.groupPublicKey ? G2ToNumbers(deserializeHexStrToPublicKey(this.groupPublicKey)) : undefined }
   get vaults() { return this.self.vaults }
 
   setupCoordinator(store) {
+    if (this.coordinator) return
     const {self} = this
-    const {bridge: {nodesDir}, chain: {tracker: {polling}, coordinator: {wallet: {privateKey}}}} = self.config
-    store = store || new JsonStore(nodesDir, 'trackers') //fixme
+    const {chain: {tracker: {polling}, coordinator: {wallet: {privateKey}}}} = self.config
     const wallet = new Wallet(privateKey)
     this.coordinator = new CrossChainVaultCoordinator(self.vaults, store, polling, this, wallet)
     this.coordinator.start().catch(logger.error)
   }
 
-  async addLeader() {
+  async start() {
     const {self} = this
     self.leader = self.peerId
     self.whitelistPeers(self.leader)
@@ -81,7 +82,6 @@ export class Leader {
     const {self} = this, message = {threshold}
     self.onDkgStart(message) // fan to self
     await this.fanout(topics.DKG_START, message)
-    //fixme.coordinator: can we detect dkgDone and establish coordinator here?
   }
 
   async addVault(chainId, address, providerURL) {
@@ -100,7 +100,7 @@ export class Leader {
     for (let each of peerIds) await self.sendMessageTo(each, topic, message)
   }
 
-  stop() { this.coordinator?.stop() }
+  async stop() { return this.coordinator?.stop() }
 }
 
 export class Follower {
@@ -109,7 +109,7 @@ export class Follower {
     this.isLeader = false
   }
 
-  async addLeader() {
+  async start() {
     const {self} = this
     const {port, messaging: {timeout}} = self.config
     self.leader = self.network.bootstrapNodes[0].split('/').pop()
@@ -119,4 +119,6 @@ export class Follower {
   }
 
   async onSignatureShare(message) { /* do nothing */ }
+
+  async stop() { /* do nothing */ }
 }

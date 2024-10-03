@@ -1,34 +1,27 @@
 import {accounts, getContractAt, provider} from '@leverj/chain-deployment/hardhat.help'
+import {encodeTransfer} from '@leverj/reactor.chain/contracts'
 import {ERC20, ERC20Proxy, Vault} from '@leverj/reactor.chain/test'
+import config from '@leverj/reactor.p2p/config'
 import {ZeroAddress as ETH} from 'ethers'
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
-import {createBridgeNodes} from './help/bridge.js'
-import {encodeTransfer} from '@leverj/reactor.chain/contracts'
+import {Nodes} from './help/nodes.js'
 import {Map} from 'immutable'
 
 describe('Vault', () => {
   const [, account] = accounts
   const L1 = 10101n, L2 = 98989n, amount = 1000n
-  let nodes, leader
+  let nodes
 
-  beforeEach(async () => {
-    nodes = await createBridgeNodes(7)
-    leader = nodes[0].leadership
-    await leader.establishWhitelist()
-    await leader.establishGroupPublicKey(4)
-    await setTimeout(100)
-  })
-
-  afterEach(async () => { for (let each of nodes) await each.stop() })
+  beforeEach(async () => nodes = await new Nodes(config).start())
+  afterEach(async () => await nodes.stop())
 
   const deployVaultPerChainOnNodes = async (chains) => {
-    const publicKey = leader.publicKey
     const vaults = Map().asMutable()
     for (let chainId of chains) {
-      const vault = await Vault(chainId, publicKey)
+      const vault = await Vault(chainId, nodes.leader.publicKey)
       vaults.set(chainId, vault)
-      nodes.forEach(_ => _.addVault(chainId, vault))
+      nodes.addVault(chainId, vault)
     }
     return vaults.valueSeq().toArray()
   }
@@ -48,10 +41,10 @@ describe('Vault', () => {
     then(async _ => {
       const event = vault.interface.parseLog(_[0])
       const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = event.args
-      const signature = await leader.sign(from, transferHash)
+      const signature = await nodes.leader.sign(from, transferHash)
       const payload = encodeTransfer(origin, token, name, symbol, decimals, amount, owner, from, to, tag)
-      const toContract = leader.vaults.get(to)
-      return toContract.accept(signature, leader.publicKey, payload).then(_ => _.wait())
+      const toContract = nodes.leader.vaults.get(to)
+      return toContract.accept(signature, nodes.leader.publicKey, payload).then(_ => _.wait())
     }).
     then(_ => setTimeout(100))
 

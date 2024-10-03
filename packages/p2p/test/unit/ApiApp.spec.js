@@ -17,7 +17,7 @@ describe('ApiApp', () => {
 
   async function createApiNode(port) {
     const index = port - leaderPort
-    const getLeaderNode = async _ => {
+    const getLeaderNode = async () => {
       const leader = store.get(leaderPort)?.p2p.id
       if (leader) return [`/ip4/${externalIp}/tcp/${bridge.port}/p2p/${leader}`]
       else throw CodedError(`no leader found @ port ${leaderPort}`, 'ENOENT')

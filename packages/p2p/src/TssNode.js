@@ -7,7 +7,7 @@ import {
   SecretKey,
   Signature,
 } from '@leverj/reactor.mcl'
-import {events, NODE_STATE_CHANGED} from './events.js'
+import {DKG_DONE, events, NODE_STATE_CHANGED} from './events.js'
 
 /**
  * Adds secret key contribution together to produce a single secret key
@@ -159,7 +159,8 @@ export class TssNode {
     this.secretKeyShare = addContributionShares(this.previouslyShared ? [this.secretKeyShare, ...receivedShares] : receivedShares)
     this.vvec = addVerificationVectors(this.previouslyShared ? [this.vvec, ...vvecs] : vvecs)
     this.previouslyShared = true
-    events.emit(NODE_STATE_CHANGED) //fixme: add groupPublicKey to event?
+    events.emit(DKG_DONE)
+    events.emit(NODE_STATE_CHANGED)
   }
 
   sign(message) { return this.secretKeyShare.sign(message) }

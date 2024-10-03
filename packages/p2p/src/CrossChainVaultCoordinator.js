@@ -53,7 +53,7 @@ export class CrossChainVaultCoordinator {
     for (let each of this.trackers) await each.start()
   }
 
-  stop() {
+  async stop() {
     if (!this.isRunning) return
 
     //fixme.coordinator: need to save state of vaults & trackers

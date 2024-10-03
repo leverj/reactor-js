@@ -53,12 +53,15 @@ export class BridgeNode {
 
   async start() {
     await this.network.start()
-    await this.leadership.addLeader()
-    events.emit(NODE_STATE_CHANGED) //fixme: add leader to event?
+    await this.leadership.start()
+    events.emit(NODE_STATE_CHANGED)
     this.ping()
   }
 
-  async stop() { return this.network.stop() }
+  async stop() {
+    await this.leadership.stop()
+    await this.network.stop()
+  }
 
   async connect(peerId) { return this.network.connect(peerId) }
 
