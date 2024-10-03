@@ -14,12 +14,12 @@ describe('e2e - app', () => {
 
   it('create new nodes, connect and init DKG', async () => {
     const ports = await nodes.createApiNodes(2)
-    await nodes.POST(nodes.leaderPort, 'dkg')
-    await setTimeout(100)
+    await nodes.establishWhitelist(ports)
+    const publicKey = await nodes.establishGroupPublicKey()
     const publicKeys = ports.map(_ => nodes.get(_).tssNode.groupPublicKey)
     for (let each of publicKeys) {
       expect(each).not.toBeNull()
-      expect(each).toEqual(publicKeys[0])
+      expect(each).toEqual(publicKey)
     }
   })
 
@@ -28,14 +28,14 @@ describe('e2e - app', () => {
     for (let [i, info] of getNodeInfos(howMany).entries()) nodes.set(nodes.leaderPort + i, info)
     const infos = getNodeInfos(howMany)
     const ports = await nodes.createApiNodes(howMany)
+    await nodes.establishWhitelist(ports)
     for (let [i, port] of ports.entries()) expect(nodes.get(port)).toEqual(infos[i])
   })
 
   //fixme: failing test
   it.skip('whitelist', async () => {
     const howMany = 4
-    const ports = new Array(howMany).fill(0).map((_, i) => nodes.leaderPort + i)
-    await nodes.createApiNodesFrom(ports)
+    const ports = await nodes.createApiNodes(howMany)
     await nodes.GET(nodes.leaderPort + 1, 'peer/bootstrapped')
     await killAll(nodes.processes.slice(2))
 
@@ -48,7 +48,7 @@ describe('e2e - app', () => {
     await setTimeout(100)
     const _processes_ = await nodes.createApiNodesFrom(ports.slice(2), 3)
     try {
-      await nodes.waitForWhitelistSync(ports)
+      await nodes.syncOn('whitelist', ports)
       expect(nodes.get(ports[0]).whitelist).toHaveLength(howMany)
       expect(nodes.get(ports[1]).whitelist).toHaveLength(howMany)
       expect(nodes.get(ports[2]).whitelist).toHaveLength(howMany)

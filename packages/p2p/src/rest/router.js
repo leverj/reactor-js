@@ -52,7 +52,7 @@ export function createRouter(config, leader) {
   router.get('/peer', getPeers)
   router.get('/peer/status', getPeersStatus)
   router.get('/peer/bootstrapped', getBootstrappedPeers)
-  router.get('/dkg', getGroupPublicKey)
+  router.get('/dkg', getGroupPublicKey) //fixme: test it works
   router.post('/dkg', establishGroupPublicKey)
   router.post('/chain/vault', addVault)
   router.get('/whitelist', getWhitelists)

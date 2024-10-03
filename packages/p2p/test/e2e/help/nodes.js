@@ -1,8 +1,10 @@
 import {CodedError, logger} from '@leverj/common'
+import {deserializeHexStrToPublicKey, G2ToNumbers} from '@leverj/reactor.mcl'
 import {JsonDirStore, tryAgainIfError, waitToSync} from '@leverj/reactor.p2p'
 import axios from 'axios'
 import {fork} from 'node:child_process'
 import {rmSync} from 'node:fs'
+import {setTimeout} from 'node:timers/promises'
 import {killAll} from './processes.js'
 
 export class Nodes {
@@ -46,6 +48,19 @@ export class Nodes {
     return fork('app.js', [], {cwd: process.cwd(), env})
   }
 
+  async createNodes() {
+    const ports = await this.createApiNodes(this.config.bridge.threshold + 1)
+    await this.establishWhitelist(ports)
+    const groupPublicKey = await this.establishGroupPublicKey()
+    return G2ToNumbers(deserializeHexStrToPublicKey(groupPublicKey))
+  }
+
+  async createApiNodes(howMany) {
+    const ports = new Array(howMany).fill(0).map((_, i) => this.leaderPort + i)
+    this.processes = await this.createApiNodesFrom(ports)
+    return ports
+  }
+
   async createApiNodesFrom(ports, howMany = ports.length - 1) {
     const processes = []
     for (let each of ports) processes.push(await this.createApiNode(each))
@@ -53,19 +68,23 @@ export class Nodes {
     return processes
   }
 
-  async waitForWhitelistSync(ports, howMany = ports.length) { return this.syncOn('whitelist', ports, howMany) }
+  async establishWhitelist(ports, howMany) {
+    const {messaging: {attempts, timeout}} = this.config
+    return tryAgainIfError(
+      () => this.POST(this.leaderPort, 'whitelist'), timeout, attempts, this.leaderPort
+    ).then(_ => this.syncOn('whitelist', ports, howMany || ports.length))
+  }
+
+  async establishGroupPublicKey() {
+    await this.POST(this.leaderPort, 'dkg')
+    await setTimeout(100)
+    return this.get(this.leaderPort).tssNode.groupPublicKey
+  }
 
   async syncOn(endpoint, ports, howMany) {
     const {messaging: {attempts, timeout}} = this.config
     await waitToSync(ports.map(_ => () => this.GET(_, endpoint).then(_ => _.length === howMany)), attempts, timeout, this.leaderPort)
     logger.log(`${endpoint} synced...`)
-  }
-
-  async createApiNodes(howMany) {
-    const ports = new Array(howMany).fill(0).map((_, i) => this.leaderPort + i)
-    this.processes = await this.createApiNodesFrom(ports)
-    await this.establishWhitelist(ports)
-    return ports
   }
 
   async GET(port, endpoint) {
@@ -74,12 +93,5 @@ export class Nodes {
 
   async POST(port, endpoint, payload) {
     return axios.post(`http://127.0.0.1:${port}/api/${endpoint}`, payload || {})
-  }
-
-  async establishWhitelist(ports, howMany) {
-    const {messaging: {attempts, timeout}} = this.config
-    return tryAgainIfError(
-      () => this.POST(this.leaderPort, 'whitelist'), timeout, attempts, this.leaderPort
-    ).then(_ => this.waitForWhitelistSync(ports, howMany))
   }
 }

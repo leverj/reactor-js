@@ -21,13 +21,15 @@ describe.skip('CrossChainVaultCoordinator', () => {
     expect(publicKey).toBeDefined()
 
     // deploy vaults
-    const chains = [10101n, 98989n]
-    for (let chainId of chains) nodes.addVault(chainId, await Vault(chainId, publicKey))
+    const chainsIds = [10101n, 98989n]
+    for (let chainId of chainsIds) nodes.addVault(chainId, await Vault(chainId, publicKey))
     coordinator = nodes.leader.coordinator
-    expect(coordinator.vaults.size).toEqual(chains.length)
+    expect(coordinator.vaults.size).toEqual(chainsIds.length)
   })
 
   after(async () => await nodes.stop())
+
+  const ERC20 = async () =>  deployContract('ERC20Mock', ['Gold', '💰'])
 
   it('detects & acts on a Transfer events for both Token & Native, from one chain to another', async () => {
     const [L1_id, L2_id] = coordinator.chainIds
@@ -35,7 +37,7 @@ describe.skip('CrossChainVaultCoordinator', () => {
     const [L1_provider, L2_provider] = [L1_vault, L2_vault].map(_ => _.runner.provider)
     for (let [vault, id] of zip([L1_vault, L2_vault], coordinator.chainIds)) expect(await vault.chainId()).toEqual(id)
 
-    const L2_token = await deployContract('ERC20Mock', ['Gold', '💰'])
+    const L2_token = await ERC20()
     await L2_token.mint(account.address, amount)
     await L2_token.connect(account).approve(L2_vault.target, amount).then(_ => _.wait())
 
