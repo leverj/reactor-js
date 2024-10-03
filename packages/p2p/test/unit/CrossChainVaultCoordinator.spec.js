@@ -8,7 +8,7 @@ import {zip} from 'lodash-es'
 import {setTimeout} from 'node:timers/promises'
 import {createBridgeNodes} from './help/bridge.js'
 
-const {bridge: {threshold}, chain: {polling}} = config
+const {bridge: {threshold}} = config
 
 describe('CrossChainVaultCoordinator', () => {
   const amount = BigInt(1e6 - 1)
@@ -31,7 +31,7 @@ describe('CrossChainVaultCoordinator', () => {
       nodes.forEach(_ => _.addVault(chainId, vault))
     }
 
-    leader.setupCoordinator(new InMemoryStore(), polling, deployer)
+    leader.setupCoordinator(deployer, new InMemoryStore())
   })
 
   after(async () => {

@@ -1,8 +1,5 @@
 import {accounts} from '@leverj/chain-deployment/hardhat.help'
-import {ETH, JsonStore, logger} from '@leverj/common'
-import {signer} from '@leverj/reactor.chain/test'
-import {G1ToNumbers, G2ToNumbers} from '@leverj/reactor.mcl'
-import {CrossChainVaultCoordinator} from '@leverj/reactor.p2p'
+import {ETH} from '@leverj/common'
 import config from '@leverj/reactor.p2p/config'
 import {Contract} from 'ethers'
 import {expect} from 'expect'
@@ -11,52 +8,43 @@ import {setTimeout} from 'node:timers/promises'
 import ERC20_abi from './help/ERC20.abi.json' assert {type: 'json'}
 import {Evms} from './help/evms.js'
 import {Nodes} from './help/nodes.js'
+import {Map} from 'immutable'
 
 const {bridge: {nodesDir, threshold}, chain: {polling}} = config
-
-class MessageSigner {
-  constructor(signer) {
-    this.signer = signer
-    this.publicKey = signer.pubkey
-  }
-  async establishVaults(networks) { console.log(networks) }
-  async sign(from, message) {
-    return {
-      signature: G1ToNumbers(sign(message, this.signer.secret).signature),
-      publicKey: G2ToNumbers(this.publicKey),
-    }
-  }
-}
 
 describe.skip('e2e - CrossChainVaultCoordinator', () => {
   const amount = BigInt(1e6 - 1)
   const [deployer, account] = accounts
   const chains = ['holesky', 'sepolia']
-  let evms, nodes, coordinator
+  let evms, nodes
 
   before(async () => {
     // start nodes
     const howMany = threshold + 1
     nodes = new Nodes(config).start()
-    const ports = await nodes.createApiNodes(howMany)
+    await nodes.createApiNodes(howMany)
+    // const ports = await nodes.createApiNodes(howMany, false)
+    // await nodes.establishWhitelist(ports)
     await nodes.POST(nodes.leaderPort, 'dkg')
     await setTimeout(100)
-    // const leader = nodes.processes[0].leadership
-    // expect(leader.publicKey).toBeDefined()
-    const leader = new MessageSigner(signer) //fixme: replace with leader node
-    const publicKey = leader.publicKey.serializeToHexStr()
+    const publicKey = await nodes.GET(nodes.leaderPort, 'dkg')
+    expect(publicKey).toBeDefined()
 
     // deploy vaults
     evms = await Evms.with(chains, {publicKey}).then(_ => _.start())
+    const deployments = Map(evms.deployed).map(_ => ({
+      chainId: _.id,
+      providerURL: _.providerURL,
+      address: _.contracts.Vault.address,
+    })).valueSeq().toArray()
+    for (let each of Map(deployments)) await nodes.POST(nodes.leaderPort, 'chain/vault', each)
 
     // start coordinator
-    const store = new JsonStore(nodesDir, 'trackers')
-    coordinator = CrossChainVaultCoordinator.ofEvms(evms.deployed, chains, store, polling, leader, deployer, logger)
-    await coordinator.start()
+    await nodes.POST(nodes.leaderPort, 'chain/coordinator', {deployer}) //fixme: need to pass the privateKey
+    await setTimeout(100)
   })
 
   after(async () => {
-    coordinator.stop()
     await evms.stop()
     await nodes.stop()
   })

@@ -1,4 +1,4 @@
-import {logger, until} from '@leverj/common'
+import {JsonStore, logger, until} from '@leverj/common'
 import {
   deserializeHexStrToPublicKey,
   deserializeHexStrToSignature,
@@ -18,12 +18,14 @@ export class Leader {
     this.aggregateSignatures = {}
     events.on(PEER_DISCOVERY, _ => this.self.whitelistPeers(_))
   }
-  get publicKey() { return this.self.groupPublicKey ? G2ToNumbers(deserializeHexStrToPublicKey(this.self.groupPublicKey)) : undefined }
+  get groupPublicKey() { return this.self.groupPublicKey }
+  get publicKey() { return this.groupPublicKey ? G2ToNumbers(deserializeHexStrToPublicKey(this.groupPublicKey)) : undefined }
   get vaults() { return this.self.vaults }
 
-  setupCoordinator(store, polling, wallet) {
+  setupCoordinator(wallet, store) {
     const {self} = this
-    this.coordinator = new CrossChainVaultCoordinator(self.vaults, store, polling, this, wallet)
+    const {bridge: {nodesDir}, chain: {polling}} = self.config
+    this.coordinator = new CrossChainVaultCoordinator(self.vaults, store || new JsonStore(nodesDir, 'trackers'), polling, this, wallet)
     this.coordinator.start().catch(logger.error)
   }
 
