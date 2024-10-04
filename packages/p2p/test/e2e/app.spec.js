@@ -32,23 +32,22 @@ describe('e2e - app', () => {
     for (let [i, port] of ports.entries()) expect(nodes.get(port)).toEqual(infos[i])
   })
 
-  //fixme: failing test
-  it.skip('whitelist', async () => {
+  it('whitelist', async () => {
     const howMany = 4
     const ports = await nodes.createApiNodes(howMany)
     await nodes.GET(nodes.leaderPort + 1, 'peer/bootstrapped')
     await killAll(nodes.processes.slice(2))
 
     await nodes.establishWhitelist(ports.slice(0, 2), howMany)
+    await setTimeout(100)
     expect(nodes.get(ports[0]).whitelist).toHaveLength(howMany)
     expect(nodes.get(ports[1]).whitelist).toHaveLength(howMany)
     expect(nodes.get(ports[2]).whitelist).toHaveLength(1)
     expect(nodes.get(ports[3]).whitelist).toHaveLength(1)
 
-    await setTimeout(100)
     const _processes_ = await nodes.createApiNodesFrom(ports.slice(2), 3)
     try {
-      await nodes.syncOn('whitelist', ports)
+      await nodes.syncOn('whitelist', ports, howMany)
       expect(nodes.get(ports[0]).whitelist).toHaveLength(howMany)
       expect(nodes.get(ports[1]).whitelist).toHaveLength(howMany)
       expect(nodes.get(ports[2]).whitelist).toHaveLength(howMany)

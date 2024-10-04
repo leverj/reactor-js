@@ -11,6 +11,7 @@ export class Nodes {
     this.config = config
     this.processes = []
   }
+
   get leaderPort() { return this.config.port }
 
   start() {
@@ -27,6 +28,7 @@ export class Nodes {
   }
 
   get(key) { return this.store.get(key) }
+
   set(key, value) { this.store.set(key, value) }
 
   async createApiNode(port) {
@@ -70,7 +72,7 @@ export class Nodes {
   async establishWhitelist(ports, howMany) {
     const {messaging: {attempts, timeout}} = this.config
     return tryAgainIfError(
-      () => this.POST(this.leaderPort, 'whitelist'), timeout, attempts, this.leaderPort
+      () => this.POST(this.leaderPort, 'whitelist'), attempts, timeout, this.leaderPort
     ).then(_ => this.syncOn('whitelist', ports, howMany || ports.length))
   }
 
