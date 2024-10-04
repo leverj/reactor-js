@@ -44,11 +44,11 @@ contract Vault {
     modifier isValidPublicKey(uint[4] calldata key) { for (uint8 i = 0; i < 4; i++) if (publicKey[i] != key[i]) revert InvalidPublicKey(i); _; }
 
     constructor(uint64 chainId_, string memory chainName, string memory nativeSymbol, uint8 nativeDecimals, uint[4] memory publicKey_) {
-        home = Chain(chainId_, chainName, nativeSymbol, nativeDecimals); //fixme:chainId: use block.chainid instead
+        home = Chain(chainId_, chainName, nativeSymbol, nativeDecimals);
         publicKey = publicKey_;
     }
 
-    function chainId() public view returns (uint64) { return home.id; } //fixme:chainId: use block.chainid instead
+    function chainId() public view returns (uint64) { return home.id; }
 
     function proxyBalanceOf(uint64 chainId_, address token, address account) public view returns (uint) {
         return proxies[chainId_][token] == address(0) ? 0 : ERC20Proxy(proxies[chainId_][token]).balanceOf(account);

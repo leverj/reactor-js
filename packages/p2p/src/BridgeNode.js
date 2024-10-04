@@ -81,7 +81,7 @@ export class BridgeNode {
         if (each !== this.peerId) this.tss.addMember(dkgId, _ => this.sendMessageTo(each, topics.DKG_RECEIVE_SHARE, _))
       }
       logger.log('Added to whitelist', peerIds.map(_ => `${_.slice(0, 4)}..${_.slice(-3)}`).join(', '))
-      events.emit(NODE_STATE_CHANGED) //fixme: add peerIds to event?
+      events.emit(NODE_STATE_CHANGED)
     }
   }
 

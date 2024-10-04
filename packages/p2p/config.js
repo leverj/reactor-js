@@ -41,7 +41,7 @@ const schema = {
       env: 'MESSAGING_TIMEOUT',
     },
   },
-  bridge: { //fixme: is this more about the rest api?
+  bridge: {
     nodesDir: {
       format: String,
       default: `${dataDir}/p2p`,
