@@ -10,8 +10,7 @@ import ERC20_abi from './help/ERC20.abi.json' assert {type: 'json'}
 import {Evms} from './help/evms.js'
 import {Nodes} from './help/nodes.js'
 
-//fixme: failing when being run with all tests
-describe.skip('e2e - CrossChainVaultCoordinator', () => {
+describe('e2e - CrossChainVaultCoordinator', () => {
   const amount = BigInt(1e6 - 1)
   const [deployer, account] = accounts
   const chains = ['holesky', 'sepolia']
@@ -35,7 +34,6 @@ describe.skip('e2e - CrossChainVaultCoordinator', () => {
 
   const connect = (contract, account, provider) => contract.connect(account.connect(provider))
 
-  //fixme: failing when being run with all tests
   it('detects & acts on a Transfer events for both Token & Native, across chains', async () => {
     for (let {id: chainId, providerURL, Vault: {address}} of deployments) {
       await nodes.addVault(chainId, address, providerURL)
