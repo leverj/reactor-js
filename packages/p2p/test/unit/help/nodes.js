@@ -11,15 +11,9 @@ export class Nodes {
   get leader() { return this.nodes[0].leadership }
 
   async start() {
-    const {port: leaderPort, bridge: {threshold}} = this.config
-    const bootstrapNodes = []
-    for (let i = 0; i < threshold + 1; i++) {
-      const data = {p2p: peerIdJsons[i]}
-      const node = await BridgeNode.from(this.config, leaderPort + i, bootstrapNodes, data)
-      await node.start()
-      if (i === 0) bootstrapNodes.push(node.multiaddrs[0])
-      this.nodes.push(node)
-    }
+    const {bridge: {threshold}} = this.config
+    await this.createNodes()
+    for (let each of this.nodes) await each.start()
     this.leader.setupCoordinator(new InMemoryStore())
     await this.leader.establishWhitelist()
     await this.leader.establishGroupPublicKey(threshold)
@@ -29,5 +23,19 @@ export class Nodes {
 
   async stop() { for (let each of this.nodes) await each.stop() }
 
-  async addVault(chainId, vault) { this.nodes.forEach(_ => _.addVault(chainId, vault)) }
+  async createNodes() {
+    const {port: leaderPort, bridge: {threshold}} = this.config
+    const bootstrapNodes = []
+    for (let i = 0; i < threshold + 1; i++) {
+      const data = {p2p: peerIdJsons[i]}
+      const node = await BridgeNode.from(this.config, leaderPort + i, bootstrapNodes, data)
+      if (i === 0) bootstrapNodes.push(node.multiaddrs[0])
+      this.nodes.push(node)
+    }
+  }
+
+  async addVault(chainId, vault) {
+    this.nodes.forEach(_ => _.addVault(chainId, vault))
+    this.leader.coordinator.addVault(chainId, vault)
+  }
 }

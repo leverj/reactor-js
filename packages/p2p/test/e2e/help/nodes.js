@@ -1,5 +1,4 @@
 import {CodedError, logger} from '@leverj/common'
-import {deserializeHexStrToPublicKey, G2ToNumbers} from '@leverj/reactor.mcl'
 import {JsonDirStore, tryAgainIfError, waitToSync} from '@leverj/reactor.p2p'
 import axios from 'axios'
 import {fork} from 'node:child_process'
@@ -52,7 +51,7 @@ export class Nodes {
     const ports = await this.createApiNodes(this.config.bridge.threshold + 1)
     await this.establishWhitelist(ports)
     const groupPublicKey = await this.establishGroupPublicKey()
-    return G2ToNumbers(deserializeHexStrToPublicKey(groupPublicKey))
+    return groupPublicKey
   }
 
   async createApiNodes(howMany) {
@@ -93,5 +92,9 @@ export class Nodes {
 
   async POST(port, endpoint, payload) {
     return axios.post(`http://127.0.0.1:${port}/api/${endpoint}`, payload || {})
+  }
+
+  async addVault(chainId, address, providerURL) {
+    return this.POST(this.leaderPort, 'chain/vault', {chainId, address, providerURL})
   }
 }

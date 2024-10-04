@@ -83,6 +83,7 @@ export class Evms {
       id: BigInt(_.id),
       label: _.label,
       nativeCurrency: _.nativeCurrency,
+      providerURL: _.providerURL,
       provider: new JsonRpcProvider(_.providerURL),
       Vault: _.contracts.Vault,
     })).valueSeq().toArray()

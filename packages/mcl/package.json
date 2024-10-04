@@ -13,7 +13,7 @@
     "@ethersproject/bytes": "^5.7.0",
     "@ethersproject/random": "^5.7.0",
     "@ethersproject/sha2": "^5.7.0",
-    "mcl-wasm": "^1.7.0"
+    "mcl-wasm": "^1.6.0"
   },
   "devDependencies": {
     "@leverj/common": "5.0.0",
