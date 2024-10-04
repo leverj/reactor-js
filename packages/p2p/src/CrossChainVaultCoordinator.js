@@ -40,6 +40,7 @@ export class CrossChainVaultCoordinator {
         const toVault = this.vaults.get(to)
         const wallet = this.wallet.connect(toVault.runner.provider)
         const runner = toVault.connect(wallet)
+        //fixme: need to queue accepts, due to possible race conditions ('Nonce too low' error)
         await runner.accept(signature, this.signer.publicKey, payload).then(_ => _.wait())
     }
   }
