@@ -34,8 +34,12 @@ export class Nodes {
     }
   }
 
-  async addVault(chainId, vault) {
+  async addVaultToAllNodes(chainId, vault) {
     this.nodes.forEach(_ => _.addVault(chainId, vault))
+  }
+
+  async addVault(chainId, vault) {
+    this.addVaultToAllNodes(chainId, vault)
     this.leader.coordinator.addVault(chainId, vault)
   }
 }

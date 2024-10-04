@@ -21,7 +21,7 @@ describe('Vault', () => {
     for (let chainId of chains) {
       const vault = await Vault(chainId, nodes.leader.publicKey)
       vaults.set(chainId, vault)
-      nodes.addVault(chainId, vault)
+      nodes.addVaultToAllNodes(chainId, vault)
     }
     return vaults.valueSeq().toArray()
   }
