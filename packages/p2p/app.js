@@ -1,6 +1,6 @@
 import {logger} from '@leverj/common'
-import {ApiApp, JsonDirStore} from '@leverj/reactor.p2p'
-import config from '@leverj/reactor.p2p/config'
+import {ApiApp, JsonDirStore} from './src/ApiApp.js'
+import config from './config.js'
 
 const store = new JsonDirStore(config.bridge.nodesDir, 'nodes')
 const api = await ApiApp.with(config, store)

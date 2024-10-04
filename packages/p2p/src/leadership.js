@@ -1,3 +1,4 @@
+import {stubs} from '@leverj/reactor.chain/contracts'
 import {JsonStore, logger, until} from '@leverj/common'
 import {
   deserializeHexStrToPublicKey,
@@ -5,9 +6,8 @@ import {
   G1ToNumbers,
   G2ToNumbers,
 } from '@leverj/reactor.mcl'
-import {stubs} from '@leverj/reactor.chain/contracts'
-import {CrossChainVaultCoordinator} from '@leverj/reactor.p2p'
 import {JsonRpcProvider, Wallet} from 'ethers'
+import {CrossChainVaultCoordinator} from './CrossChainVaultCoordinator.js'
 import {DKG_DONE, events, PEER_DISCOVERY} from './events.js'
 import {topics} from './topics.js'
 import {waitToSync} from './utils.js'

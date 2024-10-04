@@ -1,5 +1,5 @@
-import config from '@leverj/reactor.p2p/config'
 import {BridgeNode} from '@leverj/reactor.p2p'
+import config from '@leverj/reactor.p2p/config'
 import {expect} from 'expect'
 import {setTimeout} from 'node:timers/promises'
 import {peerIdJsons} from '../fixtures.js'

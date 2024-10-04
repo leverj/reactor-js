@@ -4,9 +4,9 @@ import {ERC20, ERC20Proxy, Vault} from '@leverj/reactor.chain/test'
 import config from '@leverj/reactor.p2p/config'
 import {ZeroAddress as ETH} from 'ethers'
 import {expect} from 'expect'
+import {Map} from 'immutable'
 import {setTimeout} from 'node:timers/promises'
 import {Nodes} from './help/nodes.js'
-import {Map} from 'immutable'
 
 describe('Vault', () => {
   const [, account] = accounts

@@ -1,13 +1,14 @@
 import {affirm, logger} from '@leverj/common'
-import {SecretKey} from '@leverj/reactor.mcl'
 import {stubs} from '@leverj/reactor.chain/contracts'
-import {NetworkNode, TssNode} from '@leverj/reactor.p2p'
+import {SecretKey} from '@leverj/reactor.mcl'
 import {JsonRpcProvider} from 'ethers'
 import {Map} from 'immutable'
 import {setTimeout} from 'node:timers/promises'
 import {events, NODE_STATE_CHANGED} from './events.js'
 import {Follower, Leader} from './leadership.js'
+import {NetworkNode} from './NetworkNode.js'
 import {topics} from './topics.js'
+import {TssNode} from './TssNode.js'
 
 const meshProtocol = '/bridge/0.0.1'
 
