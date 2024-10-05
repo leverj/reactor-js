@@ -1,5 +1,5 @@
 import {ContractTracker} from '@leverj/chain-tracking'
-import {logger} from '@leverj/common'
+import {logger, Mutex} from '@leverj/common'
 import {encodeTransfer} from '@leverj/reactor.chain/contracts'
 
 export const VaultTracker = (chainId, contract, store, polling, actor) => {
@@ -14,6 +14,7 @@ export class CrossChainVaultCoordinator {
     this.signer = signer
     this.wallet = wallet
     this.isRunning = false
+    this.mutex = new Mutex()
     this.trackers = []
     this.vaults.forEach((vault, chainId) => this.addTracker(chainId, vault))
   }
@@ -32,23 +33,30 @@ export class CrossChainVaultCoordinator {
 
   async onEvent(event) {
     switch (event.name) {
-      case 'Transfer':
-        const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = event.args
-        const payload = encodeTransfer(origin, token, name, symbol, decimals, amount, owner, from, to, tag)
-        const signature = await this.signer.sign(from, transferHash)
-        if (!signature) return logger.error(`unable to aggregate signature for ${transferHash} on chain ${from}`)
-        const toVault = this.vaults.get(to)
-        const wallet = this.wallet.connect(toVault.runner.provider)
-        const runner = toVault.connect(wallet)
-        //fixme:coordinator: need to queue accepts, due to possible race conditions ('Nonce too low' error)
-        await runner.accept(signature, this.signer.publicKey, payload).then(_ => _.wait())
+      case 'Transfer': return this.onTransfer(event)
     }
+  }
+
+  async onTransfer(event) {
+    const {transferHash, origin, token, name, symbol, decimals, amount, owner, from, to, tag} = event.args
+    const payload = encodeTransfer(origin, token, name, symbol, decimals, amount, owner, from, to, tag)
+    const signature = await this.signer.sign(from, transferHash)
+    return signature ?
+      this.accept(this.vaults.get(to), signature, this.signer.publicKey, payload) :
+      logger.error(`unable to aggregate signature for ${transferHash} on chain ${from}`)
+  }
+
+  async accept(toVault, signature, publicKey, payload) {
+    return this.mutex.synchronize(() => {
+      toVault = toVault.connect(this.wallet.connect(toVault.runner.provider))
+      return toVault.accept(signature, publicKey, payload).then(_ => _.wait())
+    })
   }
 
   async start() {
     if (this.isRunning) return
 
-    //fixme.coordinator: need to load state of vaults & trackers
+    //fixme:coordinator: need to load state of vaults & trackers
     logger.log(`starting cross-chain Vault tracking for [${this.chainIds}]`)
     this.isRunning = true
     for (let each of this.trackers) await each.start()
@@ -57,7 +65,7 @@ export class CrossChainVaultCoordinator {
   async stop() {
     if (!this.isRunning) return
 
-    //fixme.coordinator: need to save state of vaults & trackers
+    //fixme:coordinator: need to save state of vaults & trackers
     logger.log(`stopping cross-chain Vault tracking for [${this.chainIds}]`)
     this.isRunning = false
     for (let each of this.trackers) each.stop()

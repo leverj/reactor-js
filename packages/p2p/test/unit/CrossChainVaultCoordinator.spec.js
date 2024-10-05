@@ -54,7 +54,6 @@ describe('CrossChainVaultCoordinator', () => {
     }
 
     /** L1 => L2 **/ await L1_vault.connect(account).sendNative(L2_id, {value: amount}).then(_ => _.wait())
-    await setTimeout(100) // need to wait a bit to avoid 'Nonce too low' error
     /** L2 => L1 **/ await L2_vault.connect(account).sendToken(L1_id, L2_token.target, amount).then(_ => _.wait())
     await setTimeout(100)
     const after = {
