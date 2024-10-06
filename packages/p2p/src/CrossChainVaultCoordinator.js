@@ -56,7 +56,6 @@ export class CrossChainVaultCoordinator {
   async start() {
     if (this.isRunning) return
 
-    //fixme:coordinator: need to load state of vaults & trackers
     logger.log(`starting cross-chain Vault tracking for [${this.chainIds}]`)
     this.isRunning = true
     for (let each of this.trackers) await each.start()
@@ -65,7 +64,6 @@ export class CrossChainVaultCoordinator {
   async stop() {
     if (!this.isRunning) return
 
-    //fixme:coordinator: need to save state of vaults & trackers
     logger.log(`stopping cross-chain Vault tracking for [${this.chainIds}]`)
     this.isRunning = false
     for (let each of this.trackers) each.stop()
