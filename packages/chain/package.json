@@ -25,6 +25,8 @@
   "devDependencies": {
     "@leverj/chain-deployment": "5.0.0",
     "@leverj/common": "5.0.0",
-    "@openzeppelin/contracts": "^5.0.2"
+    "@openzeppelin/contracts": "^5.0.2",
+    "wait-on": "^8.0.1",
+    "yargs": "^17.7.2"
   }
 }
