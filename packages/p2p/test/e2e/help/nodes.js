@@ -43,7 +43,7 @@ export class Nodes {
       PORT: port,
       BRIDGE_PORT: bridge.port + index,
       BRIDGE_THRESHOLD: bridge.threshold,
-      BRIDGE_CONF_DIR: bridge.nodesDir,
+      BRIDGE_NODES_DIR: bridge.nodesDir,
       BRIDGE_BOOTSTRAP_NODES: JSON.stringify(bootstrapNodes),
     })
     return fork('app.js', [], {cwd: process.cwd(), env})

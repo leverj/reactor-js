@@ -1,7 +1,8 @@
-import {defaults} from './defaults.js'
 import {wallets} from '@leverj/chain-deployment/hardhat.help'
+import {merge} from 'lodash-es'
+import {defaults} from './defaults.js'
 
-export default Object.assign(
+export default merge(
   defaults,
   {
     bridge: {

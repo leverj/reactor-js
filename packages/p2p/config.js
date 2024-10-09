@@ -1,7 +1,5 @@
 import {configure} from '@leverj/config'
 
-const dataDir = `${import.meta.dirname}/../../data`
-
 const schema = {
   env: {
     doc: 'The application environment',
@@ -44,8 +42,8 @@ const schema = {
   bridge: {
     nodesDir: {
       format: String,
-      default: `${dataDir}/p2p`,
-      env: 'BRIDGE_CONF_DIR',
+      default: `${process.env.PWD}/data/p2p`,
+      env: 'BRIDGE_NODES_DIR',
     },
     port: {
       format: 'port',

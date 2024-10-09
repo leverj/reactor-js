@@ -1,6 +1,7 @@
+import {merge} from 'lodash-es'
 import {defaults} from './defaults.js'
 
-export default Object.assign(
+export default merge(
   defaults,
   {
     chains: ['hardhat', 'localhost', 'holesky', 'sepolia']
