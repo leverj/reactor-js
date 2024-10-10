@@ -11,7 +11,7 @@ export class JsonDirStore {
     ensureExistsSync(this.path)
   }
   fileOf(key) { return `${this.path}/${key}.json` }
-  get(key) { return existsSync(this.fileOf(key)) ? JSON.parse(readFileSync(this.fileOf(key)).toString()) : undefined }
+  get(key) { return existsSync(this.fileOf(key)) ? JSON.parse(readFileSync(this.fileOf(key), 'utf8')) : undefined }
   set(key, value) { writeFileSync(this.fileOf(key), JSON.stringify(value, null, 2)) }
 }
 
