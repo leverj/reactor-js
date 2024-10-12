@@ -17,15 +17,15 @@
     "start:local:chain": "npx hardhat node"
   },
   "dependencies": {
-    "@leverj/config": "^5.0.6",
+    "@leverj/lever.config": "^1.0.2",
     "@leverj/reactor.mcl": "0.1.0",
     "ethers": "^6.13.3",
     "immutable": "^5.0.0-rc.1",
     "lodash-es": "^4.17.21"
   },
   "devDependencies": {
-    "@leverj/chain-deployment": "^5.0.6",
-    "@leverj/common": "^5.0.6",
+    "@leverj/lever.chain-deployment": "^1.0.2",
+    "@leverj/lever.common": "^1.0.2",
     "@openzeppelin/contracts": "^5.0.2",
     "wait-on": "^8.0.1",
     "yargs": "^17.7.2"

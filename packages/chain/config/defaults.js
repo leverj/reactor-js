@@ -1,4 +1,4 @@
-import {wallets} from '@leverj/chain-deployment/hardhat.help'
+import {wallets} from '@leverj/lever.chain-deployment/hardhat.help'
 
 export const dataDir = `${import.meta.dirname}/../../../data`
 

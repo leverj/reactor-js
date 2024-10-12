@@ -1,4 +1,4 @@
-import {affirm, logger} from '@leverj/common'
+import {affirm, logger} from '@leverj/lever.common'
 import {stubs} from '@leverj/reactor.chain/contracts'
 import {SecretKey} from '@leverj/reactor.mcl'
 import {JsonRpcProvider} from 'ethers'

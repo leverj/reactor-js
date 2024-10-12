@@ -1,4 +1,4 @@
-import {wallets} from '@leverj/chain-deployment/hardhat.help'
+import {wallets} from '@leverj/lever.chain-deployment/hardhat.help'
 import {merge} from 'lodash-es'
 import {defaults} from './defaults.js'
 

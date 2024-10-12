@@ -1,1 +1,1 @@
-module.exports = require('@leverj/chain-deployment/hardhat.config')
+module.exports = require('@leverj/lever.chain-deployment/hardhat.config')

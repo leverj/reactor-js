@@ -1,5 +1,5 @@
-import {accounts} from '@leverj/chain-deployment/hardhat.help'
-import {ETH} from '@leverj/common'
+import {accounts} from '@leverj/lever.chain-deployment/hardhat.help'
+import {ETH} from '@leverj/lever.common'
 import {stubs} from '@leverj/reactor.chain/contracts'
 import config from '@leverj/reactor.p2p/config'
 import {Contract} from 'ethers'

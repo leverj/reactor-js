@@ -5,8 +5,8 @@
     "test"
   ],
   "ignores": [
-    "@leverj/chain-deployment",
-    "@leverj/common",
+    "@leverj/lever.chain-deployment",
+    "@leverj/lever.common",
     "@openzeppelin/contracts",
     "wait-on",
     "yargs"

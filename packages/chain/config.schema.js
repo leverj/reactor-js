@@ -1,4 +1,4 @@
-import * as chain_deployment from '@leverj/chain-deployment/config.schema'
+import * as chain_deployment from '@leverj/lever.chain-deployment/config.schema'
 import {deserializeHexStrToPublicKey, G2ToNumbers} from '@leverj/reactor.mcl'
 import {Map} from 'immutable'
 

@@ -1,6 +1,6 @@
 import map from 'it-map'
 import {peerIdFromString} from '@libp2p/peer-id'
-import {logger} from '@leverj/common'
+import {logger} from '@leverj/lever.common'
 import {pipe} from 'it-pipe'
 import {fromString as uint8ArrayFromString} from 'uint8arrays/from-string'
 import {toString as uint8ArrayToString} from 'uint8arrays/to-string'

@@ -1,5 +1,5 @@
-import {ContractTracker} from '@leverj/chain-tracking'
-import {logger, Mutex} from '@leverj/common'
+import {ContractTracker} from '@leverj/lever.chain-tracking'
+import {logger, Mutex} from '@leverj/lever.common'
 import {encodeTransfer} from '@leverj/reactor.chain/contracts'
 
 export const VaultTracker = (chainId, contract, store, polling, actor) => {

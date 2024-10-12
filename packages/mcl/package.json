@@ -16,7 +16,7 @@
     "mcl-wasm": "^1.7.0"
   },
   "devDependencies": {
-    "@leverj/common": "^5.0.6",
+    "@leverj/lever.common": "^1.0.2",
     "bls-wasm": "^1.4.0"
   }
 }

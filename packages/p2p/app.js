@@ -1,4 +1,4 @@
-import {logger} from '@leverj/common'
+import {logger} from '@leverj/lever.common'
 import {ApiApp, JsonDirStore} from './src/ApiApp.js'
 import config from './config.js'
 

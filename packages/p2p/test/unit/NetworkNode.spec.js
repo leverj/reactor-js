@@ -1,4 +1,4 @@
-import {logger} from '@leverj/common'
+import {logger} from '@leverj/lever.common'
 import {NetworkNode, waitToSync} from '@leverj/reactor.p2p'
 import config from '@leverj/reactor.p2p/config'
 import {unmarshalPrivateKey, unmarshalPublicKey} from '@libp2p/crypto/keys'

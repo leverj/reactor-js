@@ -1,4 +1,4 @@
-import {logger} from '@leverj/common'
+import {logger} from '@leverj/lever.common'
 import {deserializeHexStrToSecretKey, getPublicKey, sign} from '@leverj/reactor.mcl'
 import bls from 'bls-wasm'
 import {expect} from 'expect'

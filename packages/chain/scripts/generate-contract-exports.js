@@ -1,5 +1,5 @@
-import {ExportsGenerator} from '@leverj/chain-deployment'
-import {logger} from '@leverj/common'
+import {ExportsGenerator} from '@leverj/lever.chain-deployment'
+import {logger} from '@leverj/lever.common'
 import {execSync} from 'node:child_process'
 
 execSync('npx hardhat compile')

@@ -1,5 +1,5 @@
-import {networks} from '@leverj/chain-deployment'
-import {ensureExistsSync} from '@leverj/common'
+import {networks} from '@leverj/lever.chain-deployment'
+import {ensureExistsSync} from '@leverj/lever.common'
 import {Map} from 'immutable'
 import {existsSync, writeFileSync} from 'node:fs'
 

@@ -1,4 +1,4 @@
-import {accounts, getContractAt, provider} from '@leverj/chain-deployment/hardhat.help'
+import {accounts, getContractAt, provider} from '@leverj/lever.chain-deployment/hardhat.help'
 import {encodeTransfer} from '@leverj/reactor.chain/contracts'
 import {ERC20, ERC20Proxy, Vault} from '@leverj/reactor.chain/test'
 import config from '@leverj/reactor.p2p/config'

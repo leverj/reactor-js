@@ -1,4 +1,4 @@
-import {deployContract} from '@leverj/chain-deployment/hardhat.help'
+import {deployContract} from '@leverj/lever.chain-deployment/hardhat.help'
 
 export const ERC20 = async (name = 'Crap', symbol = 'CRAP', signer) => deployContract('ERC20Mock', [name, symbol], signer)
 export const ERC20Proxy = async (chain, token, name, symbol, decimals) => deployContract('ERC20Proxy', [chain, token, name, symbol, decimals])

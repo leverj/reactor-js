@@ -1,5 +1,5 @@
+import {JsonStore, logger, until} from '@leverj/lever.common'
 import {stubs} from '@leverj/reactor.chain/contracts'
-import {JsonStore, logger, until} from '@leverj/common'
 import {
   deserializeHexStrToPublicKey,
   deserializeHexStrToSignature,

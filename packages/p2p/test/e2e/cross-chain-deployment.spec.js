@@ -1,4 +1,4 @@
-import {accounts} from '@leverj/chain-deployment/hardhat.help'
+import {accounts} from '@leverj/lever.chain-deployment/hardhat.help'
 import {stubs} from '@leverj/reactor.chain/contracts'
 import {expect} from 'expect'
 import {Evms} from './help/evms.js'

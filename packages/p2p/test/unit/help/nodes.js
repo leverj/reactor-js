@@ -1,4 +1,4 @@
-import {InMemoryStore} from '@leverj/common'
+import {InMemoryStore} from '@leverj/lever.common'
 import {BridgeNode} from '@leverj/reactor.p2p'
 import {setTimeout} from 'node:timers/promises'
 import {peerIdJsons} from '../../fixtures.js'

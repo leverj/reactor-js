@@ -1,4 +1,4 @@
-import {CodedError, InMemoryStore, logger} from '@leverj/common'
+import {CodedError, InMemoryStore, logger} from '@leverj/lever.common'
 import {ApiApp, tryAgainIfError, waitToSync} from '@leverj/reactor.p2p'
 import config from '@leverj/reactor.p2p/config'
 import axios from 'axios'

@@ -1,4 +1,4 @@
-import {CodedError, logger} from '@leverj/common'
+import {CodedError, logger} from '@leverj/lever.common'
 import {JsonDirStore, tryAgainIfError, waitToSync} from '@leverj/reactor.p2p'
 import axios from 'axios'
 import {fork} from 'node:child_process'

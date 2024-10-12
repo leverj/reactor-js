@@ -1,5 +1,5 @@
-import {wallets} from '@leverj/chain-deployment/hardhat.help'
-import {configure} from '@leverj/config'
+import {wallets} from '@leverj/lever.chain-deployment/hardhat.help'
+import {configure} from '@leverj/lever.config'
 import {expect} from 'expect'
 import {rmSync, writeFileSync} from 'node:fs'
 import {postLoad, schema} from '../../config.schema.js'

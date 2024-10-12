@@ -1,5 +1,5 @@
-import {Deploy} from '@leverj/chain-deployment'
-import {logger} from '@leverj/common'
+import {Deploy} from '@leverj/lever.chain-deployment'
+import {logger} from '@leverj/lever.common'
 import {isAddress} from 'ethers'
 import {expect} from 'expect'
 import {exec} from 'node:child_process'

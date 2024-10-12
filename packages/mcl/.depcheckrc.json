@@ -3,7 +3,7 @@
     "test"
   ],
   "ignores": [
-    "@leverj/common",
+    "@leverj/lever.common",
     "bls-wasm"
   ]
 }

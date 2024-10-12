@@ -1,4 +1,4 @@
-import {ensureExistsSync, logger} from '@leverj/common'
+import {ensureExistsSync, logger} from '@leverj/lever.common'
 import {createServer} from 'http'
 import {existsSync, readFileSync, writeFileSync} from 'node:fs'
 import {createApp} from './rest/app.js'
