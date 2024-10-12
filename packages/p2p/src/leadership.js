@@ -90,7 +90,7 @@ export class Leader {
     await this.fanout(topics.VAULT, message)
 
     const vault = stubs.Vault(address, new JsonRpcProvider(providerURL))
-    this.coordinator.addVault(BigInt(chainId), vault)
+    await this.coordinator.addVault(BigInt(chainId), vault)
   }
 
   async fanout(topic, message) {

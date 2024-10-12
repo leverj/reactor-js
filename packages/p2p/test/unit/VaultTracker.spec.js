@@ -24,7 +24,7 @@ describe('VaultTracker', () => {
           await toVault.accept(signature, publicKey, payload).then(_ => _.wait())
       }
     }
-    tracker = VaultTracker(fromChainId, fromVault, new InMemoryStore(), config.chain.tracker.polling, {onEvent})
+    tracker = await VaultTracker(fromChainId, fromVault, new InMemoryStore(), config.chain.tracker.polling, {onEvent})
     await tracker.start()
   })
 

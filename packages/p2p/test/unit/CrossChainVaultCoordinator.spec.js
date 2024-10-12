@@ -29,7 +29,7 @@ describe('CrossChainVaultCoordinator', () => {
 
   it('detects & acts on a Transfer events for both Token & Native, from one chain to another', async () => {
     for (let {id, vault} of deployments) {
-      nodes.addVault(id, vault)
+      await nodes.addVault(id, vault)
     }
 
     const [L1_id, L2_id] = deployments.map(_ => _.id)

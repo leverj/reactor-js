@@ -2,7 +2,7 @@ import {ContractTracker} from '@leverj/lever.chain-tracking'
 import {logger, Mutex} from '@leverj/lever.common'
 import {encodeTransfer} from '@leverj/reactor.chain/contracts'
 
-export const VaultTracker = (chainId, contract, store, polling, actor) => {
+export const VaultTracker = async (chainId, contract, store, polling, actor) => {
   return ContractTracker.of(chainId, contract, store, polling, _ => actor.onEvent(_), logger)
 }
 
@@ -16,17 +16,17 @@ export class CrossChainVaultCoordinator {
     this.isRunning = false
     this.mutex = new Mutex()
     this.trackers = []
-    this.vaults.forEach((vault, chainId) => this.addTracker(chainId, vault))
+    this.vaults.forEach((vault, chainId) => this.addTracker(chainId, vault)) //fixme: await
   }
   get chainIds() { return this.vaults.keySeq().toArray() }
 
-  addVault(chainId, vault) {
+  async addVault(chainId, vault) {
     this.vaults.set(chainId, vault)
-    this.addTracker(chainId, vault)
+    await this.addTracker(chainId, vault)
   }
 
-  addTracker(chainId, vault) {
-    const tracker = VaultTracker(chainId, vault, this.store, this.polling, this)
+  async addTracker(chainId, vault) {
+    const tracker = await VaultTracker(chainId, vault, this.store, this.polling, this)
     this.trackers.push(tracker)
     if (this.isRunning) tracker.start().catch(logger.error)
   }
