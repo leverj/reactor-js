@@ -1,4 +1,4 @@
-import {accounts, provider, deployContract} from '@leverj/lever.chain-deployment/hardhat.help'
+import {accounts, deployContract, provider} from '@leverj/lever.chain-deployment/hardhat.help'
 import {ETH} from '@leverj/lever.common'
 import {Vault} from '@leverj/reactor.chain/test'
 import config from '@leverj/reactor.p2p/config'
